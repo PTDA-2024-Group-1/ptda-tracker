@@ -27,7 +27,7 @@ public class BudgetServiceHibernateImpl implements BudgetService {
 
     @Override
     public List<Budget> getAllByUserId(Long userId) {
-        return budgetAccessService.getAllByBudgetId(userId).stream()
+        return budgetAccessService.getAllByUserId(userId).stream()
                 .map(BudgetAccess::getBudget)
                 .collect(Collectors.toList());
     }

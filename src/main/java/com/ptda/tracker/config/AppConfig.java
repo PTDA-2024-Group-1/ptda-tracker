@@ -4,7 +4,7 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-@ComponentScan(basePackages = "com.ptda")
+@ComponentScan(basePackages = "com.ptda.tracker")
 public class AppConfig {
     public final static String APP_NAME = "Swing App";
     public final static String COMPANY_NAME = "Some Company";

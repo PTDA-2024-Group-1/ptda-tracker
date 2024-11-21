@@ -3,6 +3,7 @@ package com.ptda.tracker.util;
 import com.ptda.tracker.models.user.User;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.stereotype.Component;
 
 @Setter
 @Getter
@@ -20,6 +21,10 @@ public class UserSession {
             instance = new UserSession();
         }
         return instance;
+    }
+
+    public boolean isAuthenticated() {
+        return user != null;
     }
 
     public void clear() {

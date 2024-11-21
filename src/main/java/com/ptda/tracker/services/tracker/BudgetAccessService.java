@@ -13,6 +13,8 @@ public interface BudgetAccessService {
 
     BudgetAccess create(Long budgetId, Long userId, BudgetAccessLevel accessLevel);
 
+    BudgetAccess create(Long budgetId, String userEmail, BudgetAccessLevel accessLevel);
+
     BudgetAccess update(BudgetAccess access);
 
     boolean delete(Long accessId);
