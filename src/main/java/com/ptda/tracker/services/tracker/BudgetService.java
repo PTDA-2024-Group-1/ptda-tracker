@@ -12,6 +12,8 @@ public interface BudgetService {
     List<Budget> getAllByUserId(Long userId);
 
     List<Budget> getAll();
+    
+    
 
     double getTotalBudgetAmount(Long userId);
 
@@ -21,4 +23,5 @@ public interface BudgetService {
 
     boolean delete(Long id);
 
+    Budget[] findAll();
 }

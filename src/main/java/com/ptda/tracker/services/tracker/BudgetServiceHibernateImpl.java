@@ -37,6 +37,8 @@ public class BudgetServiceHibernateImpl implements BudgetService {
         return budgetRepository.findAll();
     }
 
+
+
     @Override
     public double getTotalBudgetAmount(Long budgetId) {
         return expenseService.getTotalExpenseAmountByBudgetId(budgetId);
@@ -64,5 +66,10 @@ public class BudgetServiceHibernateImpl implements BudgetService {
             return true;
         }
         return false;
+    }
+
+    @Override
+    public Budget[] findAll() {
+        return budgetRepository.findAll().toArray(new Budget[0]);
     }
 }

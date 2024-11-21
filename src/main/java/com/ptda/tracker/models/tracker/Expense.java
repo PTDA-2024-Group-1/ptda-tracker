@@ -61,4 +61,8 @@ public class Expense {
         this.updatedBy = UserSession.getInstance().getUser();
     }
 
+    public String getName() {
+        return title;
+    }
+
 }

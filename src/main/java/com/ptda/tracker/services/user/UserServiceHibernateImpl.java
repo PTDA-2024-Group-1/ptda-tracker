@@ -56,6 +56,12 @@ public class UserServiceHibernateImpl implements UserService {
     }
 
     @Override
+    public User update(User user) {
+        return userRepository.save(user);
+    }
+
+
+    @Override
     public User changePassword(String email, String oldPassword, String newPassword) {
         Optional<User> userOptional = userRepository.findByEmail(email);
         if (userOptional.isPresent() && passwordEncoder.matches(oldPassword, userOptional.get().getPassword())) {

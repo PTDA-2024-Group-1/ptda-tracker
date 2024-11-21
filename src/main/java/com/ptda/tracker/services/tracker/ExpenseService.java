@@ -13,6 +13,8 @@ public interface ExpenseService {
 
     List<Expense> getAllByBudgetId(Long budgetId);
 
+    List<Expense> getAllByUserId(Long userId);
+
     List<Expense> getPersonalExpensesByUserId(Long userId);
 
     double getTotalExpenseAmountByBudgetId(Long budgetId);

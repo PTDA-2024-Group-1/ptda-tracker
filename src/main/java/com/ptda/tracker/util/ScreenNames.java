@@ -12,4 +12,7 @@ public class ScreenNames {
     public static final String CHANGE_PASSWORD_FORM = "changePasswordForm";
     public static final String BUDGET_DETAIL_VIEW = "budgetDetailView";
     public static final String BUDGET_SHARE_FORM = "budgetShareForm";
+    public static final String EXPENSES_SCREEN = "expensesScreen";
+    public static final String EXPENSE_FORM = "expenseForm";
+    public static final String EXPENSE_DETAIL_VIEW = "expenseDetailView";
 }

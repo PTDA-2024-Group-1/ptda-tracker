@@ -15,6 +15,8 @@ public interface UserService {
 
     Optional<User> getById(Long id);
 
+    User update(User user);
+
     User changePassword(String email, String oldPassword, String newPassword);
 
     boolean setTier(User user, Tier tier);

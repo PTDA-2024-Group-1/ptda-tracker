@@ -25,9 +25,9 @@ public class MainFrame extends JFrame {
         this.cardLayout = new CardLayout();
         this.mainPanel = new JPanel(cardLayout);
 
-        setTitle("Swing + Spring Application");
+        setTitle("Divi - Turn your expenses into Achievements.");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(800, 600);
+        setSize(1000, 800);
         setLocationRelativeTo(null);
         add(mainPanel);
     }

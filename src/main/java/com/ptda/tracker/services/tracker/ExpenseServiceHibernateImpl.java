@@ -38,6 +38,11 @@ public class ExpenseServiceHibernateImpl implements ExpenseService {
     }
 
     @Override
+    public List<Expense> getAllByUserId(Long userId) {
+        return expenseRepository.findAllByCreatedById(userId);
+    }
+
+    @Override
     public List<Expense> getPersonalExpensesByUserId(Long userId) {
         return expenseRepository.findAllByCreatedByIdAndBudgetNull(userId);
     }
