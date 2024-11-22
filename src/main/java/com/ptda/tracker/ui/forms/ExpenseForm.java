@@ -7,12 +7,15 @@ import com.ptda.tracker.services.tracker.ExpenseService;
 import com.ptda.tracker.services.tracker.BudgetService;
 import com.ptda.tracker.ui.MainFrame;
 import com.ptda.tracker.util.ScreenNames;
+import com.ptda.tracker.util.UserSession;
 import org.springframework.context.ApplicationContext;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 public class ExpenseForm extends JPanel {
     private final MainFrame mainFrame;
@@ -20,14 +23,13 @@ public class ExpenseForm extends JPanel {
     private final Runnable onFormSubmit;
     private Expense expense;
 
-    private JTextField titleField;
-    private JTextField amountField;
+    private JTextField titleField, amountField;
     private JTextArea descriptionArea;
     private JComboBox<String> budgetComboBox;
+    private Map<String, Budget> budgetMap;
     private JComboBox<ExpenseCategory> categoryComboBox;
     private JSpinner dateSpinner;
-    private JButton saveButton;
-    private JButton backButton;
+    private JButton saveButton, backButton;
 
     private static final Color PRIMARY_COLOR = new Color(240, 240, 240);
     private static final Color BUTTON_COLOR = new Color(56, 56, 56, 255);
@@ -40,6 +42,11 @@ public class ExpenseForm extends JPanel {
         this.onFormSubmit = onFormSubmit;
         this.expense = expense;
 
+        budgetMap = new HashMap<>();
+        initUI();
+    }
+
+    private void initUI() {
         setLayout(new BorderLayout(20, 20));
         setBackground(PRIMARY_COLOR);
         setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
@@ -107,8 +114,9 @@ public class ExpenseForm extends JPanel {
         gbc.gridx = 1;
         budgetComboBox = new JComboBox<>();
         BudgetService budgetService = context.getBean(BudgetService.class);
-        for (Budget budget : budgetService.findAll()) {
-            budgetComboBox.addItem(budget.getName()); // Exibir apenas o nome
+        for (Budget budget : budgetService.getAllByUserId(UserSession.getInstance().getUser().getId())) {
+            budgetComboBox.addItem(budget.getName());
+            budgetMap.put(budget.getName(), budget);
         }
         if (expense != null && expense.getBudget() != null) {
             budgetComboBox.setSelectedItem(expense.getBudget().getName());
@@ -148,52 +156,69 @@ public class ExpenseForm extends JPanel {
     }
 
     private void saveExpense(ActionEvent e) {
-        try {
-            ExpenseService expenseService = context.getBean(ExpenseService.class);
+        // get form values
+        String title = titleField.getText().trim();
+        String description = descriptionArea.getText().trim();
+        String amountText = amountField.getText().trim();
+        double amount = amountText.isEmpty() ? 0 : Double.parseDouble(amountText);
+        Date date = (Date) dateSpinner.getValue();
+        ExpenseCategory category = (ExpenseCategory) categoryComboBox.getSelectedItem();
+        String budgetName = (String) budgetComboBox.getSelectedItem();
+        Budget budget = budgetMap.get(budgetName);
 
-            if (expense == null) {
-                expense = new Expense();
-            }
+        // verifications
+        if (title.isEmpty() || amount <= 0) {
+            JOptionPane.showMessageDialog(this, "Title and valid amount are required.", "Validation Error", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
 
-            expense.setTitle(titleField.getText().trim());
-            expense.setAmount(Double.parseDouble(amountField.getText().trim()));
-            expense.setDate((Date) dateSpinner.getValue());
-            expense.setCategory((ExpenseCategory) categoryComboBox.getSelectedItem());
+        // set values
+        if (expense == null) {
+            expense = new Expense();
+        }
+        expense.setTitle(title);
+        expense.setAmount(amount);
+        expense.setDate(date);
+        expense.setCategory(category);
+        expense.setBudget(budget);
+        expense.setDescription(description);
 
-            // Selecionar o orçamento baseado no nome
-            BudgetService budgetService = context.getBean(BudgetService.class);
-            for (Budget budget : budgetService.findAll()) {
-                if (budget.getName().equals(budgetComboBox.getSelectedItem())) {
-                    expense.setBudget(budget);
-                    break;
-                }
-            }
-
-            expense.setDescription(descriptionArea.getText().trim());
-
-            if (expense.getTitle().isEmpty() || expense.getAmount() <= 0) {
-                JOptionPane.showMessageDialog(this, "Title and valid amount are required.", "Validation Error", JOptionPane.WARNING_MESSAGE);
+        // save expense
+        ExpenseService expenseService = context.getBean(ExpenseService.class);
+        if (expense.getId() == null) {
+            if (expenseService.create(expense) == null) {
+                JOptionPane.showMessageDialog(this, "Failed to save expense.", "Error", JOptionPane.ERROR_MESSAGE);
                 return;
             }
-
-            if (expense.getId() == null) {
-                expenseService.create(expense);
-            } else {
-                expenseService.update(expense);
+        } else {
+            if (expenseService.update(expense) == null) {
+                JOptionPane.showMessageDialog(this, "Failed to update expense.", "Error", JOptionPane.ERROR_MESSAGE);
+                return;
             }
-
-            onFormSubmit.run();
-            mainFrame.showScreen(ScreenNames.NAVIGATION_SCREEN);
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            JOptionPane.showMessageDialog(this, "An error occurred while saving the expense.", "Error", JOptionPane.ERROR_MESSAGE);
         }
+
+        clear();
+        onFormSubmit.run();
+        mainFrame.showScreen(ScreenNames.NAVIGATION_SCREEN);
+    }
+
+    private void clear() {
+        titleField.setText("");
+        amountField.setText("");
+        dateSpinner.setValue(new Date());
+        categoryComboBox.setSelectedIndex(0);
+        budgetComboBox.setSelectedIndex(0);
+        descriptionArea.setText("");
     }
 
     private JButton createStyledButton(String text) {
+        return getJButton(text, BUTTON_COLOR, BUTTON_HOVER_COLOR, BUTTON_TEXT_COLOR);
+    }
+
+    public static JButton getJButton(String text, Color buttonColor, Color buttonHoverColor, Color buttonTextColor) {
         JButton button = new JButton(text);
         button.setFont(new Font("Arial", Font.BOLD, 16));
-        button.setBackground(BUTTON_COLOR);
+        button.setBackground(buttonColor);
         button.setForeground(Color.WHITE);
         button.setFocusPainted(false);
         button.setPreferredSize(new Dimension(120, 40));
@@ -201,12 +226,12 @@ public class ExpenseForm extends JPanel {
 
         button.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseEntered(java.awt.event.MouseEvent evt) {
-                button.setBackground(BUTTON_HOVER_COLOR);
-                button.setForeground(BUTTON_TEXT_COLOR);
+                button.setBackground(buttonHoverColor);
+                button.setForeground(buttonTextColor);
             }
 
             public void mouseExited(java.awt.event.MouseEvent evt) {
-                button.setBackground(BUTTON_COLOR);
+                button.setBackground(buttonColor);
                 button.setForeground(Color.WHITE);
             }
         });

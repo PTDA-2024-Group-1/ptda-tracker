@@ -91,7 +91,7 @@ public class BudgetDetailView extends JPanel {
         return table;
     }
 
-    private JButton createStyledButton(String text) {
+    public static JButton createStyledButton(String text) {
         JButton button = new JButton(text);
         button.setFont(new Font("Arial", Font.BOLD, 14));
         button.setBackground(new Color(56, 56, 56)); // Cor inicial do botão

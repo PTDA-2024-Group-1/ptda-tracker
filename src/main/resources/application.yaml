@@ -13,3 +13,14 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.MySQLDialect
         show_sql: true
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: envatoe985@gmail.com
+    password: 12345678eE
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true

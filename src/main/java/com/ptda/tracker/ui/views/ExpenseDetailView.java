@@ -5,20 +5,35 @@ import com.ptda.tracker.services.tracker.ExpenseService;
 import com.ptda.tracker.ui.MainFrame;
 import com.ptda.tracker.ui.forms.ExpenseForm;
 import com.ptda.tracker.ui.screens.ExpensesScreen;
-import com.ptda.tracker.ui.screens.NavigationScreen;
 import com.ptda.tracker.util.ScreenNames;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.Optional;
+
+import static com.ptda.tracker.ui.views.BudgetDetailView.createStyledButton;
 
 // TO - DO - melhorar a logica de delete e edição
 
 public class ExpenseDetailView extends JPanel {
+    private final MainFrame mainFrame;
     private final ExpenseService expenseService;
+    private final Runnable refreshExpensesList;
+    private Expense expense;
 
-    public ExpenseDetailView(MainFrame mainFrame, Expense expense) {
+    private JLabel nameLabel, amountLabel, categoryLabel, dateLabel, createdByLabel;
+    private JButton backButton, editButton, deleteButton;
+
+    public ExpenseDetailView(MainFrame mainFrame, Runnable refreshExpensesList, Expense expense) {
+        this.mainFrame = mainFrame;
         expenseService = mainFrame.getContext().getBean(ExpenseService.class);
+        this.refreshExpensesList = refreshExpensesList;
+        this.expense = expense;
 
+        initUI();
+    }
+
+    private void initUI() {
         setLayout(new BorderLayout(10, 10));
         setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
@@ -27,11 +42,7 @@ public class ExpenseDetailView extends JPanel {
         detailsPanel.setLayout(new BoxLayout(detailsPanel, BoxLayout.Y_AXIS));
         detailsPanel.setBorder(BorderFactory.createTitledBorder("Expense Details"));
 
-        JLabel nameLabel = new JLabel("Name: " + expense.getName());
-        JLabel amountLabel = new JLabel("Amount: €" + expense.getAmount());
-        JLabel categoryLabel = new JLabel("Category: " + expense.getCategory());
-        JLabel dateLabel = new JLabel("Date: " + expense.getDate().toString());
-        JLabel createdByLabel = new JLabel("Created By: " + expense.getCreatedBy().getName());
+        setValues(expense);
 
         Font font = new Font("Arial", Font.PLAIN, 14);
         nameLabel.setFont(font);
@@ -55,60 +66,61 @@ public class ExpenseDetailView extends JPanel {
         JPanel buttonsPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
 
         // Botões com estilo e hover
-        JButton backButton = createStyledButton("Back to Expenses");
+        backButton = createStyledButton("Back to Expenses");
         backButton.addActionListener(e -> mainFrame.showScreen(ScreenNames.NAVIGATION_SCREEN));
         buttonsPanel.add(backButton);
 
-        JButton editButton = createStyledButton("Edit Expense");
-        editButton.addActionListener(e -> mainFrame.registerAndShowScreen(ScreenNames.EXPENSE_FORM, new ExpenseForm(mainFrame, null, expense)));
+        editButton = createStyledButton("Edit Expense");
+        ExpenseForm expenseForm = new ExpenseForm(mainFrame, this::returnToThisScreen, expense);
+        editButton.addActionListener(e -> mainFrame.registerAndShowScreen(ScreenNames.EXPENSE_FORM, expenseForm));
         buttonsPanel.add(editButton);
 
-        JButton deleteButton = createStyledButton("Delete Expense");
-        deleteButton.addActionListener(e -> {
-            if (expense.getId() == null) {
-                JOptionPane.showMessageDialog(this, "The expense ID is invalid.", "Error", JOptionPane.ERROR_MESSAGE);
-                return;
-            }
-            int confirm = JOptionPane.showConfirmDialog(this,
-                    "Are you sure you want to delete this expense?", "Delete Expense", JOptionPane.YES_NO_OPTION);
-            if (confirm == JOptionPane.YES_OPTION) {
-                try {
-                    expenseService.delete(expense.getId());
-                    JOptionPane.showMessageDialog(this, "Expense deleted successfully.", "Success", JOptionPane.INFORMATION_MESSAGE);
-                    mainFrame.registerAndShowScreen(ScreenNames.EXPENSES_SCREEN, new ExpensesScreen(mainFrame)); // Atualiza a lista
-                } catch (Exception ex) {
-                    ex.printStackTrace();
-                    JOptionPane.showMessageDialog(this, "An error occurred while deleting the expense: " + ex.getMessage(),
-                            "Error", JOptionPane.ERROR_MESSAGE);
-                }
-            }
-        });
+        deleteButton = createStyledButton("Delete Expense");
+        deleteButton.addActionListener(e -> delete());
 
         buttonsPanel.add(deleteButton);
 
         add(buttonsPanel, BorderLayout.SOUTH);
     }
 
-    private JButton createStyledButton(String text) {
-        JButton button = new JButton(text);
-        button.setFont(new Font("Arial", Font.BOLD, 14));
-        button.setBackground(new Color(56, 56, 56)); // Cor inicial do botão
-        button.setForeground(Color.WHITE);
-        button.setFocusPainted(false);
-        button.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20)); // Padding no botão
-
-        // Efeito de hover
-        button.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                button.setBackground(new Color(0, 0, 0)); // Cor ao passar o mouse
+    private void delete() {
+        if (expense.getId() == null) {
+            JOptionPane.showMessageDialog(this, "The expense ID is invalid.", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        int confirm = JOptionPane.showConfirmDialog(this,
+                "Are you sure you want to delete this expense?", "Delete Expense", JOptionPane.YES_NO_OPTION);
+        if (confirm == JOptionPane.YES_OPTION) {
+            try {
+                expenseService.delete(expense.getId());
+                refreshExpensesList.run();
+                mainFrame.showScreen(ScreenNames.NAVIGATION_SCREEN);
+                JOptionPane.showMessageDialog(this, "Expense deleted successfully.", "Success", JOptionPane.INFORMATION_MESSAGE);
+            } catch (Exception ex) {
+                ex.printStackTrace();
+                JOptionPane.showMessageDialog(this, "An error occurred while deleting the expense: " + ex.getMessage(),
+                        "Error", JOptionPane.ERROR_MESSAGE);
             }
+        }
+    }
 
-            public void mouseExited(java.awt.event.MouseEvent evt) {
-                button.setBackground(new Color(56, 56, 56)); // Cor ao sair com o mouse
-            }
-        });
+    private void returnToThisScreen() {
+        Optional<Expense> optionalExpense = expenseService.getById(expense.getId());
+        if (optionalExpense.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "The expense ID is invalid.", "Error", JOptionPane.ERROR_MESSAGE);
+        } else {
+            expense = optionalExpense.get();
+            setValues(expense);
+            mainFrame.showScreen(ScreenNames.EXPENSE_DETAIL_VIEW);
+        }
+    }
 
-        return button;
+    private void setValues(Expense expense) {
+        nameLabel = new JLabel("Name: " + expense.getName());
+        amountLabel = new JLabel("Amount: €" + expense.getAmount());
+        categoryLabel = new JLabel("Category: " + expense.getCategory());
+        dateLabel = new JLabel("Date: " + expense.getDate().toString());
+        createdByLabel = new JLabel("Created By: " + expense.getCreatedBy().getName());
     }
 }
 

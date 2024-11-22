@@ -3,7 +3,6 @@ package com.ptda.tracker.util;
 import com.ptda.tracker.models.user.User;
 import lombok.Getter;
 import lombok.Setter;
-import org.springframework.stereotype.Component;
 
 @Setter
 @Getter

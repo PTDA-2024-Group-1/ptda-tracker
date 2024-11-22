@@ -13,48 +13,35 @@ import org.springframework.context.ApplicationContext;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.prefs.Preferences;
 
 @SpringBootApplication
 public class TrackerApplication {
 
-	public static void main(String[] args) throws UnsupportedLookAndFeelException {
-		// Set FlatLaf look and feel
-		UIManager.setLookAndFeel(new FlatLightLaf());
+	public static void main(String[] args) {
+        try {
+            setLookAndFeel();
+        } catch (UnsupportedLookAndFeelException e) {
+            throw new RuntimeException(e);
+        }
 
-		FlatLaf.registerCustomDefaultsSource("com.ptda.tracker.theme.custom");
-
-		final int rounding = 8;
-		final int insets = 2;
-
-		UIManager.put("CheckBox.icon.style", "filled");
-		UIManager.put("Component.arrowType", "chevron");
-
-		UIManager.put("Component.focusWidth", 1);
-		UIManager.put("Component.innerFocusWidth", 1);
-
-		UIManager.put("Button.arc", rounding);
-		UIManager.put("Component.arc", rounding);
-		UIManager.put("ProgressBar.arc", rounding);
-		UIManager.put("TextComponent.arc", rounding);
-
-		UIManager.put("ScrollBar.thumbArc", rounding);
-		UIManager.put("ScrollBar.thumbInsets", new Insets(insets, insets, insets, insets));
-
-		System.setProperty("java.awt.headless", "false");
-		ApplicationContext context = SpringApplication.run(TrackerApplication.class, args);
+        ApplicationContext context = SpringApplication.run(TrackerApplication.class, args);
 
 		SwingUtilities.invokeLater(() -> {
 			MainFrame mainFrame = new MainFrame(context);
 
 			Preferences preferences = Preferences.userNodeForPackage(TrackerApplication.class);
 			String username = preferences.get("email", null);
-			String password = preferences.get("password", null);
+			String encryptedPassword = preferences.get("password", null);
+			System.out.println("username: " + username);
+			System.out.println("encryptedPassword: " + encryptedPassword);
 
 			UserService userService = context.getBean(UserService.class);
-			Optional<User> user = userService.login(username, password);
-			if (user.isPresent()) {
+			Optional<User> user = userService.getByEmail(username);
+
+			if (user.isPresent() && Objects.equals(encryptedPassword, user.get().getPassword())) {
 				LoginForm.onAuthSuccess(user.get(), mainFrame);
 			} else {
 				mainFrame.registerScreen(ScreenNames.LOGIN_FORM, new LoginForm(mainFrame));
@@ -62,5 +49,30 @@ public class TrackerApplication {
 			}
 			mainFrame.setVisible(true);
 		});
+	}
+
+	private static void setLookAndFeel() throws UnsupportedLookAndFeelException {
+			UIManager.setLookAndFeel(new FlatLightLaf());
+
+			FlatLaf.registerCustomDefaultsSource("com.ptda.tracker.theme.custom");
+
+			final int rounding = 8;
+			final int insets = 2;
+
+			UIManager.put("CheckBox.icon.style", "filled");
+			UIManager.put("Component.arrowType", "chevron");
+
+			UIManager.put("Component.focusWidth", 1);
+			UIManager.put("Component.innerFocusWidth", 1);
+
+			UIManager.put("Button.arc", rounding);
+			UIManager.put("Component.arc", rounding);
+			UIManager.put("ProgressBar.arc", rounding);
+			UIManager.put("TextComponent.arc", rounding);
+
+			UIManager.put("ScrollBar.thumbArc", rounding);
+			UIManager.put("ScrollBar.thumbInsets", new Insets(insets, insets, insets, insets));
+
+			System.setProperty("java.awt.headless", "false");
 	}
 }

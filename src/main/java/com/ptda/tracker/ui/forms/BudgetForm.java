@@ -10,6 +10,8 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 
+import static com.ptda.tracker.ui.forms.ExpenseForm.getJButton;
+
 public class BudgetForm extends JPanel {
     private final MainFrame mainFrame;
     private final ApplicationContext context;
@@ -17,8 +19,7 @@ public class BudgetForm extends JPanel {
     private Budget budget;
     private JTextField nameField;
     private JTextArea descriptionArea;
-    private JButton saveButton;
-    private JButton backButton;
+    private JButton saveButton, backButton;
 
     private static final Color PRIMARY_COLOR = new Color(240, 240, 240); // Fundo claro
     private static final Color BUTTON_COLOR = new Color(56, 56, 56, 255); // Cor padrão do botão (#383838FF)
@@ -31,6 +32,10 @@ public class BudgetForm extends JPanel {
         this.onFormSubmit = onFormSubmit;
         this.budget = budget;
 
+        initUI();
+    }
+
+    private void initUI() {
         setLayout(new BorderLayout(20, 20));
         setBackground(PRIMARY_COLOR);
         setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
@@ -127,34 +132,7 @@ public class BudgetForm extends JPanel {
         }
     }
 
-    /**
-     * Cria um botão estilizado com hover.
-     *
-     * @param text Texto do botão.
-     * @return JButton estilizado.
-     */
     private JButton createStyledButton(String text) {
-        JButton button = new JButton(text);
-        button.setFont(new Font("Arial", Font.BOLD, 16));
-        button.setBackground(BUTTON_COLOR);
-        button.setForeground(Color.WHITE);
-        button.setFocusPainted(false);
-        button.setPreferredSize(new Dimension(120, 40));
-        button.setBorder(BorderFactory.createLineBorder(Color.GRAY, 2, true)); // Bordas arredondadas
-
-        // Adicionar efeito de hover
-        button.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                button.setBackground(BUTTON_HOVER_COLOR);
-                button.setForeground(BUTTON_TEXT_COLOR); // Texto branco no hover
-            }
-
-            public void mouseExited(java.awt.event.MouseEvent evt) {
-                button.setBackground(BUTTON_COLOR);
-                button.setForeground(Color.WHITE); // Retorna ao texto branco padrão
-            }
-        });
-
-        return button;
+        return getJButton(text, BUTTON_COLOR, BUTTON_HOVER_COLOR, BUTTON_TEXT_COLOR);
     }
 }

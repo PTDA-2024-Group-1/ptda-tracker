@@ -19,6 +19,9 @@ public class UserServiceHibernateImpl implements UserService {
 
     @Override
     public User register(String name, String email, String password) {
+        if (name == null || email == null || password == null) {
+            return null;
+        }
         if (userRepository.findByEmail(email).isPresent()) {
             return null;
         }
