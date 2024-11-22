@@ -48,7 +48,7 @@ public class LoginForm extends JPanel {
         topPanel.add(titleLabel);
 
         // Logotipo
-        ImageIcon originalIcon = new ImageIcon("src/main/java/com/ptda/tracker/ui/images/divi.png"); // Caminho para o logotipo original
+        ImageIcon originalIcon = new ImageIcon("src/main/resources/images/divi.png"); // Caminho para o logotipo original
         Image scaledImage = originalIcon.getImage().getScaledInstance(250, 250, Image.SCALE_SMOOTH); // Redimensionar para 100x100 pixels
         ImageIcon scaledIcon = new ImageIcon(scaledImage);
         JLabel logoLabel = new JLabel(scaledIcon);

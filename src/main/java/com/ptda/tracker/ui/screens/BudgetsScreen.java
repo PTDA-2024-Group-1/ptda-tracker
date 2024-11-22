@@ -34,6 +34,7 @@ public class BudgetsScreen extends JPanel {
                 Budget selectedBudget = budgetList.getSelectedValue();
                 if (selectedBudget != null) {
                     mainFrame.registerAndShowScreen(ScreenNames.BUDGET_DETAIL_VIEW, new BudgetDetailView(mainFrame, selectedBudget));
+                    budgetList.clearSelection(); // Limpar seleção para permitir nova interação
                 }
             }
         });
@@ -77,6 +78,7 @@ public class BudgetsScreen extends JPanel {
     }
 
     private void refreshBudgetList() {
+        budgetList.clearSelection();
         budgets = budgetService.getAllByUserId(UserSession.getInstance().getUser().getId());
         setBudgetList(budgets);
     }

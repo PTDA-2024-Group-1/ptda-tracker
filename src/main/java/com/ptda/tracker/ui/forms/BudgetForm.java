@@ -29,7 +29,7 @@ public class BudgetForm extends JPanel {
     public BudgetForm(MainFrame mainFrame, Runnable onFormSubmit, Budget budget) {
         this.mainFrame = mainFrame;
         this.context = mainFrame.getContext();
-        this.onFormSubmit = onFormSubmit;
+        this.onFormSubmit = (onFormSubmit != null) ? onFormSubmit : () -> {};
         this.budget = budget;
 
         initUI();
@@ -104,6 +104,13 @@ public class BudgetForm extends JPanel {
 
     private void saveBudget(ActionEvent e) {
         try {
+            // Validação inicial
+            if (nameField.getText().trim().isEmpty() || descriptionArea.getText().trim().isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Name and description are required.", "Validation Error", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+
+            // Obtenção do serviço e preparação do objeto Budget
             BudgetService budgetService = context.getBean(BudgetService.class);
 
             if (budget == null) {
@@ -113,22 +120,25 @@ public class BudgetForm extends JPanel {
             budget.setName(nameField.getText().trim());
             budget.setDescription(descriptionArea.getText().trim());
 
+            // Salvar o orçamento
             if (budget.getId() == null) {
                 budgetService.create(budget);
             } else {
                 budgetService.update(budget);
             }
 
-            if (nameField.getText().trim().isEmpty() || descriptionArea.getText().trim().isEmpty()) {
-                JOptionPane.showMessageDialog(this, "Name and description are required.", "Validation Error", JOptionPane.WARNING_MESSAGE);
-                return;
-            }
+            // Mensagem de sucesso
+            JOptionPane.showMessageDialog(this, "Budget saved successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
 
+            // Atualizar a interface
             onFormSubmit.run();
             mainFrame.showScreen(ScreenNames.NAVIGATION_SCREEN);
         } catch (Exception ex) {
-            // TO DO - Log error // O budget atualiza mas dá erro.
-            JOptionPane.showMessageDialog(this, "An error occurred while saving the budget.", "Error", JOptionPane.ERROR_MESSAGE);
+            // Log do erro para debug
+            ex.printStackTrace(); // TO DO: Substituir por um logger no futuro
+
+            // Mensagem de erro amigável para o usuário
+            JOptionPane.showMessageDialog(this, "An error occurred while saving the budget. Please try again.", "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
 

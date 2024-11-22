@@ -34,6 +34,7 @@ public class ExpensesScreen extends JPanel {
                 Expense selectedExpense = expenseList.getSelectedValue();
                 if (selectedExpense != null) {
                     mainFrame.registerAndShowScreen(ScreenNames.EXPENSE_DETAIL_VIEW, new ExpenseDetailView(mainFrame, this::refreshExpenseList, selectedExpense));
+                    expenseList.clearSelection(); // Limpar seleção para permitir nova interação
                 }
             }
         });
@@ -77,6 +78,7 @@ public class ExpensesScreen extends JPanel {
     }
 
     private void refreshExpenseList() {
+        expenseList.clearSelection();
         expenses = expenseService.getAllByUserId(UserSession.getInstance().getUser().getId());
         setExpenseList(expenses);
     }

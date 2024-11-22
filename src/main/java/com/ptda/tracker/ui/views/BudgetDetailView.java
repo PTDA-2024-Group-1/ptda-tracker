@@ -13,8 +13,6 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.util.List;
 
-// TO-DO - quando se edita ele dá save mas dá erro
-
 public class BudgetDetailView extends JPanel {
     private final BudgetAccessService budgetAccessService;
 

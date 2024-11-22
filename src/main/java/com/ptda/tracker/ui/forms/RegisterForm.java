@@ -36,7 +36,7 @@ public class RegisterForm extends JPanel {
         topPanel.add(titleLabel);
 
         // Logotipo
-        ImageIcon originalIcon = new ImageIcon("src/main/java/com/ptda/tracker/ui/images/divi.png");
+        ImageIcon originalIcon = new ImageIcon("src/main/resources/images/divi.png");
         Image scaledImage = originalIcon.getImage().getScaledInstance(250, 250, Image.SCALE_SMOOTH); // Redimensionar
         ImageIcon scaledIcon = new ImageIcon(scaledImage);
         JLabel logoLabel = new JLabel(scaledIcon);

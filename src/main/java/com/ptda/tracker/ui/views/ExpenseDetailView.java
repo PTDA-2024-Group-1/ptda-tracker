@@ -13,8 +13,6 @@ import java.util.Optional;
 
 import static com.ptda.tracker.ui.views.BudgetDetailView.createStyledButton;
 
-// TO - DO - melhorar a logica de delete e edição
-
 public class ExpenseDetailView extends JPanel {
     private final MainFrame mainFrame;
     private final ExpenseService expenseService;
