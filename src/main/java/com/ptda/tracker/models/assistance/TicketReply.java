@@ -1,10 +1,7 @@
 package com.ptda.tracker.models.assistance;
 
 import com.ptda.tracker.models.user.User;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.PrePersist;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -18,6 +15,7 @@ import lombok.NoArgsConstructor;
 public class TicketReply {
 
     @Id
+    @GeneratedValue
     private Long id;
 
     private String body;

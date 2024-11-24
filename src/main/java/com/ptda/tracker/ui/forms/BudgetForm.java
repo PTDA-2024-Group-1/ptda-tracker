@@ -3,6 +3,7 @@ package com.ptda.tracker.ui.forms;
 import com.ptda.tracker.models.tracker.Budget;
 import com.ptda.tracker.services.tracker.BudgetService;
 import com.ptda.tracker.ui.MainFrame;
+import com.ptda.tracker.ui.views.BudgetDetailView;
 import com.ptda.tracker.util.ScreenNames;
 import org.springframework.context.ApplicationContext;
 
@@ -91,7 +92,7 @@ public class BudgetForm extends JPanel {
 
         // Back Button
         backButton = createStyledButton("Back");
-        backButton.addActionListener(e -> mainFrame.showScreen(ScreenNames.NAVIGATION_SCREEN));
+        backButton.addActionListener(e -> mainFrame.showScreen(ScreenNames.BUDGET_DETAIL_VIEW));
 
         // Save Button
         saveButton = createStyledButton("Save");
@@ -132,7 +133,7 @@ public class BudgetForm extends JPanel {
 
             // Atualizar a interface
             onFormSubmit.run();
-            mainFrame.showScreen(ScreenNames.NAVIGATION_SCREEN);
+            mainFrame.registerAndShowScreen(ScreenNames.BUDGET_DETAIL_VIEW, new BudgetDetailView(mainFrame, budget));
         } catch (Exception ex) {
             // Log do erro para debug
             ex.printStackTrace(); // TO DO: Substituir por um logger no futuro

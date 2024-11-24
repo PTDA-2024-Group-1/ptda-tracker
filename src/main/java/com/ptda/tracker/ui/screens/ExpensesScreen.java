@@ -33,7 +33,7 @@ public class ExpensesScreen extends JPanel {
             if (!e.getValueIsAdjusting()) {
                 Expense selectedExpense = expenseList.getSelectedValue();
                 if (selectedExpense != null) {
-                    mainFrame.registerAndShowScreen(ScreenNames.EXPENSE_DETAIL_VIEW, new ExpenseDetailView(mainFrame, this::refreshExpenseList, selectedExpense));
+                    mainFrame.registerAndShowScreen(ScreenNames.EXPENSE_DETAIL_VIEW, new ExpenseDetailView(mainFrame, selectedExpense));
                     expenseList.clearSelection(); // Limpar seleção para permitir nova interação
                 }
             }

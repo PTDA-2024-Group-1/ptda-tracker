@@ -13,6 +13,7 @@ public class ExpenseListRenderer extends JPanel implements ListCellRenderer<Expe
     private JLabel titleLabel;
     private JLabel categoryLabel;
     private JLabel dateLabel;
+    private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("dd-MM-yyyy");
 
     public ExpenseListRenderer() {
         setLayout(new BorderLayout(10, 10));
@@ -69,8 +70,7 @@ public class ExpenseListRenderer extends JPanel implements ListCellRenderer<Expe
         categoryLabel.setText(expense.getCategory() != null ? expense.getCategory().toString() : "OTHER");
 
         // Format date
-        SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy HH:mm");
-        dateLabel.setText(expense.getDate() != null ? sdf.format(expense.getDate()) : sdf.format(new Date()));
+        dateLabel.setText(expense.getDate() != null ? DATE_FORMAT.format(expense.getDate()) : DATE_FORMAT.format(expense.getCreatedAt()));
 
         // Highlighting for selection
         if (isSelected) {

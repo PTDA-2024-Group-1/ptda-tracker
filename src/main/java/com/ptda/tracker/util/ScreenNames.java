@@ -15,4 +15,8 @@ public class ScreenNames {
     public static final String EXPENSES_SCREEN = "expensesScreen";
     public static final String EXPENSE_FORM = "expenseForm";
     public static final String EXPENSE_DETAIL_VIEW = "expenseDetailView";
+    public static final String TICKETS_SCREEN = "ticketsScreen";
+    public static final String TICKET_FORM = "ticketForm";
+    public static final String TICKET_DETAIL_VIEW = "ticketDetailView";
+    public static final String TICKET_REPLY_FORM = "ticketReplyForm";
 }

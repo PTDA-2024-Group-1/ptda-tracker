@@ -16,16 +16,14 @@ import static com.ptda.tracker.ui.views.BudgetDetailView.createStyledButton;
 public class ExpenseDetailView extends JPanel {
     private final MainFrame mainFrame;
     private final ExpenseService expenseService;
-    private final Runnable refreshExpensesList;
     private Expense expense;
 
     private JLabel nameLabel, amountLabel, categoryLabel, dateLabel, createdByLabel;
     private JButton backButton, editButton, deleteButton;
 
-    public ExpenseDetailView(MainFrame mainFrame, Runnable refreshExpensesList, Expense expense) {
+    public ExpenseDetailView(MainFrame mainFrame, Expense expense) {
         this.mainFrame = mainFrame;
         expenseService = mainFrame.getContext().getBean(ExpenseService.class);
-        this.refreshExpensesList = refreshExpensesList;
         this.expense = expense;
 
         initUI();
@@ -91,7 +89,6 @@ public class ExpenseDetailView extends JPanel {
         if (confirm == JOptionPane.YES_OPTION) {
             try {
                 expenseService.delete(expense.getId());
-                refreshExpensesList.run();
                 mainFrame.showScreen(ScreenNames.NAVIGATION_SCREEN);
                 JOptionPane.showMessageDialog(this, "Expense deleted successfully.", "Success", JOptionPane.INFORMATION_MESSAGE);
             } catch (Exception ex) {

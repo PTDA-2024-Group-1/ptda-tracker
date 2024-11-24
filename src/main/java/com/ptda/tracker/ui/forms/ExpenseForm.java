@@ -6,6 +6,7 @@ import com.ptda.tracker.models.tracker.Budget;
 import com.ptda.tracker.services.tracker.ExpenseService;
 import com.ptda.tracker.services.tracker.BudgetService;
 import com.ptda.tracker.ui.MainFrame;
+import com.ptda.tracker.ui.views.ExpenseDetailView;
 import com.ptda.tracker.util.ScreenNames;
 import com.ptda.tracker.util.UserSession;
 import org.springframework.context.ApplicationContext;
@@ -144,7 +145,7 @@ public class ExpenseForm extends JPanel {
 
         // Back Button
         backButton = createStyledButton("Back");
-        backButton.addActionListener(e -> mainFrame.showScreen(ScreenNames.NAVIGATION_SCREEN));
+        backButton.addActionListener(e -> mainFrame.showScreen(ScreenNames.EXPENSE_DETAIL_VIEW));
 
         // Save Button
         saveButton = createStyledButton("Save");
@@ -199,7 +200,7 @@ public class ExpenseForm extends JPanel {
 
         clear();
         onFormSubmit.run();
-        mainFrame.showScreen(ScreenNames.NAVIGATION_SCREEN);
+        mainFrame.registerAndShowScreen(ScreenNames.EXPENSE_DETAIL_VIEW, new ExpenseDetailView(mainFrame, expense));
     }
 
     private void clear() {

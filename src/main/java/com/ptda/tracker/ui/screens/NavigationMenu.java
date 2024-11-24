@@ -18,6 +18,7 @@ public class NavigationMenu extends JPanel {
     private static final String HOME_SCREEN = ScreenNames.HOME_SCREEN;
     private static final String BUDGETS_SCREEN = ScreenNames.BUDGETS_SCREEN;
     private static final String EXPENSES_SCREEN = ScreenNames.EXPENSES_SCREEN;
+    private static final String TICKETS_SCREEN = ScreenNames.TICKETS_SCREEN;
     private static final String PROFILE_SCREEN = ScreenNames.PROFILE_SCREEN;
     private static final String NAVIGATION_SCREEN = ScreenNames.NAVIGATION_SCREEN;
     private static final String LOGIN_SCREEN = ScreenNames.LOGIN_FORM;
@@ -41,6 +42,7 @@ public class NavigationMenu extends JPanel {
         addButtonToPanel(topPanel, "Home", HOME_SCREEN, gbc, 0);
         addButtonToPanel(topPanel, "Budgets", BUDGETS_SCREEN, gbc, 1);
         addButtonToPanel(topPanel, "Expenses", EXPENSES_SCREEN, gbc, 2);
+        addButtonToPanel(topPanel, "Tickets", TICKETS_SCREEN, gbc, 3);
 
         // Painel inferior para "Profile" e "Logout"
         JPanel bottomPanel = new JPanel(new GridBagLayout());
@@ -83,6 +85,7 @@ public class NavigationMenu extends JPanel {
             case HOME_SCREEN: return new HomeScreen(mainFrame);
             case BUDGETS_SCREEN: return new BudgetsScreen(mainFrame);
             case EXPENSES_SCREEN: return new ExpensesScreen(mainFrame);
+            case TICKETS_SCREEN: return new TicketsScreen(mainFrame);
             case PROFILE_SCREEN: return new ProfileView(mainFrame);
             default: return new JPanel(); // Retorna um painel vazio para telas não implementadas
         }
