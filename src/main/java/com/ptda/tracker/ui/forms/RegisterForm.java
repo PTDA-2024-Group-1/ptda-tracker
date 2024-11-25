@@ -151,27 +151,27 @@ public class RegisterForm extends JPanel {
     }
 
     private void register() {
+        //
         String name = nameField.getText();
         String email = emailField.getText();
         String password = new String(passwordField.getPassword());
         String confirmPassword = new String(confirmPasswordField.getPassword());
 
-        // Validação de campos
+        // Fields validation
         if (name.isEmpty() || email.isEmpty() || password.isEmpty() || confirmPassword.isEmpty()) {
             JOptionPane.showMessageDialog(this, "All fields are required", "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
-
         if (!email.matches("^[A-Za-z0-9+_.-]+@(.+)$")) {
             JOptionPane.showMessageDialog(this, "Invalid email format", "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
-
         if (!password.equals(confirmPassword)) {
             JOptionPane.showMessageDialog(this, "Passwords do not match", "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
 
+        // Register user
         try {
             User newUser = userService.register(name, email, password);
             if (newUser != null) {

@@ -20,12 +20,26 @@ public class BudgetForm extends JPanel {
     private Budget budget;
     private JTextField nameField;
     private JTextArea descriptionArea;
-    private JButton saveButton, backButton;
+    private JButton saveButton, cancelButton;
 
-    private static final Color PRIMARY_COLOR = new Color(240, 240, 240); // Fundo claro
-    private static final Color BUTTON_COLOR = new Color(56, 56, 56, 255); // Cor padrão do botão (#383838FF)
-    private static final Color BUTTON_HOVER_COLOR = new Color(0, 0, 0, 255); // Preto no hover (#000000FF)
-    private static final Color BUTTON_TEXT_COLOR = Color.WHITE; // Texto branco no hover
+    private static final Color BACKGROUND_COLOR = new Color(240, 240, 240);
+    private static final Color BUTTON_COLOR = new Color(56, 56, 56, 255); // #383838FF
+    private static final Color BUTTON_HOVER_COLOR = new Color(0, 0, 0, 255); // #000000FF
+    private static final Color BUTTON_TEXT_HOVER_COLOR = Color.WHITE;
+
+    private static final String
+            CREATE_NEW_BUDGET = "Create New Budget",
+            EDIT_BUDGET = "Edit Budget",
+            NAME = "Name",
+            DESCRIPTION = "Description",
+            CANCEL = "Cancel",
+            SAVE = "Save",
+            VALIDATION_ERROR = "Validation Error",
+            NAME_AND_DESCRIPTION_REQUIRED = "Name and description are required",
+            BUDGET_SAVED_SUCCESSFULLY = "Budget saved successfully",
+            SUCCESS = "Success",
+            ERROR_OCCURRED_WHILE_SAVING_BUDGET = "An error occurred while saving the budget. Please try again",
+            ERROR = "Error";
 
     public BudgetForm(MainFrame mainFrame, Runnable onFormSubmit, Budget budget) {
         this.mainFrame = mainFrame;
@@ -34,15 +48,16 @@ public class BudgetForm extends JPanel {
         this.budget = budget;
 
         initUI();
+        setListeners();
     }
 
     private void initUI() {
         setLayout(new BorderLayout(20, 20));
-        setBackground(PRIMARY_COLOR);
+        setBackground(BACKGROUND_COLOR);
         setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
         // Header
-        JLabel headerLabel = new JLabel(budget == null ? "Create New Budget" : "Edit Budget");
+        JLabel headerLabel = new JLabel(budget == null ? CREATE_NEW_BUDGET : EDIT_BUDGET, SwingConstants.CENTER);
         headerLabel.setFont(new Font("Arial", Font.BOLD, 22));
         headerLabel.setForeground(Color.DARK_GRAY);
         headerLabel.setHorizontalAlignment(SwingConstants.CENTER);
@@ -50,7 +65,7 @@ public class BudgetForm extends JPanel {
 
         // Form Panel
         JPanel formPanel = new JPanel(new GridBagLayout());
-        formPanel.setBackground(PRIMARY_COLOR);
+        formPanel.setBackground(BACKGROUND_COLOR);
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.insets = new Insets(10, 10, 10, 10);
@@ -58,7 +73,7 @@ public class BudgetForm extends JPanel {
         // Name Field
         gbc.gridx = 0;
         gbc.gridy = 0;
-        formPanel.add(new JLabel("Name:"), gbc);
+        formPanel.add(new JLabel(NAME + ":"), gbc);
 
         gbc.gridx = 1;
         nameField = new JTextField(budget != null ? budget.getName() : "", 25);
@@ -71,7 +86,7 @@ public class BudgetForm extends JPanel {
         // Description Field
         gbc.gridx = 0;
         gbc.gridy = 1;
-        formPanel.add(new JLabel("Description:"), gbc);
+        formPanel.add(new JLabel(DESCRIPTION + ":"), gbc);
 
         gbc.gridx = 1;
         descriptionArea = new JTextArea(budget != null ? budget.getDescription() : "", 4, 25);
@@ -88,62 +103,59 @@ public class BudgetForm extends JPanel {
 
         // Button Panel
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 10));
-        buttonPanel.setBackground(PRIMARY_COLOR);
+        buttonPanel.setBackground(BACKGROUND_COLOR);
 
-        // Back Button
-        backButton = createStyledButton("Back");
-        backButton.addActionListener(e -> mainFrame.showScreen(ScreenNames.BUDGET_DETAIL_VIEW));
-
-        // Save Button
-        saveButton = createStyledButton("Save");
-        saveButton.addActionListener(this::saveBudget);
-
-        buttonPanel.add(backButton);
+        cancelButton = createStyledButton(CANCEL);
+        buttonPanel.add(cancelButton);
+        saveButton = createStyledButton(SAVE);
         buttonPanel.add(saveButton);
+
         add(buttonPanel, BorderLayout.SOUTH);
     }
 
+    private void setListeners() {
+        cancelButton.addActionListener(e -> mainFrame.showScreen(ScreenNames.BUDGET_DETAIL_VIEW));
+        saveButton.addActionListener(this::saveBudget);
+    }
+
     private void saveBudget(ActionEvent e) {
+        String name = nameField.getText().trim();
+        String description = descriptionArea.getText().trim();
+
+        // Validation
+        if (name.isEmpty() || description.isEmpty()) {
+            JOptionPane.showMessageDialog(this, NAME_AND_DESCRIPTION_REQUIRED, VALIDATION_ERROR, JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        // Budget preparation
+        if (budget == null) {
+            budget = new Budget();
+        }
+        budget.setName(name);
+        budget.setDescription(description);
+
+        // Save budget
         try {
-            // Validação inicial
-            if (nameField.getText().trim().isEmpty() || descriptionArea.getText().trim().isEmpty()) {
-                JOptionPane.showMessageDialog(this, "Name and description are required.", "Validation Error", JOptionPane.WARNING_MESSAGE);
-                return;
-            }
-
-            // Obtenção do serviço e preparação do objeto Budget
             BudgetService budgetService = context.getBean(BudgetService.class);
-
-            if (budget == null) {
-                budget = new Budget();
-            }
-
-            budget.setName(nameField.getText().trim());
-            budget.setDescription(descriptionArea.getText().trim());
-
-            // Salvar o orçamento
             if (budget.getId() == null) {
                 budgetService.create(budget);
             } else {
                 budgetService.update(budget);
             }
 
-            // Mensagem de sucesso
-            JOptionPane.showMessageDialog(this, "Budget saved successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
-
-            // Atualizar a interface
+            // Go back to Budget Detail View
             onFormSubmit.run();
             mainFrame.registerAndShowScreen(ScreenNames.BUDGET_DETAIL_VIEW, new BudgetDetailView(mainFrame, budget));
+            JOptionPane.showMessageDialog(this,  BUDGET_SAVED_SUCCESSFULLY + "!", SUCCESS, JOptionPane.INFORMATION_MESSAGE);
         } catch (Exception ex) {
             // Log do erro para debug
             ex.printStackTrace(); // TO DO: Substituir por um logger no futuro
-
-            // Mensagem de erro amigável para o usuário
-            JOptionPane.showMessageDialog(this, "An error occurred while saving the budget. Please try again.", "Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, ERROR_OCCURRED_WHILE_SAVING_BUDGET, ERROR, JOptionPane.ERROR_MESSAGE);
         }
     }
 
     private JButton createStyledButton(String text) {
-        return getJButton(text, BUTTON_COLOR, BUTTON_HOVER_COLOR, BUTTON_TEXT_COLOR);
+        return getJButton(text, BUTTON_COLOR, BUTTON_HOVER_COLOR, BUTTON_TEXT_HOVER_COLOR);
     }
 }

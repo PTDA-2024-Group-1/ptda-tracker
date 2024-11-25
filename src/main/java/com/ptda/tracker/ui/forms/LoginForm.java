@@ -19,37 +19,53 @@ public class LoginForm extends JPanel {
     private UserService userService;
     private JTextField usernameField;
     private JPasswordField passwordField;
-    private JButton loginButton;
+    private JButton loginButton, registerButton;
 
-    private static final String HOME_SCREEN = ScreenNames.HOME_SCREEN;
-    private static final String BUDGETS_SCREEN = ScreenNames.BUDGETS_SCREEN;
-    private static final String PROFILE_SCREEN = ScreenNames.PROFILE_SCREEN;
-    private static final String NAVIGATION_SCREEN = ScreenNames.NAVIGATION_SCREEN;
-    private static final String REGISTER_SCREEN = ScreenNames.REGISTER_FORM;
-    private static final String LOGIN_SCREEN = ScreenNames.LOGIN_FORM;
+    private static final String LOGO_PATH = "src/main/resources/images/divi.png";
+
+    private static final String
+            REGISTER_SCREEN = ScreenNames.REGISTER_FORM,
+            LOGIN_SCREEN = ScreenNames.LOGIN_FORM;
+
+    private static final String
+            LOGIN = "Login",
+            EMAIL = "Email",
+            PASSWORD = "Password",
+            GO_TO_REGISTER = "Go to Register",
+            EMAIL_CANNOT_BE_EMPTY = "Email cannot be empty",
+            PASSWORD_CANNOT_BE_EMPTY = "Password cannot be empty",
+            LOGIN_SUCCESSFUL = "Logged in successfully!",
+            EMAIL_OR_PASSWORD_INCORRECT = "Email or password is incorrect. Please try again.",
+            ERROR = "Error",
+            MESSAGE = "Message";
 
     public LoginForm(MainFrame mainFrame) {
         this.mainFrame = mainFrame;
         ApplicationContext context = mainFrame.getContext();
         userService = context.getBean(UserService.class);
 
-        setLayout(new BorderLayout());
-        setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20)); // Margens ao redor do formulário
+        initUI();
+        setListeners();
+    }
 
-        // Painel superior com título e logotipo
+    private void initUI() {
+        setLayout(new BorderLayout());
+        setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+
+        // Top panel with title and logotype
         JPanel topPanel = new JPanel();
         topPanel.setLayout(new BoxLayout(topPanel, BoxLayout.Y_AXIS));
         topPanel.setAlignmentX(CENTER_ALIGNMENT);
 
         JLabel titleLabel = new JLabel("Login", SwingConstants.CENTER);
-        titleLabel.setFont(new Font("Arial", Font.BOLD, 20)); // Fonte menor
-        titleLabel.setForeground(new Color(0, 0, 0)); // Cor preta
+        titleLabel.setFont(new Font("Arial", Font.BOLD, 20));
+        titleLabel.setForeground(new Color(0, 0, 0)); // Black
         titleLabel.setAlignmentX(CENTER_ALIGNMENT);
         topPanel.add(titleLabel);
 
-        // Logotipo
-        ImageIcon originalIcon = new ImageIcon("src/main/resources/images/divi.png"); // Caminho para o logotipo original
-        Image scaledImage = originalIcon.getImage().getScaledInstance(250, 250, Image.SCALE_SMOOTH); // Redimensionar para 100x100 pixels
+        // Logotype
+        ImageIcon originalIcon = new ImageIcon(LOGO_PATH);
+        Image scaledImage = originalIcon.getImage().getScaledInstance(250, 250, Image.SCALE_SMOOTH); // Resize to 100x100 pixels
         ImageIcon scaledIcon = new ImageIcon(scaledImage);
         JLabel logoLabel = new JLabel(scaledIcon);
         logoLabel.setAlignmentX(CENTER_ALIGNMENT);
@@ -58,16 +74,16 @@ public class LoginForm extends JPanel {
 
         add(topPanel, BorderLayout.NORTH);
 
-        // Painel principal com campos e botões
-        JPanel formPanel = new JPanel(new GridBagLayout()); // Usar GridBagLayout para controle
-        formPanel.setBorder(BorderFactory.createEmptyBorder(10, 20, 20, 20)); // Margens internas
+        // Form panel
+        JPanel formPanel = new JPanel(new GridBagLayout());
+        formPanel.setBorder(BorderFactory.createEmptyBorder(10, 20, 20, 20)); // Padding
 
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(5, 5, 5, 5); // Espaçamento entre os componentes
         gbc.fill = GridBagConstraints.HORIZONTAL;
 
-        // Campo de username com label
-        JLabel usernameLabel = new JLabel("Email:");
+        // Email
+        JLabel usernameLabel = new JLabel(EMAIL + ":");
         usernameLabel.setFont(new Font("Arial", Font.PLAIN, 14));
         gbc.gridx = 0;
         gbc.gridy = 0;
@@ -80,8 +96,8 @@ public class LoginForm extends JPanel {
         gbc.gridy = 1;
         formPanel.add(usernameField, gbc);
 
-        // Campo de password com label
-        JLabel passwordLabel = new JLabel("Password:");
+        // Password
+        JLabel passwordLabel = new JLabel(PASSWORD + ":");
         passwordLabel.setFont(new Font("Arial", Font.PLAIN, 14));
         gbc.gridx = 0;
         gbc.gridy = 2;
@@ -94,8 +110,8 @@ public class LoginForm extends JPanel {
         gbc.gridy = 3;
         formPanel.add(passwordField, gbc);
 
-        // Botão de login
-        loginButton = new JButton("Login");
+        // Login
+        loginButton = new JButton(LOGIN);
         loginButton.setFont(new Font("Arial", Font.BOLD, 14));
         loginButton.setBackground(new Color(56, 56, 56)); // Cor de fundo
         loginButton.setForeground(Color.WHITE);
@@ -104,11 +120,8 @@ public class LoginForm extends JPanel {
         gbc.gridy = 4;
         formPanel.add(loginButton, gbc);
 
-        // ActionListener do botão de login
-        loginButton.addActionListener(e -> login());
-
-        // Botão de registro com ActionListener preservado
-        JButton registerButton = new JButton("Go to Register");
+        // Register
+        registerButton = new JButton(GO_TO_REGISTER);
         registerButton.setFont(new Font("Arial", Font.BOLD, 14));
         registerButton.setBackground(new Color(56, 56, 56)); // Cor de fundo
         registerButton.setForeground(Color.WHITE);
@@ -117,48 +130,49 @@ public class LoginForm extends JPanel {
         gbc.gridy = 5;
         formPanel.add(registerButton, gbc);
 
-        // ActionListener do botão de registro
-        registerButton.addActionListener(e -> {
-            mainFrame.registerScreen(ScreenNames.REGISTER_FORM, new RegisterForm(mainFrame));
-            mainFrame.showScreen(ScreenNames.REGISTER_FORM);
-        });
-
         add(formPanel, BorderLayout.CENTER);
+    }
+
+    private void setListeners() {
+        loginButton.addActionListener(e -> login());
+        registerButton.addActionListener(e -> {
+            mainFrame.registerAndShowScreen(ScreenNames.REGISTER_FORM, new RegisterForm(mainFrame));
+        });
     }
 
     private void login() {
         String email = usernameField.getText().trim();
         String password = new String(passwordField.getPassword()).trim();
 
-        // Validações nos campos de entrada
+        // Validations
+        int i = 0;
         if (email.isEmpty()) {
-            showError("O campo Email não pode estar vazio.", usernameField);
-            return;
+            showError(EMAIL_CANNOT_BE_EMPTY, usernameField);
+            i++;
         }
         if (password.isEmpty()) {
-            showError("O campo Password não pode estar vazio.", passwordField);
-            return;
+            showError(PASSWORD_CANNOT_BE_EMPTY, passwordField);
+            i++;
         }
+        if (i > 0) return;
 
-        // Lógica de login
+        // Login
         Optional<User> user = userService.login(email, password);
         if (user.isPresent()) {
             onAuthSuccess(user.get(), mainFrame);
-            showMessage("Login realizado com sucesso!", JOptionPane.INFORMATION_MESSAGE);
+            showMessage(LOGIN_SUCCESSFUL, JOptionPane.INFORMATION_MESSAGE);
         } else {
-            showMessage("Email ou password incorretos. Tente novamente.", JOptionPane.ERROR_MESSAGE);
+            showMessage(EMAIL_OR_PASSWORD_INCORRECT, JOptionPane.WARNING_MESSAGE);
         }
     }
 
-    // Exibe mensagem de erro e foca no campo problemático
     private void showError(String message, JComponent component) {
-        JOptionPane.showMessageDialog(this, message, "Erro", JOptionPane.ERROR_MESSAGE);
+        JOptionPane.showMessageDialog(this, message, ERROR, JOptionPane.ERROR_MESSAGE);
         component.requestFocusInWindow();
     }
 
-    // Exibe mensagem genérica
     private void showMessage(String message, int messageType) {
-        JOptionPane.showMessageDialog(this, message, "Mensagem", messageType);
+        JOptionPane.showMessageDialog(this, message, MESSAGE, messageType);
     }
 
     public static void onAuthSuccess(User user, MainFrame mainFrame) {

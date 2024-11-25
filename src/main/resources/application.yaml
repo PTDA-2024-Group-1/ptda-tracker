@@ -16,8 +16,8 @@ spring:
   mail:
     host: smtp.gmail.com
     port: 587
-    username: envatoe985@gmail.com
-    password: 12345678eE
+    username: email
+    password: passsword
     properties:
       mail:
         smtp:

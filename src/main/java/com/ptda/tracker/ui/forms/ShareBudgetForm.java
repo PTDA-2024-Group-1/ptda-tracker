@@ -10,15 +10,24 @@ import javax.swing.*;
 import java.awt.*;
 
 public class ShareBudgetForm extends JPanel {
-    private final JTextField emailField;
-    private final JComboBox<BudgetAccessLevel> accessLevelComboBox;
+    private final MainFrame mainFrame;
     private final BudgetAccessService budgetAccessService;
     private final Budget budget;
 
+    private JComboBox<BudgetAccessLevel> accessLevelComboBox;
+    private JTextField emailField;
+    private JButton cancelButton, saveButton;
+
     public ShareBudgetForm(MainFrame mainFrame, Budget budget) {
+        this.mainFrame = mainFrame;
         this.budget = budget;
         budgetAccessService = mainFrame.getContext().getBean(BudgetAccessService.class);
 
+        initUI();
+        setListeners();
+    }
+
+    private void initUI() {
         setLayout(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.fill = GridBagConstraints.HORIZONTAL;
@@ -64,20 +73,22 @@ public class ShareBudgetForm extends JPanel {
         gbc.gridy = 3;
         JPanel buttonsPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
 
-        // Invertendo a ordem dos botões
-        JButton cancelButton = new JButton("Cancel");
+        cancelButton = new JButton("Cancel");
         styleButton(cancelButton);
-        cancelButton.addActionListener(e -> mainFrame.showScreen(ScreenNames.BUDGET_DETAIL_VIEW));
         buttonsPanel.add(cancelButton);
 
-        JButton saveButton = new JButton("Add Participant");
+        saveButton = new JButton("Add Participant");
         styleButton(saveButton);
-        saveButton.addActionListener(e -> addParticipant());
         buttonsPanel.add(saveButton);
 
         add(buttonsPanel, gbc);
 
         setBackground(new Color(240, 240, 240)); // Cor de fundo suave
+    }
+
+    private void setListeners() {
+        cancelButton.addActionListener(e -> mainFrame.showScreen(ScreenNames.BUDGET_DETAIL_VIEW));
+        saveButton.addActionListener(e -> addParticipant());
     }
 
     private void styleTextField(JTextField field) {

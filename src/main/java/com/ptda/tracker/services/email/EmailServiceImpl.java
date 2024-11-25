@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 public class EmailServiceImpl implements EmailService {
-    private JavaMailSender mailSender;
+    private final JavaMailSender mailSender;
 
     @Override
     public void sendEmail(String to, String subject, String body) {
@@ -27,7 +27,7 @@ public class EmailServiceImpl implements EmailService {
     public void sendHtmlEmail(String to, String subject, String htmlContent) throws MessagingException {
         MimeMessage message = mailSender.createMimeMessage();
 
-        message.setFrom(new InternetAddress("envatoe985@gmail.com"));
+        //message.setFrom(new InternetAddress("envatoe985@gmail.com"));
         message.setRecipients(MimeMessage.RecipientType.TO, to);
         message.setSubject(subject);
         message.setContent(htmlContent, "text/html; charset=utf-8");

@@ -23,8 +23,6 @@ public class Expense {
 
     private double amount;
 
-    //private long dateTime;
-
     @Temporal(TemporalType.DATE)
     private Date date;
 

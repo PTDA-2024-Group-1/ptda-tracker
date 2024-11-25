@@ -20,7 +20,6 @@ import java.util.Map;
 
 public class ExpenseForm extends JPanel {
     private final MainFrame mainFrame;
-    private final ApplicationContext context;
     private final Runnable onFormSubmit;
     private Expense expense;
 
@@ -37,14 +36,32 @@ public class ExpenseForm extends JPanel {
     private static final Color BUTTON_HOVER_COLOR = new Color(0, 0, 0, 255);
     private static final Color BUTTON_TEXT_COLOR = Color.WHITE;
 
+    private static final String
+            CREATE_NEW_EXPENSE = "Create New Expense",
+            EDIT_EXPENSE = "Edit Expense",
+            TITLE = "Title",
+            AMOUNT = "Amount",
+            DATE = "Date",
+            CATEGORY = "Category",
+            BUDGET = "Budget",
+            DESCRIPTION = "Description",
+            NO_BUDGET = "No Budget",
+            BACK = "Back",
+            SAVE = "Save",
+            VALIDATION_ERROR = "Validation Error",
+            TITLE_AND_AMOUNT_REQUIRED = "Title and valid amount are required",
+            FAILED_TO_SAVE_EXPENSE = "Failed to save expense",
+            FAILED_TO_UPDATE_EXPENSE = "Failed to update expense",
+            ERROR = "Error";
+
     public ExpenseForm(MainFrame mainFrame, Runnable onFormSubmit, Expense expense) {
         this.mainFrame = mainFrame;
-        this.context = mainFrame.getContext();
         this.onFormSubmit = onFormSubmit;
         this.expense = expense;
 
         budgetMap = new HashMap<>();
         initUI();
+        setListeners();
     }
 
     private void initUI() {
@@ -53,7 +70,7 @@ public class ExpenseForm extends JPanel {
         setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
         // Header
-        JLabel headerLabel = new JLabel(expense == null ? "Create New Expense" : "Edit Expense");
+        JLabel headerLabel = new JLabel(expense == null ? CREATE_NEW_EXPENSE : EDIT_EXPENSE);
         headerLabel.setFont(new Font("Arial", Font.BOLD, 22));
         headerLabel.setForeground(Color.DARK_GRAY);
         headerLabel.setHorizontalAlignment(SwingConstants.CENTER);
@@ -69,7 +86,7 @@ public class ExpenseForm extends JPanel {
         // Title Field
         gbc.gridx = 0;
         gbc.gridy = 0;
-        formPanel.add(new JLabel("Title:"), gbc);
+        formPanel.add(new JLabel( TITLE + ":"), gbc);
 
         gbc.gridx = 1;
         titleField = new JTextField(expense != null ? expense.getTitle() : "", 25);
@@ -78,7 +95,7 @@ public class ExpenseForm extends JPanel {
         // Amount Field
         gbc.gridx = 0;
         gbc.gridy = 1;
-        formPanel.add(new JLabel("Amount:"), gbc);
+        formPanel.add(new JLabel(AMOUNT + ":"), gbc);
 
         gbc.gridx = 1;
         amountField = new JTextField(expense != null ? String.valueOf(expense.getAmount()) : "", 25);
@@ -87,7 +104,7 @@ public class ExpenseForm extends JPanel {
         // Date Field
         gbc.gridx = 0;
         gbc.gridy = 2;
-        formPanel.add(new JLabel("Date:"), gbc);
+        formPanel.add(new JLabel(DATE + ":"), gbc);
 
         gbc.gridx = 1;
         dateSpinner = new JSpinner(new SpinnerDateModel(expense != null ? expense.getDate() : new Date(), null, null, java.util.Calendar.DAY_OF_MONTH));
@@ -98,7 +115,7 @@ public class ExpenseForm extends JPanel {
         // Category ComboBox
         gbc.gridx = 0;
         gbc.gridy = 3;
-        formPanel.add(new JLabel("Category:"), gbc);
+        formPanel.add(new JLabel(CATEGORY + ":"), gbc);
 
         gbc.gridx = 1;
         categoryComboBox = new JComboBox<>(ExpenseCategory.values());
@@ -110,24 +127,27 @@ public class ExpenseForm extends JPanel {
         // Budget ComboBox
         gbc.gridx = 0;
         gbc.gridy = 4;
-        formPanel.add(new JLabel("Budget:"), gbc);
+        formPanel.add(new JLabel(BUDGET + ":"), gbc);
 
         gbc.gridx = 1;
         budgetComboBox = new JComboBox<>();
-        BudgetService budgetService = context.getBean(BudgetService.class);
+        budgetComboBox.addItem(NO_BUDGET);
+        BudgetService budgetService = mainFrame.getContext().getBean(BudgetService.class);
         for (Budget budget : budgetService.getAllByUserId(UserSession.getInstance().getUser().getId())) {
             budgetComboBox.addItem(budget.getName());
             budgetMap.put(budget.getName(), budget);
         }
         if (expense != null && expense.getBudget() != null) {
             budgetComboBox.setSelectedItem(expense.getBudget().getName());
+        } else {
+            budgetComboBox.setSelectedItem(NO_BUDGET);
         }
         formPanel.add(budgetComboBox, gbc);
 
         // Description Area
         gbc.gridx = 0;
         gbc.gridy = 5;
-        formPanel.add(new JLabel("Description:"), gbc);
+        formPanel.add(new JLabel(DESCRIPTION + ":"), gbc);
 
         gbc.gridx = 1;
         descriptionArea = new JTextArea(expense != null ? expense.getDescription() : "", 4, 25);
@@ -143,17 +163,17 @@ public class ExpenseForm extends JPanel {
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 10));
         buttonPanel.setBackground(PRIMARY_COLOR);
 
-        // Back Button
-        backButton = createStyledButton("Back");
-        backButton.addActionListener(e -> mainFrame.showScreen(ScreenNames.EXPENSE_DETAIL_VIEW));
-
-        // Save Button
-        saveButton = createStyledButton("Save");
-        saveButton.addActionListener(this::saveExpense);
-
+        backButton = createStyledButton(BACK);
         buttonPanel.add(backButton);
+        saveButton = createStyledButton(SAVE);
         buttonPanel.add(saveButton);
+
         add(buttonPanel, BorderLayout.SOUTH);
+    }
+
+    private void setListeners() {
+        backButton.addActionListener(e -> mainFrame.showScreen(ScreenNames.EXPENSE_DETAIL_VIEW));
+        saveButton.addActionListener(this::saveExpense);
     }
 
     private void saveExpense(ActionEvent e) {
@@ -169,7 +189,7 @@ public class ExpenseForm extends JPanel {
 
         // verifications
         if (title.isEmpty() || amount <= 0) {
-            JOptionPane.showMessageDialog(this, "Title and valid amount are required.", "Validation Error", JOptionPane.WARNING_MESSAGE);
+            JOptionPane.showMessageDialog(this, TITLE_AND_AMOUNT_REQUIRED, VALIDATION_ERROR, JOptionPane.WARNING_MESSAGE);
             return;
         }
 
@@ -185,15 +205,15 @@ public class ExpenseForm extends JPanel {
         expense.setDescription(description);
 
         // save expense
-        ExpenseService expenseService = context.getBean(ExpenseService.class);
+        ExpenseService expenseService = mainFrame.getContext().getBean(ExpenseService.class);
         if (expense.getId() == null) {
             if (expenseService.create(expense) == null) {
-                JOptionPane.showMessageDialog(this, "Failed to save expense.", "Error", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(this, FAILED_TO_SAVE_EXPENSE, ERROR, JOptionPane.ERROR_MESSAGE);
                 return;
             }
         } else {
             if (expenseService.update(expense) == null) {
-                JOptionPane.showMessageDialog(this, "Failed to update expense.", "Error", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(this, FAILED_TO_UPDATE_EXPENSE, ERROR, JOptionPane.ERROR_MESSAGE);
                 return;
             }
         }

@@ -5,22 +5,38 @@ import com.ptda.tracker.services.user.UserService;
 import com.ptda.tracker.ui.MainFrame;
 import com.ptda.tracker.util.ScreenNames;
 import com.ptda.tracker.util.UserSession;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import javax.swing.*;
 import java.awt.*;
 import javax.swing.border.EmptyBorder;
 
 public class ChangePasswordForm extends JPanel {
-    private final UserService userService;
-    private final JPasswordField currentPasswordField;
-    private final JPasswordField newPasswordField;
-    private final JPasswordField confirmPasswordField;
-    private final JButton saveButton;
-    private final JButton cancelButton;
+    private final MainFrame mainFrame;
+    private JPasswordField currentPasswordField, newPasswordField, confirmPasswordField;
+    private JButton saveButton, cancelButton;
+
+    private static final String
+            TITLE = "Change Password",
+            CURRENT_PASSWORD = "Current Password",
+            NEW_PASSWORD = "New Password",
+            CONFIRM_PASSWORD = "Confirm Password",
+            CANCEL = "Cancel",
+            SAVE = "Save",
+            ALL_FIELDS_REQUIRED = "All fields are required",
+            PASSWORDS_DO_NOT_MATCH = "New passwords do not match",
+            CURRENT_PASSWORD_INCORRECT = "Current password is incorrect",
+            PASSWORD_CHANGED = "Password successfully changed",
+            SUCCESS = "Success",
+            ERROR = "Error";
 
     public ChangePasswordForm(MainFrame mainFrame) {
-        userService = mainFrame.getContext().getBean(UserService.class);
+        this.mainFrame = mainFrame;
+        initUI();
+        setListeners();
+    }
 
+    private void initUI() {
         setLayout(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.fill = GridBagConstraints.HORIZONTAL;
@@ -30,7 +46,7 @@ public class ChangePasswordForm extends JPanel {
         gbc.gridx = 0;
         gbc.gridy = 0;
         gbc.gridwidth = 2;
-        JLabel title = new JLabel("Change Password", SwingConstants.CENTER);
+        JLabel title = new JLabel(TITLE, SwingConstants.CENTER);
         title.setFont(new Font("Arial", Font.BOLD, 20));
         title.setForeground(new Color(56, 56, 56)); // Cor escura para o título
         add(title, gbc);
@@ -39,7 +55,7 @@ public class ChangePasswordForm extends JPanel {
         gbc.gridwidth = 1;
         gbc.gridx = 0;
         gbc.gridy = 1;
-        JLabel currentPasswordLabel = new JLabel("Current Password:");
+        JLabel currentPasswordLabel = new JLabel( CURRENT_PASSWORD + ":");
         currentPasswordLabel.setFont(new Font("Arial", Font.PLAIN, 14));
         add(currentPasswordLabel, gbc);
 
@@ -51,7 +67,7 @@ public class ChangePasswordForm extends JPanel {
         // New Password
         gbc.gridx = 0;
         gbc.gridy = 2;
-        JLabel newPasswordLabel = new JLabel("New Password:");
+        JLabel newPasswordLabel = new JLabel( NEW_PASSWORD + ":");
         newPasswordLabel.setFont(new Font("Arial", Font.PLAIN, 14));
         add(newPasswordLabel, gbc);
 
@@ -63,7 +79,7 @@ public class ChangePasswordForm extends JPanel {
         // Confirm Password
         gbc.gridx = 0;
         gbc.gridy = 3;
-        JLabel confirmPasswordLabel = new JLabel("Confirm Password:");
+        JLabel confirmPasswordLabel = new JLabel( CONFIRM_PASSWORD + ":");
         confirmPasswordLabel.setFont(new Font("Arial", Font.PLAIN, 14));
         add(confirmPasswordLabel, gbc);
 
@@ -75,19 +91,22 @@ public class ChangePasswordForm extends JPanel {
         // Cancel Button
         gbc.gridx = 0;
         gbc.gridy = 4;
-        cancelButton = new JButton("Cancel");
+        cancelButton = new JButton(CANCEL);
         styleButton(cancelButton);
-        cancelButton.addActionListener(e -> mainFrame.showScreen(ScreenNames.NAVIGATION_SCREEN));
         add(cancelButton, gbc);
 
         // Save Button
         gbc.gridx = 1;
-        saveButton = new JButton("Save");
+        saveButton = new JButton(SAVE);
         styleButton(saveButton);
-        saveButton.addActionListener(e -> onSave(mainFrame));
         add(saveButton, gbc);
 
         setBackground(new Color(240, 240, 240)); // Cor de fundo suave
+    }
+
+    private void setListeners() {
+        cancelButton.addActionListener(e -> mainFrame.showScreen(ScreenNames.BUDGET_DETAIL_VIEW));
+        saveButton.addActionListener(e -> onSave(mainFrame));
     }
 
     private void stylePasswordField(JPasswordField field) {
@@ -118,24 +137,31 @@ public class ChangePasswordForm extends JPanel {
     }
 
     private void onSave(MainFrame mainFrame) {
+        // Get form values
         String currentPassword = new String(currentPasswordField.getPassword());
         String newPassword = new String(newPasswordField.getPassword());
         String confirmPassword = new String(confirmPasswordField.getPassword());
 
+        // Validate form
         if (currentPassword.isEmpty() || newPassword.isEmpty() || confirmPassword.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "All fields are required.", "Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, ALL_FIELDS_REQUIRED, ERROR, JOptionPane.ERROR_MESSAGE);
             return;
         }
-
         if (!newPassword.equals(confirmPassword)) {
-            JOptionPane.showMessageDialog(this, "New passwords do not match.", "Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, PASSWORDS_DO_NOT_MATCH, ERROR, JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        PasswordEncoder passwordEncoder = mainFrame.getContext().getBean(PasswordEncoder.class);
+        if (!UserSession.getInstance().getUser().getPassword().equals(passwordEncoder.encode(currentPassword))) {
+            JOptionPane.showMessageDialog(this, CURRENT_PASSWORD_INCORRECT, ERROR, JOptionPane.ERROR_MESSAGE);
             return;
         }
 
         // Call service to change password (e.g., userService.changePassword)
+        UserService userService = mainFrame.getContext().getBean(UserService.class);
         User updatedUser = userService.changePassword(UserSession.getInstance().getUser().getEmail(), currentPassword, newPassword);
         UserSession.getInstance().setUser(updatedUser);
-        JOptionPane.showMessageDialog(this, "Password successfully changed!", "Success", JOptionPane.INFORMATION_MESSAGE);
+        JOptionPane.showMessageDialog(this, PASSWORD_CHANGED + "!", SUCCESS, JOptionPane.INFORMATION_MESSAGE);
 
         // Navigate back
         mainFrame.showScreen(ScreenNames.NAVIGATION_SCREEN);
