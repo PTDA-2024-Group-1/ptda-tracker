@@ -35,4 +35,9 @@ public class TicketServiceHibernateImpl implements TicketService {
             ticketRepository.save(ticket);
         }
     }
+
+    @Override
+    public List<Ticket> getOpenTicketsByUser(User createdBy) {
+        return ticketRepository.getOpenTicketsByUser(createdBy);
+    }
 }

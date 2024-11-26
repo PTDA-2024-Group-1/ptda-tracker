@@ -74,17 +74,10 @@ public class TicketDetailView extends JPanel {
         backButton.addActionListener(e -> mainFrame.showScreen(ScreenNames.NAVIGATION_SCREEN));
         buttonPanel.add(backButton);
 
-        JButton editButton = new JButton("Edit Ticket");
-        styleButton(editButton);
-        editButton.addActionListener(e -> {
-            mainFrame.registerScreen(ScreenNames.TICKET_FORM, new TicketForm(mainFrame, null, ticket));
-            mainFrame.showScreen(ScreenNames.TICKET_FORM);
-        });
-        buttonPanel.add(editButton);
-
         if (ticket.isClosed()) {
             JButton reopenButton = new JButton("Reopen Ticket");
             styleButton(reopenButton);
+            reopenButton.setPreferredSize(new Dimension(160, 40)); // Ajuste a largura aqui
             reopenButton.addActionListener(e -> {
                 TicketReply reply = TicketReply.builder()
                         .ticket(ticket)
@@ -110,12 +103,12 @@ public class TicketDetailView extends JPanel {
                 updateButtons(buttonPanel);
             });
             buttonPanel.add(closeButton);
-        }
 
-        JButton replyButton = new JButton("Reply");
-        styleButton(replyButton);
-        replyButton.addActionListener(e -> mainFrame.registerAndShowScreen(ScreenNames.TICKET_REPLY_FORM, new TicketReplyForm(mainFrame, null, ticket)));
-        buttonPanel.add(replyButton);
+            JButton replyButton = new JButton("Reply");
+            styleButton(replyButton);
+            replyButton.addActionListener(e -> mainFrame.registerAndShowScreen(ScreenNames.TICKET_REPLY_FORM, new TicketReplyForm(mainFrame, null, ticket)));
+            buttonPanel.add(replyButton);
+        }
     }
 
     private void updateButtons(JPanel buttonPanel) {

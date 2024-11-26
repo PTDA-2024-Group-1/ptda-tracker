@@ -42,12 +42,14 @@ public class TicketReplyForm extends JPanel {
         JButton saveButton = new JButton("Save Reply");
         styleButton(saveButton);
         saveButton.addActionListener(e -> saveReply());
-        buttonPanel.add(saveButton);
+
 
         JButton cancelButton = new JButton("Cancel");
         styleButton(cancelButton);
         cancelButton.addActionListener(e -> mainFrame.showScreen(ScreenNames.TICKET_DETAIL_VIEW));
+
         buttonPanel.add(cancelButton);
+        buttonPanel.add(saveButton);
 
         add(buttonPanel, BorderLayout.SOUTH);
     }

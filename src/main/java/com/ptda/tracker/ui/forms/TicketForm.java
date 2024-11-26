@@ -38,7 +38,7 @@ public class TicketForm extends JPanel {
 
     private void initUI() {
         // Header
-        JLabel headerLabel = new JLabel(existingTicket == null ? "Create New Ticket" : "Edit Ticket");
+        JLabel headerLabel = new JLabel("Create New Ticket");
         headerLabel.setFont(new Font("Arial", Font.BOLD, 22));
         headerLabel.setForeground(Color.DARK_GRAY);
         headerLabel.setHorizontalAlignment(SwingConstants.CENTER);

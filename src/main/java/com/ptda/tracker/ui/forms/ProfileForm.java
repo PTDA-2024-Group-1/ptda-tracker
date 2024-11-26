@@ -32,6 +32,7 @@ public class ProfileForm extends JPanel {
         this.onSave = onSave;
         user = UserSession.getInstance().getUser();
         initUI();
+        setListeners();
     }
 
     private void initUI() {
