@@ -1,0 +1,60 @@
+package com.ptda.tracker.services.user;
+
+import com.ptda.tracker.models.user.Tier;
+import com.ptda.tracker.repositories.TierRepository;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.Optional;
+
+@Service
+@RequiredArgsConstructor
+public class TierServiceHibernateImpl implements TierService {
+    private final TierRepository tierRepository;
+
+    @Override
+    public List<Tier> getAll() {
+        return tierRepository.findAll();
+    }
+
+    @Override
+    public Optional<Tier> getById(Long id) {
+        return tierRepository.findById(id);
+    }
+
+    @Override
+    public List<Tier> getTiersByPoints(int points) {
+        return tierRepository.findByPointsLessThanEqual(points);
+    }
+
+    @Override
+    public Optional<Tier> getTopTierByPoints(int points) {
+        return tierRepository.findTopByPointsLessThanEqualOrderByPointsDesc(points);
+    }
+
+    @Override
+    public Tier create(Tier tier) {
+        return tierRepository.save(tier);
+    }
+
+    @Override
+    public List<Tier> create(List<Tier> tiers) {
+        return tierRepository.saveAll(tiers);
+    }
+
+    @Override
+    public Tier update(Tier tier) {
+        return tierRepository.save(tier);
+    }
+
+    @Override
+    public boolean delete(Tier tier) {
+        try {
+            tierRepository.delete(tier);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+}

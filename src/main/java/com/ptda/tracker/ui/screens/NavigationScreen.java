@@ -1,6 +1,7 @@
 package com.ptda.tracker.ui.screens;
 
 import com.ptda.tracker.ui.MainFrame;
+import com.ptda.tracker.ui.NavigationMenu;
 import com.ptda.tracker.util.ScreenNames;
 
 import javax.swing.*;

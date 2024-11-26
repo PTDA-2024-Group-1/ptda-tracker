@@ -1,6 +1,5 @@
 package com.ptda.tracker.ui;
 
-import com.ptda.tracker.ui.screens.NavigationMenu;
 import lombok.Getter;
 import org.springframework.context.ApplicationContext;
 

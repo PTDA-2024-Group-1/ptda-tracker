@@ -28,6 +28,7 @@ public class TrackerApplication {
         }
 
         ApplicationContext context = SpringApplication.run(TrackerApplication.class, args);
+		context.getBean(InitData.class).init();
 
 		SwingUtilities.invokeLater(() -> {
 			MainFrame mainFrame = new MainFrame(context);
@@ -35,8 +36,6 @@ public class TrackerApplication {
 			Preferences preferences = Preferences.userNodeForPackage(TrackerApplication.class);
 			String username = preferences.get("email", null);
 			String encryptedPassword = preferences.get("password", null);
-			System.out.println("username: " + username);
-			System.out.println("encryptedPassword: " + encryptedPassword);
 
 			UserService userService = context.getBean(UserService.class);
 			Optional<User> user = userService.getByEmail(username);

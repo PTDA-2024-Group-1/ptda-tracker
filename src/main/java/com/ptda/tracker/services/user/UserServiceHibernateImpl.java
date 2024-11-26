@@ -15,6 +15,7 @@ import java.util.Optional;
 public class UserServiceHibernateImpl implements UserService {
 
     private final UserRepository userRepository;
+    private final TierService tierService;
     private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     @Override
@@ -25,10 +26,12 @@ public class UserServiceHibernateImpl implements UserService {
         if (userRepository.findByEmail(email).isPresent()) {
             return null;
         }
+        Tier tier = tierService.getTopTierByPoints(0).orElse(null);
         User user = User.builder()
                 .name(name)
                 .email(email)
                 .password(passwordEncoder.encode(password))
+                .tier(tier)
                 .build();
         return userRepository.save(user);
     }
