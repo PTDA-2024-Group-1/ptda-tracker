@@ -43,4 +43,8 @@ public class Budget {
         this.updatedBy = UserSession.getInstance().getUser();
     }
 
+    public String toString() {
+        return name;
+    }
+
 }

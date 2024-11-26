@@ -114,7 +114,15 @@ public class BudgetForm extends JPanel {
     }
 
     private void setListeners() {
-        cancelButton.addActionListener(e -> mainFrame.showScreen(ScreenNames.BUDGET_DETAIL_VIEW));
+        cancelButton.addActionListener(e -> {
+            if (budget == null) {
+                // Se o orçamento for null, estamos em criação, então volta para a tela de navegação
+                mainFrame.showScreen(ScreenNames.NAVIGATION_SCREEN);
+            } else {
+                // Se o orçamento já existe, estamos em edição, então volta para o BudgetDetailView
+                mainFrame.registerAndShowScreen(ScreenNames.BUDGET_DETAIL_VIEW, new BudgetDetailView(mainFrame, budget));
+            }
+        });
         saveButton.addActionListener(this::saveBudget);
     }
 

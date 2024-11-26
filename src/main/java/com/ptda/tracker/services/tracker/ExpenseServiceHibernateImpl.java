@@ -8,7 +8,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -52,6 +54,16 @@ public class ExpenseServiceHibernateImpl implements ExpenseService {
         return expenseRepository.findAllByBudgetId(budgetId).stream()
                 .mapToDouble(Expense::getAmount)
                 .sum();
+    }
+
+    @Override
+    public Map<String, Double> getExpensesByCategory(Long userId) {
+        List<Expense> expenses = expenseRepository.findAllByCreatedById(userId);
+        return expenses.stream()
+                .collect(Collectors.groupingBy(
+                        expense -> expense.getCategory().toString(), // Convert ExpenseCategory to String
+                        Collectors.summingDouble(Expense::getAmount)
+                ));
     }
 
     @Override

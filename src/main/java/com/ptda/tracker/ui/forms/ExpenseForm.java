@@ -172,7 +172,15 @@ public class ExpenseForm extends JPanel {
     }
 
     private void setListeners() {
-        backButton.addActionListener(e -> mainFrame.showScreen(ScreenNames.EXPENSE_DETAIL_VIEW));
+        backButton.addActionListener(e -> {
+            if (expense == null) {
+                // Se o orçamento for null, estamos em criação, então volta para a tela de navegação
+                mainFrame.showScreen(ScreenNames.NAVIGATION_SCREEN);
+            } else {
+                // Se o orçamento já existe, estamos em edição, então volta para o BudgetDetailView
+                mainFrame.registerAndShowScreen(ScreenNames.EXPENSE_DETAIL_VIEW, new ExpenseDetailView(mainFrame, expense));
+            }
+        });
         saveButton.addActionListener(this::saveExpense);
     }
 

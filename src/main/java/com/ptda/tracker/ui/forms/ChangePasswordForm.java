@@ -105,7 +105,7 @@ public class ChangePasswordForm extends JPanel {
     }
 
     private void setListeners() {
-        cancelButton.addActionListener(e -> mainFrame.showScreen(ScreenNames.BUDGET_DETAIL_VIEW));
+        cancelButton.addActionListener(e -> mainFrame.showScreen(ScreenNames.NAVIGATION_SCREEN));
         saveButton.addActionListener(e -> onSave(mainFrame));
     }
 

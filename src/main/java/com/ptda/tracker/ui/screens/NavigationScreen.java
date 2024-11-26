@@ -33,6 +33,10 @@ public class NavigationScreen extends JPanel {
     public void setContent(String screenName, Supplier<JPanel> screenSupplier) {
         if (activeCards.containsKey(screenName)) {
             // Show existing screen
+            JPanel screen = activeCards.get(screenName);
+            if (screen instanceof HomeScreen) {
+                ((HomeScreen) screen).refreshData();
+            }
             ((CardLayout) contentPanel.getLayout()).show(contentPanel, screenName);
         } else {
             // Create, add, and show the new screen

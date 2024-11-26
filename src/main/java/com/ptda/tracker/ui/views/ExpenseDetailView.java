@@ -5,6 +5,7 @@ import com.ptda.tracker.services.tracker.ExpenseService;
 import com.ptda.tracker.ui.MainFrame;
 import com.ptda.tracker.ui.forms.ExpenseForm;
 import com.ptda.tracker.ui.screens.ExpensesScreen;
+import com.ptda.tracker.ui.screens.NavigationScreen;
 import com.ptda.tracker.util.ScreenNames;
 
 import javax.swing.*;
@@ -89,7 +90,7 @@ public class ExpenseDetailView extends JPanel {
         if (confirm == JOptionPane.YES_OPTION) {
             try {
                 expenseService.delete(expense.getId());
-                mainFrame.showScreen(ScreenNames.NAVIGATION_SCREEN);
+                mainFrame.registerAndShowScreen(ScreenNames.NAVIGATION_SCREEN, new NavigationScreen(mainFrame)); // TO-DO - Fix this (when deleting an expense, the navigation screen should be shown on the expenses screen)
                 JOptionPane.showMessageDialog(this, "Expense deleted successfully.", "Success", JOptionPane.INFORMATION_MESSAGE);
             } catch (Exception ex) {
                 ex.printStackTrace();
@@ -98,6 +99,7 @@ public class ExpenseDetailView extends JPanel {
             }
         }
     }
+
 
     private void returnToThisScreen() {
         Optional<Expense> optionalExpense = expenseService.getById(expense.getId());
@@ -111,7 +113,7 @@ public class ExpenseDetailView extends JPanel {
     }
 
     private void setValues(Expense expense) {
-        nameLabel = new JLabel("Name: " + expense.getName());
+        nameLabel = new JLabel("Name: " + expense.getTitle());
         amountLabel = new JLabel("Amount: €" + expense.getAmount());
         categoryLabel = new JLabel("Category: " + expense.getCategory());
         dateLabel = new JLabel("Date: " + expense.getDate().toString());
