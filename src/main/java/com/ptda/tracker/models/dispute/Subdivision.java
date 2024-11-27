@@ -18,8 +18,6 @@ public class Subdivision {
 
     @Id
     @GeneratedValue
-//            (strategy = GenerationType.SEQUENCE, generator = "subdivision_seq")
-//    @SequenceGenerator(name = "subdivision_seq", sequenceName = "subdivision_seq", allocationSize = 1)
     private Long id;
 
     private double amount;
@@ -37,4 +35,5 @@ public class Subdivision {
 
     @ManyToOne
     private User createdBy;
+
 }
