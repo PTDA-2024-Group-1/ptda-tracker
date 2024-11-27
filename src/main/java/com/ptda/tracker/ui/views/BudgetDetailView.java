@@ -8,8 +8,8 @@ import com.ptda.tracker.services.tracker.ExpenseService;
 import com.ptda.tracker.ui.MainFrame;
 import com.ptda.tracker.ui.dialogs.ParticipantsDialog;
 import com.ptda.tracker.ui.forms.BudgetForm;
-import com.ptda.tracker.ui.forms.DistributeExpenseForm;
 import com.ptda.tracker.ui.forms.ShareBudgetForm;
+import com.ptda.tracker.ui.forms.SimulationSubdivisionsForm;
 import com.ptda.tracker.util.ScreenNames;
 import com.ptda.tracker.util.UserSession;
 
@@ -87,10 +87,10 @@ public class BudgetDetailView extends JPanel {
             shareButton = new JButton("Share Budget");
             buttonsPanel.add(shareButton);
         }
-        if (budgetAccessService.hasAccess(budget.getId(), UserSession.getInstance().getUser().getId(), BudgetAccessLevel.OWNER)) {
-            JButton distributeButton = new JButton("Distribute Expenses");
-            distributeButton.addActionListener(e -> mainFrame.registerAndShowScreen(ScreenNames.DISTRIBUTE_EXPENSE_FORM, new DistributeExpenseForm(mainFrame, budget)));
-            buttonsPanel.add(distributeButton);
+        if (budgetAccessService.hasAccess(budget.getId(), UserSession.getInstance().getUser().getId(), BudgetAccessLevel.OWNER) && !expenses.isEmpty()) {
+            JButton simulateSubdivisionsButton = new JButton("Simulate Subdivisions");
+            simulateSubdivisionsButton.addActionListener(e -> mainFrame.registerAndShowScreen(ScreenNames.DISTRIBUTE_EXPENSE_FORM, new SimulationSubdivisionsForm(mainFrame, budget)));
+            buttonsPanel.add(simulateSubdivisionsButton);
         }
         // End Buttons Panel
 

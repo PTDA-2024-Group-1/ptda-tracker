@@ -2,10 +2,12 @@ package com.ptda.tracker.ui.views;
 
 import com.ptda.tracker.models.dispute.Subdivision;
 import com.ptda.tracker.models.tracker.Expense;
+import com.ptda.tracker.services.tracker.BudgetAccessService;
 import com.ptda.tracker.services.tracker.ExpenseService;
 import com.ptda.tracker.services.tracker.SubdivisionService;
 import com.ptda.tracker.ui.MainFrame;
 import com.ptda.tracker.ui.forms.ExpenseForm;
+import com.ptda.tracker.ui.forms.SubdivisionForm;
 import com.ptda.tracker.util.ScreenNames;
 
 import javax.swing.*;
@@ -25,7 +27,7 @@ public class ExpenseDetailView extends JPanel {
 
     private JLabel nameLabel, amountLabel, categoryLabel, dateLabel, createdByLabel;
     private JTable subdivisionsTable;
-    private JButton backButton, editButton, deleteButton, createSubdivisionButton;
+    private JButton backButton, editButton, deleteButton, distributeDivisionExpensionButton;
 
     public ExpenseDetailView(MainFrame mainFrame, Expense expense, String returnScreen, Runnable onBack) {
         this.mainFrame = mainFrame;
@@ -36,6 +38,7 @@ public class ExpenseDetailView extends JPanel {
         this.onBack = onBack;
 
         initUI();
+        setListeners();
     }
 
     private void initUI() {
@@ -83,27 +86,41 @@ public class ExpenseDetailView extends JPanel {
         JPanel buttonsPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
 
         backButton = new JButton("Back");
-        backButton.addActionListener(e -> mainFrame.showScreen(returnScreen));
         buttonsPanel.add(backButton);
 
         editButton = new JButton("Edit Expense");
-        ExpenseForm expenseForm = new ExpenseForm(mainFrame, expense, mainFrame.getCurrentScreen(), this::returnToThisScreen);
-        editButton.addActionListener(e -> mainFrame.registerAndShowScreen(ScreenNames.EXPENSE_FORM, expenseForm));
         buttonsPanel.add(editButton);
 
         deleteButton = new JButton("Delete Expense");
-        deleteButton.addActionListener(e -> delete());
         buttonsPanel.add(deleteButton);
 
-        createSubdivisionButton = new JButton("Create Subdivision");
-        buttonsPanel.add(createSubdivisionButton);
+        distributeDivisionExpensionButton = new JButton("Distribute Subdivisions");
+        if (expense.getBudget() == null) {
+            distributeDivisionExpensionButton.setVisible(false);
+        }
+        buttonsPanel.add(distributeDivisionExpensionButton);
 
         add(buttonsPanel, BorderLayout.SOUTH);
         // End Buttons Panel
     }
 
     private void setListeners() {
-        // TODO: Implement createSubdivisionButton listener
+        backButton.addActionListener(e -> {
+            if (expense.getBudget() != null) {
+                mainFrame.showScreen(returnScreen);
+            } else {
+                mainFrame.showScreen(ScreenNames.NAVIGATION_SCREEN);
+            }
+        });
+        editButton.addActionListener(e -> {
+            ExpenseForm expenseForm = new ExpenseForm(mainFrame, expense, mainFrame.getCurrentScreen(), this::returnToThisScreen);
+            mainFrame.registerAndShowScreen(ScreenNames.EXPENSE_FORM, expenseForm);
+        });
+        deleteButton.addActionListener(e -> delete());
+        distributeDivisionExpensionButton.addActionListener(e -> {
+            SubdivisionForm subdivisionForm = new SubdivisionForm(mainFrame, expense, expense.getBudget(), mainFrame.getContext().getBean(BudgetAccessService.class), () -> mainFrame.registerAndShowScreen(ScreenNames.EXPENSE_DETAIL_VIEW, new ExpenseDetailView(mainFrame, expense, returnScreen, onBack)));
+            mainFrame.registerAndShowScreen(ScreenNames.SUBDIVISION_FORM, subdivisionForm);
+        });
     }
 
     private JTable createSubdivisionsTable(List<Subdivision> subdivisions) {
@@ -120,8 +137,11 @@ public class ExpenseDetailView extends JPanel {
         if (confirm == JOptionPane.YES_OPTION) {
             try {
                 expenseService.delete(expense.getId());
-                mainFrame.showScreen(returnScreen);
-                onBack.run();
+                if (onBack != null) {
+                    onBack.run();
+                } else {
+                    mainFrame.showScreen(returnScreen);
+                }
                 JOptionPane.showMessageDialog(this, "Expense deleted successfully.", "Success", JOptionPane.INFORMATION_MESSAGE);
             } catch (Exception ex) {
                 ex.printStackTrace();

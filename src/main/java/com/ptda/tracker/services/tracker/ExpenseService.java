@@ -1,7 +1,6 @@
 package com.ptda.tracker.services.tracker;
 
 import com.ptda.tracker.models.tracker.Expense;
-import com.ptda.tracker.models.tracker.ExpenseCategory;
 
 import java.util.List;
 import java.util.Map;
@@ -30,5 +29,4 @@ public interface ExpenseService {
     Expense assignBudget(Long expenseId, Long budgetId);
 
     boolean delete(Long id);
-
 }

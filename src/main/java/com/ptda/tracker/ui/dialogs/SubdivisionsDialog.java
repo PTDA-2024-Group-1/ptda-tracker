@@ -30,7 +30,7 @@ public class SubdivisionsDialog extends JDialog {
     }
 
     public static JTable createSubdivisionsJTable(List<Subdivision> subdivisions) {
-        String[] columnNames = {"ID", "Amount", "Percentage", "Created By"};
+        String[] columnNames = {"ID", "Amount", "Percentage", "Created By", "Associated User"};
         Object[][] data = new Object[subdivisions.size()][columnNames.length];
         for (int i = 0; i < subdivisions.size(); i++) {
             Subdivision subdivision = subdivisions.get(i);
@@ -38,6 +38,7 @@ public class SubdivisionsDialog extends JDialog {
             data[i][1] = subdivision.getAmount() + "€";
             data[i][2] = subdivision.getPercentage() + "%";
             data[i][3] = subdivision.getCreatedBy().getName();
+            data[i][4] = subdivision.getUser().getName();
         }
         return new JTable(data, columnNames);
     }

@@ -9,4 +9,5 @@ import java.util.List;
 @Repository
 public interface SubdivisionRepository extends JpaRepository<Subdivision, Long> {
     List<Subdivision> findAllByExpenseId(Long expenseId);
+    void deleteByExpenseId(Long expenseId);
 }
