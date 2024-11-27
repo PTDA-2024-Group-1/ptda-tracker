@@ -11,6 +11,8 @@ public interface TierService {
 
     Optional<Tier> getById(Long id);
 
+    Tier getByName(String name);
+
     List<Tier> getTiersByPoints(int points);
 
     Optional<Tier> getTopTierByPoints(int points);

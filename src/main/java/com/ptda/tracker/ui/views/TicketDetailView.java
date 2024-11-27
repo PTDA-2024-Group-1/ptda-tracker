@@ -5,8 +5,6 @@ import com.ptda.tracker.models.assistance.TicketReply;
 import com.ptda.tracker.services.tracker.TicketService;
 import com.ptda.tracker.services.tracker.TicketReplyService;
 import com.ptda.tracker.ui.MainFrame;
-import com.ptda.tracker.ui.forms.BudgetForm;
-import com.ptda.tracker.ui.forms.TicketForm;
 import com.ptda.tracker.ui.forms.TicketReplyForm;
 import com.ptda.tracker.ui.renderers.TicketReplyRenderer;
 import com.ptda.tracker.util.ScreenNames;
@@ -70,14 +68,11 @@ public class TicketDetailView extends JPanel {
 
     private void addButtons(JPanel buttonPanel) {
         JButton backButton = new JButton("Back");
-        styleButton(backButton);
         backButton.addActionListener(e -> mainFrame.showScreen(ScreenNames.NAVIGATION_SCREEN));
         buttonPanel.add(backButton);
 
         if (ticket.isClosed()) {
             JButton reopenButton = new JButton("Reopen Ticket");
-            styleButton(reopenButton);
-            reopenButton.setPreferredSize(new Dimension(160, 40)); // Ajuste a largura aqui
             reopenButton.addActionListener(e -> {
                 TicketReply reply = TicketReply.builder()
                         .ticket(ticket)
@@ -94,7 +89,6 @@ public class TicketDetailView extends JPanel {
             buttonPanel.add(reopenButton);
         } else {
             JButton closeButton = new JButton("Close Ticket");
-            styleButton(closeButton);
             closeButton.addActionListener(e -> {
                 ticket.setClosed(true);
                 ticketService.update(ticket);
@@ -105,7 +99,6 @@ public class TicketDetailView extends JPanel {
             buttonPanel.add(closeButton);
 
             JButton replyButton = new JButton("Reply");
-            styleButton(replyButton);
             replyButton.addActionListener(e -> mainFrame.registerAndShowScreen(ScreenNames.TICKET_REPLY_FORM, new TicketReplyForm(mainFrame, null, ticket)));
             buttonPanel.add(replyButton);
         }
@@ -124,27 +117,5 @@ public class TicketDetailView extends JPanel {
         DefaultListModel<TicketReply> model = (DefaultListModel<TicketReply>) repliesList.getModel();
         model.clear();
         replies.forEach(model::addElement);
-    }
-
-    private void styleButton(JButton button) {
-        button.setFont(new Font("Arial", Font.BOLD, 14));
-        button.setBackground(new Color(56, 56, 56));
-        button.setForeground(Color.WHITE);
-        button.setFocusPainted(false);
-        button.setPreferredSize(new Dimension(140, 40));
-        button.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
-        button.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-
-        button.addMouseListener(new java.awt.event.MouseAdapter() {
-            @Override
-            public void mouseEntered(java.awt.event.MouseEvent e) {
-                button.setBackground(new Color(0, 0, 0));
-            }
-
-            @Override
-            public void mouseExited(java.awt.event.MouseEvent e) {
-                button.setBackground(new Color(56, 56, 56));
-            }
-        });
     }
 }

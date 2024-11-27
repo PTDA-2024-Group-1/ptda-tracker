@@ -40,12 +40,9 @@ public class TicketReplyForm extends JPanel {
         buttonPanel.setLayout(new FlowLayout());
 
         JButton saveButton = new JButton("Save Reply");
-        styleButton(saveButton);
         saveButton.addActionListener(e -> saveReply());
 
-
         JButton cancelButton = new JButton("Cancel");
-        styleButton(cancelButton);
         cancelButton.addActionListener(e -> mainFrame.showScreen(ScreenNames.TICKET_DETAIL_VIEW));
 
         buttonPanel.add(cancelButton);
@@ -70,27 +67,5 @@ public class TicketReplyForm extends JPanel {
         JOptionPane.showMessageDialog(this, "Reply saved successfully.");
         onFormSubmit.run();
         mainFrame.registerAndShowScreen(ScreenNames.TICKET_DETAIL_VIEW, new TicketDetailView(mainFrame, ticket));
-    }
-
-    private void styleButton(JButton button) {
-        button.setFont(new Font("Arial", Font.BOLD, 14));
-        button.setBackground(new Color(56, 56, 56));
-        button.setForeground(Color.WHITE);
-        button.setFocusPainted(false);
-        button.setPreferredSize(new Dimension(200, 40));
-        button.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
-        button.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-
-        button.addMouseListener(new java.awt.event.MouseAdapter() {
-            @Override
-            public void mouseEntered(java.awt.event.MouseEvent e) {
-                button.setBackground(new Color(0, 0, 0));
-            }
-
-            @Override
-            public void mouseExited(java.awt.event.MouseEvent e) {
-                button.setBackground(new Color(56, 56, 56));
-            }
-        });
     }
 }

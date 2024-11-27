@@ -19,4 +19,5 @@ public class ScreenNames {
     public static final String TICKET_FORM = "ticketForm";
     public static final String TICKET_DETAIL_VIEW = "ticketDetailView";
     public static final String TICKET_REPLY_FORM = "ticketReplyForm";
+    public static final String DISTRIBUTE_EXPENSE_FORM = "distributeExpenseForm";
 }

@@ -127,10 +127,6 @@ public class RegisterForm extends JPanel {
 
         // Botão de Registro
         JButton registerButton = new JButton("Register");
-        registerButton.setFont(new Font("Arial", Font.BOLD, 14));
-        registerButton.setBackground(new Color(56, 56, 56)); // Cor de fundo
-        registerButton.setForeground(Color.WHITE);
-        registerButton.setFocusPainted(false);
         gbc.gridx = 0;
         gbc.gridy = 9;
         formPanel.add(registerButton, gbc);
@@ -138,10 +134,6 @@ public class RegisterForm extends JPanel {
 
         // Botão para ir ao Login
         JButton loginButton = new JButton("Go to Login");
-        loginButton.setFont(new Font("Arial", Font.BOLD, 14));
-        loginButton.setBackground(new Color(56, 56, 56));
-        loginButton.setForeground(Color.WHITE);
-        loginButton.setFocusPainted(false);
         gbc.gridx = 0;
         gbc.gridy = 10;
         formPanel.add(loginButton, gbc);
@@ -151,7 +143,6 @@ public class RegisterForm extends JPanel {
     }
 
     private void register() {
-        //
         String name = nameField.getText();
         String email = emailField.getText();
         String password = new String(passwordField.getPassword());

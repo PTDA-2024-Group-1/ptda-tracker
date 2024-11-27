@@ -19,6 +19,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
@@ -120,10 +121,16 @@ public class HomeScreen extends JPanel {
         expenseLabel.setText("Expenses: " + expenseCount);
         ticketLabel.setText("Pending Tickets: " + pendingTicketCount);
 
-        List<Budget> recentBudgets = budgetService.getAllByUserId(userId).stream().limit(5).toList();
+        List<Budget> recentBudgets = budgetService.getAllByUserId(userId).stream()
+                .sorted((b1, b2) -> Long.compare(b2.getCreatedAt(), b1.getCreatedAt()))
+                .limit(5)
+                .toList();
         budgetList.setListData(recentBudgets.toArray(new Budget[0]));
 
-        List<Expense> recentExpenses = expenseService.getAllByUserId(userId).stream().limit(5).toList();
+        List<Expense> recentExpenses = expenseService.getAllByUserId(userId).stream()
+                .sorted((e1, e2) -> Long.compare(e2.getCreatedAt(), e1.getCreatedAt()))
+                .limit(5)
+                .toList();
         expenseList.setListData(recentExpenses.toArray(new Expense[0]));
 
         DefaultPieDataset dataset = new DefaultPieDataset();

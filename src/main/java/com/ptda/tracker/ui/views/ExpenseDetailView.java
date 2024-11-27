@@ -4,15 +4,12 @@ import com.ptda.tracker.models.tracker.Expense;
 import com.ptda.tracker.services.tracker.ExpenseService;
 import com.ptda.tracker.ui.MainFrame;
 import com.ptda.tracker.ui.forms.ExpenseForm;
-import com.ptda.tracker.ui.screens.ExpensesScreen;
 import com.ptda.tracker.ui.screens.NavigationScreen;
 import com.ptda.tracker.util.ScreenNames;
 
 import javax.swing.*;
 import java.awt.*;
 import java.util.Optional;
-
-import static com.ptda.tracker.ui.views.BudgetDetailView.createStyledButton;
 
 public class ExpenseDetailView extends JPanel {
     private final MainFrame mainFrame;
@@ -62,19 +59,18 @@ public class ExpenseDetailView extends JPanel {
         // Painel de botões
         JPanel buttonsPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
 
-        // Botões com estilo e hover
-        backButton = createStyledButton("Back to Expenses");
+        // Botões padrão
+        backButton = new JButton("Back to Expenses");
         backButton.addActionListener(e -> mainFrame.showScreen(ScreenNames.NAVIGATION_SCREEN));
         buttonsPanel.add(backButton);
 
-        editButton = createStyledButton("Edit Expense");
+        editButton = new JButton("Edit Expense");
         ExpenseForm expenseForm = new ExpenseForm(mainFrame, this::returnToThisScreen, expense);
         editButton.addActionListener(e -> mainFrame.registerAndShowScreen(ScreenNames.EXPENSE_FORM, expenseForm));
         buttonsPanel.add(editButton);
 
-        deleteButton = createStyledButton("Delete Expense");
+        deleteButton = new JButton("Delete Expense");
         deleteButton.addActionListener(e -> delete());
-
         buttonsPanel.add(deleteButton);
 
         add(buttonsPanel, BorderLayout.SOUTH);
@@ -90,7 +86,7 @@ public class ExpenseDetailView extends JPanel {
         if (confirm == JOptionPane.YES_OPTION) {
             try {
                 expenseService.delete(expense.getId());
-                mainFrame.registerAndShowScreen(ScreenNames.NAVIGATION_SCREEN, new NavigationScreen(mainFrame)); // TO-DO - Fix this (when deleting an expense, the navigation screen should be shown on the expenses screen)
+                mainFrame.registerAndShowScreen(ScreenNames.NAVIGATION_SCREEN, new NavigationScreen(mainFrame));
                 JOptionPane.showMessageDialog(this, "Expense deleted successfully.", "Success", JOptionPane.INFORMATION_MESSAGE);
             } catch (Exception ex) {
                 ex.printStackTrace();
@@ -99,7 +95,6 @@ public class ExpenseDetailView extends JPanel {
             }
         }
     }
-
 
     private void returnToThisScreen() {
         Optional<Expense> optionalExpense = expenseService.getById(expense.getId());
@@ -120,4 +115,3 @@ public class ExpenseDetailView extends JPanel {
         createdByLabel = new JLabel("Created By: " + expense.getCreatedBy().getName());
     }
 }
-

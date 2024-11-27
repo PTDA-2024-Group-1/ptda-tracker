@@ -24,6 +24,11 @@ public class TierServiceHibernateImpl implements TierService {
     }
 
     @Override
+    public Tier getByName(String name) {
+        return tierRepository.findByName(name);
+    }
+
+    @Override
     public List<Tier> getTiersByPoints(int points) {
         return tierRepository.findByPointsLessThanEqual(points);
     }

@@ -79,7 +79,6 @@ public class ProfileView extends JPanel {
 
         // Edit Profile Button
         JButton editButton = new JButton("Edit Profile");
-        styleButton(editButton);
         editButton.addActionListener(e -> navigateToEditProfile());
         buttonsPanel.add(editButton);
 
@@ -88,7 +87,6 @@ public class ProfileView extends JPanel {
 
         // Change Password Button
         JButton changePasswordButton = new JButton("Change Password");
-        styleButton(changePasswordButton);
         changePasswordButton.addActionListener(e -> navigateToChangePassword());
         buttonsPanel.add(changePasswordButton);
 
@@ -96,26 +94,6 @@ public class ProfileView extends JPanel {
 
         // Load user data
         refreshUserData();
-    }
-
-    private void styleButton(JButton button) {
-        button.setFont(new Font("Arial", Font.BOLD, 14));
-        button.setBackground(new Color(56, 56, 56));  // Cor de fundo do botão
-        button.setForeground(Color.WHITE);  // Texto branco
-        button.setFocusPainted(false);
-        button.setPreferredSize(new Dimension(160, 40));
-        button.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-        button.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-
-        // Efeito hover
-        button.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                button.setBackground(new Color(0, 0, 0));  // Fundo escuro ao passar o mouse
-            }
-            public void mouseExited(java.awt.event.MouseEvent evt) {
-                button.setBackground(new Color(56, 56, 56));  // Fundo original
-            }
-        });
     }
 
     private void refreshUserData() {

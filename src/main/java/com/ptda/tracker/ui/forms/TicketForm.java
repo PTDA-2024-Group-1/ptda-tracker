@@ -19,9 +19,6 @@ public class TicketForm extends JPanel {
     private JTextArea descriptionArea;
 
     private static final Color PRIMARY_COLOR = new Color(240, 240, 240);
-    private static final Color BUTTON_COLOR = new Color(56, 56, 56, 255);
-    private static final Color BUTTON_HOVER_COLOR = new Color(0, 0, 0, 255);
-    private static final Color BUTTON_TEXT_COLOR = Color.WHITE;
 
     public TicketForm(MainFrame mainFrame, Runnable onSaveCallback, Ticket existingTicket) {
         this.mainFrame = mainFrame;
@@ -79,10 +76,10 @@ public class TicketForm extends JPanel {
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 10));
         buttonPanel.setBackground(PRIMARY_COLOR);
 
-        JButton backButton = createStyledButton("Back");
+        JButton backButton = new JButton("Back");
         backButton.addActionListener(e -> mainFrame.showScreen(ScreenNames.NAVIGATION_SCREEN));
 
-        JButton saveButton = createStyledButton("Save");
+        JButton saveButton = new JButton("Save");
         saveButton.addActionListener(e -> saveTicket());
 
         buttonPanel.add(backButton);
@@ -104,8 +101,8 @@ public class TicketForm extends JPanel {
 
         ticket.setTitle(title);
         ticket.setBody(body);
-        ticket.setCreatedBy(UserSession.getInstance().getUser()); // Usuário autenticado
-        ticket.setAssistant(null); // Ou use lógica para selecionar um assistente, se aplicável.
+        ticket.setCreatedBy(UserSession.getInstance().getUser()); // Authenticated user
+        ticket.setAssistant(null); // Or use logic to select an assistant, if applicable.
 
         ticketService.save(ticket);
 
@@ -115,13 +112,8 @@ public class TicketForm extends JPanel {
         mainFrame.registerAndShowScreen(ScreenNames.TICKET_DETAIL_VIEW, new TicketDetailView(mainFrame, ticket));
     }
 
-
     private void clear() {
         titleField.setText("");
         descriptionArea.setText("");
-    }
-
-    private JButton createStyledButton(String text) {
-        return ExpenseForm.getJButton(text, BUTTON_COLOR, BUTTON_HOVER_COLOR, BUTTON_TEXT_COLOR);
     }
 }

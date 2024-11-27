@@ -79,13 +79,11 @@ public class ProfileForm extends JPanel {
         gbc.gridx = 0;
         gbc.gridy = 3;
         cancelButton = new JButton(CANCEL);
-        styleButton(cancelButton);
         add(cancelButton, gbc);
 
         // Save Button
         gbc.gridx = 1;
         saveButton = new JButton(SAVE);
-        styleButton(saveButton);
         add(saveButton, gbc);
 
         setBackground(new Color(240, 240, 240));
@@ -101,26 +99,6 @@ public class ProfileForm extends JPanel {
         field.setBackground(new Color(255, 255, 255));
         field.setForeground(new Color(56, 56, 56));
         field.setBorder(BorderFactory.createLineBorder(new Color(200, 200, 200), 2));
-    }
-
-    private void styleButton(JButton button) {
-        button.setFont(new Font("Arial", Font.BOLD, 14));
-        button.setBackground(new Color(56, 56, 56));
-        button.setForeground(Color.WHITE);
-        button.setFocusPainted(false);
-        button.setPreferredSize(new Dimension(120, 40));
-        button.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-        button.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-
-        // Efeito hover
-        button.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                button.setBackground(new Color(0, 0, 0));
-            }
-            public void mouseExited(java.awt.event.MouseEvent evt) {
-                button.setBackground(new Color(56, 56, 56));
-            }
-        });
     }
 
     private void onSave(User user, MainFrame mainFrame) {

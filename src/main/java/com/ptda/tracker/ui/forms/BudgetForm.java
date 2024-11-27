@@ -11,8 +11,6 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 
-import static com.ptda.tracker.ui.forms.ExpenseForm.getJButton;
-
 public class BudgetForm extends JPanel {
     private final MainFrame mainFrame;
     private final ApplicationContext context;
@@ -23,9 +21,6 @@ public class BudgetForm extends JPanel {
     private JButton saveButton, cancelButton;
 
     private static final Color BACKGROUND_COLOR = new Color(240, 240, 240);
-    private static final Color BUTTON_COLOR = new Color(56, 56, 56, 255); // #383838FF
-    private static final Color BUTTON_HOVER_COLOR = new Color(0, 0, 0, 255); // #000000FF
-    private static final Color BUTTON_TEXT_HOVER_COLOR = Color.WHITE;
 
     private static final String
             CREATE_NEW_BUDGET = "Create New Budget",
@@ -105,9 +100,9 @@ public class BudgetForm extends JPanel {
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 10));
         buttonPanel.setBackground(BACKGROUND_COLOR);
 
-        cancelButton = createStyledButton(CANCEL);
+        cancelButton = new JButton(CANCEL);
         buttonPanel.add(cancelButton);
-        saveButton = createStyledButton(SAVE);
+        saveButton = new JButton(SAVE);
         buttonPanel.add(saveButton);
 
         add(buttonPanel, BorderLayout.SOUTH);
@@ -158,12 +153,8 @@ public class BudgetForm extends JPanel {
             JOptionPane.showMessageDialog(this,  BUDGET_SAVED_SUCCESSFULLY + "!", SUCCESS, JOptionPane.INFORMATION_MESSAGE);
         } catch (Exception ex) {
             // Log do erro para debug
-            ex.printStackTrace(); // TO DO: Substituir por um logger no futuro
+            ex.printStackTrace();
             JOptionPane.showMessageDialog(this, ERROR_OCCURRED_WHILE_SAVING_BUDGET, ERROR, JOptionPane.ERROR_MESSAGE);
         }
-    }
-
-    private JButton createStyledButton(String text) {
-        return getJButton(text, BUTTON_COLOR, BUTTON_HOVER_COLOR, BUTTON_TEXT_HOVER_COLOR);
     }
 }

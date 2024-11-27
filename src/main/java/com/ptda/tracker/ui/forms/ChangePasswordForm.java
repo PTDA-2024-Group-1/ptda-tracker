@@ -9,7 +9,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 import javax.swing.*;
 import java.awt.*;
-import javax.swing.border.EmptyBorder;
 
 public class ChangePasswordForm extends JPanel {
     private final MainFrame mainFrame;
@@ -55,7 +54,7 @@ public class ChangePasswordForm extends JPanel {
         gbc.gridwidth = 1;
         gbc.gridx = 0;
         gbc.gridy = 1;
-        JLabel currentPasswordLabel = new JLabel( CURRENT_PASSWORD + ":");
+        JLabel currentPasswordLabel = new JLabel(CURRENT_PASSWORD + ":");
         currentPasswordLabel.setFont(new Font("Arial", Font.PLAIN, 14));
         add(currentPasswordLabel, gbc);
 
@@ -67,7 +66,7 @@ public class ChangePasswordForm extends JPanel {
         // New Password
         gbc.gridx = 0;
         gbc.gridy = 2;
-        JLabel newPasswordLabel = new JLabel( NEW_PASSWORD + ":");
+        JLabel newPasswordLabel = new JLabel(NEW_PASSWORD + ":");
         newPasswordLabel.setFont(new Font("Arial", Font.PLAIN, 14));
         add(newPasswordLabel, gbc);
 
@@ -79,7 +78,7 @@ public class ChangePasswordForm extends JPanel {
         // Confirm Password
         gbc.gridx = 0;
         gbc.gridy = 3;
-        JLabel confirmPasswordLabel = new JLabel( CONFIRM_PASSWORD + ":");
+        JLabel confirmPasswordLabel = new JLabel(CONFIRM_PASSWORD + ":");
         confirmPasswordLabel.setFont(new Font("Arial", Font.PLAIN, 14));
         add(confirmPasswordLabel, gbc);
 
@@ -92,13 +91,11 @@ public class ChangePasswordForm extends JPanel {
         gbc.gridx = 0;
         gbc.gridy = 4;
         cancelButton = new JButton(CANCEL);
-        styleButton(cancelButton);
         add(cancelButton, gbc);
 
         // Save Button
         gbc.gridx = 1;
         saveButton = new JButton(SAVE);
-        styleButton(saveButton);
         add(saveButton, gbc);
 
         setBackground(new Color(240, 240, 240)); // Cor de fundo suave
@@ -114,26 +111,6 @@ public class ChangePasswordForm extends JPanel {
         field.setBackground(new Color(255, 255, 255)); // Cor de fundo clara
         field.setForeground(new Color(56, 56, 56)); // Texto escuro
         field.setBorder(BorderFactory.createLineBorder(new Color(200, 200, 200), 2)); // Borda suave
-    }
-
-    private void styleButton(JButton button) {
-        button.setFont(new Font("Arial", Font.BOLD, 14));
-        button.setBackground(new Color(56, 56, 56)); // Cor de fundo do botão
-        button.setForeground(Color.WHITE); // Cor do texto do botão
-        button.setFocusPainted(false);
-        button.setPreferredSize(new Dimension(120, 40));
-        button.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-        button.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-
-        // Hover effect
-        button.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                button.setBackground(new Color(0, 0, 0)); // Cor do botão ao passar o mouse
-            }
-            public void mouseExited(java.awt.event.MouseEvent evt) {
-                button.setBackground(new Color(56, 56, 56)); // Cor original
-            }
-        });
     }
 
     private void onSave(MainFrame mainFrame) {

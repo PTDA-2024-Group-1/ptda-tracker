@@ -4,6 +4,7 @@ import com.ptda.tracker.models.tracker.Budget;
 import com.ptda.tracker.models.tracker.BudgetAccessLevel;
 import com.ptda.tracker.services.tracker.BudgetAccessService;
 import com.ptda.tracker.ui.MainFrame;
+import com.ptda.tracker.ui.views.BudgetDetailView;
 import com.ptda.tracker.util.ScreenNames;
 
 import javax.swing.*;
@@ -74,11 +75,9 @@ public class ShareBudgetForm extends JPanel {
         JPanel buttonsPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
 
         cancelButton = new JButton("Cancel");
-        styleButton(cancelButton);
         buttonsPanel.add(cancelButton);
 
         saveButton = new JButton("Add Participant");
-        styleButton(saveButton);
         buttonsPanel.add(saveButton);
 
         add(buttonsPanel, gbc);
@@ -105,26 +104,6 @@ public class ShareBudgetForm extends JPanel {
         comboBox.setBorder(BorderFactory.createLineBorder(new Color(200, 200, 200), 2)); // Borda suave
     }
 
-    private void styleButton(JButton button) {
-        button.setFont(new Font("Arial", Font.BOLD, 14));
-        button.setBackground(new Color(56, 56, 56)); // Fundo do botão
-        button.setForeground(Color.WHITE); // Texto branco
-        button.setFocusPainted(false);
-        button.setPreferredSize(new Dimension(150, 40));
-        button.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-        button.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-
-        // Efeito hover
-        button.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                button.setBackground(new Color(0, 0, 0)); // Fundo ao passar o mouse
-            }
-            public void mouseExited(java.awt.event.MouseEvent evt) {
-                button.setBackground(new Color(56, 56, 56)); // Fundo padrão
-            }
-        });
-    }
-
     private void addParticipant() {
         String email = emailField.getText().trim();
         BudgetAccessLevel accessLevel = (BudgetAccessLevel) accessLevelComboBox.getSelectedItem();
@@ -137,6 +116,7 @@ public class ShareBudgetForm extends JPanel {
         try {
             budgetAccessService.create(budget.getId(), email, accessLevel);
             JOptionPane.showMessageDialog(this, "Participant added successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
+            mainFrame.registerAndShowScreen(ScreenNames.BUDGET_DETAIL_VIEW, new BudgetDetailView(mainFrame, budget));
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this, "Failed to add participant: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }

@@ -38,4 +38,9 @@ public class BudgetAccess {
         this.createdBy = UserSession.getInstance().getUser();
     }
 
+    @Override
+    public String toString() {
+        return getUser().getName();
+    }
+
 }

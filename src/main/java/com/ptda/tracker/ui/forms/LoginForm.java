@@ -112,20 +112,12 @@ public class LoginForm extends JPanel {
 
         // Login
         loginButton = new JButton(LOGIN);
-        loginButton.setFont(new Font("Arial", Font.BOLD, 14));
-        loginButton.setBackground(new Color(56, 56, 56)); // Cor de fundo
-        loginButton.setForeground(Color.WHITE);
-        loginButton.setFocusPainted(false);
         gbc.gridx = 0;
         gbc.gridy = 4;
         formPanel.add(loginButton, gbc);
 
         // Register
         registerButton = new JButton(GO_TO_REGISTER);
-        registerButton.setFont(new Font("Arial", Font.BOLD, 14));
-        registerButton.setBackground(new Color(56, 56, 56)); // Cor de fundo
-        registerButton.setForeground(Color.WHITE);
-        registerButton.setFocusPainted(false);
         gbc.gridx = 0;
         gbc.gridy = 5;
         formPanel.add(registerButton, gbc);

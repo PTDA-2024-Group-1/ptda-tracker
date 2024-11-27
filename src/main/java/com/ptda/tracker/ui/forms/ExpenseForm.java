@@ -32,9 +32,6 @@ public class ExpenseForm extends JPanel {
     private JButton saveButton, backButton;
 
     private static final Color PRIMARY_COLOR = new Color(240, 240, 240);
-    private static final Color BUTTON_COLOR = new Color(56, 56, 56, 255);
-    private static final Color BUTTON_HOVER_COLOR = new Color(0, 0, 0, 255);
-    private static final Color BUTTON_TEXT_COLOR = Color.WHITE;
 
     private static final String
             CREATE_NEW_EXPENSE = "Create New Expense",
@@ -86,7 +83,7 @@ public class ExpenseForm extends JPanel {
         // Title Field
         gbc.gridx = 0;
         gbc.gridy = 0;
-        formPanel.add(new JLabel( TITLE + ":"), gbc);
+        formPanel.add(new JLabel(TITLE + ":"), gbc);
 
         gbc.gridx = 1;
         titleField = new JTextField(expense != null ? expense.getTitle() : "", 25);
@@ -163,9 +160,9 @@ public class ExpenseForm extends JPanel {
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 10));
         buttonPanel.setBackground(PRIMARY_COLOR);
 
-        backButton = createStyledButton(BACK);
+        backButton = new JButton(BACK);
         buttonPanel.add(backButton);
-        saveButton = createStyledButton(SAVE);
+        saveButton = new JButton(SAVE);
         buttonPanel.add(saveButton);
 
         add(buttonPanel, BorderLayout.SOUTH);
@@ -238,33 +235,5 @@ public class ExpenseForm extends JPanel {
         categoryComboBox.setSelectedIndex(0);
         budgetComboBox.setSelectedIndex(0);
         descriptionArea.setText("");
-    }
-
-    private JButton createStyledButton(String text) {
-        return getJButton(text, BUTTON_COLOR, BUTTON_HOVER_COLOR, BUTTON_TEXT_COLOR);
-    }
-
-    public static JButton getJButton(String text, Color buttonColor, Color buttonHoverColor, Color buttonTextColor) {
-        JButton button = new JButton(text);
-        button.setFont(new Font("Arial", Font.BOLD, 16));
-        button.setBackground(buttonColor);
-        button.setForeground(Color.WHITE);
-        button.setFocusPainted(false);
-        button.setPreferredSize(new Dimension(120, 40));
-        button.setBorder(BorderFactory.createLineBorder(Color.GRAY, 2, true));
-
-        button.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                button.setBackground(buttonHoverColor);
-                button.setForeground(buttonTextColor);
-            }
-
-            public void mouseExited(java.awt.event.MouseEvent evt) {
-                button.setBackground(buttonColor);
-                button.setForeground(Color.WHITE);
-            }
-        });
-
-        return button;
     }
 }

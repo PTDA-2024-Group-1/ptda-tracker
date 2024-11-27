@@ -11,8 +11,6 @@ import com.ptda.tracker.util.UserSession;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.util.List;
 
 public class ExpensesScreen extends JPanel {
@@ -45,36 +43,12 @@ public class ExpensesScreen extends JPanel {
         add(label, BorderLayout.NORTH);
 
         JButton createButton = new JButton("Create New Expense");
-        styleButton(createButton);
         createButton.addActionListener(e -> {
             // Abrir o ExpenseForm no modo de criação
             mainFrame.registerScreen(ScreenNames.EXPENSE_FORM, new ExpenseForm(mainFrame, this::refreshExpenseList, null));
             mainFrame.showScreen(ScreenNames.EXPENSE_FORM);
         });
         add(createButton, BorderLayout.SOUTH);
-    }
-
-    private void styleButton(JButton button) {
-        button.setFont(new Font("Arial", Font.BOLD, 14));
-        button.setBackground(new Color(56, 56, 56)); // Cor elegante para o botão
-        button.setForeground(Color.WHITE); // Texto branco
-        button.setFocusPainted(false);
-        button.setPreferredSize(new Dimension(200, 40)); // Tamanho do botão
-        button.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
-        button.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-
-        // Efeito de hover
-        button.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseEntered(MouseEvent e) {
-                button.setBackground(new Color(0, 0, 0)); // Cor mais escura ao passar o mouse
-            }
-
-            @Override
-            public void mouseExited(MouseEvent e) {
-                button.setBackground(new Color(56, 56, 56)); // Voltar à cor original
-            }
-        });
     }
 
     private void refreshExpenseList() {
