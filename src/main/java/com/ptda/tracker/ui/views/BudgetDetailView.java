@@ -1,15 +1,12 @@
 package com.ptda.tracker.ui.views;
 
-import com.ptda.tracker.models.dispute.Subdivision;
 import com.ptda.tracker.models.tracker.Budget;
-import com.ptda.tracker.models.tracker.BudgetAccess;
 import com.ptda.tracker.models.tracker.BudgetAccessLevel;
 import com.ptda.tracker.models.tracker.Expense;
-import com.ptda.tracker.models.user.User;
-import com.ptda.tracker.services.tracker.SubdivisionService;
 import com.ptda.tracker.services.tracker.BudgetAccessService;
 import com.ptda.tracker.services.tracker.ExpenseService;
 import com.ptda.tracker.ui.MainFrame;
+import com.ptda.tracker.ui.dialogs.ParticipantsDialog;
 import com.ptda.tracker.ui.forms.BudgetForm;
 import com.ptda.tracker.ui.forms.DistributeExpenseForm;
 import com.ptda.tracker.ui.forms.ShareBudgetForm;
@@ -22,21 +19,29 @@ import java.awt.*;
 import java.util.List;
 
 public class BudgetDetailView extends JPanel {
+    private final MainFrame mainFrame;
     private final BudgetAccessService budgetAccessService;
-    private final ExpenseService expenseService;
-    private final SubdivisionService subdivisionService;
     private final Budget budget;
+    private final List<Expense> expenses;
+
+    private JTable expensesTable;
+    private JButton backButton, participantsButton, editButton, shareButton;
 
     public BudgetDetailView(MainFrame mainFrame, Budget budget) {
-        this.budget = budget;
+        this.mainFrame = mainFrame;
         budgetAccessService = mainFrame.getContext().getBean(BudgetAccessService.class);
-        expenseService = mainFrame.getContext().getBean(ExpenseService.class);
-        subdivisionService = mainFrame.getContext().getBean(SubdivisionService.class);
+        this.budget = budget;
+        expenses = mainFrame.getContext().getBean(ExpenseService.class).getAllByBudgetId(budget.getId());
 
-        setLayout(new BorderLayout(15, 15)); // Espaçamento entre elementos
-        setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20)); // Margem externa
+        initUI();
+        setListeners();
+    }
 
-        // Painel de detalhes do orçamento
+    private void initUI() {
+        setLayout(new BorderLayout(15, 15));
+        setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+
+        // Details Panel
         JPanel detailsPanel = new JPanel();
         detailsPanel.setLayout(new BoxLayout(detailsPanel, BoxLayout.Y_AXIS));
         detailsPanel.setBorder(BorderFactory.createTitledBorder("Budget Details"));
@@ -57,91 +62,82 @@ public class BudgetDetailView extends JPanel {
         detailsPanel.add(createdByLabel);
         add(detailsPanel, BorderLayout.NORTH);
 
-        // Painel central com tabelas
+        // Central Panel
         JPanel centerPanel = new JPanel(new GridLayout(2, 1, 10, 10));
+        centerPanel.setBorder(BorderFactory.createTitledBorder("Expenses"));
 
-        // Tabela de participantes
-        JTable participantsTable = createParticipantsTable(budget.getId());
-        JScrollPane participantsScrollPane = new JScrollPane(participantsTable);
-        participantsScrollPane.setBorder(BorderFactory.createTitledBorder("Participants"));
-        centerPanel.add(participantsScrollPane);
-
-        // Tabela de subdivisões
-        JTable subdivisionsTable = createSubdivisionsTable(budget.getId());
-        JScrollPane subdivisionsScrollPane = new JScrollPane(subdivisionsTable);
-        subdivisionsScrollPane.setBorder(BorderFactory.createTitledBorder("Subdivisions"));
-        centerPanel.add(subdivisionsScrollPane);
-
+        expensesTable = createExpensesTable();
+        JScrollPane scrollPane = new JScrollPane(expensesTable);
+        centerPanel.add(scrollPane);
         add(centerPanel, BorderLayout.CENTER);
 
-        // Painel de botões
+        // Buttons Panel
         JPanel buttonsPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-        JButton backButton = new JButton("Back to Budgets");
-        JButton editButton = new JButton("Edit Budget");
-        JButton shareButton = new JButton("Share Budget");
-
-        backButton.addActionListener(e -> mainFrame.showScreen(ScreenNames.NAVIGATION_SCREEN));
-        editButton.addActionListener(e -> mainFrame.registerAndShowScreen(ScreenNames.BUDGET_FORM, new BudgetForm(mainFrame, null, budget)));
-        shareButton.addActionListener(e -> mainFrame.registerAndShowScreen(ScreenNames.BUDGET_SHARE_FORM, new ShareBudgetForm(mainFrame, budget)));
-
+        backButton = new JButton("Back to Budgets");
         buttonsPanel.add(backButton);
-        buttonsPanel.add(editButton);
-        buttonsPanel.add(shareButton);
 
-        if (userHasAccessLevel(BudgetAccessLevel.OWNER, BudgetAccessLevel.EDITOR)) {
+        participantsButton = new JButton("Participants");
+        buttonsPanel.add(participantsButton);
+
+        if (budgetAccessService.hasAccess(budget.getId(), UserSession.getInstance().getUser().getId(), BudgetAccessLevel.EDITOR)) {
+            editButton = new JButton("Edit Budget");
+            buttonsPanel.add(editButton);
+        }
+        if (budgetAccessService.hasAccess(budget.getId(), UserSession.getInstance().getUser().getId(), BudgetAccessLevel.EDITOR)) {
+            shareButton = new JButton("Share Budget");
+            buttonsPanel.add(shareButton);
+        }
+        if (budgetAccessService.hasAccess(budget.getId(), UserSession.getInstance().getUser().getId(), BudgetAccessLevel.OWNER)) {
             JButton distributeButton = new JButton("Distribute Expenses");
             distributeButton.addActionListener(e -> mainFrame.registerAndShowScreen(ScreenNames.DISTRIBUTE_EXPENSE_FORM, new DistributeExpenseForm(mainFrame, budget)));
             buttonsPanel.add(distributeButton);
         }
+        // End Buttons Panel
 
         add(buttonsPanel, BorderLayout.SOUTH);
     }
 
-    private boolean userHasAccessLevel(BudgetAccessLevel... levels) {
-        User currentUser = UserSession.getInstance().getUser();
-        List<BudgetAccess> accesses = budgetAccessService.getAllByBudgetId(budget.getId());
-        for (BudgetAccess access : accesses) {
-            if (access.getUser().equals(currentUser)) {
-                for (BudgetAccessLevel level : levels) {
-                    if (access.getAccessLevel() == level) {
-                        return true;
-                    }
+    private JTable createExpensesTable() {
+        String[] columnNames = {"Title", "Amount", "Category", "Date", "Created By"};
+        DefaultTableModel model = new DefaultTableModel(columnNames, 0) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
+        };
+        for (Expense expense : expenses) {
+            model.addRow(new Object[]{
+                    expense.getTitle(),
+                    expense.getAmount(),
+                    expense.getCategory(),
+                    expense.getDate(),
+                    expense.getCreatedBy().getName()});
+        }
+        return new JTable(model);
+    }
+
+    private void setListeners() {
+        backButton.addActionListener(e -> mainFrame.showScreen(ScreenNames.NAVIGATION_SCREEN));
+        participantsButton.addActionListener(e -> {
+            ParticipantsDialog participantsDialog = new ParticipantsDialog(mainFrame, budget);
+
+            participantsDialog.setVisible(true);
+        });
+        if (editButton != null) {
+            editButton.addActionListener(e -> mainFrame.registerAndShowScreen(ScreenNames.BUDGET_FORM, new BudgetForm(mainFrame, null, budget)));
+        }
+        if (shareButton != null) {
+            shareButton.addActionListener(e -> mainFrame.registerAndShowScreen(ScreenNames.BUDGET_SHARE_FORM, new ShareBudgetForm(mainFrame, budget)));
+        }
+        expensesTable.getSelectionModel().addListSelectionListener(e -> {
+            if (!e.getValueIsAdjusting()) {
+                int selectedRow = expensesTable.getSelectedRow();
+                if (selectedRow != -1) {
+                    Expense selectedExpense = expenses.get(selectedRow);
+                    mainFrame.registerAndShowScreen(ScreenNames.EXPENSE_DETAIL_VIEW, new ExpenseDetailView(mainFrame, selectedExpense, mainFrame.getCurrentScreen(), null));
+                    expensesTable.clearSelection();
                 }
             }
-        }
-        return false;
+        });
     }
-
-    private JTable createParticipantsTable(Long budgetId) {
-        List<BudgetAccess> accesses = budgetAccessService.getAllByBudgetId(budgetId);
-        String[] columnNames = {"Name", "Email", "Access Level"};
-        DefaultTableModel model = new DefaultTableModel(columnNames, 0);
-
-        for (BudgetAccess access : accesses) {
-            model.addRow(new Object[]{access.getUser().getName(), access.getUser().getEmail(), access.getAccessLevel().toString()});
-        }
-
-        JTable table = new JTable(model);
-        table.setEnabled(false);
-        return table;
-    }
-
-    private JTable createSubdivisionsTable(Long budgetId) {
-        List<Expense> expenses = expenseService.getAllByBudgetId(budgetId);
-        String[] columnNames = {"Expense", "User", "Amount", "Percentage"};
-        DefaultTableModel model = new DefaultTableModel(columnNames, 0);
-
-        for (Expense expense : expenses) {
-            List<Subdivision> subdivisions = subdivisionService.getAllByExpenseId(expense.getId());
-            for (Subdivision subdivision : subdivisions) {
-                String percentageWithSign = subdivision.getPercentage() + "%";
-                model.addRow(new Object[]{subdivision.getExpense(), subdivision.getUser().getName(), subdivision.getAmount(), percentageWithSign});
-            }
-        }
-
-        JTable table = new JTable(model);
-        table.setEnabled(false);
-        return table;
-    }
-
 }

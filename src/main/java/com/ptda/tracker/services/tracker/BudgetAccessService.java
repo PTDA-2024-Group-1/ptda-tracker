@@ -11,6 +11,10 @@ public interface BudgetAccessService {
 
     List<BudgetAccess> getAllByUserId(Long userId);
 
+    boolean hasAccess(Long budgetId, Long userId, BudgetAccessLevel accessLevel);
+
+    boolean hasAccess(Long budgetId, String userEmail, BudgetAccessLevel accessLevel);
+
     BudgetAccess create(Long budgetId, Long userId, BudgetAccessLevel accessLevel);
 
     BudgetAccess create(Long budgetId, String userEmail, BudgetAccessLevel accessLevel);

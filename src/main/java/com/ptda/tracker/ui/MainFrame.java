@@ -14,6 +14,7 @@ public class MainFrame extends JFrame {
     private final Map<String, JPanel> screens;
     @Getter
     private final ApplicationContext context;
+    @Getter
     private String currentScreen;
 
     private static final String NAVIGATION_SCREEN = "navigationScreen";
@@ -42,6 +43,7 @@ public class MainFrame extends JFrame {
             if (name.equals(NAVIGATION_SCREEN)) {
                 setCurrentScreen(name);
             }
+            this.currentScreen = name;
         } else {
             JOptionPane.showMessageDialog(this, "Screen not found: " + name, "Error", JOptionPane.ERROR_MESSAGE);
         }
@@ -58,7 +60,6 @@ public class MainFrame extends JFrame {
     }
 
     public void setCurrentScreen(String screen) {
-        this.currentScreen = screen;
         // Notify NavigationMenu to update highlights
         if (screens.get("navMenu") != null) {
             ((NavigationMenu) screens.get("navMenu")).updateActiveScreen(screen);

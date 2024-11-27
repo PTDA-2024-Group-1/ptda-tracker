@@ -13,7 +13,7 @@ import java.util.List;
 
 @Component
 @RequiredArgsConstructor
-public class InitData {
+public class DataInit {
     private final TierService tierService;
     private final DailyLimitService dailyLimitService;
 

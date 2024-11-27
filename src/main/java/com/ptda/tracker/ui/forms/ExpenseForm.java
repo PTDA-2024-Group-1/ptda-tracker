@@ -9,7 +9,6 @@ import com.ptda.tracker.ui.MainFrame;
 import com.ptda.tracker.ui.views.ExpenseDetailView;
 import com.ptda.tracker.util.ScreenNames;
 import com.ptda.tracker.util.UserSession;
-import org.springframework.context.ApplicationContext;
 
 import javax.swing.*;
 import java.awt.*;
@@ -22,6 +21,7 @@ public class ExpenseForm extends JPanel {
     private final MainFrame mainFrame;
     private final Runnable onFormSubmit;
     private Expense expense;
+    private final String returnScreen;
 
     private JTextField titleField, amountField;
     private JTextArea descriptionArea;
@@ -51,10 +51,11 @@ public class ExpenseForm extends JPanel {
             FAILED_TO_UPDATE_EXPENSE = "Failed to update expense",
             ERROR = "Error";
 
-    public ExpenseForm(MainFrame mainFrame, Runnable onFormSubmit, Expense expense) {
+    public ExpenseForm(MainFrame mainFrame, Expense expense, String returnScreen, Runnable onFormSubmit) {
         this.mainFrame = mainFrame;
         this.onFormSubmit = onFormSubmit;
         this.expense = expense;
+        this.returnScreen = returnScreen;
 
         budgetMap = new HashMap<>();
         initUI();
@@ -170,13 +171,7 @@ public class ExpenseForm extends JPanel {
 
     private void setListeners() {
         backButton.addActionListener(e -> {
-            if (expense == null) {
-                // Se o orçamento for null, estamos em criação, então volta para a tela de navegação
-                mainFrame.showScreen(ScreenNames.NAVIGATION_SCREEN);
-            } else {
-                // Se o orçamento já existe, estamos em edição, então volta para o BudgetDetailView
-                mainFrame.registerAndShowScreen(ScreenNames.EXPENSE_DETAIL_VIEW, new ExpenseDetailView(mainFrame, expense));
-            }
+            mainFrame.showScreen(returnScreen);
         });
         saveButton.addActionListener(this::saveExpense);
     }
@@ -223,12 +218,12 @@ public class ExpenseForm extends JPanel {
             }
         }
 
-        clear();
+        clearFields();
         onFormSubmit.run();
-        mainFrame.registerAndShowScreen(ScreenNames.EXPENSE_DETAIL_VIEW, new ExpenseDetailView(mainFrame, expense));
+        mainFrame.registerAndShowScreen(ScreenNames.EXPENSE_DETAIL_VIEW, new ExpenseDetailView(mainFrame, expense, returnScreen, null));
     }
 
-    private void clear() {
+    private void clearFields() {
         titleField.setText("");
         amountField.setText("");
         dateSpinner.setValue(new Date());

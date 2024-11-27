@@ -22,6 +22,11 @@ public class SubdivisionServiceHibernateImpl implements SubdivisionService {
     }
 
     @Override
+    public List<Subdivision> create(List<Subdivision> subdivisions) {
+        return subdivisionRepository.saveAll(subdivisions);
+    }
+
+    @Override
     @Transactional
     public Subdivision update(Subdivision subdivision) {
         return subdivisionRepository.save(subdivision);
@@ -48,9 +53,4 @@ public class SubdivisionServiceHibernateImpl implements SubdivisionService {
         return subdivisionRepository.findAllByExpenseId(expenseId);
     }
 
-    @Override
-    @Transactional
-    public Subdivision save(Subdivision subdivision) { // Implementing the save method
-        return subdivisionRepository.save(subdivision);
-    }
 }

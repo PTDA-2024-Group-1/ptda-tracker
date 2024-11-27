@@ -14,6 +14,7 @@ import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.data.general.DefaultPieDataset;
+import org.springframework.context.ApplicationContext;
 
 import javax.swing.*;
 import java.awt.*;
@@ -24,23 +25,22 @@ import java.util.List;
 import java.util.Map;
 
 public class HomeScreen extends JPanel {
-    private final BudgetService budgetService;
-    private final ExpenseService expenseService;
-    private final TicketService ticketService;
+    private final MainFrame mainFrame;
     private final long userId;
     private JList<Budget> budgetList;
     private JList<Expense> expenseList;
-    private JLabel budgetLabel;
-    private JLabel expenseLabel;
-    private JLabel ticketLabel;
+    private JLabel budgetLabel, expenseLabel, ticketLabel;
     private ChartPanel pieChartPanel;
 
     public HomeScreen(MainFrame mainFrame) {
-        this.budgetService = mainFrame.getContext().getBean(BudgetService.class);
-        this.expenseService = mainFrame.getContext().getBean(ExpenseService.class);
-        this.ticketService = mainFrame.getContext().getBean(TicketService.class);
+        this.mainFrame = mainFrame;
         this.userId = UserSession.getInstance().getUser().getId();
 
+        initUI();
+        refreshData();
+    }
+
+    private void initUI() {
         setLayout(new BorderLayout());
         setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
@@ -90,7 +90,10 @@ public class HomeScreen extends JPanel {
                 if (e.getClickCount() == 2) {
                     Expense selectedExpense = expenseList.getSelectedValue();
                     if (selectedExpense != null) {
-                        mainFrame.registerAndShowScreen(ScreenNames.EXPENSE_DETAIL_VIEW, new ExpenseDetailView(mainFrame, selectedExpense));
+                        mainFrame.registerAndShowScreen(
+                                ScreenNames.EXPENSE_DETAIL_VIEW,
+                                new ExpenseDetailView(mainFrame, selectedExpense, mainFrame.getCurrentScreen(), HomeScreen.this::refreshData)
+                        );
                         expenseList.clearSelection(); // Limpar seleção após abrir detalhes
                     }
                 }
@@ -107,12 +110,13 @@ public class HomeScreen extends JPanel {
 
         pieChartPanel = new ChartPanel(null);
         chartPanel.add(pieChartPanel, BorderLayout.CENTER);
-
-        // Initial data load
-        refreshData();
     }
 
     public void refreshData() {
+        BudgetService budgetService = mainFrame.getContext().getBean(BudgetService.class);
+        ExpenseService expenseService = mainFrame.getContext().getBean(ExpenseService.class);
+        TicketService ticketService = mainFrame.getContext().getBean(TicketService.class);
+
         int budgetCount = budgetService.getAllByUserId(userId).size();
         int expenseCount = expenseService.getAllByUserId(userId).size();
         int pendingTicketCount = ticketService.getOpenTicketsByUser(UserSession.getInstance().getUser()).size();

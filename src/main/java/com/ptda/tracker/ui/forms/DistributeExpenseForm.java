@@ -170,7 +170,7 @@ public class DistributeExpenseForm extends JPanel {
                     .createdBy(currentUser)
                     .build();
             subdivisions.add(subdivision);
-            subdivisionService.save(subdivision);
+            subdivisionService.create(subdivision);
         }
 
         mainFrame.registerAndShowScreen(ScreenNames.BUDGET_DETAIL_VIEW, new BudgetDetailView(mainFrame, budget));
@@ -225,7 +225,7 @@ public class DistributeExpenseForm extends JPanel {
                         .createdBy(currentUser)
                         .build();
                 subdivisions.add(subdivision);
-                subdivisionService.save(subdivision);
+                subdivisionService.create(subdivision);
                 includedUsers.add(selectedUser.getUser());
             }
         }

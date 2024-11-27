@@ -14,51 +14,63 @@ import java.awt.*;
 import java.util.List;
 
 public class ExpensesScreen extends JPanel {
-    private final ExpenseService expenseService;
-    private final JList<Expense> expenseList;
+    private final MainFrame mainFrame;
+    private ExpenseService expenseService;
+
+    private JList<Expense> expensesList;
     private List<Expense> expenses;
+    private JButton createButton;
 
     public ExpensesScreen(MainFrame mainFrame) {
+        this.mainFrame = mainFrame;
+
+        initUI();
+        setListeners();
+    }
+
+    private void initUI() {
         setLayout(new BorderLayout());
 
-        expenseList = new JList<>(new DefaultListModel<>());
-        expenseList.setCellRenderer(new ExpenseListRenderer());
+        expensesList = new JList<>(new DefaultListModel<>());
+        expensesList.setCellRenderer(new ExpenseListRenderer());
         expenseService = mainFrame.getContext().getBean(ExpenseService.class);
-        expenses = expenseService.getAllByUserId(UserSession.getInstance().getUser().getId());
-        setExpenseList(expenses);
+        expenses = expenseService.getPersonalExpensesByUserId(UserSession.getInstance().getUser().getId());
+        setExpensesList(expenses);
 
-        expenseList.addListSelectionListener(e -> {
-            if (!e.getValueIsAdjusting()) {
-                Expense selectedExpense = expenseList.getSelectedValue();
-                if (selectedExpense != null) {
-                    mainFrame.registerAndShowScreen(ScreenNames.EXPENSE_DETAIL_VIEW, new ExpenseDetailView(mainFrame, selectedExpense));
-                    expenseList.clearSelection(); // Limpar seleção para permitir nova interação
-                }
-            }
-        });
-
-        add(new JScrollPane(expenseList), BorderLayout.CENTER);
+        add(new JScrollPane(expensesList), BorderLayout.CENTER);
 
         JLabel label = new JLabel("Select an expense to view details", SwingConstants.CENTER);
         add(label, BorderLayout.NORTH);
 
-        JButton createButton = new JButton("Create New Expense");
-        createButton.addActionListener(e -> {
-            // Abrir o ExpenseForm no modo de criação
-            mainFrame.registerScreen(ScreenNames.EXPENSE_FORM, new ExpenseForm(mainFrame, this::refreshExpenseList, null));
-            mainFrame.showScreen(ScreenNames.EXPENSE_FORM);
-        });
+        createButton = new JButton("Create New Expense");
         add(createButton, BorderLayout.SOUTH);
     }
 
-    private void refreshExpenseList() {
-        expenseList.clearSelection();
-        expenses = expenseService.getAllByUserId(UserSession.getInstance().getUser().getId());
-        setExpenseList(expenses);
+    private void setListeners() {
+        expensesList.addListSelectionListener(e -> {
+            if (!e.getValueIsAdjusting()) {
+                Expense selectedExpense = expensesList.getSelectedValue();
+                if (selectedExpense != null) {
+                    mainFrame.registerAndShowScreen(ScreenNames.EXPENSE_DETAIL_VIEW, new ExpenseDetailView(mainFrame, selectedExpense, mainFrame.getCurrentScreen(), this::refreshExpenseList));
+                    expensesList.clearSelection(); // Limpar seleção para permitir nova interação
+                }
+            }
+        });
+        createButton.addActionListener(e -> {
+            // Abrir o ExpenseForm no modo de criação
+            mainFrame.registerScreen(ScreenNames.EXPENSE_FORM, new ExpenseForm(mainFrame, null, mainFrame.getCurrentScreen(), this::refreshExpenseList));
+            mainFrame.showScreen(ScreenNames.EXPENSE_FORM);
+        });
     }
 
-    public void setExpenseList(List<Expense> expenses) {
-        DefaultListModel<Expense> model = (DefaultListModel<Expense>) expenseList.getModel();
+    private void refreshExpenseList() {
+        expensesList.clearSelection();
+        expenses = expenseService.getPersonalExpensesByUserId(UserSession.getInstance().getUser().getId());
+        setExpensesList(expenses);
+    }
+
+    public void setExpensesList(List<Expense> expenses) {
+        DefaultListModel<Expense> model = (DefaultListModel<Expense>) expensesList.getModel();
         model.clear(); // Clear old data
         expenses.forEach(model::addElement); // Add new data
     }

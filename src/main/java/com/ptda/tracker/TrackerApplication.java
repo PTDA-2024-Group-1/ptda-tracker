@@ -28,7 +28,7 @@ public class TrackerApplication {
         }
 
         ApplicationContext context = SpringApplication.run(TrackerApplication.class, args);
-		context.getBean(InitData.class).init();
+		context.getBean(DataInit.class).init();
 
 		SwingUtilities.invokeLater(() -> {
 			MainFrame mainFrame = new MainFrame(context);
@@ -71,6 +71,10 @@ public class TrackerApplication {
 
 			UIManager.put("ScrollBar.thumbArc", rounding);
 			UIManager.put("ScrollBar.thumbInsets", new Insets(insets, insets, insets, insets));
+
+			// Set default font
+			Font defaultFont = new Font("Arial", Font.PLAIN, 14);
+			UIManager.put("defaultFont", defaultFont);
 
 			System.setProperty("java.awt.headless", "false");
 	}

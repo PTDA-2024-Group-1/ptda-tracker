@@ -27,7 +27,7 @@ public class NavigationMenu extends JPanel {
     private static final String
             HOME = "Home",
             BUDGETS = "Budgets",
-            EXPENSES = "Expenses",
+            EXPENSES = "My Expenses",
             TICKETS = "Tickets",
             PROFILE = "Profile",
             LOGOUT = "Logout",
@@ -41,11 +41,11 @@ public class NavigationMenu extends JPanel {
 
         setLayout(new BorderLayout());
         setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-        setBackground(new Color(56, 56, 56)); // Color #383838
+        //setBackground(new Color(56, 56, 56)); // Color #383838
 
         // Top panel
         JPanel topPanel = new JPanel(new GridBagLayout());
-        topPanel.setBackground(new Color(56, 56, 56)); // Background color #383838
+        //topPanel.setBackground(new Color(56, 56, 56)); // Background color #383838
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.insets = new Insets(10, 10, 10, 10); // Space between buttons
@@ -58,7 +58,7 @@ public class NavigationMenu extends JPanel {
 
         // Bottom panel
         JPanel bottomPanel = new JPanel(new GridBagLayout());
-        bottomPanel.setBackground(BACKGROUND_COLOR);
+        //bottomPanel.setBackground(BACKGROUND_COLOR);
         gbc.gridy = 0; // Reinicia o índice para o painel inferior
 
         // Adds bottom buttons
@@ -73,10 +73,10 @@ public class NavigationMenu extends JPanel {
     private void addButtonToPanel(JPanel panel, String label, String screenName, GridBagConstraints gbc, int row) {
         JButton button = new JButton(label);
         button.setFont(new Font("Arial", Font.BOLD, 14));
-        button.setBackground(BACKGROUND_COLOR);
-        button.setForeground(Color.WHITE);
-        button.setFocusPainted(false);
-        button.setBorder(BorderFactory.createLineBorder(new Color(56, 56, 56), 2, true)); // Borda arredondada
+//        button.setBackground(BACKGROUND_COLOR);
+//        button.setForeground(Color.WHITE);
+//        button.setFocusPainted(false);
+//        button.setBorder(BorderFactory.createLineBorder(new Color(56, 56, 56), 2, true)); // Borda arredondada
         button.setActionCommand(screenName); // Ação do botão, para verificar se é o botão ativo
         button.addActionListener(e -> {
             if (screenName != null) {
@@ -134,10 +134,10 @@ public class NavigationMenu extends JPanel {
                     if (innerComponent instanceof JButton button) {
                         // Set the background color and font size for the active button
                         if (button.getActionCommand().equals(currentScreen)) {
-                            button.setBackground(new Color(0, 0, 0));
+                            //button.setBackground(new Color(0, 0, 0));
                             button.setFont(new Font("Arial", Font.BOLD, 16));
                         } else {
-                            button.setBackground(new Color(56, 56, 56));
+                            //button.setBackground(new Color(56, 56, 56));
                             button.setFont(new Font("Arial", Font.BOLD, 14));
                         }
                     }
