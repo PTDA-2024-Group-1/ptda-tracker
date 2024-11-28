@@ -107,7 +107,7 @@ public class NavigationMenu extends JPanel {
         NavigationScreen navigationScreen = (NavigationScreen) mainFrame.getScreen(NAVIGATION_SCREEN);
         navigationScreen.setContent(screenName, () -> getScreenInstance(screenName));
         mainFrame.showScreen(NAVIGATION_SCREEN);
-        updateActiveScreen(screenName);
+//        updateActiveScreen(screenName);
     }
 
     private void logout() {
@@ -117,13 +117,17 @@ public class NavigationMenu extends JPanel {
                 JOptionPane.YES_NO_OPTION);
 
         if (confirm == JOptionPane.YES_OPTION) {
-            Preferences preferences = Preferences.userNodeForPackage(TrackerApplication.class);
-            preferences.remove("email");
-            preferences.remove("password");
-            UserSession.getInstance().clear();
-            mainFrame.registerScreen(LOGIN_SCREEN, new LoginForm(mainFrame));
-            mainFrame.showScreen(LOGIN_SCREEN);
+            performLogout(mainFrame);
         }
+    }
+
+    public static void performLogout(MainFrame mainFrame) {
+        Preferences preferences = Preferences.userNodeForPackage(TrackerApplication.class);
+        preferences.remove("email");
+        preferences.remove("password");
+        UserSession.getInstance().clear();
+        mainFrame.registerScreen(LOGIN_SCREEN, new LoginForm(mainFrame));
+        mainFrame.showScreen(LOGIN_SCREEN);
     }
 
     public void updateActiveScreen(String activeScreen) {

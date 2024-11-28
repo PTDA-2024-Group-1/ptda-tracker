@@ -40,9 +40,9 @@ public class MainFrame extends JFrame {
     public void showScreen(String name) {
         if (screens.containsKey(name)) {
             cardLayout.show(mainPanel, name);
-            if (name.equals(NAVIGATION_SCREEN)) {
-                setCurrentScreen(name);
-            }
+//            if (name.equals(NAVIGATION_SCREEN)) {
+//                setCurrentScreen(name);
+//            }
             this.currentScreen = name;
         } else {
             JOptionPane.showMessageDialog(this, "Screen not found: " + name, "Error", JOptionPane.ERROR_MESSAGE);

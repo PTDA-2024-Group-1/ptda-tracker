@@ -64,19 +64,19 @@ public class ExpenseForm extends JPanel {
 
     private void initUI() {
         setLayout(new BorderLayout(20, 20));
-        setBackground(PRIMARY_COLOR);
+//        setBackground(PRIMARY_COLOR);
         setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
         // Header
         JLabel headerLabel = new JLabel(expense == null ? CREATE_NEW_EXPENSE : EDIT_EXPENSE);
         headerLabel.setFont(new Font("Arial", Font.BOLD, 22));
-        headerLabel.setForeground(Color.DARK_GRAY);
+//        headerLabel.setForeground(Color.DARK_GRAY);
         headerLabel.setHorizontalAlignment(SwingConstants.CENTER);
         add(headerLabel, BorderLayout.NORTH);
 
         // Form Panel
         JPanel formPanel = new JPanel(new GridBagLayout());
-        formPanel.setBackground(PRIMARY_COLOR);
+//        formPanel.setBackground(PRIMARY_COLOR);
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.insets = new Insets(10, 10, 10, 10);
@@ -159,7 +159,7 @@ public class ExpenseForm extends JPanel {
 
         // Button Panel
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 10));
-        buttonPanel.setBackground(PRIMARY_COLOR);
+//        buttonPanel.setBackground(PRIMARY_COLOR);
 
         backButton = new JButton(BACK);
         buttonPanel.add(backButton);

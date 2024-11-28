@@ -2,6 +2,7 @@ package com.ptda.tracker.services.user;
 
 import com.ptda.tracker.models.user.Tier;
 import com.ptda.tracker.repositories.TierRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -39,21 +40,25 @@ public class TierServiceHibernateImpl implements TierService {
     }
 
     @Override
+    @Transactional
     public Tier create(Tier tier) {
         return tierRepository.save(tier);
     }
 
     @Override
+    @Transactional
     public List<Tier> create(List<Tier> tiers) {
         return tierRepository.saveAll(tiers);
     }
 
     @Override
+    @Transactional
     public Tier update(Tier tier) {
         return tierRepository.save(tier);
     }
 
     @Override
+    @Transactional
     public boolean delete(Tier tier) {
         try {
             tierRepository.delete(tier);

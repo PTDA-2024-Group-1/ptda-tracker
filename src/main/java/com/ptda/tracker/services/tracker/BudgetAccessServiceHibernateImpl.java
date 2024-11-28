@@ -89,4 +89,10 @@ public class BudgetAccessServiceHibernateImpl implements BudgetAccessService {
         }
         return false;
     }
+
+    @Override
+    @Transactional
+    public boolean deleteAllByUserId(Long userId) {
+        return !budgetAccessRepository.deleteAllByUserId(userId).isEmpty();
+    }
 }

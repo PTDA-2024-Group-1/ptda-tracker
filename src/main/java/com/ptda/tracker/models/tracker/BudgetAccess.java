@@ -37,10 +37,4 @@ public class BudgetAccess {
         this.createdAt = System.currentTimeMillis();
         this.createdBy = UserSession.getInstance().getUser();
     }
-
-    @Override
-    public String toString() {
-        return getUser().getName();
-    }
-
 }

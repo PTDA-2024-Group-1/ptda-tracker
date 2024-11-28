@@ -47,7 +47,7 @@ public class ProfileForm extends JPanel {
         gbc.gridwidth = 2;
         JLabel title = new JLabel(EDIT_PROFILE, SwingConstants.CENTER);
         title.setFont(new Font("Arial", Font.BOLD, 20));
-        title.setForeground(new Color(56, 56, 56));
+//        title.setForeground(new Color(56, 56, 56));
         add(title, gbc);
 
         // Name
@@ -60,7 +60,7 @@ public class ProfileForm extends JPanel {
 
         gbc.gridx = 1;
         nameField = new JTextField(user.getName(), 20);
-        styleTextField(nameField);
+//        styleTextField(nameField);
         add(nameField, gbc);
 
         // Email
@@ -72,7 +72,7 @@ public class ProfileForm extends JPanel {
 
         gbc.gridx = 1;
         emailField = new JTextField(user.getEmail(), 20);
-        styleTextField(emailField);
+//        styleTextField(emailField);
         add(emailField, gbc);
 
         // Cancel Button
@@ -86,7 +86,7 @@ public class ProfileForm extends JPanel {
         saveButton = new JButton(SAVE);
         add(saveButton, gbc);
 
-        setBackground(new Color(240, 240, 240));
+//        setBackground(new Color(240, 240, 240));
     }
 
     private void setListeners() {

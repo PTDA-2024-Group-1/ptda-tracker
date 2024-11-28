@@ -1,27 +1,38 @@
 package com.ptda.tracker.ui.views;
 
 import com.ptda.tracker.models.user.User;
+import com.ptda.tracker.services.tracker.BudgetAccessService;
+import com.ptda.tracker.services.tracker.ExpenseService;
+import com.ptda.tracker.services.user.UserService;
 import com.ptda.tracker.ui.MainFrame;
+import com.ptda.tracker.ui.NavigationMenu;
 import com.ptda.tracker.ui.forms.ChangePasswordForm;
 import com.ptda.tracker.ui.forms.ProfileForm;
 import com.ptda.tracker.util.ScreenNames;
 import com.ptda.tracker.util.UserSession;
+import org.springframework.context.ApplicationContext;
 
 import javax.swing.*;
 import java.awt.*;
 
 public class ProfileView extends JPanel {
-    private final JLabel nameLabel;
-    private final JLabel emailLabel;
     private final MainFrame mainFrame;
+    private JLabel nameLabel, emailLabel;
+    private JButton editButton, changePasswordButton;
 
     public ProfileView(MainFrame mainFrame) {
         this.mainFrame = mainFrame;
+
+        initUI();
+        refreshUserData();
+    }
+
+    private void initUI() {
         setLayout(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.insets = new Insets(20, 20, 20, 20);
-        setBackground(new Color(245, 245, 245));  // Cor de fundo suave
+//        setBackground(new Color(245, 245, 245));  // Cor de fundo suave
 
         // Title
         gbc.gridx = 0;
@@ -29,7 +40,7 @@ public class ProfileView extends JPanel {
         gbc.gridwidth = 2;
         JLabel titleLabel = new JLabel("My Profile", SwingConstants.CENTER);
         titleLabel.setFont(new Font("Arial", Font.BOLD, 24));
-        titleLabel.setForeground(new Color(56, 56, 56));
+//        titleLabel.setForeground(new Color(56, 56, 56));
         add(titleLabel, gbc);
 
         // Spacer
@@ -43,13 +54,13 @@ public class ProfileView extends JPanel {
         gbc.gridy = 2;
         JLabel nameLabelText = new JLabel("Name:");
         nameLabelText.setFont(new Font("Arial", Font.PLAIN, 16));
-        nameLabelText.setForeground(new Color(56, 56, 56));
+//        nameLabelText.setForeground(new Color(56, 56, 56));
         add(nameLabelText, gbc);
 
         gbc.gridx = 1;
         nameLabel = new JLabel();
         nameLabel.setFont(new Font("Arial", Font.PLAIN, 16));
-        nameLabel.setForeground(new Color(56, 56, 56));
+//        nameLabel.setForeground(new Color(56, 56, 56));
         add(nameLabel, gbc);
 
         // Email
@@ -57,13 +68,13 @@ public class ProfileView extends JPanel {
         gbc.gridy = 3;
         JLabel emailLabelText = new JLabel("Email:");
         emailLabelText.setFont(new Font("Arial", Font.PLAIN, 16));
-        emailLabelText.setForeground(new Color(56, 56, 56));
+//        emailLabelText.setForeground(new Color(56, 56, 56));
         add(emailLabelText, gbc);
 
         gbc.gridx = 1;
         emailLabel = new JLabel();
         emailLabel.setFont(new Font("Arial", Font.PLAIN, 16));
-        emailLabel.setForeground(new Color(56, 56, 56));
+//        emailLabel.setForeground(new Color(56, 56, 56));
         add(emailLabel, gbc);
 
         // Spacer
@@ -75,7 +86,7 @@ public class ProfileView extends JPanel {
         gbc.gridx = 0;
         gbc.gridy = 5;
         JPanel buttonsPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
-        buttonsPanel.setBackground(new Color(245, 245, 245));  // Fundo suave para os botões
+//        buttonsPanel.setBackground(new Color(245, 245, 245));  // Fundo suave para os botões
 
         // Edit Profile Button
         JButton editButton = new JButton("Edit Profile");
@@ -90,10 +101,12 @@ public class ProfileView extends JPanel {
         changePasswordButton.addActionListener(e -> navigateToChangePassword());
         buttonsPanel.add(changePasswordButton);
 
-        add(buttonsPanel, gbc);
+        // Delete Profile Button
+        JButton deleteProfileButton = new JButton("Delete Profile");
+        deleteProfileButton.addActionListener(e -> deleteProfile());
+        buttonsPanel.add(deleteProfileButton);
 
-        // Load user data
-        refreshUserData();
+        add(buttonsPanel, gbc);
     }
 
     private void refreshUserData() {
@@ -102,6 +115,32 @@ public class ProfileView extends JPanel {
             nameLabel.setText(user.getName());
             emailLabel.setText(user.getEmail());
         }
+    }
+
+    private void deleteProfile() {
+        JOptionPane.showMessageDialog(mainFrame, "Are you sure you want to delete your profile?", "Delete Profile", JOptionPane.WARNING_MESSAGE);
+
+        User user = UserSession.getInstance().getUser();
+        ApplicationContext context = mainFrame.getContext();
+        if (user == null) {
+            JOptionPane.showMessageDialog(mainFrame, "User not found.", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        BudgetAccessService budgetAccessService = context.getBean(BudgetAccessService.class);
+        budgetAccessService.deleteAllByUserId(user.getId());
+
+        ExpenseService expenseService = context.getBean(ExpenseService.class);
+        expenseService.deleteAllPersonalExpensesByUserId(user.getId());
+
+        user.setName("Deleted User");
+        user.setEmail("deleted");
+        user.setEmailVerified(false);
+        user.setPassword("deleted");
+        user.setActive(false);
+        UserService userService = context.getBean(UserService.class);
+        userService.update(user);
+
+        NavigationMenu.performLogout(mainFrame);
     }
 
     private void navigateToEditProfile() {

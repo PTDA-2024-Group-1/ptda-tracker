@@ -47,6 +47,6 @@ public class NavigationScreen extends JPanel {
         }
 
         // Highlight the active screen in the menu
-        navigationMenu.updateActiveScreen(screenName);
+        //navigationMenu.updateActiveScreen(screenName);
     }
 }

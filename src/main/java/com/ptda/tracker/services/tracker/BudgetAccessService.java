@@ -23,4 +23,6 @@ public interface BudgetAccessService {
 
     boolean delete(Long accessId);
 
+    boolean deleteAllByUserId(Long userId);
+
 }

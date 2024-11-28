@@ -47,7 +47,7 @@ public class ChangePasswordForm extends JPanel {
         gbc.gridwidth = 2;
         JLabel title = new JLabel(TITLE, SwingConstants.CENTER);
         title.setFont(new Font("Arial", Font.BOLD, 20));
-        title.setForeground(new Color(56, 56, 56)); // Cor escura para o título
+//        title.setForeground(new Color(56, 56, 56)); // Cor escura para o título
         add(title, gbc);
 
         // Current Password
@@ -60,7 +60,7 @@ public class ChangePasswordForm extends JPanel {
 
         gbc.gridx = 1;
         currentPasswordField = new JPasswordField(20);
-        stylePasswordField(currentPasswordField);
+//        stylePasswordField(currentPasswordField);
         add(currentPasswordField, gbc);
 
         // New Password
@@ -72,7 +72,7 @@ public class ChangePasswordForm extends JPanel {
 
         gbc.gridx = 1;
         newPasswordField = new JPasswordField(20);
-        stylePasswordField(newPasswordField);
+//        stylePasswordField(newPasswordField);
         add(newPasswordField, gbc);
 
         // Confirm Password
@@ -84,7 +84,7 @@ public class ChangePasswordForm extends JPanel {
 
         gbc.gridx = 1;
         confirmPasswordField = new JPasswordField(20);
-        stylePasswordField(confirmPasswordField);
+//        stylePasswordField(confirmPasswordField);
         add(confirmPasswordField, gbc);
 
         // Cancel Button
@@ -98,7 +98,7 @@ public class ChangePasswordForm extends JPanel {
         saveButton = new JButton(SAVE);
         add(saveButton, gbc);
 
-        setBackground(new Color(240, 240, 240)); // Cor de fundo suave
+//        setBackground(new Color(240, 240, 240)); // Cor de fundo suave
     }
 
     private void setListeners() {

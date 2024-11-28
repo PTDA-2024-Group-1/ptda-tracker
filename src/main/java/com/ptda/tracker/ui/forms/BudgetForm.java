@@ -48,7 +48,7 @@ public class BudgetForm extends JPanel {
 
     private void initUI() {
         setLayout(new BorderLayout(20, 20));
-        setBackground(BACKGROUND_COLOR);
+//        setBackground(BACKGROUND_COLOR);
         setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
         // Header
@@ -60,7 +60,7 @@ public class BudgetForm extends JPanel {
 
         // Form Panel
         JPanel formPanel = new JPanel(new GridBagLayout());
-        formPanel.setBackground(BACKGROUND_COLOR);
+//        formPanel.setBackground(BACKGROUND_COLOR);
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.insets = new Insets(10, 10, 10, 10);
@@ -72,10 +72,10 @@ public class BudgetForm extends JPanel {
 
         gbc.gridx = 1;
         nameField = new JTextField(budget != null ? budget.getName() : "", 25);
-        nameField.setBorder(BorderFactory.createLineBorder(Color.GRAY));
-        nameField.setBackground(Color.WHITE);
-        nameField.setForeground(Color.BLACK);
-        nameField.setCaretColor(Color.BLACK);
+//        nameField.setBorder(BorderFactory.createLineBorder(Color.GRAY));
+//        nameField.setBackground(Color.WHITE);
+//        nameField.setForeground(Color.BLACK);
+//        nameField.setCaretColor(Color.BLACK);
         formPanel.add(nameField, gbc);
 
         // Description Field
@@ -85,11 +85,11 @@ public class BudgetForm extends JPanel {
 
         gbc.gridx = 1;
         descriptionArea = new JTextArea(budget != null ? budget.getDescription() : "", 4, 25);
-        descriptionArea.setLineWrap(true);
-        descriptionArea.setWrapStyleWord(true);
-        descriptionArea.setForeground(Color.BLACK);
-        descriptionArea.setCaretColor(Color.BLACK);
-        descriptionArea.setBorder(BorderFactory.createLineBorder(Color.GRAY));
+//        descriptionArea.setLineWrap(true);
+//        descriptionArea.setWrapStyleWord(true);
+//        descriptionArea.setForeground(Color.BLACK);
+//        descriptionArea.setCaretColor(Color.BLACK);
+//        descriptionArea.setBorder(BorderFactory.createLineBorder(Color.GRAY));
         JScrollPane descriptionScroll = new JScrollPane(descriptionArea);
         descriptionScroll.setPreferredSize(new Dimension(200, 80));
         formPanel.add(descriptionScroll, gbc);
@@ -98,7 +98,7 @@ public class BudgetForm extends JPanel {
 
         // Button Panel
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 10));
-        buttonPanel.setBackground(BACKGROUND_COLOR);
+//        buttonPanel.setBackground(BACKGROUND_COLOR);
 
         cancelButton = new JButton(CANCEL);
         buttonPanel.add(cancelButton);

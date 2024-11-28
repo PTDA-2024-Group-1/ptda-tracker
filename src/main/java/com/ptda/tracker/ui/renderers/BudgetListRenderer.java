@@ -12,8 +12,8 @@ public class BudgetListRenderer extends JPanel implements ListCellRenderer<Budge
 
     public BudgetListRenderer() {
         setLayout(new BorderLayout(10, 10));
-        setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY, 1));
-        setBackground(Color.WHITE);
+//        setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY, 1));
+//        setBackground(Color.WHITE);
 
         // Labels for rendering
         nameLabel = new JLabel();
@@ -21,7 +21,7 @@ public class BudgetListRenderer extends JPanel implements ListCellRenderer<Budge
 
         descriptionLabel = new JLabel();
         descriptionLabel.setFont(new Font("Arial", Font.PLAIN, 12));
-        descriptionLabel.setForeground(Color.DARK_GRAY);
+//        descriptionLabel.setForeground(Color.DARK_GRAY);
 
         // Left panel for name and description
         JPanel leftPanel = new JPanel();
@@ -47,13 +47,13 @@ public class BudgetListRenderer extends JPanel implements ListCellRenderer<Budge
         descriptionLabel.setText(budget.getDescription() != null ? budget.getDescription() : "No Description");
 
         // Highlighting for selection
-        if (isSelected) {
-            setBackground(list.getSelectionBackground());
-            setForeground(list.getSelectionForeground());
-        } else {
-            setBackground(Color.WHITE);
-            setForeground(Color.BLACK);
-        }
+//        if (isSelected) {
+//            setBackground(list.getSelectionBackground());
+//            setForeground(list.getSelectionForeground());
+//        } else {
+//            setBackground(Color.WHITE);
+//            setForeground(Color.BLACK);
+//        }
 
         return this;
     }

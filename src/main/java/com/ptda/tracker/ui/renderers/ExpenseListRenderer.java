@@ -17,8 +17,8 @@ public class ExpenseListRenderer extends JPanel implements ListCellRenderer<Expe
 
     public ExpenseListRenderer() {
         setLayout(new BorderLayout(10, 10));
-        setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY, 1));
-        setBackground(Color.WHITE);
+//        setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY, 1));
+//        setBackground(Color.WHITE);
 
         // Labels for rendering
         amountLabel = new JLabel();
@@ -26,15 +26,15 @@ public class ExpenseListRenderer extends JPanel implements ListCellRenderer<Expe
 
         titleLabel = new JLabel();
         titleLabel.setFont(new Font("Arial", Font.PLAIN, 12));
-        titleLabel.setForeground(Color.DARK_GRAY);
+//        titleLabel.setForeground(Color.DARK_GRAY);
 
         categoryLabel = new JLabel();
         categoryLabel.setFont(new Font("Arial", Font.ITALIC, 12));
-        categoryLabel.setForeground(Color.GRAY);
+//        categoryLabel.setForeground(Color.GRAY);
 
         dateLabel = new JLabel();
         dateLabel.setFont(new Font("Arial", Font.PLAIN, 12));
-        dateLabel.setForeground(Color.GRAY);
+//        dateLabel.setForeground(Color.GRAY);
 
         // Left panel for main content
         JPanel leftPanel = new JPanel();
@@ -73,13 +73,13 @@ public class ExpenseListRenderer extends JPanel implements ListCellRenderer<Expe
         dateLabel.setText(expense.getDate() != null ? DATE_FORMAT.format(expense.getDate()) : DATE_FORMAT.format(expense.getCreatedAt()));
 
         // Highlighting for selection
-        if (isSelected) {
-            setBackground(list.getSelectionBackground());
-            setForeground(list.getSelectionForeground());
-        } else {
-            setBackground(Color.WHITE);
-            setForeground(Color.BLACK);
-        }
+//        if (isSelected) {
+//            setBackground(list.getSelectionBackground());
+//            setForeground(list.getSelectionForeground());
+//        } else {
+//            setBackground(Color.WHITE);
+//            setForeground(Color.BLACK);
+//        }
 
         return this;
     }

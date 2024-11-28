@@ -1,5 +1,6 @@
 package com.ptda.tracker;
 
+import com.formdev.flatlaf.FlatDarkLaf;
 import com.formdev.flatlaf.FlatLaf;
 import com.formdev.flatlaf.FlatLightLaf;
 import com.ptda.tracker.models.user.User;

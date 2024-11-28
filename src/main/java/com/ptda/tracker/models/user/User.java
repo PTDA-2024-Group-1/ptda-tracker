@@ -1,10 +1,15 @@
 package com.ptda.tracker.models.user;
 
+import com.ptda.tracker.models.tracker.BudgetAccess;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
+
+import java.util.List;
 
 @Entity
 @Table(name = "_user")
@@ -17,6 +22,7 @@ import lombok.NoArgsConstructor;
 public class User {
 
     @Id
+    @Column(name = "_user_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
@@ -28,6 +34,8 @@ public class User {
 
     private boolean isActive;
 
+    private boolean isEmailVerified;
+
     @ManyToOne
     private Tier tier;
 
@@ -35,9 +43,8 @@ public class User {
 
     @PrePersist
     protected void onCreate() {
-        // set default tier
         this.isActive = true;
+        this.isEmailVerified = false;
         this.createdAt = System.currentTimeMillis();
     }
-
 }

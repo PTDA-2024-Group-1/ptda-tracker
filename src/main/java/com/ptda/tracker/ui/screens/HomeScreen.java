@@ -109,6 +109,7 @@ public class HomeScreen extends JPanel {
         add(chartPanel, BorderLayout.SOUTH);
 
         pieChartPanel = new ChartPanel(null);
+        pieChartPanel.setBackground(getBackground());
         chartPanel.add(pieChartPanel, BorderLayout.CENTER);
     }
 

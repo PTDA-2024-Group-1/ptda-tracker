@@ -11,15 +11,16 @@ import java.awt.*;
 
 public class RegisterForm extends JPanel {
     private MainFrame mainFrame;
-    private UserService userService;
     private JTextField nameField, emailField;
     private JPasswordField passwordField, confirmPasswordField;
 
     public RegisterForm(MainFrame mainFrame) {
         this.mainFrame = mainFrame;
-        ApplicationContext context = mainFrame.getContext();
-        userService = context.getBean(UserService.class);
 
+        initUI();
+    }
+
+    private void initUI() {
         setLayout(new BorderLayout());
         setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20)); // Margens ao redor do formulário
 
@@ -164,10 +165,17 @@ public class RegisterForm extends JPanel {
 
         // Register user
         try {
+            UserService userService = mainFrame.getContext().getBean(UserService.class);
+            if (userService.getByEmail(email).isPresent()) {
+                JOptionPane.showMessageDialog(this, "Email already registered", "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
             User newUser = userService.register(name, email, password);
             if (newUser != null) {
-                LoginForm.onAuthSuccess(newUser, mainFrame);
-                JOptionPane.showMessageDialog(this, "Registration successful", "Success", JOptionPane.INFORMATION_MESSAGE);
+                mainFrame.registerAndShowScreen(
+                        ScreenNames.EMAIL_VERIFICATION_FORM,
+                        new EmailVerificationForm(mainFrame, newUser)
+                );
                 // Limpar campos
                 nameField.setText("");
                 emailField.setText("");

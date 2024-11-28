@@ -12,8 +12,8 @@ public class TicketListRenderer extends JPanel implements ListCellRenderer<Ticke
 
     public TicketListRenderer() {
         setLayout(new BorderLayout(10, 10));
-        setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY, 1));
-        setBackground(Color.WHITE);
+//        setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY, 1));
+//        setBackground(Color.WHITE);
 
         // Labels para renderização
         titleLabel = new JLabel();
@@ -47,13 +47,13 @@ public class TicketListRenderer extends JPanel implements ListCellRenderer<Ticke
         statusLabel.setForeground(ticket.isClosed() ? Color.RED : Color.GREEN);
 
         // Destaque para seleção
-        if (isSelected) {
-            setBackground(list.getSelectionBackground());
-            setForeground(list.getSelectionForeground());
-        } else {
-            setBackground(Color.WHITE);
-            setForeground(Color.BLACK);
-        }
+//        if (isSelected) {
+//            setBackground(list.getSelectionBackground());
+//            setForeground(list.getSelectionForeground());
+//        } else {
+//            setBackground(Color.WHITE);
+//            setForeground(Color.BLACK);
+//        }
 
         return this;
     }

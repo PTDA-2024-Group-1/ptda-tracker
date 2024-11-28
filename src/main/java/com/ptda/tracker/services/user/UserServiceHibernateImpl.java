@@ -5,7 +5,6 @@ import com.ptda.tracker.models.user.User;
 import com.ptda.tracker.repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -87,8 +86,8 @@ public class UserServiceHibernateImpl implements UserService {
     }
 
     @Override
-    public boolean delete(User user) {
-        userRepository.delete(user);
+    public boolean deleteById(Long id) {
+        userRepository.deleteById(id);
         return true;
     }
 }

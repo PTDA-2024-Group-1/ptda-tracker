@@ -101,4 +101,11 @@ public class ExpenseServiceHibernateImpl implements ExpenseService {
         }
         return false;
     }
+
+    @Override
+    public boolean deleteAllPersonalExpensesByUserId(Long userId) {
+        List<Expense> personalExpenses = expenseRepository.findAllByCreatedByIdAndBudgetNull(userId);
+        expenseRepository.deleteAll(personalExpenses);
+        return true;
+    }
 }

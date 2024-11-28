@@ -29,4 +29,7 @@ public interface ExpenseService {
     Expense assignBudget(Long expenseId, Long budgetId);
 
     boolean delete(Long id);
+
+    boolean deleteAllPersonalExpensesByUserId(Long userId);
+
 }

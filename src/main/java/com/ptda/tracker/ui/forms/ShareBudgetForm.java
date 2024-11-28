@@ -40,7 +40,7 @@ public class ShareBudgetForm extends JPanel {
         gbc.gridwidth = 2;
         JLabel titleLabel = new JLabel("Share Budget", SwingConstants.CENTER);
         titleLabel.setFont(new Font("Arial", Font.BOLD, 20));
-        titleLabel.setForeground(new Color(56, 56, 56)); // Cor do título
+//        titleLabel.setForeground(new Color(56, 56, 56)); // Cor do título
         add(titleLabel, gbc);
 
         // Email Field
@@ -53,7 +53,7 @@ public class ShareBudgetForm extends JPanel {
 
         gbc.gridx = 1;
         emailField = new JTextField(20);
-        styleTextField(emailField);
+//        styleTextField(emailField);
         add(emailField, gbc);
 
         // Access Level Dropdown
@@ -65,7 +65,7 @@ public class ShareBudgetForm extends JPanel {
 
         gbc.gridx = 1;
         accessLevelComboBox = new JComboBox<>(BudgetAccessLevel.values());
-        styleComboBox(accessLevelComboBox);
+//        styleComboBox(accessLevelComboBox);
         add(accessLevelComboBox, gbc);
 
         // Buttons Panel
@@ -82,7 +82,7 @@ public class ShareBudgetForm extends JPanel {
 
         add(buttonsPanel, gbc);
 
-        setBackground(new Color(240, 240, 240)); // Cor de fundo suave
+//        setBackground(new Color(240, 240, 240)); // Cor de fundo suave
     }
 
     private void setListeners() {
