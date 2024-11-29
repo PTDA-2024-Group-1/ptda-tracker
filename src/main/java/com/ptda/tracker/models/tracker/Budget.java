@@ -10,7 +10,6 @@ import lombok.*;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@ToString
 public class Budget {
 
     @Id
@@ -41,10 +40,6 @@ public class Budget {
     protected void onUpdate() {
         this.updatedAt = System.currentTimeMillis();
         this.updatedBy = UserSession.getInstance().getUser();
-    }
-
-    public String toString() {
-        return name;
     }
 
 }

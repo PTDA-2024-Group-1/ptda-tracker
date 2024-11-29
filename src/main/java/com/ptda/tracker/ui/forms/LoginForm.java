@@ -14,14 +14,14 @@ import java.awt.*;
 import java.util.Optional;
 import java.util.prefs.Preferences;
 
+import static com.ptda.tracker.config.AppConfig.LOGO_PATH;
+
 public class LoginForm extends JPanel {
     private MainFrame mainFrame;
     private UserService userService;
     private JTextField usernameField;
     private JPasswordField passwordField;
     private JButton loginButton, registerButton;
-
-    private static final String LOGO_PATH = "src/main/resources/images/divi.png";
 
     private static final String
             REGISTER_SCREEN = ScreenNames.REGISTER_FORM,
@@ -32,10 +32,10 @@ public class LoginForm extends JPanel {
             EMAIL = "Email",
             PASSWORD = "Password",
             GO_TO_REGISTER = "Go to Register",
-            EMAIL_CANNOT_BE_EMPTY = "Email cannot be empty",
-            PASSWORD_CANNOT_BE_EMPTY = "Password cannot be empty",
-            LOGIN_SUCCESSFUL = "Logged in successfully!",
-            EMAIL_OR_PASSWORD_INCORRECT = "Email or password is incorrect. Please try again.",
+            EMAIL_REQUIRED = "Email required",
+            PASSWORD_REQUIRED = "Password required",
+            WELCOME_BACK = "Welcome back!",
+            INVALID_CREDENTIALS = "Invalid credentials. Please try again.",
             ERROR = "Error",
             MESSAGE = "Message";
 
@@ -64,8 +64,8 @@ public class LoginForm extends JPanel {
         topPanel.add(titleLabel);
 
         // Logotype
-        ImageIcon originalIcon = new ImageIcon(LOGO_PATH);
-        Image scaledImage = originalIcon.getImage().getScaledInstance(250, 250, Image.SCALE_SMOOTH); // Resize to 100x100 pixels
+        ImageIcon appLogo = new ImageIcon(LOGO_PATH);
+        Image scaledImage = appLogo.getImage().getScaledInstance(250, 250, Image.SCALE_SMOOTH); // Resize to 100x100 pixels
         ImageIcon scaledIcon = new ImageIcon(scaledImage);
         JLabel logoLabel = new JLabel(scaledIcon);
         logoLabel.setAlignmentX(CENTER_ALIGNMENT);
@@ -139,32 +139,32 @@ public class LoginForm extends JPanel {
         // Validations
         int i = 0;
         if (email.isEmpty()) {
-            showError(EMAIL_CANNOT_BE_EMPTY, usernameField);
+            showError(EMAIL_REQUIRED, usernameField);
             i++;
         }
         if (password.isEmpty()) {
-            showError(PASSWORD_CANNOT_BE_EMPTY, passwordField);
+            showError(PASSWORD_REQUIRED, passwordField);
             i++;
         }
         if (i > 0) return;
 
         // Login
         Optional<User> user = userService.login(email, password);
-        if (user.isPresent()) {
+        if (user.isEmpty()) {
+            JOptionPane.showMessageDialog(this, INVALID_CREDENTIALS, ERROR, JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        if (user.get().isEmailVerified()) {
             onAuthSuccess(user.get(), mainFrame);
-            showMessage(LOGIN_SUCCESSFUL, JOptionPane.INFORMATION_MESSAGE);
+            JOptionPane.showMessageDialog(this, WELCOME_BACK, MESSAGE, JOptionPane.INFORMATION_MESSAGE);
         } else {
-            showMessage(EMAIL_OR_PASSWORD_INCORRECT, JOptionPane.WARNING_MESSAGE);
+            mainFrame.registerAndShowScreen(ScreenNames.EMAIL_VERIFICATION_FORM, new EmailVerificationForm(mainFrame, user.get(), mainFrame.getCurrentScreen()));
         }
     }
 
     private void showError(String message, JComponent component) {
         JOptionPane.showMessageDialog(this, message, ERROR, JOptionPane.ERROR_MESSAGE);
         component.requestFocusInWindow();
-    }
-
-    private void showMessage(String message, int messageType) {
-        JOptionPane.showMessageDialog(this, message, MESSAGE, messageType);
     }
 
     public static void onAuthSuccess(User user, MainFrame mainFrame) {

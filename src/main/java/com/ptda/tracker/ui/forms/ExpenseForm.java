@@ -31,8 +31,6 @@ public class ExpenseForm extends JPanel {
     private JSpinner dateSpinner;
     private JButton saveButton, backButton;
 
-    private static final Color PRIMARY_COLOR = new Color(240, 240, 240);
-
     private static final String
             CREATE_NEW_EXPENSE = "Create New Expense",
             EDIT_EXPENSE = "Edit Expense",
@@ -57,7 +55,6 @@ public class ExpenseForm extends JPanel {
         this.expense = expense;
         this.returnScreen = returnScreen;
 
-        budgetMap = new HashMap<>();
         initUI();
         setListeners();
     }
@@ -125,6 +122,7 @@ public class ExpenseForm extends JPanel {
         formPanel.add(new JLabel(BUDGET + ":"), gbc);
 
         gbc.gridx = 1;
+        budgetMap = new HashMap<>();
         budgetComboBox = new JComboBox<>();
         budgetComboBox.addItem(NO_BUDGET);
         BudgetService budgetService = mainFrame.getContext().getBean(BudgetService.class);
@@ -167,6 +165,7 @@ public class ExpenseForm extends JPanel {
 
     private void setListeners() {
         backButton.addActionListener(e -> {
+            onFormSubmit.run();
             mainFrame.showScreen(returnScreen);
         });
         saveButton.addActionListener(this::saveExpense);
@@ -216,7 +215,7 @@ public class ExpenseForm extends JPanel {
 
         clearFields();
         onFormSubmit.run();
-        mainFrame.registerAndShowScreen(ScreenNames.EXPENSE_DETAIL_VIEW, new ExpenseDetailView(mainFrame, expense, returnScreen, null));
+        mainFrame.showScreen(ScreenNames.EXPENSE_DETAIL_VIEW);
     }
 
     private void clearFields() {

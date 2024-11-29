@@ -1,5 +1,6 @@
 package com.ptda.tracker.ui;
 
+import com.ptda.tracker.ui.dialogs.AboutDialog;
 import lombok.Getter;
 import org.springframework.context.ApplicationContext;
 
@@ -34,6 +35,8 @@ public class MainFrame extends JFrame {
         setSize(1000, 800);
         setLocationRelativeTo(null);
         add(mainPanel);
+
+        setJMenuBar(createMenuBar());
     }
 
     public void registerScreen(String name, JPanel screen) {
@@ -68,5 +71,35 @@ public class MainFrame extends JFrame {
 
     public JPanel getScreen(String screenName) {
         return screens.get(screenName);
+    }
+
+    private JMenuBar createMenuBar() {
+        // Create the menu bar
+        JMenuBar menuBar = new JMenuBar();
+
+        // Create "File" menu
+        JMenu fileMenu = new JMenu("File");
+        JMenuItem exitMenuItem = new JMenuItem("Exit");
+        exitMenuItem.addActionListener(e -> System.exit(0));
+        fileMenu.add(exitMenuItem);
+
+        // Create "View" menu
+        JMenu viewMenu = new JMenu("View");
+        JMenuItem homeMenuItem = new JMenuItem("Home");
+        homeMenuItem.addActionListener(e -> showScreen(NAVIGATION_SCREEN)); // Example action
+        viewMenu.add(homeMenuItem);
+
+        // Create "Help" menu
+        JMenu helpMenu = new JMenu("Help");
+        JMenuItem aboutMenuItem = new JMenuItem("About");
+        aboutMenuItem.addActionListener(e -> new AboutDialog(this).setVisible(true));
+        helpMenu.add(aboutMenuItem);
+
+        // Add menus to the menu bar
+        menuBar.add(fileMenu);
+        menuBar.add(viewMenu);
+        menuBar.add(helpMenu);
+
+        return menuBar;
     }
 }

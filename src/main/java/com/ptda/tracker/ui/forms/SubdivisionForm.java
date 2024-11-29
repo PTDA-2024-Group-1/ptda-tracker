@@ -45,13 +45,14 @@ public class SubdivisionForm extends JPanel {
             PERCENTAGE_GREATER_THAN_ZERO = "Percentage must be greater than 0.",
             TOTAL_PERCENTAGE_EXCEED = "The total percentage must not exceed 100%. Remaining percentage: ",
             USER_INCLUDED_ONCE = "Each user can only be included once per expense.",
-            DISTRIBUTION_ALREADY_COMPLETE = "The distribution is already complete (100%). No remaining percentage to distribute.";
+            DISTRIBUTION_ALREADY_COMPLETE = "The distribution is already complete (100%). No remaining percentage to distribute.",
+            PERCENTAGE = "Percentage";
 
-    public SubdivisionForm(MainFrame mainFrame, Expense expense, Budget budget, BudgetAccessService budgetAccessService, Runnable onBack) {
+    public SubdivisionForm(MainFrame mainFrame, Expense expense, Budget budget, Runnable onBack) {
         this.mainFrame = mainFrame;
         this.expense = expense;
         this.budget = budget;
-        this.budgetAccessService = budgetAccessService;
+        this.budgetAccessService = mainFrame.getContext().getBean(BudgetAccessService.class);
         this.subdivisionService = mainFrame.getContext().getBean(SubdivisionService.class);
         this.subdivisions = subdivisionService.getAllByExpenseId(expense.getId());
         this.onBack = onBack;
@@ -281,8 +282,6 @@ public class SubdivisionForm extends JPanel {
 
         if (onBack != null) {
             onBack.run();
-        } else {
-            mainFrame.registerAndShowScreen(ScreenNames.EXPENSE_DETAIL_VIEW, new ExpenseDetailView(mainFrame, expense, ScreenNames.EXPENSE_DETAIL_VIEW, () -> {}));
         }
     }
 
@@ -310,7 +309,7 @@ public class SubdivisionForm extends JPanel {
             JLabel userLabel = new JLabel(user.getUser().getName() + ":");
             JTextField percentageField = new JTextField(5);
             rowPanel.add(userLabel);
-            rowPanel.add(new JLabel("Percentage:"));
+            rowPanel.add(new JLabel(PERCENTAGE + ":"));
             rowPanel.add(percentageField);
             customDistributionPanel.add(rowPanel);
         }

@@ -8,6 +8,8 @@ import com.ptda.tracker.util.ScreenNames;
 import javax.swing.*;
 import java.awt.*;
 
+import static com.ptda.tracker.config.AppConfig.LOGO_PATH;
+
 public class RegisterForm extends JPanel {
     private MainFrame mainFrame;
     private JTextField nameField, emailField;
@@ -16,9 +18,13 @@ public class RegisterForm extends JPanel {
     private static final String
             REGISTER = "Register",
             NAME = "Name",
+            ENTER_NAME = "Enter your full name",
             EMAIL = "Email",
+            ENTER_EMAIL = "Enter your email address",
             PASSWORD = "Password",
+            ENTER_PASSWORD = "Enter a strong password (min. 8 characters)",
             CONFIRM_PASSWORD = "Confirm Password",
+            REPEAT_PASSWORD = "Repeat your password",
             SHOW_PASSWORD = "Show Password",
             GO_TO_LOGIN = "Go to Login",
             ALL_FIELDS_REQUIRED = "All fields are required",
@@ -27,7 +33,9 @@ public class RegisterForm extends JPanel {
             PASSWORDS_DO_NOT_MATCH = "Passwords do not match",
             EMAIL_ALREADY_REGISTERED = "Email already registered",
             REGISTRATION_FAILED = "Registration failed",
-            AN_ERROR_OCCURRED = "An error occurred: ";
+            AN_ERROR_OCCURRED = "An error occurred: ",
+            ARE_YOU_SURE_YOU_WANT_TO_REGISTER = "Are you sure you want to register?",
+            CONFIRMATION = "Confirmation";
 
     public RegisterForm(MainFrame mainFrame) {
         this.mainFrame = mainFrame;
@@ -51,7 +59,7 @@ public class RegisterForm extends JPanel {
         topPanel.add(titleLabel);
 
         // Logo
-        ImageIcon originalIcon = new ImageIcon("src/main/resources/images/divi.png");
+        ImageIcon originalIcon = new ImageIcon(LOGO_PATH);
         Image scaledImage = originalIcon.getImage().getScaledInstance(250, 250, Image.SCALE_SMOOTH); // Resize
         ImageIcon scaledIcon = new ImageIcon(scaledImage);
         JLabel logoLabel = new JLabel(scaledIcon);
@@ -79,7 +87,7 @@ public class RegisterForm extends JPanel {
         nameField = new JTextField();
         nameField.setFont(new Font("Arial", Font.PLAIN, 14));
         nameField.setPreferredSize(new Dimension(200, 30)); // Field size
-        nameField.setToolTipText("Enter your full name");
+        nameField.setToolTipText(ENTER_NAME);
         gbc.gridx = 0;
         gbc.gridy = 1;
         formPanel.add(nameField, gbc);
@@ -94,7 +102,7 @@ public class RegisterForm extends JPanel {
         emailField = new JTextField();
         emailField.setFont(new Font("Arial", Font.PLAIN, 14));
         emailField.setPreferredSize(new Dimension(200, 30));
-        emailField.setToolTipText("Enter a valid email address");
+        emailField.setToolTipText(ENTER_EMAIL);
         gbc.gridx = 0;
         gbc.gridy = 3;
         formPanel.add(emailField, gbc);
@@ -109,7 +117,7 @@ public class RegisterForm extends JPanel {
         passwordField = new JPasswordField();
         passwordField.setFont(new Font("Arial", Font.PLAIN, 14));
         passwordField.setPreferredSize(new Dimension(200, 30));
-        passwordField.setToolTipText("Enter a strong password (min. 8 characters)");
+        passwordField.setToolTipText(ENTER_PASSWORD);
         gbc.gridx = 0;
         gbc.gridy = 5;
         formPanel.add(passwordField, gbc);
@@ -124,7 +132,7 @@ public class RegisterForm extends JPanel {
         confirmPasswordField = new JPasswordField();
         confirmPasswordField.setFont(new Font("Arial", Font.PLAIN, 14));
         confirmPasswordField.setPreferredSize(new Dimension(200, 30));
-        confirmPasswordField.setToolTipText("Re-enter your password");
+        confirmPasswordField.setToolTipText(REPEAT_PASSWORD);
         gbc.gridx = 0;
         gbc.gridy = 7;
         formPanel.add(confirmPasswordField, gbc);
@@ -158,6 +166,8 @@ public class RegisterForm extends JPanel {
     }
 
     private void register() {
+        JOptionPane.showMessageDialog(this,ARE_YOU_SURE_YOU_WANT_TO_REGISTER, CONFIRMATION, JOptionPane.WARNING_MESSAGE);
+
         String name = nameField.getText();
         String email = emailField.getText();
         String password = new String(passwordField.getPassword());
@@ -188,7 +198,7 @@ public class RegisterForm extends JPanel {
             if (newUser != null) {
                 mainFrame.registerAndShowScreen(
                         ScreenNames.EMAIL_VERIFICATION_FORM,
-                        new EmailVerificationForm(mainFrame, newUser)
+                        new EmailVerificationForm(mainFrame, newUser, ScreenNames.LOGIN_FORM)
                 );
                 // Clear fields
                 nameField.setText("");

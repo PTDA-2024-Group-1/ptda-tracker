@@ -22,6 +22,7 @@ public class EmailVerificationServiceHibernateImpl implements EmailVerificationS
     @Override
     @Transactional
     public EmailVerification create(String email) {
+        emailVerificationRepository.getAllByEmail(email).forEach(emailVerification -> emailVerification.setUsed(true));
         return emailVerificationRepository.save(EmailVerification.builder()
                 .email(email)
                 .code(generateRandomCode(6))
@@ -47,7 +48,6 @@ public class EmailVerificationServiceHibernateImpl implements EmailVerificationS
     @Override
     @Transactional
     public boolean deleteAllExpired(long expirationTime) {
-        emailVerificationRepository.deleteAllByIsUsedIsTrueAndCreatedAtBefore(expirationTime);
-        return true;
+        return emailVerificationRepository.deleteAllByIsUsedIsTrueAndCreatedAtBefore(expirationTime);
     }
 }

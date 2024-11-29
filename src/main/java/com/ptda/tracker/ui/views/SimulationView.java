@@ -31,12 +31,12 @@ public class SimulationView extends JPanel {
 
     private static final String
             BUDGET_SIMULATION = "Budget Simulation",
-            SEARCH = "Search: ",
+            SEARCH = "Search",
             CANCEL = "Cancel",
             MY_EXPENSES = "My Expenses",
-            TOTAL_AMOUNT_PAID = "Total Amount Paid: €",
+            TOTAL_AMOUNT_PAID = "Total Amount Paid",
             ALL_USERS_TOTAL_EXPENSES = "All Users - Total Expenses",
-            TOTAL_BUDGET_AMOUNT = "Total Budget Amount: €";
+            TOTAL_BUDGET_AMOUNT = "Total Budget Amount";
 
     public SimulationView(MainFrame mainFrame, Budget budget) {
         this.mainFrame = mainFrame;
@@ -68,7 +68,7 @@ public class SimulationView extends JPanel {
         // Search Field Panel
         gbc.gridy = 1;
         JPanel searchPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
-        JLabel searchLabel = new JLabel(SEARCH);
+        JLabel searchLabel = new JLabel(SEARCH + ": ");
         JTextField searchField = new JTextField(20);
         searchPanel.add(searchLabel);
         searchPanel.add(searchField);
@@ -138,7 +138,7 @@ public class SimulationView extends JPanel {
         add(scrollPane, gbc);
 
         // Add total amount label below the table
-        JLabel totalAmountLabel = new JLabel(TOTAL_AMOUNT_PAID + String.format("%.2f", totalAmount));
+        JLabel totalAmountLabel = new JLabel(TOTAL_AMOUNT_PAID + ": €" + String.format("%.2f", totalAmount));
         gbc.gridy = 5;
         add(totalAmountLabel, gbc);
     }
@@ -203,7 +203,7 @@ public class SimulationView extends JPanel {
         add(scrollPane, gbc);
 
         // Add total budget amount label below the table
-        JLabel totalBudgetAmountLabel = new JLabel(TOTAL_BUDGET_AMOUNT + String.format("%.2f", totalBudgetAmount));
+        JLabel totalBudgetAmountLabel = new JLabel(TOTAL_BUDGET_AMOUNT + ": €" + String.format("%.2f", totalBudgetAmount));
         gbc.gridy = 5;
         add(totalBudgetAmountLabel, gbc);
     }
