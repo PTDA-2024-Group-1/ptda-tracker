@@ -19,6 +19,14 @@ public class TicketForm extends JPanel {
     private JTextArea descriptionArea;
 
     private static final Color PRIMARY_COLOR = new Color(240, 240, 240);
+    private static final String
+            CREATE_NEW_TICKET = "Create New Ticket",
+            TITLE = "Title",
+            DESCRIPTION = "Description",
+            BACK = "Back",
+            SAVE = "Save",
+            TITLE_AND_DESCRIPTION_CANNOT_BE_EMPTY = "Title and Description cannot be empty",
+            ERROR = "Error";
 
     public TicketForm(MainFrame mainFrame, Runnable onSaveCallback, Ticket existingTicket) {
         this.mainFrame = mainFrame;
@@ -27,7 +35,6 @@ public class TicketForm extends JPanel {
         this.ticketService = mainFrame.getContext().getBean(TicketService.class);
 
         setLayout(new BorderLayout(20, 20));
-//        setBackground(PRIMARY_COLOR);
         setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
         initUI();
@@ -35,15 +42,13 @@ public class TicketForm extends JPanel {
 
     private void initUI() {
         // Header
-        JLabel headerLabel = new JLabel("Create New Ticket");
+        JLabel headerLabel = new JLabel(CREATE_NEW_TICKET);
         headerLabel.setFont(new Font("Arial", Font.BOLD, 22));
-//        headerLabel.setForeground(Color.DARK_GRAY);
         headerLabel.setHorizontalAlignment(SwingConstants.CENTER);
         add(headerLabel, BorderLayout.NORTH);
 
         // Form Panel
         JPanel formPanel = new JPanel(new GridBagLayout());
-//        formPanel.setBackground(PRIMARY_COLOR);
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.insets = new Insets(10, 10, 10, 10);
@@ -51,7 +56,7 @@ public class TicketForm extends JPanel {
         // Title Field
         gbc.gridx = 0;
         gbc.gridy = 0;
-        formPanel.add(new JLabel("Title:"), gbc);
+        formPanel.add(new JLabel(TITLE + ":"), gbc);
 
         gbc.gridx = 1;
         titleField = new JTextField(existingTicket != null ? existingTicket.getTitle() : "", 25);
@@ -60,7 +65,7 @@ public class TicketForm extends JPanel {
         // Description Area
         gbc.gridx = 0;
         gbc.gridy = 1;
-        formPanel.add(new JLabel("Description:"), gbc);
+        formPanel.add(new JLabel(DESCRIPTION + ":"), gbc);
 
         gbc.gridx = 1;
         descriptionArea = new JTextArea(existingTicket != null ? existingTicket.getBody() : "", 4, 25);
@@ -74,12 +79,11 @@ public class TicketForm extends JPanel {
 
         // Button Panel
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 10));
-//        buttonPanel.setBackground(PRIMARY_COLOR);
 
-        JButton backButton = new JButton("Back");
+        JButton backButton = new JButton(BACK);
         backButton.addActionListener(e -> mainFrame.showScreen(ScreenNames.NAVIGATION_SCREEN));
 
-        JButton saveButton = new JButton("Save");
+        JButton saveButton = new JButton(SAVE);
         saveButton.addActionListener(e -> saveTicket());
 
         buttonPanel.add(backButton);
@@ -93,7 +97,7 @@ public class TicketForm extends JPanel {
         String body = descriptionArea.getText().trim();
 
         if (title.isEmpty() || body.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Title and Description cannot be empty", "Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, TITLE_AND_DESCRIPTION_CANNOT_BE_EMPTY, ERROR, JOptionPane.ERROR_MESSAGE);
             return;
         }
 

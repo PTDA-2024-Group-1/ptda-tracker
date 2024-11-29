@@ -18,6 +18,20 @@ public class EmailVerificationForm extends JPanel {
     private JTextField verificationCodeField;
     private JButton verifyButton, backButton;
 
+    private static final String
+            TITLE = "Enter the verification code sent to your email:",
+            VERIFY = "Verify",
+            BACK = "Back",
+            REGISTRATION_SUCCESSFUL = "Registration successful",
+            SUCCESS = "Success",
+            EMAIL_VERIFICATION = "Email Verification",
+            VERIFICATION_CODE_MESSAGE = "Your verification code is: ",
+            VERIFICATION_CODE_NOT_FOUND = "Verification code not found. Please try again.",
+            ERROR = "Error",
+            VERIFICATION_CODE_ALREADY_USED = "Verification code already used. Please request a new one.",
+            INVALID_VERIFICATION_CODE = "Invalid verification code. Please try again.",
+            EMAIL_VERIFIED_SUCCESSFULLY = "Email verified successfully";
+
     public EmailVerificationForm(MainFrame mainFrame, User newUser) {
         new Thread(this::sendVerificationCode).start();
         this.mainFrame = mainFrame;
@@ -28,12 +42,12 @@ public class EmailVerificationForm extends JPanel {
     }
 
     private void initUI() {
-        JLabel instructionLabel = new JLabel("Enter the verification code sent to your email:");
+        JLabel instructionLabel = new JLabel(TITLE);
         instructionLabel.setHorizontalAlignment(SwingConstants.CENTER);
 
         verificationCodeField = new JTextField();
-        verifyButton = new JButton("Verify");
-        backButton = new JButton("Back");
+        verifyButton = new JButton(VERIFY);
+        backButton = new JButton(BACK);
 
         // Set up the layout
         setLayout(new GridLayout(4, 1, 10, 10));
@@ -52,8 +66,8 @@ public class EmailVerificationForm extends JPanel {
                 LoginForm.onAuthSuccess(newUser, mainFrame);
                 JOptionPane.showMessageDialog(
                         this,
-                        "Registration successful",
-                        "Success",
+                        REGISTRATION_SUCCESSFUL,
+                        SUCCESS,
                         JOptionPane.INFORMATION_MESSAGE
                 );
             }
@@ -63,8 +77,8 @@ public class EmailVerificationForm extends JPanel {
     private void sendVerificationCode() {
         EmailVerification emailVerification = emailVerificationService.create(newUser.getEmail());
         EmailService emailService = mainFrame.getContext().getBean(EmailService.class);
-        String subject = "Email Verification";
-        String message = "Your verification code is: " + emailVerification.getCode();
+        String subject = EMAIL_VERIFICATION;
+        String message = VERIFICATION_CODE_MESSAGE + emailVerification.getCode();
         emailService.sendEmail(newUser.getEmail(), subject, message);
     }
 
@@ -75,8 +89,8 @@ public class EmailVerificationForm extends JPanel {
         if (emailVerification == null) {
             JOptionPane.showMessageDialog(
                     this,
-                    "Verification code not found. Please try again.",
-                    "Error",
+                    VERIFICATION_CODE_NOT_FOUND,
+                    ERROR,
                     JOptionPane.ERROR_MESSAGE
             );
             return false;
@@ -84,8 +98,8 @@ public class EmailVerificationForm extends JPanel {
         if (emailVerification.isUsed()) {
             JOptionPane.showMessageDialog(
                     this,
-                    "Verification code already used. Please request a new one.",
-                    "Error",
+                    VERIFICATION_CODE_ALREADY_USED,
+                    ERROR,
                     JOptionPane.ERROR_MESSAGE
             );
             return false;
@@ -93,8 +107,8 @@ public class EmailVerificationForm extends JPanel {
         if (!emailVerification.getCode().equals(verificationCode)) {
             JOptionPane.showMessageDialog(
                     this,
-                    "Invalid verification code. Please try again.",
-                    "Error",
+                    INVALID_VERIFICATION_CODE,
+                    ERROR,
                     JOptionPane.ERROR_MESSAGE
             );
             return false;
@@ -105,8 +119,8 @@ public class EmailVerificationForm extends JPanel {
         emailVerificationService.activate(emailVerification);
         JOptionPane.showMessageDialog(
                 this,
-                "Email verified successfully",
-                "Success",
+                EMAIL_VERIFIED_SUCCESSFULLY,
+                SUCCESS,
                 JOptionPane.INFORMATION_MESSAGE
         );
         return true;

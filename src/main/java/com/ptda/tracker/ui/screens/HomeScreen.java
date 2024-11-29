@@ -14,13 +14,11 @@ import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.data.general.DefaultPieDataset;
-import org.springframework.context.ApplicationContext;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
@@ -31,6 +29,16 @@ public class HomeScreen extends JPanel {
     private JList<Expense> expenseList;
     private JLabel budgetLabel, expenseLabel, ticketLabel;
     private ChartPanel pieChartPanel;
+
+    private static final String
+            BUDGETS = "Budgets: ",
+            EXPENSES = "Expenses: ",
+            PENDING_TICKETS = "Pending Tickets: ",
+            SUMMARY = "Summary",
+            RECENT_DATA = "Recent Data",
+            RECENT_BUDGETS = "Recent Budgets",
+            RECENT_EXPENSES = "Recent Expenses",
+            EXPENSES_BY_CATEGORY = "Expenses by Category";
 
     public HomeScreen(MainFrame mainFrame) {
         this.mainFrame = mainFrame;
@@ -46,12 +54,12 @@ public class HomeScreen extends JPanel {
 
         // Top panel with summaries
         JPanel summaryPanel = new JPanel(new GridLayout(1, 3, 10, 10));
-        summaryPanel.setBorder(BorderFactory.createTitledBorder("Summary"));
+        summaryPanel.setBorder(BorderFactory.createTitledBorder(SUMMARY));
         add(summaryPanel, BorderLayout.NORTH);
 
-        budgetLabel = new JLabel("Budgets: 0", SwingConstants.CENTER);
-        expenseLabel = new JLabel("Expenses: 0", SwingConstants.CENTER);
-        ticketLabel = new JLabel("Pending Tickets: 0", SwingConstants.CENTER);
+        budgetLabel = new JLabel(BUDGETS + "0", SwingConstants.CENTER);
+        expenseLabel = new JLabel(EXPENSES + "0", SwingConstants.CENTER);
+        ticketLabel = new JLabel(PENDING_TICKETS + "0", SwingConstants.CENTER);
 
         budgetLabel.setFont(new Font("Arial", Font.BOLD, 14));
         expenseLabel.setFont(new Font("Arial", Font.BOLD, 14));
@@ -63,7 +71,7 @@ public class HomeScreen extends JPanel {
 
         // Central panel with budget and expense lists
         JPanel listsPanel = new JPanel(new GridLayout(1, 2, 10, 10));
-        listsPanel.setBorder(BorderFactory.createTitledBorder("Recent Data"));
+        listsPanel.setBorder(BorderFactory.createTitledBorder(RECENT_DATA));
         add(listsPanel, BorderLayout.CENTER);
 
         budgetList = new JList<>();
@@ -74,13 +82,13 @@ public class HomeScreen extends JPanel {
                     Budget selectedBudget = budgetList.getSelectedValue();
                     if (selectedBudget != null) {
                         mainFrame.registerAndShowScreen(ScreenNames.BUDGET_DETAIL_VIEW, new BudgetDetailView(mainFrame, selectedBudget));
-                        budgetList.clearSelection(); // Limpar seleção após abrir detalhes
+                        budgetList.clearSelection(); // Clear selection after opening details
                     }
                 }
             }
         });
         JScrollPane budgetScrollPane = new JScrollPane(budgetList);
-        budgetScrollPane.setBorder(BorderFactory.createTitledBorder("Recent Budgets"));
+        budgetScrollPane.setBorder(BorderFactory.createTitledBorder(RECENT_BUDGETS));
         listsPanel.add(budgetScrollPane);
 
         expenseList = new JList<>();
@@ -94,18 +102,18 @@ public class HomeScreen extends JPanel {
                                 ScreenNames.EXPENSE_DETAIL_VIEW,
                                 new ExpenseDetailView(mainFrame, selectedExpense, mainFrame.getCurrentScreen(), HomeScreen.this::refreshData)
                         );
-                        expenseList.clearSelection(); // Limpar seleção após abrir detalhes
+                        expenseList.clearSelection(); // Clear selection after opening details
                     }
                 }
             }
         });
         JScrollPane expenseScrollPane = new JScrollPane(expenseList);
-        expenseScrollPane.setBorder(BorderFactory.createTitledBorder("Recent Expenses"));
+        expenseScrollPane.setBorder(BorderFactory.createTitledBorder(RECENT_EXPENSES));
         listsPanel.add(expenseScrollPane);
 
         // Bottom panel with chart
         JPanel chartPanel = new JPanel(new BorderLayout());
-        chartPanel.setBorder(BorderFactory.createTitledBorder("Expenses by Category"));
+        chartPanel.setBorder(BorderFactory.createTitledBorder(EXPENSES_BY_CATEGORY));
         add(chartPanel, BorderLayout.SOUTH);
 
         pieChartPanel = new ChartPanel(null);
@@ -122,9 +130,9 @@ public class HomeScreen extends JPanel {
         int expenseCount = expenseService.getAllByUserId(userId).size();
         int pendingTicketCount = ticketService.getOpenTicketsByUser(UserSession.getInstance().getUser()).size();
 
-        budgetLabel.setText("Budgets: " + budgetCount);
-        expenseLabel.setText("Expenses: " + expenseCount);
-        ticketLabel.setText("Pending Tickets: " + pendingTicketCount);
+        budgetLabel.setText(BUDGETS + budgetCount);
+        expenseLabel.setText(EXPENSES + expenseCount);
+        ticketLabel.setText(PENDING_TICKETS + pendingTicketCount);
 
         List<Budget> recentBudgets = budgetService.getAllByUserId(userId).stream()
                 .sorted((b1, b2) -> Long.compare(b2.getCreatedAt(), b1.getCreatedAt()))
@@ -144,7 +152,7 @@ public class HomeScreen extends JPanel {
             dataset.setValue(entry.getKey(), entry.getValue());
         }
 
-        JFreeChart pieChart = ChartFactory.createPieChart("Expenses by Category", dataset, true, true, false);
+        JFreeChart pieChart = ChartFactory.createPieChart(EXPENSES_BY_CATEGORY, dataset, true, true, false);
         pieChartPanel.setChart(pieChart);
     }
 }

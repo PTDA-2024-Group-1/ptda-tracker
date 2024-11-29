@@ -18,6 +18,10 @@ public class BudgetsScreen extends JPanel {
     private final JList<Budget> budgetList;
     private List<Budget> budgets;
 
+    private static final String
+            SELECT_BUDGET = "Select a budget to view details",
+            CREATE_NEW_BUDGET = "Create New Budget";
+
     public BudgetsScreen(MainFrame mainFrame) {
         setLayout(new BorderLayout());
 
@@ -32,19 +36,19 @@ public class BudgetsScreen extends JPanel {
                 Budget selectedBudget = budgetList.getSelectedValue();
                 if (selectedBudget != null) {
                     mainFrame.registerAndShowScreen(ScreenNames.BUDGET_DETAIL_VIEW, new BudgetDetailView(mainFrame, selectedBudget));
-                    budgetList.clearSelection(); // Limpar seleção para permitir nova interação
+                    budgetList.clearSelection(); // Clear selection to allow new interaction
                 }
             }
         });
 
         add(new JScrollPane(budgetList), BorderLayout.CENTER);
 
-        JLabel label = new JLabel("Select a budget to view details", SwingConstants.CENTER);
+        JLabel label = new JLabel(SELECT_BUDGET, SwingConstants.CENTER);
         add(label, BorderLayout.NORTH);
 
-        JButton createButton = new JButton("Create New Budget");
+        JButton createButton = new JButton(CREATE_NEW_BUDGET);
         createButton.addActionListener(e -> {
-            // Abrir o BudgetForm no modo de criação
+            // Open BudgetForm in creation mode
             mainFrame.registerScreen(ScreenNames.BUDGET_FORM, new BudgetForm(mainFrame, this::refreshBudgetList, null));
             mainFrame.showScreen(ScreenNames.BUDGET_FORM);
         });

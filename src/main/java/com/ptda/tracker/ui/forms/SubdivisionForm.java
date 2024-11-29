@@ -16,6 +16,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class SubdivisionForm extends JPanel {
     private final MainFrame mainFrame;
@@ -28,6 +29,23 @@ public class SubdivisionForm extends JPanel {
 
     private JRadioButton equitableRadioButton, customRadioButton;
     private JPanel customDistributionPanel;
+
+    private static final String
+            DISTRIBUTION_TYPE = "Distribution Type:",
+            EQUITABLE = "Equitable",
+            CUSTOM = "Custom",
+            CUSTOM_DISTRIBUTION = "Custom Distribution",
+            CANCEL = "Cancel",
+            DISTRIBUTE = "Distribute",
+            DISTRIBUTION_COMPLETE = "Distribution complete (100%).",
+            DISTRIBUTION_SAVED = "Distribution saved. Remaining percentage to distribute: ",
+            REMAINING_PERCENTAGE_DISTRIBUTED = "Remaining percentage distributed equitably. Each user received: ",
+            NO_USERS_LEFT = "No users left to distribute the remaining percentage.",
+            INVALID_PERCENTAGE = "Invalid percentage value.",
+            PERCENTAGE_GREATER_THAN_ZERO = "Percentage must be greater than 0.",
+            TOTAL_PERCENTAGE_EXCEED = "The total percentage must not exceed 100%. Remaining percentage: ",
+            USER_INCLUDED_ONCE = "Each user can only be included once per expense.",
+            DISTRIBUTION_ALREADY_COMPLETE = "The distribution is already complete (100%). No remaining percentage to distribute.";
 
     public SubdivisionForm(MainFrame mainFrame, Expense expense, Budget budget, BudgetAccessService budgetAccessService, Runnable onBack) {
         this.mainFrame = mainFrame;
@@ -53,14 +71,14 @@ public class SubdivisionForm extends JPanel {
         // Distribution Type RadioButtons
         gbc.gridx = 0;
         gbc.gridy = 0;
-        JLabel distributionLabel = new JLabel("Distribution Type:");
+        JLabel distributionLabel = new JLabel(DISTRIBUTION_TYPE);
         distributionLabel.setFont(new Font("Arial", Font.PLAIN, 14));
         formPanel.add(distributionLabel, gbc);
 
         gbc.gridx = 1;
         JPanel distributionPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        equitableRadioButton = new JRadioButton("Equitable");
-        customRadioButton = new JRadioButton("Custom");
+        equitableRadioButton = new JRadioButton(EQUITABLE);
+        customRadioButton = new JRadioButton(CUSTOM);
         ButtonGroup distributionGroup = new ButtonGroup();
         distributionGroup.add(equitableRadioButton);
         distributionGroup.add(customRadioButton);
@@ -74,18 +92,18 @@ public class SubdivisionForm extends JPanel {
         gbc.gridwidth = 2;
         customDistributionPanel = new JPanel();
         customDistributionPanel.setLayout(new BoxLayout(customDistributionPanel, BoxLayout.Y_AXIS));
-        customDistributionPanel.setBorder(BorderFactory.createTitledBorder("Custom Distribution"));
+        customDistributionPanel.setBorder(BorderFactory.createTitledBorder(CUSTOM_DISTRIBUTION));
         customDistributionPanel.setVisible(false);
         formPanel.add(customDistributionPanel, gbc);
 
         // Buttons Panel
         gbc.gridy = 2;
         JPanel buttonsPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
-        JButton cancelButton = new JButton("Cancel");
+        JButton cancelButton = new JButton(CANCEL);
         cancelButton.addActionListener(e -> mainFrame.showScreen(ScreenNames.EXPENSE_DETAIL_VIEW));
         buttonsPanel.add(cancelButton);
 
-        JButton distributeButton = new JButton("Distribute");
+        JButton distributeButton = new JButton(DISTRIBUTE);
         distributeButton.addActionListener(e -> distributeExpenses());
         buttonsPanel.add(distributeButton);
 
@@ -118,41 +136,75 @@ public class SubdivisionForm extends JPanel {
     private void distributeEquitably() {
         Expense selectedExpense = expense;
         List<Subdivision> existingSubdivisions = subdivisionService.getAllByExpenseId(selectedExpense.getId());
+        double totalPercentage = existingSubdivisions.stream().mapToDouble(Subdivision::getPercentage).sum();
+        double remainingPercentage = 100 - totalPercentage;
+        User currentUser = UserSession.getInstance().getUser();
 
-        if (!existingSubdivisions.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "This expense has already been subdivided and cannot be subdivided equitably again.");
+        if (remainingPercentage <= 0) {
+            JOptionPane.showMessageDialog(this, DISTRIBUTION_ALREADY_COMPLETE);
             return;
         }
 
-        List<BudgetAccess> accesses = budgetAccessService.getAllByBudgetId(expense.getBudget().getId());
-        double amountPerUser = expense.getAmount() / accesses.size();
-        User currentUser = UserSession.getInstance().getUser();
+        // Filtrar os utilizadores que já têm subdivisão
+        List<User> includedUsers = existingSubdivisions.stream()
+                .map(Subdivision::getUser)
+                .collect(Collectors.toList());
 
-        for (BudgetAccess access : accesses) {
+        List<User> usersToDistribute = new ArrayList<>();
+        for (Component component : customDistributionPanel.getComponents()) {
+            if (component instanceof JPanel panel) {
+                JLabel userLabel = (JLabel) panel.getComponent(0);
+                String userName = userLabel.getText().replace(":", "").trim();
+                BudgetAccess selectedUser = getUserByName(userName);
+                if (selectedUser != null && !includedUsers.contains(selectedUser.getUser())) {
+                    usersToDistribute.add(selectedUser.getUser());
+                }
+            }
+        }
+
+        if (usersToDistribute.isEmpty()) {
+            JOptionPane.showMessageDialog(this, NO_USERS_LEFT);
+            return;
+        }
+
+        // Calcular a percentagem equitativa para cada utilizador restante
+        double equalPercentage = remainingPercentage / usersToDistribute.size();
+
+        for (User user : usersToDistribute) {
+            double amount = expense.getAmount() * (equalPercentage / 100);
+
             Subdivision subdivision = Subdivision.builder()
                     .expense(expense)
-                    .user(access.getUser())
-                    .amount(amountPerUser)
-                    .percentage(100.0 / accesses.size())
+                    .user(user)
+                    .amount(amount)
+                    .percentage(equalPercentage)
                     .createdBy(currentUser)
                     .build();
+
             subdivisions.add(subdivision);
             subdivisionService.create(subdivision);
         }
+
+        JOptionPane.showMessageDialog(this, REMAINING_PERCENTAGE_DISTRIBUTED + equalPercentage + "%.");
 
         if (onBack != null) {
             onBack.run();
         } else {
             mainFrame.registerAndShowScreen(ScreenNames.EXPENSE_DETAIL_VIEW, new ExpenseDetailView(mainFrame, expense, ScreenNames.EXPENSE_DETAIL_VIEW, () -> {}));
         }
-        JOptionPane.showMessageDialog(this, "Expenses distributed equitably.");
     }
 
     private void distributeCustom() {
         Expense selectedExpense = expense;
         List<Subdivision> existingSubdivisions = subdivisionService.getAllByExpenseId(selectedExpense.getId());
         double totalPercentage = existingSubdivisions.stream().mapToDouble(Subdivision::getPercentage).sum();
+        double remainingPercentage = 100 - totalPercentage;
         User currentUser = UserSession.getInstance().getUser();
+
+        if (remainingPercentage <= 0) {
+            JOptionPane.showMessageDialog(this, DISTRIBUTION_ALREADY_COMPLETE);
+            return;
+        }
 
         List<User> includedUsers = new ArrayList<>();
         for (Subdivision subdivision : existingSubdivisions) {
@@ -161,8 +213,7 @@ public class SubdivisionForm extends JPanel {
 
         double newTotalPercentage = totalPercentage;
         for (Component component : customDistributionPanel.getComponents()) {
-            if (component instanceof JPanel) {
-                JPanel panel = (JPanel) component;
+            if (component instanceof JPanel panel) {
                 JLabel userLabel = (JLabel) panel.getComponent(0);
                 JTextField percentageField = (JTextField) panel.getComponent(2);
 
@@ -171,7 +222,7 @@ public class SubdivisionForm extends JPanel {
                 if (selectedUser == null) continue;
 
                 if (includedUsers.contains(selectedUser.getUser())) {
-                    JOptionPane.showMessageDialog(this, "Each user can only be included once per expense.");
+                    JOptionPane.showMessageDialog(this, USER_INCLUDED_ONCE);
                     return;
                 }
 
@@ -179,22 +230,25 @@ public class SubdivisionForm extends JPanel {
                 try {
                     percentage = Double.parseDouble(percentageField.getText());
                 } catch (NumberFormatException ex) {
-                    JOptionPane.showMessageDialog(this, "Invalid percentage value.");
+                    JOptionPane.showMessageDialog(this, INVALID_PERCENTAGE);
+                    return;
+                }
+
+                if (percentage <= 0) {
+                    JOptionPane.showMessageDialog(this, PERCENTAGE_GREATER_THAN_ZERO);
                     return;
                 }
 
                 newTotalPercentage += percentage;
-
                 if (newTotalPercentage > 100) {
-                    JOptionPane.showMessageDialog(this, "The total percentage must not exceed 100%.");
+                    JOptionPane.showMessageDialog(this, TOTAL_PERCENTAGE_EXCEED + remainingPercentage + "%.");
                     return;
                 }
             }
         }
 
         for (Component component : customDistributionPanel.getComponents()) {
-            if (component instanceof JPanel) {
-                JPanel panel = (JPanel) component;
+            if (component instanceof JPanel panel) {
                 JLabel userLabel = (JLabel) panel.getComponent(0);
                 JTextField percentageField = (JTextField) panel.getComponent(2);
 
@@ -218,12 +272,18 @@ public class SubdivisionForm extends JPanel {
             }
         }
 
+        double remainingAfterDistribution = 100 - newTotalPercentage;
+        if (remainingAfterDistribution > 0) {
+            JOptionPane.showMessageDialog(this, DISTRIBUTION_SAVED + remainingAfterDistribution + "%.");
+        } else {
+            JOptionPane.showMessageDialog(this, DISTRIBUTION_COMPLETE);
+        }
+
         if (onBack != null) {
             onBack.run();
         } else {
             mainFrame.registerAndShowScreen(ScreenNames.EXPENSE_DETAIL_VIEW, new ExpenseDetailView(mainFrame, expense, ScreenNames.EXPENSE_DETAIL_VIEW, () -> {}));
         }
-        JOptionPane.showMessageDialog(this, "Expenses distributed custom.");
     }
 
     private BudgetAccess getUserByName(String userName) {
@@ -238,7 +298,14 @@ public class SubdivisionForm extends JPanel {
     private void addCustomDistributionRows() {
         customDistributionPanel.removeAll();
         BudgetAccess[] users = getUsers(budget, budgetAccessService);
+        List<User> includedUsers = new ArrayList<>();
+        for (Subdivision subdivision : subdivisions) {
+            includedUsers.add(subdivision.getUser());
+        }
         for (BudgetAccess user : users) {
+            if (includedUsers.contains(user.getUser())) {
+                continue; // Skip users already included
+            }
             JPanel rowPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
             JLabel userLabel = new JLabel(user.getUser().getName() + ":");
             JTextField percentageField = new JTextField(5);

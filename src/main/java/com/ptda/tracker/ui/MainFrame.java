@@ -17,7 +17,11 @@ public class MainFrame extends JFrame {
     @Getter
     private String currentScreen;
 
-    private static final String NAVIGATION_SCREEN = "navigationScreen";
+    private static final String
+            NAVIGATION_SCREEN = "navigationScreen",
+            SCREEN_NOT_FOUND = "Screen not found: ",
+            ERROR = "Error",
+            TITLE = "Divi - Turn your expenses into Achievements.";
 
     public MainFrame(ApplicationContext context) {
         this.context = context; // Inject Spring context
@@ -25,7 +29,7 @@ public class MainFrame extends JFrame {
         this.cardLayout = new CardLayout();
         this.mainPanel = new JPanel(cardLayout);
 
-        setTitle("Divi - Turn your expenses into Achievements.");
+        setTitle(TITLE);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(1000, 800);
         setLocationRelativeTo(null);
@@ -40,12 +44,9 @@ public class MainFrame extends JFrame {
     public void showScreen(String name) {
         if (screens.containsKey(name)) {
             cardLayout.show(mainPanel, name);
-//            if (name.equals(NAVIGATION_SCREEN)) {
-//                setCurrentScreen(name);
-//            }
             this.currentScreen = name;
         } else {
-            JOptionPane.showMessageDialog(this, "Screen not found: " + name, "Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, SCREEN_NOT_FOUND + name, ERROR, JOptionPane.ERROR_MESSAGE);
         }
     }
 
@@ -53,7 +54,6 @@ public class MainFrame extends JFrame {
         registerScreen(name, screen);
         showScreen(name);
     }
-
 
     public void removeScreen(String screenName) {
         screens.remove(screenName);

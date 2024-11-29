@@ -29,13 +29,32 @@ public class ExpenseDetailView extends JPanel {
     private JTable subdivisionsTable;
     private JButton backButton, editButton, deleteButton, distributeDivisionExpensionButton;
 
+    private static final String
+            EXPENSE_DETAILS = "Expense Details",
+            NAME = "Name: ",
+            AMOUNT = "Amount: €",
+            CATEGORY = "Category: ",
+            DATE = "Date: ",
+            CREATED_BY = "Created By: ",
+            SUBDIVISIONS = "Subdivisions",
+            BACK = "Back",
+            EDIT_EXPENSE = "Edit Expense",
+            DELETE_EXPENSE = "Delete Expense",
+            DISTRIBUTE_SUBDIVISIONS = "Distribute Subdivisions",
+            ERROR = "Error",
+            SUCCESS = "Success",
+            DELETE_CONFIRMATION = "Are you sure you want to delete this expense?",
+            DELETE_EXPENSE_TITLE = "Delete Expense",
+            EXPENSE_DELETED_SUCCESS = "Expense deleted successfully.",
+            DELETE_ERROR_MESSAGE = "An error occurred while deleting the expense: ";
+
     public ExpenseDetailView(MainFrame mainFrame, Expense expense, String returnScreen, Runnable onBack) {
         this.mainFrame = mainFrame;
         expenseService = mainFrame.getContext().getBean(ExpenseService.class);
         this.expense = expense;
         subdivisions = mainFrame.getContext().getBean(SubdivisionService.class).getAllByExpenseId(expense.getId());
         this.returnScreen = returnScreen;
-        this.onBack = onBack;
+        this.onBack = onBack == null ? onBack : () -> mainFrame.showScreen(returnScreen);
 
         initUI();
         setListeners();
@@ -48,7 +67,7 @@ public class ExpenseDetailView extends JPanel {
         // Expense Details Panel
         JPanel detailsPanel = new JPanel();
         detailsPanel.setLayout(new BoxLayout(detailsPanel, BoxLayout.Y_AXIS));
-        detailsPanel.setBorder(BorderFactory.createTitledBorder("Expense Details"));
+        detailsPanel.setBorder(BorderFactory.createTitledBorder(EXPENSE_DETAILS));
 
         setValues(expense);
 
@@ -71,11 +90,11 @@ public class ExpenseDetailView extends JPanel {
         add(detailsPanel, BorderLayout.CENTER);
         // End Expense Details Panel
 
-        // Subdivisions Panel
+        // Subdivisions Panel (Only show if subdivisions exist)
         if (!subdivisions.isEmpty()) {
             JPanel subdivisionsPanel = new JPanel();
             subdivisionsPanel.setLayout(new BoxLayout(subdivisionsPanel, BoxLayout.Y_AXIS));
-            subdivisionsPanel.setBorder(BorderFactory.createTitledBorder("Subdivisions"));
+            subdivisionsPanel.setBorder(BorderFactory.createTitledBorder(SUBDIVISIONS));
             subdivisionsTable = createSubdivisionsTable(subdivisions);
             subdivisionsPanel.add(new JScrollPane(subdivisionsTable));
             add(subdivisionsPanel, BorderLayout.EAST);
@@ -85,16 +104,16 @@ public class ExpenseDetailView extends JPanel {
         // Buttons Panel
         JPanel buttonsPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
 
-        backButton = new JButton("Back");
+        backButton = new JButton(BACK);
         buttonsPanel.add(backButton);
 
-        editButton = new JButton("Edit Expense");
+        editButton = new JButton(EDIT_EXPENSE);
         buttonsPanel.add(editButton);
 
-        deleteButton = new JButton("Delete Expense");
+        deleteButton = new JButton(DELETE_EXPENSE);
         buttonsPanel.add(deleteButton);
 
-        distributeDivisionExpensionButton = new JButton("Distribute Subdivisions");
+        distributeDivisionExpensionButton = new JButton(DISTRIBUTE_SUBDIVISIONS);
         if (expense.getBudget() == null) {
             distributeDivisionExpensionButton.setVisible(false);
         }
@@ -105,15 +124,9 @@ public class ExpenseDetailView extends JPanel {
     }
 
     private void setListeners() {
-        backButton.addActionListener(e -> {
-            if (expense.getBudget() != null) {
-                mainFrame.showScreen(returnScreen);
-            } else {
-                mainFrame.showScreen(ScreenNames.NAVIGATION_SCREEN);
-            }
-        });
+        backButton.addActionListener(e -> mainFrame.showScreen(ScreenNames.NAVIGATION_SCREEN));
         editButton.addActionListener(e -> {
-            ExpenseForm expenseForm = new ExpenseForm(mainFrame, expense, mainFrame.getCurrentScreen(), this::returnToThisScreen);
+            ExpenseForm expenseForm = new ExpenseForm(mainFrame, expense, mainFrame.getCurrentScreen(), onBack);
             mainFrame.registerAndShowScreen(ScreenNames.EXPENSE_FORM, expenseForm);
         });
         deleteButton.addActionListener(e -> delete());
@@ -129,44 +142,33 @@ public class ExpenseDetailView extends JPanel {
 
     private void delete() {
         if (expense.getId() == null) {
-            JOptionPane.showMessageDialog(this, "The expense ID is invalid.", "Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "The expense ID is invalid.", ERROR, JOptionPane.ERROR_MESSAGE);
             return;
         }
         int confirm = JOptionPane.showConfirmDialog(this,
-                "Are you sure you want to delete this expense?", "Delete Expense", JOptionPane.YES_NO_OPTION);
+                DELETE_CONFIRMATION, DELETE_EXPENSE_TITLE, JOptionPane.YES_NO_OPTION);
         if (confirm == JOptionPane.YES_OPTION) {
             try {
                 expenseService.delete(expense.getId());
+                JOptionPane.showMessageDialog(this, EXPENSE_DELETED_SUCCESS, SUCCESS, JOptionPane.INFORMATION_MESSAGE);
                 if (onBack != null) {
                     onBack.run();
                 } else {
                     mainFrame.showScreen(returnScreen);
                 }
-                JOptionPane.showMessageDialog(this, "Expense deleted successfully.", "Success", JOptionPane.INFORMATION_MESSAGE);
             } catch (Exception ex) {
                 ex.printStackTrace();
-                JOptionPane.showMessageDialog(this, "An error occurred while deleting the expense: " + ex.getMessage(),
-                        "Error", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(this, DELETE_ERROR_MESSAGE + ex.getMessage(),
+                        ERROR, JOptionPane.ERROR_MESSAGE);
             }
         }
     }
 
-    private void returnToThisScreen() {
-        Optional<Expense> optionalExpense = expenseService.getById(expense.getId());
-        if (optionalExpense.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "The expense ID is invalid.", "Error", JOptionPane.ERROR_MESSAGE);
-        } else {
-            expense = optionalExpense.get();
-            setValues(expense);
-            mainFrame.showScreen(ScreenNames.EXPENSE_DETAIL_VIEW);
-        }
-    }
-
     private void setValues(Expense expense) {
-        nameLabel = new JLabel("Name: " + expense.getTitle());
-        amountLabel = new JLabel("Amount: €" + expense.getAmount());
-        categoryLabel = new JLabel("Category: " + expense.getCategory());
-        dateLabel = new JLabel("Date: " + expense.getDate().toString());
-        createdByLabel = new JLabel("Created By: " + expense.getCreatedBy().getName());
+        nameLabel = new JLabel(NAME + expense.getTitle());
+        amountLabel = new JLabel(AMOUNT + expense.getAmount());
+        categoryLabel = new JLabel(CATEGORY + expense.getCategory());
+        dateLabel = new JLabel(DATE + expense.getDate().toString());
+        createdByLabel = new JLabel(CREATED_BY + expense.getCreatedBy().getName());
     }
 }

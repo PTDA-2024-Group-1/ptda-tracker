@@ -19,6 +19,14 @@ public class TicketReplyForm extends JPanel {
 
     private JTextArea replyBodyArea;
 
+    private static final String
+            REPLY_TO_TICKET = "Reply to Ticket: ",
+            SAVE_REPLY = "Save Reply",
+            CANCEL = "Cancel",
+            REPLY_BODY_CANNOT_BE_EMPTY = "Reply body cannot be empty.",
+            ERROR = "Error",
+            REPLY_SAVED_SUCCESSFULLY = "Reply saved successfully.";
+
     public TicketReplyForm(MainFrame mainFrame, Runnable onFormSubmit, Ticket ticket) {
         this.mainFrame = mainFrame;
         this.ticket = ticket;
@@ -27,7 +35,7 @@ public class TicketReplyForm extends JPanel {
 
         setLayout(new BorderLayout());
 
-        JLabel titleLabel = new JLabel("Reply to Ticket: " + ticket.getTitle(), SwingConstants.CENTER);
+        JLabel titleLabel = new JLabel(REPLY_TO_TICKET + ticket.getTitle(), SwingConstants.CENTER);
         titleLabel.setFont(new Font("Arial", Font.BOLD, 24));
         add(titleLabel, BorderLayout.NORTH);
 
@@ -39,10 +47,10 @@ public class TicketReplyForm extends JPanel {
         JPanel buttonPanel = new JPanel();
         buttonPanel.setLayout(new FlowLayout());
 
-        JButton saveButton = new JButton("Save Reply");
+        JButton saveButton = new JButton(SAVE_REPLY);
         saveButton.addActionListener(e -> saveReply());
 
-        JButton cancelButton = new JButton("Cancel");
+        JButton cancelButton = new JButton(CANCEL);
         cancelButton.addActionListener(e -> mainFrame.showScreen(ScreenNames.TICKET_DETAIL_VIEW));
 
         buttonPanel.add(cancelButton);
@@ -54,7 +62,7 @@ public class TicketReplyForm extends JPanel {
     private void saveReply() {
         String replyBody = replyBodyArea.getText().trim();
         if (replyBody.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Reply body cannot be empty.", "Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, REPLY_BODY_CANNOT_BE_EMPTY, ERROR, JOptionPane.ERROR_MESSAGE);
             return;
         }
 
@@ -64,7 +72,7 @@ public class TicketReplyForm extends JPanel {
                 .body(replyBody)
                 .build();
         ticketReplyService.save(reply);
-        JOptionPane.showMessageDialog(this, "Reply saved successfully.");
+        JOptionPane.showMessageDialog(this, REPLY_SAVED_SUCCESSFULLY);
         onFormSubmit.run();
         mainFrame.registerAndShowScreen(ScreenNames.TICKET_DETAIL_VIEW, new TicketDetailView(mainFrame, ticket));
     }

@@ -22,6 +22,16 @@ public class TicketDetailView extends JPanel {
     private final JList<TicketReply> repliesList;
     private List<TicketReply> replies;
 
+    private static final String
+            TICKET_DESCRIPTION = "Ticket Description",
+            REPLIES = "Replies",
+            BACK = "Back",
+            REOPEN_TICKET = "Reopen Ticket",
+            REPLY = "Reply",
+            CLOSE_TICKET = "Close Ticket",
+            TICKET_REOPENED_SUCCESS = "Ticket reopened successfully.",
+            TICKET_CLOSED_SUCCESS = "Ticket closed successfully.";
+
     public TicketDetailView(MainFrame mainFrame, Ticket ticket) {
         this.mainFrame = mainFrame;
         this.ticket = ticket;
@@ -30,49 +40,49 @@ public class TicketDetailView extends JPanel {
 
         setLayout(new BorderLayout());
 
-        // Título
+        // Title
         JLabel titleLabel = new JLabel(ticket.getTitle(), SwingConstants.CENTER);
         titleLabel.setFont(new Font("Arial", Font.BOLD, 24));
         add(titleLabel, BorderLayout.NORTH);
 
-        // Painel Principal
+        // Main Panel
         JPanel mainPanel = new JPanel(new BorderLayout());
         mainPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
-        // Descrição
+        // Description
         JTextArea descriptionArea = new JTextArea(ticket.getBody());
         descriptionArea.setEditable(false);
         descriptionArea.setLineWrap(true);
         descriptionArea.setWrapStyleWord(true);
         descriptionArea.setFont(new Font("Arial", Font.PLAIN, 14));
         JScrollPane descriptionScroll = new JScrollPane(descriptionArea);
-        descriptionScroll.setBorder(BorderFactory.createTitledBorder("Ticket Description"));
+        descriptionScroll.setBorder(BorderFactory.createTitledBorder(TICKET_DESCRIPTION));
         mainPanel.add(descriptionScroll, BorderLayout.NORTH);
 
-        // Lista de Replies
+        // Replies List
         repliesList = new JList<>(new DefaultListModel<>());
         repliesList.setCellRenderer(new TicketReplyRenderer());
         refreshRepliesList();
         JScrollPane repliesScroll = new JScrollPane(repliesList);
-        repliesScroll.setBorder(BorderFactory.createTitledBorder("Replies"));
+        repliesScroll.setBorder(BorderFactory.createTitledBorder(REPLIES));
         repliesScroll.setPreferredSize(new Dimension(300, 200));
         mainPanel.add(repliesScroll, BorderLayout.CENTER);
 
         add(mainPanel, BorderLayout.CENTER);
 
-        // Botões de Ação
+        // Action Buttons
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
         addButtons(buttonPanel);
         add(buttonPanel, BorderLayout.SOUTH);
     }
 
     private void addButtons(JPanel buttonPanel) {
-        JButton backButton = new JButton("Back");
+        JButton backButton = new JButton(BACK);
         backButton.addActionListener(e -> mainFrame.showScreen(ScreenNames.NAVIGATION_SCREEN));
         buttonPanel.add(backButton);
 
         if (ticket.isClosed()) {
-            JButton reopenButton = new JButton("Reopen Ticket");
+            JButton reopenButton = new JButton(REOPEN_TICKET);
             reopenButton.addActionListener(e -> {
                 TicketReply reply = TicketReply.builder()
                         .ticket(ticket)
@@ -82,23 +92,23 @@ public class TicketDetailView extends JPanel {
                 ticketReplyService.save(reply);
                 ticket.setClosed(false);
                 ticketService.update(ticket);
-                JOptionPane.showMessageDialog(this, "Ticket reopened successfully.");
+                JOptionPane.showMessageDialog(this, TICKET_REOPENED_SUCCESS);
                 refreshRepliesList();
                 updateButtons(buttonPanel);
             });
             buttonPanel.add(reopenButton);
         } else {
-            JButton closeButton = new JButton("Close Ticket");
+            JButton closeButton = new JButton(CLOSE_TICKET);
             closeButton.addActionListener(e -> {
                 ticket.setClosed(true);
                 ticketService.update(ticket);
-                JOptionPane.showMessageDialog(this, "Ticket closed successfully.");
+                JOptionPane.showMessageDialog(this, TICKET_CLOSED_SUCCESS);
                 refreshRepliesList();
                 updateButtons(buttonPanel);
             });
             buttonPanel.add(closeButton);
 
-            JButton replyButton = new JButton("Reply");
+            JButton replyButton = new JButton(REPLY);
             replyButton.addActionListener(e -> mainFrame.registerAndShowScreen(ScreenNames.TICKET_REPLY_FORM, new TicketReplyForm(mainFrame, null, ticket)));
             buttonPanel.add(replyButton);
         }
@@ -113,7 +123,7 @@ public class TicketDetailView extends JPanel {
 
     private void refreshRepliesList() {
         replies = ticketReplyService.getAllByTicketId(ticket.getId());
-        replies.sort((r1, r2) -> Long.compare(r2.getCreatedAt(), r1.getCreatedAt())); // Ordenar por data de criação (mais recente primeiro)
+        replies.sort((r1, r2) -> Long.compare(r2.getCreatedAt(), r1.getCreatedAt())); // Sort by creation date (most recent first)
         DefaultListModel<TicketReply> model = (DefaultListModel<TicketReply>) repliesList.getModel();
         model.clear();
         replies.forEach(model::addElement);

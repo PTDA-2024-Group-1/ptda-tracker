@@ -18,6 +18,10 @@ public class TicketsScreen extends JPanel {
     private final JList<Ticket> ticketList;
     private List<Ticket> tickets;
 
+    private static final String
+            SELECT_TICKET = "Select a ticket to view details",
+            CREATE_NEW_TICKET = "Create New Ticket";
+
     public TicketsScreen(MainFrame mainFrame) {
         setLayout(new BorderLayout());
 
@@ -39,11 +43,11 @@ public class TicketsScreen extends JPanel {
 
         add(new JScrollPane(ticketList), BorderLayout.CENTER);
 
-        JLabel label = new JLabel("Select a ticket to view details", SwingConstants.CENTER);
+        JLabel label = new JLabel(SELECT_TICKET, SwingConstants.CENTER);
         label.setFont(new Font("Arial", Font.BOLD, 16));
         add(label, BorderLayout.NORTH);
 
-        JButton createButton = new JButton("Create New Ticket");
+        JButton createButton = new JButton(CREATE_NEW_TICKET);
         createButton.addActionListener(e -> {
             // Open TicketForm in creation mode
             mainFrame.registerScreen(ScreenNames.TICKET_FORM, new TicketForm(mainFrame, this::refreshTicketList, null));

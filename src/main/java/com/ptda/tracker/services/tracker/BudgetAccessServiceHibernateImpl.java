@@ -43,6 +43,11 @@ public class BudgetAccessServiceHibernateImpl implements BudgetAccessService {
     }
 
     @Override
+    public boolean getAccessByBudgetIdAndUserId(Long budgetId, Long userId) {
+        return budgetAccessRepository.existsByBudgetIdAndUserId(budgetId, userId);
+    }
+
+    @Override
     @Transactional
     public BudgetAccess create(Long budgetId, Long userId, BudgetAccessLevel accessLevel) {
         if (budgetId == null || userId == null || accessLevel == null) {

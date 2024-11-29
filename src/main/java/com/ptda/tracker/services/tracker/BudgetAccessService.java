@@ -15,6 +15,8 @@ public interface BudgetAccessService {
 
     boolean hasAccess(Long budgetId, String userEmail, BudgetAccessLevel accessLevel);
 
+    boolean getAccessByBudgetIdAndUserId(Long budgetId, Long userId);
+
     BudgetAccess create(Long budgetId, Long userId, BudgetAccessLevel accessLevel);
 
     BudgetAccess create(Long budgetId, String userEmail, BudgetAccessLevel accessLevel);

@@ -4,7 +4,6 @@ import com.ptda.tracker.models.user.User;
 import com.ptda.tracker.services.user.UserService;
 import com.ptda.tracker.ui.MainFrame;
 import com.ptda.tracker.util.ScreenNames;
-import org.springframework.context.ApplicationContext;
 
 import javax.swing.*;
 import java.awt.*;
@@ -14,49 +13,64 @@ public class RegisterForm extends JPanel {
     private JTextField nameField, emailField;
     private JPasswordField passwordField, confirmPasswordField;
 
+    private static final String
+            REGISTER = "Register",
+            NAME = "Name",
+            EMAIL = "Email",
+            PASSWORD = "Password",
+            CONFIRM_PASSWORD = "Confirm Password",
+            SHOW_PASSWORD = "Show Password",
+            GO_TO_LOGIN = "Go to Login",
+            ALL_FIELDS_REQUIRED = "All fields are required",
+            ERROR = "Error",
+            INVALID_EMAIL_FORMAT = "Invalid email format",
+            PASSWORDS_DO_NOT_MATCH = "Passwords do not match",
+            EMAIL_ALREADY_REGISTERED = "Email already registered",
+            REGISTRATION_FAILED = "Registration failed",
+            AN_ERROR_OCCURRED = "An error occurred: ";
+
     public RegisterForm(MainFrame mainFrame) {
         this.mainFrame = mainFrame;
-
         initUI();
     }
 
     private void initUI() {
         setLayout(new BorderLayout());
-        setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20)); // Margens ao redor do formulário
+        setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20)); // Margins around the form
 
-        // Painel superior com título e logotipo
+        // Top panel with title and logo
         JPanel topPanel = new JPanel();
         topPanel.setLayout(new BoxLayout(topPanel, BoxLayout.Y_AXIS));
         topPanel.setAlignmentX(CENTER_ALIGNMENT);
 
-        // Título
-        JLabel titleLabel = new JLabel("Register", SwingConstants.CENTER);
-        titleLabel.setFont(new Font("Arial", Font.BOLD, 20)); // Fonte
-        titleLabel.setForeground(new Color(0, 0, 0)); // Cor preta
+        // Title
+        JLabel titleLabel = new JLabel(REGISTER, SwingConstants.CENTER);
+        titleLabel.setFont(new Font("Arial", Font.BOLD, 20)); // Font
+        titleLabel.setForeground(new Color(0, 0, 0)); // Black color
         titleLabel.setAlignmentX(CENTER_ALIGNMENT);
         topPanel.add(titleLabel);
 
-        // Logotipo
+        // Logo
         ImageIcon originalIcon = new ImageIcon("src/main/resources/images/divi.png");
-        Image scaledImage = originalIcon.getImage().getScaledInstance(250, 250, Image.SCALE_SMOOTH); // Redimensionar
+        Image scaledImage = originalIcon.getImage().getScaledInstance(250, 250, Image.SCALE_SMOOTH); // Resize
         ImageIcon scaledIcon = new ImageIcon(scaledImage);
         JLabel logoLabel = new JLabel(scaledIcon);
         logoLabel.setAlignmentX(CENTER_ALIGNMENT);
-        topPanel.add(Box.createRigidArea(new Dimension(0, 10))); // Espaço entre título e logotipo
+        topPanel.add(Box.createRigidArea(new Dimension(0, 10))); // Space between title and logo
         topPanel.add(logoLabel);
 
         add(topPanel, BorderLayout.NORTH);
 
-        // Painel principal com campos e botões
-        JPanel formPanel = new JPanel(new GridBagLayout()); // Usar GridBagLayout
-        formPanel.setBorder(BorderFactory.createEmptyBorder(10, 20, 20, 20)); // Margens internas
+        // Main panel with fields and buttons
+        JPanel formPanel = new JPanel(new GridBagLayout()); // Use GridBagLayout
+        formPanel.setBorder(BorderFactory.createEmptyBorder(10, 20, 20, 20)); // Internal margins
 
         GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(5, 5, 5, 5); // Espaçamento entre os componentes
+        gbc.insets = new Insets(5, 5, 5, 5); // Spacing between components
         gbc.fill = GridBagConstraints.HORIZONTAL;
 
-        // Campo de Nome com label
-        JLabel nameLabel = new JLabel("Name:");
+        // Name field with label
+        JLabel nameLabel = new JLabel(NAME + ":");
         nameLabel.setFont(new Font("Arial", Font.PLAIN, 14));
         gbc.gridx = 0;
         gbc.gridy = 0;
@@ -64,14 +78,14 @@ public class RegisterForm extends JPanel {
 
         nameField = new JTextField();
         nameField.setFont(new Font("Arial", Font.PLAIN, 14));
-        nameField.setPreferredSize(new Dimension(200, 30)); // Tamanho do campo
+        nameField.setPreferredSize(new Dimension(200, 30)); // Field size
         nameField.setToolTipText("Enter your full name");
         gbc.gridx = 0;
         gbc.gridy = 1;
         formPanel.add(nameField, gbc);
 
-        // Campo de Email com label
-        JLabel emailLabel = new JLabel("Email:");
+        // Email field with label
+        JLabel emailLabel = new JLabel(EMAIL + ":");
         emailLabel.setFont(new Font("Arial", Font.PLAIN, 14));
         gbc.gridx = 0;
         gbc.gridy = 2;
@@ -85,8 +99,8 @@ public class RegisterForm extends JPanel {
         gbc.gridy = 3;
         formPanel.add(emailField, gbc);
 
-        // Campo de Password com label
-        JLabel passwordLabel = new JLabel("Password:");
+        // Password field with label
+        JLabel passwordLabel = new JLabel(PASSWORD + ":");
         passwordLabel.setFont(new Font("Arial", Font.PLAIN, 14));
         gbc.gridx = 0;
         gbc.gridy = 4;
@@ -100,8 +114,8 @@ public class RegisterForm extends JPanel {
         gbc.gridy = 5;
         formPanel.add(passwordField, gbc);
 
-        // Campo de Confirmar Password com label
-        JLabel confirmPasswordLabel = new JLabel("Confirm Password:");
+        // Confirm password field with label
+        JLabel confirmPasswordLabel = new JLabel(CONFIRM_PASSWORD + ":");
         confirmPasswordLabel.setFont(new Font("Arial", Font.PLAIN, 14));
         gbc.gridx = 0;
         gbc.gridy = 6;
@@ -115,8 +129,8 @@ public class RegisterForm extends JPanel {
         gbc.gridy = 7;
         formPanel.add(confirmPasswordField, gbc);
 
-        // Botão para mostrar/ocultar senha
-        JCheckBox showPasswordCheckbox = new JCheckBox("Show Password");
+        // Show password checkbox
+        JCheckBox showPasswordCheckbox = new JCheckBox(SHOW_PASSWORD);
         showPasswordCheckbox.addActionListener(e -> {
             boolean showPassword = showPasswordCheckbox.isSelected();
             passwordField.setEchoChar(showPassword ? '\0' : '*');
@@ -126,15 +140,15 @@ public class RegisterForm extends JPanel {
         gbc.gridy = 8;
         formPanel.add(showPasswordCheckbox, gbc);
 
-        // Botão de Registro
-        JButton registerButton = new JButton("Register");
+        // Register button
+        JButton registerButton = new JButton(REGISTER);
         gbc.gridx = 0;
         gbc.gridy = 9;
         formPanel.add(registerButton, gbc);
         registerButton.addActionListener(e -> register());
 
-        // Botão para ir ao Login
-        JButton loginButton = new JButton("Go to Login");
+        // Go to login button
+        JButton loginButton = new JButton(GO_TO_LOGIN);
         gbc.gridx = 0;
         gbc.gridy = 10;
         formPanel.add(loginButton, gbc);
@@ -151,15 +165,15 @@ public class RegisterForm extends JPanel {
 
         // Fields validation
         if (name.isEmpty() || email.isEmpty() || password.isEmpty() || confirmPassword.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "All fields are required", "Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, ALL_FIELDS_REQUIRED, ERROR, JOptionPane.ERROR_MESSAGE);
             return;
         }
         if (!email.matches("^[A-Za-z0-9+_.-]+@(.+)$")) {
-            JOptionPane.showMessageDialog(this, "Invalid email format", "Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, INVALID_EMAIL_FORMAT, ERROR, JOptionPane.ERROR_MESSAGE);
             return;
         }
         if (!password.equals(confirmPassword)) {
-            JOptionPane.showMessageDialog(this, "Passwords do not match", "Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, PASSWORDS_DO_NOT_MATCH, ERROR, JOptionPane.ERROR_MESSAGE);
             return;
         }
 
@@ -167,7 +181,7 @@ public class RegisterForm extends JPanel {
         try {
             UserService userService = mainFrame.getContext().getBean(UserService.class);
             if (userService.getByEmail(email).isPresent()) {
-                JOptionPane.showMessageDialog(this, "Email already registered", "Error", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(this, EMAIL_ALREADY_REGISTERED, ERROR, JOptionPane.ERROR_MESSAGE);
                 return;
             }
             User newUser = userService.register(name, email, password);
@@ -176,16 +190,16 @@ public class RegisterForm extends JPanel {
                         ScreenNames.EMAIL_VERIFICATION_FORM,
                         new EmailVerificationForm(mainFrame, newUser)
                 );
-                // Limpar campos
+                // Clear fields
                 nameField.setText("");
                 emailField.setText("");
                 passwordField.setText("");
                 confirmPasswordField.setText("");
             } else {
-                JOptionPane.showMessageDialog(this, "Registration failed", "Error", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(this, REGISTRATION_FAILED, ERROR, JOptionPane.ERROR_MESSAGE);
             }
         } catch (Exception ex) {
-            JOptionPane.showMessageDialog(this, "An error occurred: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, AN_ERROR_OCCURRED + ex.getMessage(), ERROR, JOptionPane.ERROR_MESSAGE);
         }
     }
 }

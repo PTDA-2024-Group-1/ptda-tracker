@@ -18,7 +18,19 @@ import java.awt.*;
 public class ProfileView extends JPanel {
     private final MainFrame mainFrame;
     private JLabel nameLabel, emailLabel;
-    private JButton editButton, changePasswordButton;
+    private JButton editButton, changePasswordButton, deleteProfileButton;
+
+    private static final String
+            MY_PROFILE = "My Profile",
+            NAME = "Name:",
+            EMAIL = "Email:",
+            EDIT_PROFILE = "Edit Profile",
+            CHANGE_PASSWORD = "Change Password",
+            DELETE_PROFILE = "Delete Profile",
+            DELETE_PROFILE_CONFIRMATION = "Are you sure you want to delete your profile?",
+            DELETE_PROFILE_TITLE = "Delete Profile",
+            USER_NOT_FOUND = "User not found.",
+            ERROR = "Error";
 
     public ProfileView(MainFrame mainFrame) {
         this.mainFrame = mainFrame;
@@ -32,49 +44,43 @@ public class ProfileView extends JPanel {
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.insets = new Insets(20, 20, 20, 20);
-//        setBackground(new Color(245, 245, 245));  // Cor de fundo suave
 
         // Title
         gbc.gridx = 0;
         gbc.gridy = 0;
         gbc.gridwidth = 2;
-        JLabel titleLabel = new JLabel("My Profile", SwingConstants.CENTER);
+        JLabel titleLabel = new JLabel(MY_PROFILE, SwingConstants.CENTER);
         titleLabel.setFont(new Font("Arial", Font.BOLD, 24));
-//        titleLabel.setForeground(new Color(56, 56, 56));
         add(titleLabel, gbc);
 
         // Spacer
         gbc.gridy = 1;
         gbc.gridwidth = 2;
-        add(Box.createVerticalStrut(20), gbc);  // Adicionando espaçamento vertical
+        add(Box.createVerticalStrut(20), gbc);
 
         // Name
         gbc.gridwidth = 1;
         gbc.gridx = 0;
         gbc.gridy = 2;
-        JLabel nameLabelText = new JLabel("Name:");
+        JLabel nameLabelText = new JLabel(NAME);
         nameLabelText.setFont(new Font("Arial", Font.PLAIN, 16));
-//        nameLabelText.setForeground(new Color(56, 56, 56));
         add(nameLabelText, gbc);
 
         gbc.gridx = 1;
         nameLabel = new JLabel();
         nameLabel.setFont(new Font("Arial", Font.PLAIN, 16));
-//        nameLabel.setForeground(new Color(56, 56, 56));
         add(nameLabel, gbc);
 
         // Email
         gbc.gridx = 0;
         gbc.gridy = 3;
-        JLabel emailLabelText = new JLabel("Email:");
+        JLabel emailLabelText = new JLabel(EMAIL);
         emailLabelText.setFont(new Font("Arial", Font.PLAIN, 16));
-//        emailLabelText.setForeground(new Color(56, 56, 56));
         add(emailLabelText, gbc);
 
         gbc.gridx = 1;
         emailLabel = new JLabel();
         emailLabel.setFont(new Font("Arial", Font.PLAIN, 16));
-//        emailLabel.setForeground(new Color(56, 56, 56));
         add(emailLabel, gbc);
 
         // Spacer
@@ -86,10 +92,9 @@ public class ProfileView extends JPanel {
         gbc.gridx = 0;
         gbc.gridy = 5;
         JPanel buttonsPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
-//        buttonsPanel.setBackground(new Color(245, 245, 245));  // Fundo suave para os botões
 
         // Edit Profile Button
-        JButton editButton = new JButton("Edit Profile");
+        editButton = new JButton(EDIT_PROFILE);
         editButton.addActionListener(e -> navigateToEditProfile());
         buttonsPanel.add(editButton);
 
@@ -97,12 +102,12 @@ public class ProfileView extends JPanel {
         buttonsPanel.add(Box.createHorizontalStrut(20));
 
         // Change Password Button
-        JButton changePasswordButton = new JButton("Change Password");
+        changePasswordButton = new JButton(CHANGE_PASSWORD);
         changePasswordButton.addActionListener(e -> navigateToChangePassword());
         buttonsPanel.add(changePasswordButton);
 
         // Delete Profile Button
-        JButton deleteProfileButton = new JButton("Delete Profile");
+        deleteProfileButton = new JButton(DELETE_PROFILE);
         deleteProfileButton.addActionListener(e -> deleteProfile());
         buttonsPanel.add(deleteProfileButton);
 
@@ -118,12 +123,12 @@ public class ProfileView extends JPanel {
     }
 
     private void deleteProfile() {
-        JOptionPane.showMessageDialog(mainFrame, "Are you sure you want to delete your profile?", "Delete Profile", JOptionPane.WARNING_MESSAGE);
+        JOptionPane.showMessageDialog(mainFrame, DELETE_PROFILE_CONFIRMATION, DELETE_PROFILE_TITLE, JOptionPane.WARNING_MESSAGE);
 
         User user = UserSession.getInstance().getUser();
         ApplicationContext context = mainFrame.getContext();
         if (user == null) {
-            JOptionPane.showMessageDialog(mainFrame, "User not found.", "Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(mainFrame, USER_NOT_FOUND, ERROR, JOptionPane.ERROR_MESSAGE);
             return;
         }
         BudgetAccessService budgetAccessService = context.getBean(BudgetAccessService.class);

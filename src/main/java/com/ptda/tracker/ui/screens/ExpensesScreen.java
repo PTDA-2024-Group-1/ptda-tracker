@@ -21,6 +21,10 @@ public class ExpensesScreen extends JPanel {
     private List<Expense> expenses;
     private JButton createButton;
 
+    private static final String
+            SELECT_EXPENSE = "Select an expense to view details",
+            CREATE_NEW_EXPENSE = "Create New Expense";
+
     public ExpensesScreen(MainFrame mainFrame) {
         this.mainFrame = mainFrame;
 
@@ -39,10 +43,10 @@ public class ExpensesScreen extends JPanel {
 
         add(new JScrollPane(expensesList), BorderLayout.CENTER);
 
-        JLabel label = new JLabel("Select an expense to view details", SwingConstants.CENTER);
+        JLabel label = new JLabel(SELECT_EXPENSE, SwingConstants.CENTER);
         add(label, BorderLayout.NORTH);
 
-        createButton = new JButton("Create New Expense");
+        createButton = new JButton(CREATE_NEW_EXPENSE);
         add(createButton, BorderLayout.SOUTH);
     }
 
@@ -52,12 +56,12 @@ public class ExpensesScreen extends JPanel {
                 Expense selectedExpense = expensesList.getSelectedValue();
                 if (selectedExpense != null) {
                     mainFrame.registerAndShowScreen(ScreenNames.EXPENSE_DETAIL_VIEW, new ExpenseDetailView(mainFrame, selectedExpense, mainFrame.getCurrentScreen(), this::refreshExpenseList));
-                    expensesList.clearSelection(); // Limpar seleção para permitir nova interação
+                    expensesList.clearSelection(); // Clear selection to allow new interaction
                 }
             }
         });
         createButton.addActionListener(e -> {
-            // Abrir o ExpenseForm no modo de criação
+            // Open ExpenseForm in creation mode
             mainFrame.registerScreen(ScreenNames.EXPENSE_FORM, new ExpenseForm(mainFrame, null, mainFrame.getCurrentScreen(), this::refreshExpenseList));
             mainFrame.showScreen(ScreenNames.EXPENSE_FORM);
         });

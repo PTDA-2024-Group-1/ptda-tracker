@@ -9,13 +9,21 @@ public class SubdivisionsDialog extends JDialog {
     private final List<Subdivision> subdivisions;
     private JTable subdivisionsTable;
 
+    private static final String
+            TITLE = "Subdivisions",
+            ID = "ID",
+            AMOUNT = "Amount",
+            PERCENTAGE = "Percentage",
+            CREATED_BY = "Created By",
+            ASSOCIATED_USER = "Associated User";
+
     public SubdivisionsDialog(List<Subdivision> subdivisions) {
         this.subdivisions = subdivisions;
         initUI();
     }
 
     private void initUI() {
-        setTitle("Subdivisions");
+        setTitle(TITLE);
         setSize(400, 300);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
@@ -30,7 +38,7 @@ public class SubdivisionsDialog extends JDialog {
     }
 
     public static JTable createSubdivisionsJTable(List<Subdivision> subdivisions) {
-        String[] columnNames = {"ID", "Amount", "Percentage", "Created By", "Associated User"};
+        String[] columnNames = {ID, AMOUNT, PERCENTAGE, CREATED_BY, ASSOCIATED_USER};
         Object[][] data = new Object[subdivisions.size()][columnNames.length];
         for (int i = 0; i < subdivisions.size(); i++) {
             Subdivision subdivision = subdivisions.get(i);

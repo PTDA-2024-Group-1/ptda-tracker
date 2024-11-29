@@ -9,7 +9,6 @@ import com.ptda.tracker.ui.MainFrame;
 import com.ptda.tracker.ui.dialogs.ParticipantsDialog;
 import com.ptda.tracker.ui.forms.BudgetForm;
 import com.ptda.tracker.ui.forms.ShareBudgetForm;
-import com.ptda.tracker.ui.forms.SimulationSubdivisionsForm;
 import com.ptda.tracker.util.ScreenNames;
 import com.ptda.tracker.util.UserSession;
 
@@ -26,6 +25,23 @@ public class BudgetDetailView extends JPanel {
 
     private JTable expensesTable;
     private JButton backButton, participantsButton, editButton, shareButton;
+
+    private static final String
+            BUDGET_DETAILS = "Budget Details",
+            NAME = "Name: ",
+            DESCRIPTION = "Description: ",
+            CREATED_BY = "Created By: ",
+            EXPENSES = "Expenses",
+            BACK_TO_BUDGETS = "Back to Budgets",
+            PARTICIPANTS = "Participants",
+            EDIT_BUDGET = "Edit Budget",
+            SHARE_BUDGET = "Share Budget",
+            SIMULATION_BUDGET = "Simulation Budget",
+            TITLE = "Title",
+            AMOUNT = "Amount",
+            CATEGORY = "Category",
+            DATE = "Date",
+            CREATED_BY_COLUMN = "Created By";
 
     public BudgetDetailView(MainFrame mainFrame, Budget budget) {
         this.mainFrame = mainFrame;
@@ -44,11 +60,11 @@ public class BudgetDetailView extends JPanel {
         // Details Panel
         JPanel detailsPanel = new JPanel();
         detailsPanel.setLayout(new BoxLayout(detailsPanel, BoxLayout.Y_AXIS));
-        detailsPanel.setBorder(BorderFactory.createTitledBorder("Budget Details"));
+        detailsPanel.setBorder(BorderFactory.createTitledBorder(BUDGET_DETAILS));
 
-        JLabel nameLabel = new JLabel("Name: " + budget.getName());
-        JLabel descriptionLabel = new JLabel("Description: " + budget.getDescription());
-        JLabel createdByLabel = new JLabel("Created By: " + budget.getCreatedBy().getName());
+        JLabel nameLabel = new JLabel(NAME + budget.getName());
+        JLabel descriptionLabel = new JLabel(DESCRIPTION + budget.getDescription());
+        JLabel createdByLabel = new JLabel(CREATED_BY + budget.getCreatedBy().getName());
 
         Font font = new Font("Arial", Font.PLAIN, 14);
         nameLabel.setFont(font);
@@ -64,7 +80,7 @@ public class BudgetDetailView extends JPanel {
 
         // Central Panel
         JPanel centerPanel = new JPanel(new GridLayout(2, 1, 10, 10));
-        centerPanel.setBorder(BorderFactory.createTitledBorder("Expenses"));
+        centerPanel.setBorder(BorderFactory.createTitledBorder(EXPENSES));
 
         expensesTable = createExpensesTable();
         JScrollPane scrollPane = new JScrollPane(expensesTable);
@@ -73,24 +89,26 @@ public class BudgetDetailView extends JPanel {
 
         // Buttons Panel
         JPanel buttonsPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-        backButton = new JButton("Back to Budgets");
+        backButton = new JButton(BACK_TO_BUDGETS);
         buttonsPanel.add(backButton);
 
-        participantsButton = new JButton("Participants");
+        participantsButton = new JButton(PARTICIPANTS);
         buttonsPanel.add(participantsButton);
 
         if (budgetAccessService.hasAccess(budget.getId(), UserSession.getInstance().getUser().getId(), BudgetAccessLevel.EDITOR)) {
-            editButton = new JButton("Edit Budget");
+            editButton = new JButton(EDIT_BUDGET);
             buttonsPanel.add(editButton);
         }
         if (budgetAccessService.hasAccess(budget.getId(), UserSession.getInstance().getUser().getId(), BudgetAccessLevel.EDITOR)) {
-            shareButton = new JButton("Share Budget");
+            shareButton = new JButton(SHARE_BUDGET);
             buttonsPanel.add(shareButton);
         }
-        if (budgetAccessService.hasAccess(budget.getId(), UserSession.getInstance().getUser().getId(), BudgetAccessLevel.OWNER) && !expenses.isEmpty()) {
-            JButton simulateSubdivisionsButton = new JButton("Simulate Subdivisions");
-            simulateSubdivisionsButton.addActionListener(e -> mainFrame.registerAndShowScreen(ScreenNames.DISTRIBUTE_EXPENSE_FORM, new SimulationSubdivisionsForm(mainFrame, budget)));
-            buttonsPanel.add(simulateSubdivisionsButton);
+        if ((budgetAccessService.hasAccess(budget.getId(), UserSession.getInstance().getUser().getId(), BudgetAccessLevel.OWNER) ||
+                budgetAccessService.hasAccess(budget.getId(), UserSession.getInstance().getUser().getId(), BudgetAccessLevel.EDITOR) ||
+                budgetAccessService.hasAccess(budget.getId(), UserSession.getInstance().getUser().getId(), BudgetAccessLevel.VIEWER)) && !expenses.isEmpty()) {
+            JButton simulateBudget = new JButton(SIMULATION_BUDGET);
+            simulateBudget.addActionListener(e -> mainFrame.registerAndShowScreen(ScreenNames.SIMULATE_VIEW, new SimulationView(mainFrame, budget)));
+            buttonsPanel.add(simulateBudget);
         }
         // End Buttons Panel
 
@@ -98,7 +116,7 @@ public class BudgetDetailView extends JPanel {
     }
 
     private JTable createExpensesTable() {
-        String[] columnNames = {"Title", "Amount", "Category", "Date", "Created By"};
+        String[] columnNames = {TITLE, AMOUNT, CATEGORY, DATE, CREATED_BY_COLUMN};
         DefaultTableModel model = new DefaultTableModel(columnNames, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {

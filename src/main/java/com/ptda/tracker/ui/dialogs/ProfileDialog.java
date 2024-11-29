@@ -7,13 +7,18 @@ import javax.swing.*;
 public class ProfileDialog extends JDialog {
     private final User user;
 
+    private static final String
+            TITLE = "Profile",
+            NAME = "Name: ",
+            EMAIL = "Email: ";
+
     public ProfileDialog(User user) {
         this.user = user;
         initUI();
     }
 
     private void initUI() {
-        setTitle("Profile");
+        setTitle(TITLE);
         setSize(400, 300);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
@@ -21,8 +26,8 @@ public class ProfileDialog extends JDialog {
         JPanel panel = new JPanel();
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
 
-        JLabel nameLabel = new JLabel("Name: " + user.getName());
-        JLabel emailLabel = new JLabel("Email: " + user.getEmail());
+        JLabel nameLabel = new JLabel(NAME + user.getName());
+        JLabel emailLabel = new JLabel(EMAIL + user.getEmail());
 
         panel.add(nameLabel);
         panel.add(emailLabel);
