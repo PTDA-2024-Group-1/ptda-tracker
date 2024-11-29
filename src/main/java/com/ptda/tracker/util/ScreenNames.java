@@ -10,6 +10,7 @@ public class ScreenNames {
     public static final String BUDGET_FORM = "budgetForm";
     public static final String PROFILE_FORM = "profileForm";
     public static final String CHANGE_PASSWORD_FORM = "changePasswordForm";
+    public static final String PASSWORD_RESET_FORM = "passwordResetForm";
     public static final String BUDGET_DETAIL_VIEW = "budgetDetailView";
     public static final String BUDGET_SHARE_FORM = "budgetShareForm";
     public static final String EXPENSES_SCREEN = "expensesScreen";
@@ -22,4 +23,5 @@ public class ScreenNames {
     public static final String SIMULATE_VIEW = "simulateView";
     public static final String SUBDIVISION_FORM = "subdivisionForm";
     public static final String EMAIL_VERIFICATION_FORM = "emailVerificationForm";
+    public static final String SPLASH_SCREEN = "splashScreen";
 }

@@ -5,6 +5,7 @@ import com.ptda.tracker.models.user.User;
 import com.ptda.tracker.services.user.UserService;
 import com.ptda.tracker.ui.MainFrame;
 import com.ptda.tracker.ui.screens.NavigationScreen;
+import com.ptda.tracker.util.LocaleManager;
 import com.ptda.tracker.util.ScreenNames;
 import com.ptda.tracker.util.UserSession;
 import org.springframework.context.ApplicationContext;
@@ -23,21 +24,18 @@ public class LoginForm extends JPanel {
     private JPasswordField passwordField;
     private JButton loginButton, registerButton;
 
+    private static final LocaleManager localeManager = LocaleManager.getInstance();
     private static final String
-            REGISTER_SCREEN = ScreenNames.REGISTER_FORM,
-            LOGIN_SCREEN = ScreenNames.LOGIN_FORM;
-
-    private static final String
-            LOGIN = "Login",
-            EMAIL = "Email",
-            PASSWORD = "Password",
-            GO_TO_REGISTER = "Go to Register",
-            EMAIL_REQUIRED = "Email required",
-            PASSWORD_REQUIRED = "Password required",
-            WELCOME_BACK = "Welcome back!",
-            INVALID_CREDENTIALS = "Invalid credentials. Please try again.",
-            ERROR = "Error",
-            MESSAGE = "Message";
+            LOGIN = localeManager.getTranslation("login"),
+            EMAIL = localeManager.getTranslation("email"),
+            PASSWORD = localeManager.getTranslation("password"),
+            GO_TO_REGISTER = localeManager.getTranslation("go_to_register"),
+            EMAIL_REQUIRED = localeManager.getTranslation("email_required"),
+            PASSWORD_REQUIRED = localeManager.getTranslation("password_required"),
+            WELCOME_BACK = localeManager.getTranslation("welcome_back"),
+            INVALID_CREDENTIALS = localeManager.getTranslation("invalid_credentials"),
+            ERROR = localeManager.getTranslation("error"),
+            MESSAGE = localeManager.getTranslation("message");
 
     public LoginForm(MainFrame mainFrame) {
         this.mainFrame = mainFrame;
@@ -173,8 +171,8 @@ public class LoginForm extends JPanel {
         preferences.put("password", user.getPassword());
         UserSession.getInstance().setUser(user);
 
-        mainFrame.removeScreen(REGISTER_SCREEN);
-        mainFrame.removeScreen(LOGIN_SCREEN);
+        mainFrame.removeScreen(ScreenNames.LOGIN_FORM);
+        mainFrame.removeScreen(ScreenNames.REGISTER_FORM);
 
         // Create the NavigationScreen
         NavigationScreen navigationScreen = new NavigationScreen(mainFrame);

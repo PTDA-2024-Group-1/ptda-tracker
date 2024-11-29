@@ -4,13 +4,18 @@ import com.ptda.tracker.TrackerApplication;
 import com.ptda.tracker.config.AppConfig;
 import com.ptda.tracker.theme.ThemeManager;
 import com.ptda.tracker.ui.dialogs.AboutDialog;
+import com.ptda.tracker.ui.dialogs.ChooseLanguageDialog;
+import com.ptda.tracker.util.LocaleManager;
 import lombok.Getter;
 import org.springframework.context.ApplicationContext;
 
+import javax.security.auth.RefreshFailedException;
+import javax.security.auth.Refreshable;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.prefs.Preferences;
 
@@ -27,16 +32,20 @@ public class MainFrame extends JFrame {
     private String currentScreen;
 
     private static final String
-            NAVIGATION_SCREEN = "navigationScreen",
             SCREEN_NOT_FOUND = "Screen not found: ",
             ERROR = "Error",
-            TITLE = "Divi - Turn your expenses into Achievements.";
+            TITLE = "Divi Expense Tracker";
 
     public MainFrame(ApplicationContext context) {
         this.context = context; // Inject Spring context
         this.screens = new HashMap<>();
         this.cardLayout = new CardLayout();
         this.mainPanel = new JPanel(cardLayout);
+
+        // Set locale
+        Preferences preferences = Preferences.userNodeForPackage(TrackerApplication.class);
+        Locale locale = new Locale(preferences.get("language", "en"), preferences.get("country", "US"));
+        LocaleManager.getInstance().setLocale(locale);
 
         setJMenuBar(createMenuBar());
         themeManager = new ThemeManager(this);
@@ -94,6 +103,9 @@ public class MainFrame extends JFrame {
 
         // Create "File" menu
         JMenu fileMenu = new JMenu("File");
+        JMenuItem languageMenuItem = new JMenuItem("Language");
+        languageMenuItem.addActionListener(e -> new ChooseLanguageDialog(this).setVisible(true));
+        fileMenu.add(languageMenuItem);
         JMenuItem exitMenuItem = new JMenuItem("Exit");
         exitMenuItem.addActionListener(e -> System.exit(0));
         fileMenu.add(exitMenuItem);

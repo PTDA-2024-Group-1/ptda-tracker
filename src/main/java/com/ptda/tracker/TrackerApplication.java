@@ -9,6 +9,7 @@ import com.ptda.tracker.models.user.User;
 import com.ptda.tracker.services.user.UserService;
 import com.ptda.tracker.ui.MainFrame;
 import com.ptda.tracker.ui.forms.LoginForm;
+import com.ptda.tracker.ui.screens.CustomSplashScreen;
 import com.ptda.tracker.util.ScreenNames;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -34,6 +35,15 @@ public class TrackerApplication {
         ApplicationContext context = SpringApplication.run(TrackerApplication.class, args);
 		context.getBean(DataInit.class).init();
 
+		CustomSplashScreen splashScreen = new CustomSplashScreen();
+		splashScreen.showSplashScreen();
+
+		try {
+			Thread.sleep(2000);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+
 		SwingUtilities.invokeLater(() -> {
 			MainFrame mainFrame = new MainFrame(context);
 
@@ -47,9 +57,10 @@ public class TrackerApplication {
 			if (user.isPresent() && Objects.equals(encryptedPassword, user.get().getPassword())) {
 				LoginForm.onAuthSuccess(user.get(), mainFrame);
 			} else {
-				mainFrame.registerScreen(ScreenNames.LOGIN_FORM, new LoginForm(mainFrame));
-				mainFrame.showScreen(ScreenNames.LOGIN_FORM);
+				mainFrame.registerAndShowScreen(ScreenNames.LOGIN_FORM, new LoginForm(mainFrame));
 			}
+
+			splashScreen.hideSplashScreen();
 			mainFrame.setVisible(true);
 		});
 	}
