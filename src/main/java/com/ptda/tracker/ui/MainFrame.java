@@ -1,17 +1,25 @@
 package com.ptda.tracker.ui;
 
+import com.ptda.tracker.TrackerApplication;
+import com.ptda.tracker.config.AppConfig;
+import com.ptda.tracker.theme.ThemeManager;
 import com.ptda.tracker.ui.dialogs.AboutDialog;
 import lombok.Getter;
 import org.springframework.context.ApplicationContext;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.prefs.Preferences;
 
 public class MainFrame extends JFrame {
     private final CardLayout cardLayout;
     private final JPanel mainPanel;
+    private JCheckBoxMenuItem lightTheme, darkTheme;
+    private final ThemeManager themeManager;
+
     private final Map<String, JPanel> screens;
     @Getter
     private final ApplicationContext context;
@@ -30,13 +38,20 @@ public class MainFrame extends JFrame {
         this.cardLayout = new CardLayout();
         this.mainPanel = new JPanel(cardLayout);
 
+        setJMenuBar(createMenuBar());
+        themeManager = new ThemeManager(this);
+        themeManager.setTheme(getThemePreference());
+        if (themeManager.isDark()) {
+            darkTheme.setSelected(true);
+        } else {
+            lightTheme.setSelected(true);
+        }
+
         setTitle(TITLE);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(1000, 800);
         setLocationRelativeTo(null);
         add(mainPanel);
-
-        setJMenuBar(createMenuBar());
     }
 
     public void registerScreen(String name, JPanel screen) {
@@ -83,11 +98,18 @@ public class MainFrame extends JFrame {
         exitMenuItem.addActionListener(e -> System.exit(0));
         fileMenu.add(exitMenuItem);
 
-        // Create "View" menu
-        JMenu viewMenu = new JMenu("View");
-        JMenuItem homeMenuItem = new JMenuItem("Home");
-        homeMenuItem.addActionListener(e -> showScreen(NAVIGATION_SCREEN)); // Example action
-        viewMenu.add(homeMenuItem);
+        // Create "Theme" menu
+        JMenu themeMenu = new JMenu("Theme");
+
+        lightTheme = new JCheckBoxMenuItem();
+        lightTheme.addActionListener(this::lightThemeClicked);
+        lightTheme.setText("Light");
+        themeMenu.add(lightTheme);
+
+        darkTheme = new JCheckBoxMenuItem();
+        darkTheme.addActionListener(this::darkThemeClicked);
+        darkTheme.setText("Dark");
+        themeMenu.add(darkTheme);
 
         // Create "Help" menu
         JMenu helpMenu = new JMenu("Help");
@@ -97,9 +119,33 @@ public class MainFrame extends JFrame {
 
         // Add menus to the menu bar
         menuBar.add(fileMenu);
-        menuBar.add(viewMenu);
+        menuBar.add(themeMenu);
         menuBar.add(helpMenu);
 
         return menuBar;
+    }
+
+    private void lightThemeClicked(ActionEvent e) {
+        lightTheme.setSelected(true);
+        darkTheme.setSelected(false);
+        themeManager.setTheme(AppConfig.DEFAULT_LIGHT_THEME);
+        setThemePreference(AppConfig.DEFAULT_LIGHT_THEME);
+    }
+
+    private void darkThemeClicked(ActionEvent e) {
+        lightTheme.setSelected(false);
+        darkTheme.setSelected(true);
+        themeManager.setTheme(AppConfig.DEFAULT_DARK_THEME);
+        setThemePreference(AppConfig.DEFAULT_DARK_THEME);
+    }
+
+    private void setThemePreference(String theme) {
+        Preferences preferences = Preferences.userNodeForPackage(TrackerApplication.class);
+        preferences.put("theme", theme);
+    }
+
+    private String getThemePreference() {
+        Preferences preferences = Preferences.userNodeForPackage(TrackerApplication.class);
+        return preferences.get("theme", AppConfig.DEFAULT_LIGHT_THEME);
     }
 }
