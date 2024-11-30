@@ -8,7 +8,6 @@ import com.ptda.tracker.ui.screens.NavigationScreen;
 import com.ptda.tracker.util.LocaleManager;
 import com.ptda.tracker.util.ScreenNames;
 import com.ptda.tracker.util.UserSession;
-import org.springframework.context.ApplicationContext;
 
 import javax.swing.*;
 import java.awt.*;
@@ -18,35 +17,75 @@ import java.util.prefs.Preferences;
 import static com.ptda.tracker.config.AppConfig.LOGO_PATH;
 
 public class LoginForm extends JPanel {
-    private MainFrame mainFrame;
-    private UserService userService;
-    private JTextField usernameField;
-    private JPasswordField passwordField;
-    private JButton loginButton, registerButton;
-
-    private static final LocaleManager localeManager = LocaleManager.getInstance();
-    private static final String
-            LOGIN = localeManager.getTranslation("login"),
-            EMAIL = localeManager.getTranslation("email"),
-            PASSWORD = localeManager.getTranslation("password"),
-            GO_TO_REGISTER = localeManager.getTranslation("go_to_register"),
-            EMAIL_REQUIRED = localeManager.getTranslation("email_required"),
-            PASSWORD_REQUIRED = localeManager.getTranslation("password_required"),
-            WELCOME_BACK = localeManager.getTranslation("welcome_back"),
-            INVALID_CREDENTIALS = localeManager.getTranslation("invalid_credentials"),
-            ERROR = localeManager.getTranslation("error"),
-            MESSAGE = localeManager.getTranslation("message");
+    private final MainFrame mainFrame;
+    private final UserService userService;
 
     public LoginForm(MainFrame mainFrame) {
         this.mainFrame = mainFrame;
-        ApplicationContext context = mainFrame.getContext();
-        userService = context.getBean(UserService.class);
+        userService = mainFrame.getContext().getBean(UserService.class);
 
-        initUI();
+        initComponents();
         setListeners();
     }
 
-    private void initUI() {
+    private void setListeners() {
+        loginButton.addActionListener(e -> login());
+        registerButton.addActionListener(e -> {
+            mainFrame.registerAndShowScreen(ScreenNames.REGISTER_FORM, new RegisterForm(mainFrame));
+        });
+    }
+
+    private void login() {
+        String email = usernameField.getText().trim();
+        String password = new String(passwordField.getPassword()).trim();
+
+        // Validations
+        int i = 0;
+        if (email.isEmpty()) {
+            showError(EMAIL_REQUIRED, usernameField);
+            i++;
+        }
+        if (password.isEmpty()) {
+            showError(PASSWORD_REQUIRED, passwordField);
+            i++;
+        }
+        if (i > 0) return;
+
+        // Login
+        Optional<User> user = userService.login(email, password);
+        if (user.isEmpty()) {
+            JOptionPane.showMessageDialog(this, INVALID_CREDENTIALS, ERROR, JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        if (user.get().isEmailVerified()) {
+            onAuthSuccess(user.get(), mainFrame);
+            JOptionPane.showMessageDialog(this, WELCOME_BACK, MESSAGE, JOptionPane.INFORMATION_MESSAGE);
+        } else {
+            mainFrame.registerAndShowScreen(ScreenNames.EMAIL_VERIFICATION_FORM, new EmailVerificationForm(mainFrame, user.get(), mainFrame.getCurrentScreen()));
+        }
+    }
+
+    private void showError(String message, JComponent component) {
+        JOptionPane.showMessageDialog(this, message, ERROR, JOptionPane.ERROR_MESSAGE);
+        component.requestFocusInWindow();
+    }
+
+    public static void onAuthSuccess(User user, MainFrame mainFrame) {
+        Preferences preferences = Preferences.userNodeForPackage(TrackerApplication.class);
+        preferences.put("email", user.getEmail());
+        preferences.put("password", user.getPassword());
+        UserSession.getInstance().setUser(user);
+
+        mainFrame.removeScreen(ScreenNames.LOGIN_FORM);
+        mainFrame.removeScreen(ScreenNames.REGISTER_FORM);
+
+        // Create the NavigationScreen
+        NavigationScreen navigationScreen = new NavigationScreen(mainFrame);
+        mainFrame.registerAndShowScreen(ScreenNames.NAVIGATION_SCREEN, navigationScreen);
+        mainFrame.setVisible(true);
+    }
+
+    private void initComponents() {
         setLayout(new BorderLayout());
         setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
@@ -123,60 +162,19 @@ public class LoginForm extends JPanel {
         add(formPanel, BorderLayout.CENTER);
     }
 
-    private void setListeners() {
-        loginButton.addActionListener(e -> login());
-        registerButton.addActionListener(e -> {
-            mainFrame.registerAndShowScreen(ScreenNames.REGISTER_FORM, new RegisterForm(mainFrame));
-        });
-    }
-
-    private void login() {
-        String email = usernameField.getText().trim();
-        String password = new String(passwordField.getPassword()).trim();
-
-        // Validations
-        int i = 0;
-        if (email.isEmpty()) {
-            showError(EMAIL_REQUIRED, usernameField);
-            i++;
-        }
-        if (password.isEmpty()) {
-            showError(PASSWORD_REQUIRED, passwordField);
-            i++;
-        }
-        if (i > 0) return;
-
-        // Login
-        Optional<User> user = userService.login(email, password);
-        if (user.isEmpty()) {
-            JOptionPane.showMessageDialog(this, INVALID_CREDENTIALS, ERROR, JOptionPane.ERROR_MESSAGE);
-            return;
-        }
-        if (user.get().isEmailVerified()) {
-            onAuthSuccess(user.get(), mainFrame);
-            JOptionPane.showMessageDialog(this, WELCOME_BACK, MESSAGE, JOptionPane.INFORMATION_MESSAGE);
-        } else {
-            mainFrame.registerAndShowScreen(ScreenNames.EMAIL_VERIFICATION_FORM, new EmailVerificationForm(mainFrame, user.get(), mainFrame.getCurrentScreen()));
-        }
-    }
-
-    private void showError(String message, JComponent component) {
-        JOptionPane.showMessageDialog(this, message, ERROR, JOptionPane.ERROR_MESSAGE);
-        component.requestFocusInWindow();
-    }
-
-    public static void onAuthSuccess(User user, MainFrame mainFrame) {
-        Preferences preferences = Preferences.userNodeForPackage(TrackerApplication.class);
-        preferences.put("email", user.getEmail());
-        preferences.put("password", user.getPassword());
-        UserSession.getInstance().setUser(user);
-
-        mainFrame.removeScreen(ScreenNames.LOGIN_FORM);
-        mainFrame.removeScreen(ScreenNames.REGISTER_FORM);
-
-        // Create the NavigationScreen
-        NavigationScreen navigationScreen = new NavigationScreen(mainFrame);
-        mainFrame.registerAndShowScreen(ScreenNames.NAVIGATION_SCREEN, navigationScreen);
-        mainFrame.setVisible(true);
-    }
+    private JTextField usernameField;
+    private JPasswordField passwordField;
+    private JButton loginButton, registerButton;
+    private static final LocaleManager localeManager = LocaleManager.getInstance();
+    private static final String
+            LOGIN = localeManager.getTranslation("login"),
+            EMAIL = localeManager.getTranslation("email"),
+            PASSWORD = localeManager.getTranslation("password"),
+            GO_TO_REGISTER = localeManager.getTranslation("go_to_register"),
+            EMAIL_REQUIRED = localeManager.getTranslation("email_required"),
+            PASSWORD_REQUIRED = localeManager.getTranslation("password_required"),
+            WELCOME_BACK = localeManager.getTranslation("welcome_back"),
+            INVALID_CREDENTIALS = localeManager.getTranslation("invalid_credentials"),
+            ERROR = localeManager.getTranslation("error"),
+            MESSAGE = localeManager.getTranslation("message");
 }

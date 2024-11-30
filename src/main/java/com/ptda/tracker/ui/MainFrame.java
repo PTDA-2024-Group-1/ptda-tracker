@@ -31,10 +31,19 @@ public class MainFrame extends JFrame {
     @Getter
     private String currentScreen;
 
+    private static final LocaleManager localeManager = LocaleManager.getInstance();
     private static final String
-            SCREEN_NOT_FOUND = "Screen not found: ",
-            ERROR = "Error",
-            TITLE = "Divi Expense Tracker";
+            SCREEN_NOT_FOUND = localeManager.getTranslation("screenNotFound"),
+            ERROR = localeManager.getTranslation("error"),
+            TITLE = localeManager.getTranslation("divi_expense_tracker"),
+            LANGUAGE = localeManager.getTranslation("language"),
+            FILE = localeManager.getTranslation("file"),
+            EXIT = localeManager.getTranslation("exit"),
+            THEME = localeManager.getTranslation("theme"),
+            LIGHT = localeManager.getTranslation("light"),
+            DARK = localeManager.getTranslation("dark"),
+            HELP = localeManager.getTranslation("help"),
+            ABOUT = localeManager.getTranslation("about");
 
     public MainFrame(ApplicationContext context) {
         this.context = context; // Inject Spring context
@@ -73,7 +82,7 @@ public class MainFrame extends JFrame {
             cardLayout.show(mainPanel, name);
             this.currentScreen = name;
         } else {
-            JOptionPane.showMessageDialog(this, SCREEN_NOT_FOUND + name, ERROR, JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, SCREEN_NOT_FOUND + ": " + name, ERROR, JOptionPane.ERROR_MESSAGE);
         }
     }
 
@@ -102,30 +111,30 @@ public class MainFrame extends JFrame {
         JMenuBar menuBar = new JMenuBar();
 
         // Create "File" menu
-        JMenu fileMenu = new JMenu("File");
-        JMenuItem languageMenuItem = new JMenuItem("Language");
+        JMenu fileMenu = new JMenu(FILE);
+        JMenuItem languageMenuItem = new JMenuItem(LANGUAGE);
         languageMenuItem.addActionListener(e -> new ChooseLanguageDialog(this).setVisible(true));
         fileMenu.add(languageMenuItem);
-        JMenuItem exitMenuItem = new JMenuItem("Exit");
+        JMenuItem exitMenuItem = new JMenuItem(EXIT);
         exitMenuItem.addActionListener(e -> System.exit(0));
         fileMenu.add(exitMenuItem);
 
         // Create "Theme" menu
-        JMenu themeMenu = new JMenu("Theme");
+        JMenu themeMenu = new JMenu(THEME);
 
         lightTheme = new JCheckBoxMenuItem();
         lightTheme.addActionListener(this::lightThemeClicked);
-        lightTheme.setText("Light");
+        lightTheme.setText(LIGHT);
         themeMenu.add(lightTheme);
 
         darkTheme = new JCheckBoxMenuItem();
         darkTheme.addActionListener(this::darkThemeClicked);
-        darkTheme.setText("Dark");
+        darkTheme.setText(DARK);
         themeMenu.add(darkTheme);
 
         // Create "Help" menu
-        JMenu helpMenu = new JMenu("Help");
-        JMenuItem aboutMenuItem = new JMenuItem("About");
+        JMenu helpMenu = new JMenu(HELP);
+        JMenuItem aboutMenuItem = new JMenuItem(ABOUT);
         aboutMenuItem.addActionListener(e -> new AboutDialog(this).setVisible(true));
         helpMenu.add(aboutMenuItem);
 

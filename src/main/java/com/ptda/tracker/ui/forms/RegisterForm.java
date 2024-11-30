@@ -3,6 +3,7 @@ package com.ptda.tracker.ui.forms;
 import com.ptda.tracker.models.user.User;
 import com.ptda.tracker.services.user.UserService;
 import com.ptda.tracker.ui.MainFrame;
+import com.ptda.tracker.util.LocaleManager;
 import com.ptda.tracker.util.ScreenNames;
 
 import javax.swing.*;
@@ -11,38 +12,73 @@ import java.awt.*;
 import static com.ptda.tracker.config.AppConfig.LOGO_PATH;
 
 public class RegisterForm extends JPanel {
-    private MainFrame mainFrame;
-    private JTextField nameField, emailField;
-    private JPasswordField passwordField, confirmPasswordField;
-
-    private static final String
-            REGISTER = "Register",
-            NAME = "Name",
-            ENTER_NAME = "Enter your full name",
-            EMAIL = "Email",
-            ENTER_EMAIL = "Enter your email address",
-            PASSWORD = "Password",
-            ENTER_PASSWORD = "Enter a strong password (min. 8 characters)",
-            CONFIRM_PASSWORD = "Confirm Password",
-            REPEAT_PASSWORD = "Repeat your password",
-            SHOW_PASSWORD = "Show Password",
-            GO_TO_LOGIN = "Go to Login",
-            ALL_FIELDS_REQUIRED = "All fields are required",
-            ERROR = "Error",
-            INVALID_EMAIL_FORMAT = "Invalid email format",
-            PASSWORDS_DO_NOT_MATCH = "Passwords do not match",
-            EMAIL_ALREADY_REGISTERED = "Email already registered",
-            REGISTRATION_FAILED = "Registration failed",
-            AN_ERROR_OCCURRED = "An error occurred: ",
-            ARE_YOU_SURE_YOU_WANT_TO_REGISTER = "Are you sure you want to register?",
-            CONFIRMATION = "Confirmation";
+    private final MainFrame mainFrame;
 
     public RegisterForm(MainFrame mainFrame) {
         this.mainFrame = mainFrame;
-        initUI();
+        initComponents();
+        setListeners();
     }
 
-    private void initUI() {
+    private void setListeners() {
+        showPasswordCheckbox.addActionListener(e -> {
+            boolean showPassword = showPasswordCheckbox.isSelected();
+            passwordField.setEchoChar(showPassword ? '\0' : '*');
+            confirmPasswordField.setEchoChar(showPassword ? '\0' : '*');
+        });
+        registerButton.addActionListener(e -> register());
+        goToLoginButton.addActionListener(e -> mainFrame.showScreen(ScreenNames.LOGIN_FORM));
+    }
+
+    private void register() {
+        JOptionPane.showMessageDialog(this,ARE_YOU_SURE_YOU_WANT_TO_REGISTER, CONFIRMATION, JOptionPane.WARNING_MESSAGE);
+
+        String name = nameField.getText();
+        String email = emailField.getText();
+        String password = new String(passwordField.getPassword());
+        String confirmPassword = new String(confirmPasswordField.getPassword());
+
+        // Fields validation
+        if (name.isEmpty() || email.isEmpty() || password.isEmpty() || confirmPassword.isEmpty()) {
+            JOptionPane.showMessageDialog(this, ALL_FIELDS_REQUIRED, ERROR, JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        if (!email.matches("^[A-Za-z0-9+_.-]+@(.+)$")) {
+            JOptionPane.showMessageDialog(this, INVALID_EMAIL_FORMAT, ERROR, JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        if (!password.equals(confirmPassword)) {
+            JOptionPane.showMessageDialog(this, PASSWORDS_DO_NOT_MATCH, ERROR, JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        // Register user
+        try {
+            UserService userService = mainFrame.getContext().getBean(UserService.class);
+            if (userService.getByEmail(email).isPresent()) {
+                JOptionPane.showMessageDialog(this, EMAIL_ALREADY_REGISTERED, ERROR, JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+            User newUser = userService.register(name, email, password);
+            if (newUser != null) {
+                mainFrame.registerAndShowScreen(
+                        ScreenNames.EMAIL_VERIFICATION_FORM,
+                        new EmailVerificationForm(mainFrame, newUser, ScreenNames.LOGIN_FORM)
+                );
+                // Clear fields
+                nameField.setText("");
+                emailField.setText("");
+                passwordField.setText("");
+                confirmPasswordField.setText("");
+            } else {
+                JOptionPane.showMessageDialog(this, REGISTRATION_FAILED, ERROR, JOptionPane.ERROR_MESSAGE);
+            }
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(this, AN_ERROR_OCCURRED + ex.getMessage(), ERROR, JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    private void initComponents() {
         setLayout(new BorderLayout());
         setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20)); // Margins around the form
 
@@ -138,78 +174,50 @@ public class RegisterForm extends JPanel {
         formPanel.add(confirmPasswordField, gbc);
 
         // Show password checkbox
-        JCheckBox showPasswordCheckbox = new JCheckBox(SHOW_PASSWORD);
-        showPasswordCheckbox.addActionListener(e -> {
-            boolean showPassword = showPasswordCheckbox.isSelected();
-            passwordField.setEchoChar(showPassword ? '\0' : '*');
-            confirmPasswordField.setEchoChar(showPassword ? '\0' : '*');
-        });
+        showPasswordCheckbox = new JCheckBox(SHOW_PASSWORD);
         gbc.gridx = 0;
         gbc.gridy = 8;
         formPanel.add(showPasswordCheckbox, gbc);
 
         // Register button
-        JButton registerButton = new JButton(REGISTER);
+        registerButton = new JButton(REGISTER);
         gbc.gridx = 0;
         gbc.gridy = 9;
         formPanel.add(registerButton, gbc);
-        registerButton.addActionListener(e -> register());
 
         // Go to login button
-        JButton loginButton = new JButton(GO_TO_LOGIN);
+        goToLoginButton = new JButton(GO_TO_LOGIN);
         gbc.gridx = 0;
         gbc.gridy = 10;
-        formPanel.add(loginButton, gbc);
-        loginButton.addActionListener(e -> mainFrame.showScreen(ScreenNames.LOGIN_FORM));
+        formPanel.add(goToLoginButton, gbc);
 
         add(formPanel, BorderLayout.CENTER);
     }
 
-    private void register() {
-        JOptionPane.showMessageDialog(this,ARE_YOU_SURE_YOU_WANT_TO_REGISTER, CONFIRMATION, JOptionPane.WARNING_MESSAGE);
-
-        String name = nameField.getText();
-        String email = emailField.getText();
-        String password = new String(passwordField.getPassword());
-        String confirmPassword = new String(confirmPasswordField.getPassword());
-
-        // Fields validation
-        if (name.isEmpty() || email.isEmpty() || password.isEmpty() || confirmPassword.isEmpty()) {
-            JOptionPane.showMessageDialog(this, ALL_FIELDS_REQUIRED, ERROR, JOptionPane.ERROR_MESSAGE);
-            return;
-        }
-        if (!email.matches("^[A-Za-z0-9+_.-]+@(.+)$")) {
-            JOptionPane.showMessageDialog(this, INVALID_EMAIL_FORMAT, ERROR, JOptionPane.ERROR_MESSAGE);
-            return;
-        }
-        if (!password.equals(confirmPassword)) {
-            JOptionPane.showMessageDialog(this, PASSWORDS_DO_NOT_MATCH, ERROR, JOptionPane.ERROR_MESSAGE);
-            return;
-        }
-
-        // Register user
-        try {
-            UserService userService = mainFrame.getContext().getBean(UserService.class);
-            if (userService.getByEmail(email).isPresent()) {
-                JOptionPane.showMessageDialog(this, EMAIL_ALREADY_REGISTERED, ERROR, JOptionPane.ERROR_MESSAGE);
-                return;
-            }
-            User newUser = userService.register(name, email, password);
-            if (newUser != null) {
-                mainFrame.registerAndShowScreen(
-                        ScreenNames.EMAIL_VERIFICATION_FORM,
-                        new EmailVerificationForm(mainFrame, newUser, ScreenNames.LOGIN_FORM)
-                );
-                // Clear fields
-                nameField.setText("");
-                emailField.setText("");
-                passwordField.setText("");
-                confirmPasswordField.setText("");
-            } else {
-                JOptionPane.showMessageDialog(this, REGISTRATION_FAILED, ERROR, JOptionPane.ERROR_MESSAGE);
-            }
-        } catch (Exception ex) {
-            JOptionPane.showMessageDialog(this, AN_ERROR_OCCURRED + ex.getMessage(), ERROR, JOptionPane.ERROR_MESSAGE);
-        }
-    }
+    private JTextField nameField, emailField;
+    private JPasswordField passwordField, confirmPasswordField;
+    private JCheckBox showPasswordCheckbox;
+    private JButton registerButton, goToLoginButton;
+    private static final LocaleManager localeManager = LocaleManager.getInstance();
+    private static final String
+            REGISTER = localeManager.getTranslation("register"),
+            NAME = localeManager.getTranslation("name"),
+            ENTER_NAME = localeManager.getTranslation("enter_name"),
+            EMAIL = localeManager.getTranslation("email"),
+            ENTER_EMAIL = localeManager.getTranslation("enter_email"),
+            PASSWORD = localeManager.getTranslation("password"),
+            ENTER_PASSWORD = localeManager.getTranslation("enter_password"),
+            CONFIRM_PASSWORD = localeManager.getTranslation("confirm_password"),
+            REPEAT_PASSWORD = localeManager.getTranslation("repeat_password"),
+            SHOW_PASSWORD = localeManager.getTranslation("show_password"),
+            GO_TO_LOGIN = localeManager.getTranslation("go_to_login"),
+            ALL_FIELDS_REQUIRED = localeManager.getTranslation("all_fields_required"),
+            ERROR = localeManager.getTranslation("error"),
+            INVALID_EMAIL_FORMAT = localeManager.getTranslation("invalid_email_format"),
+            PASSWORDS_DO_NOT_MATCH = localeManager.getTranslation("passwords_do_not_match"),
+            EMAIL_ALREADY_REGISTERED = localeManager.getTranslation("email_already_registered"),
+            REGISTRATION_FAILED = localeManager.getTranslation("registration_failed"),
+            AN_ERROR_OCCURRED = localeManager.getTranslation("an_error_occurred"),
+            ARE_YOU_SURE_YOU_WANT_TO_REGISTER = localeManager.getTranslation("are_you_sure_you_want_to_register"),
+            CONFIRMATION = localeManager.getTranslation("confirmation");
 }
