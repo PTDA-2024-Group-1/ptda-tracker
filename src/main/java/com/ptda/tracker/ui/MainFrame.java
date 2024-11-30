@@ -3,19 +3,16 @@ package com.ptda.tracker.ui;
 import com.ptda.tracker.TrackerApplication;
 import com.ptda.tracker.config.AppConfig;
 import com.ptda.tracker.theme.ThemeManager;
-import com.ptda.tracker.ui.dialogs.AboutDialog;
-import com.ptda.tracker.ui.dialogs.ChooseLanguageDialog;
+import com.ptda.tracker.ui.user.dialogs.AboutDialog;
+import com.ptda.tracker.ui.user.dialogs.ChooseLanguageDialog;
 import com.ptda.tracker.util.LocaleManager;
 import lombok.Getter;
 import org.springframework.context.ApplicationContext;
 
-import javax.security.auth.RefreshFailedException;
-import javax.security.auth.Refreshable;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.util.HashMap;
-import java.util.Locale;
 import java.util.Map;
 import java.util.prefs.Preferences;
 

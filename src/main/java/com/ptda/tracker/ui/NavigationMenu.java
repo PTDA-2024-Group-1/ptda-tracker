@@ -1,9 +1,9 @@
 package com.ptda.tracker.ui;
 
 import com.ptda.tracker.TrackerApplication;
-import com.ptda.tracker.ui.forms.LoginForm;
-import com.ptda.tracker.ui.screens.*;
-import com.ptda.tracker.ui.views.ProfileView;
+import com.ptda.tracker.ui.user.forms.LoginForm;
+import com.ptda.tracker.ui.user.screens.*;
+import com.ptda.tracker.ui.user.views.ProfileView;
 import com.ptda.tracker.util.ScreenNames;
 import com.ptda.tracker.util.UserSession;
 
@@ -35,7 +35,7 @@ public class NavigationMenu extends JPanel {
         addButtonToPanel(topPanel, HOME, HOME_SCREEN, gbc, 0);
         addButtonToPanel(topPanel, BUDGETS, BUDGETS_SCREEN, gbc, 1);
         addButtonToPanel(topPanel, EXPENSES, EXPENSES_SCREEN, gbc, 2);
-        addButtonToPanel(topPanel, TICKETS, TICKETS_SCREEN, gbc, 3);
+        addButtonToPanel(topPanel, SUPPORT, USER_TICKETS_SCREEN, gbc, 3);
 
         // Bottom panel
         JPanel bottomPanel = new JPanel(new GridBagLayout());
@@ -78,7 +78,7 @@ public class NavigationMenu extends JPanel {
             case HOME_SCREEN -> new HomeScreen(mainFrame);
             case BUDGETS_SCREEN -> new BudgetsScreen(mainFrame);
             case EXPENSES_SCREEN -> new ExpensesScreen(mainFrame);
-            case TICKETS_SCREEN -> new TicketsScreen(mainFrame);
+            case USER_TICKETS_SCREEN -> new UserTicketsScreen(mainFrame);
             case PROFILE_SCREEN -> new ProfileView(mainFrame);
             default -> new JPanel(); // Return an empty panel if the screen is not found
         };
@@ -136,7 +136,7 @@ public class NavigationMenu extends JPanel {
             HOME_SCREEN = ScreenNames.HOME_SCREEN,
             BUDGETS_SCREEN = ScreenNames.BUDGETS_SCREEN,
             EXPENSES_SCREEN = ScreenNames.EXPENSES_SCREEN,
-            TICKETS_SCREEN = ScreenNames.TICKETS_SCREEN,
+            USER_TICKETS_SCREEN = ScreenNames.USER_TICKETS_SCREEN,
             PROFILE_SCREEN = ScreenNames.PROFILE_SCREEN,
             NAVIGATION_SCREEN = ScreenNames.NAVIGATION_SCREEN,
             LOGIN_SCREEN = ScreenNames.LOGIN_FORM;
@@ -146,6 +146,7 @@ public class NavigationMenu extends JPanel {
             BUDGETS = "Budgets",
             EXPENSES = "My Expenses",
             TICKETS = "Tickets",
+            SUPPORT = "Support",
             PROFILE = "Profile",
             LOGOUT = "Logout",
             ARE_YOU_SURE = "Are you sure you want to logout?";

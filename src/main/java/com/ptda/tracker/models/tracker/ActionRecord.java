@@ -1,6 +1,7 @@
 package com.ptda.tracker.models.tracker;
 
 import com.ptda.tracker.models.user.User;
+import com.ptda.tracker.util.UserSession;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
@@ -38,6 +39,7 @@ public class ActionRecord {
     @PrePersist
     protected void onCreate() {
         this.createdAt = System.currentTimeMillis();
+        this.createdBy = UserSession.getInstance().getUser();
     }
 
 }

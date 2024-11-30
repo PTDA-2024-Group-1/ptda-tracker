@@ -9,7 +9,11 @@ import java.util.Optional;
 
 @Repository
 public interface TierRepository extends JpaRepository<Tier, Long> {
+
     Tier findByName(String name);
+
     List<Tier> findByPointsLessThanEqual(int points);
+
     Optional<Tier> findTopByPointsLessThanEqualOrderByPointsDesc(int points);
+
 }

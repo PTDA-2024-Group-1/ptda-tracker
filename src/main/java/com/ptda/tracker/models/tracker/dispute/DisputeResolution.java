@@ -1,11 +1,7 @@
-package com.ptda.tracker.models.tracker;
+package com.ptda.tracker.models.tracker.dispute;
 
 import com.ptda.tracker.models.user.User;
-import com.ptda.tracker.util.UserSession;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.PrePersist;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -16,17 +12,15 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class BudgetAlert {
+public class DisputeResolution {
 
     @Id
     private Long id;
 
-    private double amount;
+    private boolean resolution;
 
-    private boolean notifyEveryone;
-
-    @ManyToOne
-    private Budget budget;
+    @OneToOne
+    private Dispute dispute;
 
     @ManyToOne
     private User createdBy;
@@ -36,7 +30,6 @@ public class BudgetAlert {
     @PrePersist
     protected void onCreate() {
         this.createdAt = System.currentTimeMillis();
-        this.createdBy = UserSession.getInstance().getUser();
     }
 
 }

@@ -1,6 +1,6 @@
 package com.ptda.tracker.services.tracker;
 
-import com.ptda.tracker.models.dispute.Subdivision;
+import com.ptda.tracker.models.tracker.Subdivision;
 import com.ptda.tracker.repositories.SubdivisionRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;

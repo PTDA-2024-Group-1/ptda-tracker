@@ -1,6 +1,6 @@
 package com.ptda.tracker.services.tracker;
 
-import com.ptda.tracker.models.dispute.Subdivision;
+import com.ptda.tracker.models.tracker.Subdivision;
 import java.util.List;
 
 public interface SubdivisionService {

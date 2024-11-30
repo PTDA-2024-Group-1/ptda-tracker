@@ -16,12 +16,12 @@ public class ScreenNames {
     public static final String EXPENSES_SCREEN = "expensesScreen";
     public static final String EXPENSE_FORM = "expenseForm";
     public static final String EXPENSE_DETAIL_VIEW = "expenseDetailView";
-    public static final String TICKETS_SCREEN = "ticketsScreen";
+    public static final String USER_TICKETS_SCREEN = "userTicketsScreen";
+    public static final String ASSISTANT_TICKETS_SCREEN = "assistantTicketsScreen";
     public static final String TICKET_FORM = "ticketForm";
     public static final String TICKET_DETAIL_VIEW = "ticketDetailView";
     public static final String TICKET_REPLY_FORM = "ticketReplyForm";
     public static final String SIMULATE_VIEW = "simulateView";
     public static final String SUBDIVISION_FORM = "subdivisionForm";
     public static final String EMAIL_VERIFICATION_FORM = "emailVerificationForm";
-    public static final String SPLASH_SCREEN = "splashScreen";
 }

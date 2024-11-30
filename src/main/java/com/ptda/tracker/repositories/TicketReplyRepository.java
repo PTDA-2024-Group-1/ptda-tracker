@@ -6,5 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 
 public interface TicketReplyRepository extends JpaRepository<TicketReply, Long> {
-    List<TicketReply> findAllByTicketId(Long ticketId); // Consulta derivada para obter os Replies por Ticket
+
+    List<TicketReply> findAllByTicketId(Long ticketId);
+
 }

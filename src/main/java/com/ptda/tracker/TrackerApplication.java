@@ -1,6 +1,5 @@
 package com.ptda.tracker;
 
-import com.formdev.flatlaf.FlatDarkLaf;
 import com.formdev.flatlaf.FlatLaf;
 import com.formdev.flatlaf.FlatLightLaf;
 import com.formdev.flatlaf.util.SystemInfo;
@@ -8,8 +7,8 @@ import com.ptda.tracker.config.AppConfig;
 import com.ptda.tracker.models.user.User;
 import com.ptda.tracker.services.user.UserService;
 import com.ptda.tracker.ui.MainFrame;
-import com.ptda.tracker.ui.forms.LoginForm;
-import com.ptda.tracker.ui.screens.CustomSplashScreen;
+import com.ptda.tracker.ui.user.forms.LoginForm;
+import com.ptda.tracker.ui.user.screens.CustomSplashScreen;
 import com.ptda.tracker.util.LocaleManager;
 import com.ptda.tracker.util.ScreenNames;
 import org.springframework.boot.SpringApplication;
