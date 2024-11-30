@@ -19,35 +19,11 @@ public class ExpensesScreen extends JPanel {
 
     private JList<Expense> expensesList;
     private List<Expense> expenses;
-    private JButton createButton;
-
-    private static final String
-            SELECT_EXPENSE = "Select an expense to view details",
-            CREATE_NEW_EXPENSE = "Create New Expense";
 
     public ExpensesScreen(MainFrame mainFrame) {
         this.mainFrame = mainFrame;
-
         initUI();
         setListeners();
-    }
-
-    private void initUI() {
-        setLayout(new BorderLayout());
-
-        expensesList = new JList<>(new DefaultListModel<>());
-        expensesList.setCellRenderer(new ExpenseListRenderer());
-        expenseService = mainFrame.getContext().getBean(ExpenseService.class);
-        expenses = expenseService.getPersonalExpensesByUserId(UserSession.getInstance().getUser().getId());
-        setExpensesList(expenses);
-
-        add(new JScrollPane(expensesList), BorderLayout.CENTER);
-
-        JLabel label = new JLabel(SELECT_EXPENSE, SwingConstants.CENTER);
-        add(label, BorderLayout.NORTH);
-
-        createButton = new JButton(CREATE_NEW_EXPENSE);
-        add(createButton, BorderLayout.SOUTH);
     }
 
     private void setListeners() {
@@ -78,4 +54,28 @@ public class ExpensesScreen extends JPanel {
         model.clear(); // Clear old data
         expenses.forEach(model::addElement); // Add new data
     }
+
+    private void initUI() {
+        setLayout(new BorderLayout());
+
+        expensesList = new JList<>(new DefaultListModel<>());
+        expensesList.setCellRenderer(new ExpenseListRenderer());
+        expenseService = mainFrame.getContext().getBean(ExpenseService.class);
+        expenses = expenseService.getPersonalExpensesByUserId(UserSession.getInstance().getUser().getId());
+        setExpensesList(expenses);
+
+        add(new JScrollPane(expensesList), BorderLayout.CENTER);
+
+        JLabel label = new JLabel(SELECT_EXPENSE, SwingConstants.CENTER);
+        add(label, BorderLayout.NORTH);
+
+        createButton = new JButton(CREATE_NEW_EXPENSE);
+        add(createButton, BorderLayout.SOUTH);
+    }
+
+    private JButton createButton;
+    private static final String
+            SELECT_EXPENSE = "Select an expense to view details",
+            CREATE_NEW_EXPENSE = "Create New Expense";
+
 }

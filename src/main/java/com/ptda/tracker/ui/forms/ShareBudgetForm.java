@@ -5,6 +5,7 @@ import com.ptda.tracker.models.tracker.BudgetAccessLevel;
 import com.ptda.tracker.services.tracker.BudgetAccessService;
 import com.ptda.tracker.ui.MainFrame;
 import com.ptda.tracker.ui.views.BudgetDetailView;
+import com.ptda.tracker.util.LocaleManager;
 import com.ptda.tracker.util.ScreenNames;
 
 import javax.swing.*;
@@ -15,29 +16,35 @@ public class ShareBudgetForm extends JPanel {
     private final BudgetAccessService budgetAccessService;
     private final Budget budget;
 
-    private JComboBox<BudgetAccessLevel> accessLevelComboBox;
-    private JTextField emailField;
-    private JButton cancelButton, saveButton;
-
-    private static final String
-            SHARE_BUDGET = "Share Budget",
-            USER_EMAIL = "User Email",
-            ACCESS_LEVEL = "Access Level",
-            CANCEL = "Cancel",
-            ADD_PARTICIPANT = "Add Participant",
-            EMAIL_REQUIRED = "Email is required.",
-            ERROR = "Error",
-            PARTICIPANT_ADDED_SUCCESSFULLY = "Participant added successfully!",
-            SUCCESS = "Success",
-            FAILED_TO_ADD_PARTICIPANT = "Failed to add participant: ";
-
     public ShareBudgetForm(MainFrame mainFrame, Budget budget) {
         this.mainFrame = mainFrame;
         this.budget = budget;
         budgetAccessService = mainFrame.getContext().getBean(BudgetAccessService.class);
-
         initUI();
         setListeners();
+    }
+
+    private void setListeners() {
+        cancelButton.addActionListener(e -> mainFrame.showScreen(ScreenNames.BUDGET_DETAIL_VIEW));
+        saveButton.addActionListener(e -> addParticipant());
+    }
+
+    private void addParticipant() {
+        String email = emailField.getText().trim();
+        BudgetAccessLevel accessLevel = (BudgetAccessLevel) accessLevelComboBox.getSelectedItem();
+
+        if (email.isEmpty()) {
+            JOptionPane.showMessageDialog(this, EMAIL_REQUIRED, ERROR, JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        try {
+            budgetAccessService.create(budget.getId(), email, accessLevel);
+            JOptionPane.showMessageDialog(this, PARTICIPANT_ADDED_SUCCESSFULLY, SUCCESS, JOptionPane.INFORMATION_MESSAGE);
+            mainFrame.registerAndShowScreen(ScreenNames.BUDGET_DETAIL_VIEW, new BudgetDetailView(mainFrame, budget));
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, FAILED_TO_ADD_PARTICIPANT + e.getMessage(), ERROR, JOptionPane.ERROR_MESSAGE);
+        }
     }
 
     private void initUI() {
@@ -92,26 +99,19 @@ public class ShareBudgetForm extends JPanel {
         add(buttonsPanel, gbc);
     }
 
-    private void setListeners() {
-        cancelButton.addActionListener(e -> mainFrame.showScreen(ScreenNames.BUDGET_DETAIL_VIEW));
-        saveButton.addActionListener(e -> addParticipant());
-    }
-
-    private void addParticipant() {
-        String email = emailField.getText().trim();
-        BudgetAccessLevel accessLevel = (BudgetAccessLevel) accessLevelComboBox.getSelectedItem();
-
-        if (email.isEmpty()) {
-            JOptionPane.showMessageDialog(this, EMAIL_REQUIRED, ERROR, JOptionPane.ERROR_MESSAGE);
-            return;
-        }
-
-        try {
-            budgetAccessService.create(budget.getId(), email, accessLevel);
-            JOptionPane.showMessageDialog(this, PARTICIPANT_ADDED_SUCCESSFULLY, SUCCESS, JOptionPane.INFORMATION_MESSAGE);
-            mainFrame.registerAndShowScreen(ScreenNames.BUDGET_DETAIL_VIEW, new BudgetDetailView(mainFrame, budget));
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(this, FAILED_TO_ADD_PARTICIPANT + e.getMessage(), ERROR, JOptionPane.ERROR_MESSAGE);
-        }
-    }
+    private JComboBox<BudgetAccessLevel> accessLevelComboBox;
+    private JTextField emailField;
+    private JButton cancelButton, saveButton;
+    private static final LocaleManager localeManager = LocaleManager.getInstance();
+    private static final String
+            SHARE_BUDGET = localeManager.getTranslation("share_budget"),
+            USER_EMAIL = localeManager.getTranslation("user_email"),
+            ACCESS_LEVEL = localeManager.getTranslation("access_level"),
+            CANCEL = localeManager.getTranslation("cancel"),
+            ADD_PARTICIPANT = localeManager.getTranslation("add_participant"),
+            EMAIL_REQUIRED = localeManager.getTranslation("email_required"),
+            ERROR = localeManager.getTranslation("error"),
+            PARTICIPANT_ADDED_SUCCESSFULLY = localeManager.getTranslation("participant_added_successfully"),
+            SUCCESS = localeManager.getTranslation("success"),
+            FAILED_TO_ADD_PARTICIPANT = localeManager.getTranslation("failed_to_add_participant");
 }

@@ -9,6 +9,7 @@ import com.ptda.tracker.services.tracker.BudgetAccessService;
 import com.ptda.tracker.services.tracker.SubdivisionService;
 import com.ptda.tracker.ui.MainFrame;
 import com.ptda.tracker.ui.views.ExpenseDetailView;
+import com.ptda.tracker.util.LocaleManager;
 import com.ptda.tracker.util.ScreenNames;
 import com.ptda.tracker.util.UserSession;
 
@@ -29,28 +30,6 @@ public class SubdivisionForm extends JPanel {
     private final List<Subdivision> subdivisions;
     private final Runnable onBack;
 
-    private JRadioButton equitableRadioButton, customRadioButton;
-    private JPanel customDistributionPanel;
-    private JLabel totalPercentageLabel;
-
-    private static final String
-            DISTRIBUTION_TYPE = "Distribution Type:",
-            EQUITABLE = "Equitable",
-            CUSTOM = "Custom",
-            CUSTOM_DISTRIBUTION = "Custom Distribution",
-            CANCEL = "Cancel",
-            DISTRIBUTE = "Distribute",
-            DISTRIBUTION_COMPLETE = "Distribution complete (100%).",
-            DISTRIBUTION_SAVED = "Distribution saved. Remaining percentage to distribute: ",
-            REMAINING_PERCENTAGE_DISTRIBUTED = "Remaining percentage distributed equitably. Each user received: ",
-            NO_USERS_LEFT = "No users left to distribute the remaining percentage.",
-            INVALID_PERCENTAGE = "Invalid percentage value.",
-            PERCENTAGE_GREATER_THAN_ZERO = "Percentage must be greater than 0.",
-            TOTAL_PERCENTAGE_EXCEED = "The total percentage must not exceed 100%. Remaining percentage: ",
-            NO_USERS_SELECTED = "No users selected for equitable distribution.",
-            DISTRIBUTION_ALREADY_COMPLETE = "The distribution is already complete (100%). No remaining percentage to distribute.",
-            PERCENTAGE = "Percentage";
-
     public SubdivisionForm(MainFrame mainFrame, Expense expense, Budget budget, Runnable onBack) {
         this.mainFrame = mainFrame;
         this.expense = expense;
@@ -62,64 +41,6 @@ public class SubdivisionForm extends JPanel {
 
         initUI();
         setListeners();
-    }
-
-    private void initUI() {
-        setLayout(new BorderLayout());
-
-        JPanel formPanel = new JPanel(new GridBagLayout());
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-        gbc.insets = new Insets(15, 15, 15, 15);
-
-        // Distribution Type RadioButtons
-        gbc.gridx = 0;
-        gbc.gridy = 0;
-        JLabel distributionLabel = new JLabel(DISTRIBUTION_TYPE);
-        distributionLabel.setFont(new Font("Arial", Font.PLAIN, 14));
-        formPanel.add(distributionLabel, gbc);
-
-        gbc.gridx = 1;
-        JPanel distributionPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        equitableRadioButton = new JRadioButton(EQUITABLE);
-        customRadioButton = new JRadioButton(CUSTOM);
-        ButtonGroup distributionGroup = new ButtonGroup();
-        distributionGroup.add(equitableRadioButton);
-        distributionGroup.add(customRadioButton);
-        distributionPanel.add(equitableRadioButton);
-        distributionPanel.add(customRadioButton);
-        formPanel.add(distributionPanel, gbc);
-
-        // Custom Distribution Panel
-        gbc.gridx = 0;
-        gbc.gridy = 1;
-        gbc.gridwidth = 2;
-        customDistributionPanel = new JPanel();
-        customDistributionPanel.setLayout(new BoxLayout(customDistributionPanel, BoxLayout.Y_AXIS));
-        customDistributionPanel.setBorder(BorderFactory.createTitledBorder(CUSTOM_DISTRIBUTION));
-        customDistributionPanel.setVisible(false);
-        formPanel.add(customDistributionPanel, gbc);
-
-        // Total Percentage Label
-        gbc.gridy = 2;
-        totalPercentageLabel = new JLabel("Total Percentage: 0%");
-        totalPercentageLabel.setVisible(false); // Ensure the label is visible
-        formPanel.add(totalPercentageLabel, gbc);
-
-        // Buttons Panel
-        gbc.gridy = 3;
-        JPanel buttonsPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
-        JButton cancelButton = new JButton(CANCEL);
-        cancelButton.addActionListener(e -> mainFrame.showScreen(ScreenNames.EXPENSE_DETAIL_VIEW));
-        buttonsPanel.add(cancelButton);
-
-        JButton distributeButton = new JButton(DISTRIBUTE);
-        distributeButton.addActionListener(e -> distributeExpenses());
-        buttonsPanel.add(distributeButton);
-
-        formPanel.add(buttonsPanel, gbc);
-
-        add(formPanel, BorderLayout.CENTER);
     }
 
     private void setListeners() {
@@ -159,7 +80,6 @@ public class SubdivisionForm extends JPanel {
             return;
         }
 
-        // Create a checklist for users
         List<User> includedUsers = existingSubdivisions.stream()
                 .map(Subdivision::getUser)
                 .collect(Collectors.toList());
@@ -176,14 +96,12 @@ public class SubdivisionForm extends JPanel {
             return;
         }
 
-        // Show checklist dialog
         List<BudgetAccess> selectedUsers = showUserChecklistDialog(usersToDistribute);
         if (selectedUsers.isEmpty()) {
             JOptionPane.showMessageDialog(this, NO_USERS_SELECTED);
             return;
         }
 
-        // Calculate the equitable percentage for each selected user
         double equalPercentage = remainingPercentage / selectedUsers.size();
 
         for (BudgetAccess userAccess : selectedUsers) {
@@ -249,7 +167,6 @@ public class SubdivisionForm extends JPanel {
                 if (selectedUser == null) continue;
 
                 if (percentageText.isEmpty()) {
-                    // Remove subdivision if the field is left blank
                     existingSubdivisions.stream()
                             .filter(sub -> sub.getUser().equals(selectedUser.getUser()))
                             .findFirst()
@@ -300,7 +217,6 @@ public class SubdivisionForm extends JPanel {
             }
         }
 
-        // Remove subdivisions for users with blank fields
         for (Subdivision sub : subdivisionsToRemove) {
             subdivisions.remove(sub);
             subdivisionService.delete(sub.getId());
@@ -334,11 +250,10 @@ public class SubdivisionForm extends JPanel {
                 .map(Subdivision::getUser)
                 .collect(Collectors.toList());
 
-        // Adicionar as subdivisões existentes
         for (Subdivision subdivision : subdivisions) {
             JPanel rowPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
             JLabel userLabel = new JLabel(subdivision.getUser().getName() + ":");
-            JTextField percentageField = new JTextField(String.valueOf(subdivision.getPercentage()), 5); // Valor já definido
+            JTextField percentageField = new JTextField(String.valueOf(subdivision.getPercentage()), 5);
             percentageField.getDocument().addDocumentListener(new PercentageFieldListener());
             rowPanel.add(userLabel);
             rowPanel.add(new JLabel(PERCENTAGE + ":"));
@@ -346,12 +261,11 @@ public class SubdivisionForm extends JPanel {
             customDistributionPanel.add(rowPanel);
         }
 
-        // Adicionar usuários que ainda não têm uma subdivisão
         for (BudgetAccess userAccess : users) {
             if (!existingUsers.contains(userAccess.getUser())) {
                 JPanel rowPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
                 JLabel userLabel = new JLabel(userAccess.getUser().getName() + ":");
-                JTextField percentageField = new JTextField("", 5); // Valor inicial vazio
+                JTextField percentageField = new JTextField("", 5);
                 percentageField.getDocument().addDocumentListener(new PercentageFieldListener());
                 rowPanel.add(userLabel);
                 rowPanel.add(new JLabel(PERCENTAGE + ":"));
@@ -363,7 +277,6 @@ public class SubdivisionForm extends JPanel {
         customDistributionPanel.revalidate();
         customDistributionPanel.repaint();
     }
-
 
     private class PercentageFieldListener implements DocumentListener {
         @Override
@@ -396,6 +309,83 @@ public class SubdivisionForm extends JPanel {
                 }
             }
         }
-        totalPercentageLabel.setText("Total Percentage: " + totalPercentage + "%");
+        totalPercentageLabel.setText(TOTAL_PERCENTAGE + ": " + totalPercentage + "%");
     }
+
+    private void initUI() {
+        setLayout(new BorderLayout());
+
+        JPanel formPanel = new JPanel(new GridBagLayout());
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.insets = new Insets(15, 15, 15, 15);
+
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        JLabel distributionLabel = new JLabel(DISTRIBUTION_TYPE);
+        distributionLabel.setFont(new Font("Arial", Font.PLAIN, 14));
+        formPanel.add(distributionLabel, gbc);
+
+        gbc.gridx = 1;
+        JPanel distributionPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        equitableRadioButton = new JRadioButton(EQUITABLE);
+        customRadioButton = new JRadioButton(CUSTOM);
+        ButtonGroup distributionGroup = new ButtonGroup();
+        distributionGroup.add(equitableRadioButton);
+        distributionGroup.add(customRadioButton);
+        distributionPanel.add(equitableRadioButton);
+        distributionPanel.add(customRadioButton);
+        formPanel.add(distributionPanel, gbc);
+
+        gbc.gridx = 0;
+        gbc.gridy = 1;
+        gbc.gridwidth = 2;
+        customDistributionPanel = new JPanel();
+        customDistributionPanel.setLayout(new BoxLayout(customDistributionPanel, BoxLayout.Y_AXIS));
+        customDistributionPanel.setBorder(BorderFactory.createTitledBorder(CUSTOM_DISTRIBUTION));
+        customDistributionPanel.setVisible(false);
+        formPanel.add(customDistributionPanel, gbc);
+
+        gbc.gridy = 2;
+        totalPercentageLabel = new JLabel(TOTAL_PERCENTAGE + ": 0%");
+        totalPercentageLabel.setVisible(false);
+        formPanel.add(totalPercentageLabel, gbc);
+
+        gbc.gridy = 3;
+        JPanel buttonsPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        JButton cancelButton = new JButton(CANCEL);
+        cancelButton.addActionListener(e -> mainFrame.showScreen(ScreenNames.EXPENSE_DETAIL_VIEW));
+        buttonsPanel.add(cancelButton);
+
+        JButton distributeButton = new JButton(DISTRIBUTE);
+        distributeButton.addActionListener(e -> distributeExpenses());
+        buttonsPanel.add(distributeButton);
+
+        formPanel.add(buttonsPanel, gbc);
+
+        add(formPanel, BorderLayout.CENTER);
+    }
+
+    private JRadioButton equitableRadioButton, customRadioButton;
+    private JPanel customDistributionPanel;
+    private JLabel totalPercentageLabel;
+    private static final LocaleManager localeManager = LocaleManager.getInstance();
+    private static final String
+            DISTRIBUTION_TYPE = localeManager.getTranslation("distribution_type"),
+            EQUITABLE = localeManager.getTranslation("equitable"),
+            CUSTOM = localeManager.getTranslation("custom"),
+            CUSTOM_DISTRIBUTION = localeManager.getTranslation("custom_distribution"),
+            CANCEL = localeManager.getTranslation("cancel"),
+            DISTRIBUTE = localeManager.getTranslation("distribute"),
+            DISTRIBUTION_COMPLETE = localeManager.getTranslation("distribution_complete"),
+            DISTRIBUTION_SAVED = localeManager.getTranslation("distribution_saved"),
+            REMAINING_PERCENTAGE_DISTRIBUTED = localeManager.getTranslation("remaining_percentage_distributed"),
+            NO_USERS_LEFT = localeManager.getTranslation("no_users_left"),
+            INVALID_PERCENTAGE = localeManager.getTranslation("invalid_percentage"),
+            PERCENTAGE_GREATER_THAN_ZERO = localeManager.getTranslation("percentage_greater_than_zero"),
+            TOTAL_PERCENTAGE_EXCEED = localeManager.getTranslation("total_percentage_exceed"),
+            NO_USERS_SELECTED = localeManager.getTranslation("no_users_selected"),
+            DISTRIBUTION_ALREADY_COMPLETE = localeManager.getTranslation("distribution_already_complete"),
+            PERCENTAGE = localeManager.getTranslation("percentage"),
+            TOTAL_PERCENTAGE = localeManager.getTranslation("total_percentage");
 }

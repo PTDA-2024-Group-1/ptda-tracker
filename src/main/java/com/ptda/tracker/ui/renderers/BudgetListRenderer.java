@@ -1,18 +1,12 @@
 package com.ptda.tracker.ui.renderers;
 
 import com.ptda.tracker.models.tracker.Budget;
+import com.ptda.tracker.util.LocaleManager;
 
 import javax.swing.*;
 import java.awt.*;
 
 public class BudgetListRenderer extends JPanel implements ListCellRenderer<Budget> {
-
-    private JLabel nameLabel;
-    private JLabel descriptionLabel;
-
-    private static final String
-            UNNAMED_BUDGET = "Unnamed Budget",
-            NO_DESCRIPTION = "No Description";
 
     public BudgetListRenderer() {
         setLayout(new BorderLayout(10, 10));
@@ -49,4 +43,11 @@ public class BudgetListRenderer extends JPanel implements ListCellRenderer<Budge
 
         return this;
     }
+
+    private JLabel nameLabel;
+    private JLabel descriptionLabel;
+    private static final LocaleManager localeManager = LocaleManager.getInstance();
+    private static final String
+            UNNAMED_BUDGET = localeManager.getTranslation("unnamed_budget"),
+            NO_DESCRIPTION = localeManager.getTranslation("no_description");
 }

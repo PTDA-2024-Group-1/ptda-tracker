@@ -24,19 +24,6 @@ public class SimulationView extends JPanel {
     private final BudgetAccessService budgetAccessService;
     private final ExpenseService expenseService;
     private final SubdivisionService subdivisionService;
-    private JTable expenseTable;
-    private JTable rankingTable;
-    private DefaultTableModel expenseTableModel;
-    private DefaultTableModel rankingTableModel;
-
-    private static final String
-            BUDGET_SIMULATION = "Budget Simulation",
-            SEARCH = "Search",
-            CANCEL = "Cancel",
-            MY_EXPENSES = "My Expenses",
-            TOTAL_AMOUNT_PAID = "Total Amount Paid",
-            ALL_USERS_TOTAL_EXPENSES = "All Users - Total Expenses",
-            TOTAL_BUDGET_AMOUNT = "Total Budget Amount";
 
     public SimulationView(MainFrame mainFrame, Budget budget) {
         this.mainFrame = mainFrame;
@@ -216,4 +203,18 @@ public class SimulationView extends JPanel {
         RowFilter<DefaultTableModel, Object> rowFilter = RowFilter.regexFilter("(?i)" + query); // case-insensitive filter
         sorter.setRowFilter(rowFilter);
     }
+
+    private JTable expenseTable;
+    private JTable rankingTable;
+    private DefaultTableModel expenseTableModel;
+    private DefaultTableModel rankingTableModel;
+
+    private static final String
+            BUDGET_SIMULATION = "Budget Simulation",
+            SEARCH = "Search",
+            CANCEL = "Cancel",
+            MY_EXPENSES = "My Expenses",
+            TOTAL_AMOUNT_PAID = "Total Amount Paid",
+            ALL_USERS_TOTAL_EXPENSES = "All Users - Total Expenses",
+            TOTAL_BUDGET_AMOUNT = "Total Budget Amount";
 }

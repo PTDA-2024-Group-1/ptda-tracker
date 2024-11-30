@@ -6,7 +6,7 @@ import com.ptda.tracker.models.tracker.Budget;
 import com.ptda.tracker.services.tracker.ExpenseService;
 import com.ptda.tracker.services.tracker.BudgetService;
 import com.ptda.tracker.ui.MainFrame;
-import com.ptda.tracker.ui.views.ExpenseDetailView;
+import com.ptda.tracker.util.LocaleManager;
 import com.ptda.tracker.util.ScreenNames;
 import com.ptda.tracker.util.UserSession;
 
@@ -19,35 +19,9 @@ import java.util.Map;
 
 public class ExpenseForm extends JPanel {
     private final MainFrame mainFrame;
-    private final Runnable onFormSubmit;
+    private Runnable onFormSubmit;
     private Expense expense;
     private final String returnScreen;
-
-    private JTextField titleField, amountField;
-    private JTextArea descriptionArea;
-    private JComboBox<String> budgetComboBox;
-    private Map<String, Budget> budgetMap;
-    private JComboBox<ExpenseCategory> categoryComboBox;
-    private JSpinner dateSpinner;
-    private JButton saveButton, backButton;
-
-    private static final String
-            CREATE_NEW_EXPENSE = "Create New Expense",
-            EDIT_EXPENSE = "Edit Expense",
-            TITLE = "Title",
-            AMOUNT = "Amount",
-            DATE = "Date",
-            CATEGORY = "Category",
-            BUDGET = "Budget",
-            DESCRIPTION = "Description",
-            NO_BUDGET = "No Budget",
-            BACK = "Back",
-            SAVE = "Save",
-            VALIDATION_ERROR = "Validation Error",
-            TITLE_AND_AMOUNT_REQUIRED = "Title and valid amount are required",
-            FAILED_TO_SAVE_EXPENSE = "Failed to save expense",
-            FAILED_TO_UPDATE_EXPENSE = "Failed to update expense",
-            ERROR = "Error";
 
     public ExpenseForm(MainFrame mainFrame, Expense expense, String returnScreen, Runnable onFormSubmit) {
         this.mainFrame = mainFrame;
@@ -57,6 +31,64 @@ public class ExpenseForm extends JPanel {
 
         initUI();
         setListeners();
+    }
+
+    private void setListeners() {
+        backButton.addActionListener(e -> {
+            if (onFormSubmit != null) onFormSubmit.run();
+            mainFrame.showScreen(returnScreen);
+        });
+        saveButton.addActionListener(this::saveExpense);
+    }
+
+    private void saveExpense(ActionEvent e) {
+        // get form values
+        String title = titleField.getText().trim();
+        String description = descriptionArea.getText().trim();
+        String amountText = amountField.getText().trim();
+        double amount = amountText.isEmpty() ? 0 : Double.parseDouble(amountText);
+        Date date = (Date) dateSpinner.getValue();
+        ExpenseCategory category = (ExpenseCategory) categoryComboBox.getSelectedItem();
+        String budgetName = (String) budgetComboBox.getSelectedItem();
+        Budget budget = budgetMap.get(budgetName);
+
+        // verifications
+        if (title.isEmpty() || amount <= 0) {
+            JOptionPane.showMessageDialog(this, TITLE_AND_AMOUNT_REQUIRED, VALIDATION_ERROR, JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        // set values
+        if (expense == null) {
+            expense = new Expense();
+        }
+        expense.setTitle(title);
+        expense.setAmount(amount);
+        expense.setDate(date);
+        expense.setCategory(category);
+        expense.setBudget(budget);
+        expense.setDescription(description);
+
+        // save expense
+        ExpenseService expenseService = mainFrame.getContext().getBean(ExpenseService.class);
+        if (expense.getId() == null) {
+            if (expenseService.create(expense) == null) {
+                JOptionPane.showMessageDialog(this, FAILED_TO_SAVE_EXPENSE, ERROR, JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+        } else {
+            if (expenseService.update(expense) == null) {
+                JOptionPane.showMessageDialog(this, FAILED_TO_UPDATE_EXPENSE, ERROR, JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+        }
+        clearFields();
+        if (onFormSubmit != null) {
+            onFormSubmit.run();
+        } else {
+            System.err.println("onFormSubmit is not initialized.");
+        }
+        mainFrame.showScreen(returnScreen);
     }
 
     private void initUI() {
@@ -163,61 +195,6 @@ public class ExpenseForm extends JPanel {
         add(buttonPanel, BorderLayout.SOUTH);
     }
 
-    private void setListeners() {
-        backButton.addActionListener(e -> {
-            onFormSubmit.run();
-            mainFrame.showScreen(returnScreen);
-        });
-        saveButton.addActionListener(this::saveExpense);
-    }
-
-    private void saveExpense(ActionEvent e) {
-        // get form values
-        String title = titleField.getText().trim();
-        String description = descriptionArea.getText().trim();
-        String amountText = amountField.getText().trim();
-        double amount = amountText.isEmpty() ? 0 : Double.parseDouble(amountText);
-        Date date = (Date) dateSpinner.getValue();
-        ExpenseCategory category = (ExpenseCategory) categoryComboBox.getSelectedItem();
-        String budgetName = (String) budgetComboBox.getSelectedItem();
-        Budget budget = budgetMap.get(budgetName);
-
-        // verifications
-        if (title.isEmpty() || amount <= 0) {
-            JOptionPane.showMessageDialog(this, TITLE_AND_AMOUNT_REQUIRED, VALIDATION_ERROR, JOptionPane.WARNING_MESSAGE);
-            return;
-        }
-
-        // set values
-        if (expense == null) {
-            expense = new Expense();
-        }
-        expense.setTitle(title);
-        expense.setAmount(amount);
-        expense.setDate(date);
-        expense.setCategory(category);
-        expense.setBudget(budget);
-        expense.setDescription(description);
-
-        // save expense
-        ExpenseService expenseService = mainFrame.getContext().getBean(ExpenseService.class);
-        if (expense.getId() == null) {
-            if (expenseService.create(expense) == null) {
-                JOptionPane.showMessageDialog(this, FAILED_TO_SAVE_EXPENSE, ERROR, JOptionPane.ERROR_MESSAGE);
-                return;
-            }
-        } else {
-            if (expenseService.update(expense) == null) {
-                JOptionPane.showMessageDialog(this, FAILED_TO_UPDATE_EXPENSE, ERROR, JOptionPane.ERROR_MESSAGE);
-                return;
-            }
-        }
-
-        clearFields();
-        onFormSubmit.run();
-        mainFrame.showScreen(returnScreen);
-    }
-
     private void clearFields() {
         titleField.setText("");
         amountField.setText("");
@@ -226,4 +203,30 @@ public class ExpenseForm extends JPanel {
         budgetComboBox.setSelectedIndex(0);
         descriptionArea.setText("");
     }
+
+    private JTextField titleField, amountField;
+    private JTextArea descriptionArea;
+    private JComboBox<String> budgetComboBox;
+    private Map<String, Budget> budgetMap;
+    private JComboBox<ExpenseCategory> categoryComboBox;
+    private JSpinner dateSpinner;
+    private JButton saveButton, backButton;
+    private static final LocaleManager localeManager = LocaleManager.getInstance();
+    private static final String
+            CREATE_NEW_EXPENSE = localeManager.getTranslation("create_new_expense"),
+            EDIT_EXPENSE = localeManager.getTranslation("edit_expense"),
+            TITLE = localeManager.getTranslation("title"),
+            AMOUNT = localeManager.getTranslation("amount"),
+            DATE = localeManager.getTranslation("date"),
+            CATEGORY = localeManager.getTranslation("category"),
+            BUDGET = localeManager.getTranslation("budget"),
+            DESCRIPTION = localeManager.getTranslation("description"),
+            NO_BUDGET = localeManager.getTranslation("no_budget"),
+            BACK = localeManager.getTranslation("back"),
+            SAVE = localeManager.getTranslation("save"),
+            VALIDATION_ERROR = localeManager.getTranslation("validation_error"),
+            TITLE_AND_AMOUNT_REQUIRED = localeManager.getTranslation("title_and_amount_required"),
+            FAILED_TO_SAVE_EXPENSE = localeManager.getTranslation("failed_to_save_expense"),
+            FAILED_TO_UPDATE_EXPENSE = localeManager.getTranslation("failed_to_update_expense"),
+            ERROR = localeManager.getTranslation("error");
 }

@@ -19,18 +19,7 @@ public class TicketDetailView extends JPanel {
     private final Ticket ticket;
     private final TicketService ticketService;
     private final TicketReplyService ticketReplyService;
-    private final JList<TicketReply> repliesList;
     private List<TicketReply> replies;
-
-    private static final String
-            TICKET_DESCRIPTION = "Ticket Description",
-            REPLIES = "Replies",
-            BACK = "Back",
-            REOPEN_TICKET = "Reopen Ticket",
-            REPLY = "Reply",
-            CLOSE_TICKET = "Close Ticket",
-            TICKET_REOPENED_SUCCESS = "Ticket reopened successfully.",
-            TICKET_CLOSED_SUCCESS = "Ticket closed successfully.";
 
     public TicketDetailView(MainFrame mainFrame, Ticket ticket) {
         this.mainFrame = mainFrame;
@@ -128,4 +117,15 @@ public class TicketDetailView extends JPanel {
         model.clear();
         replies.forEach(model::addElement);
     }
+
+    private final JList<TicketReply> repliesList;
+    private static final String
+            TICKET_DESCRIPTION = "Ticket Description",
+            REPLIES = "Replies",
+            BACK = "Back",
+            REOPEN_TICKET = "Reopen Ticket",
+            REPLY = "Reply",
+            CLOSE_TICKET = "Close Ticket",
+            TICKET_REOPENED_SUCCESS = "Ticket reopened successfully.",
+            TICKET_CLOSED_SUCCESS = "Ticket closed successfully.";
 }

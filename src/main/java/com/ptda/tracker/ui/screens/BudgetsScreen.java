@@ -18,10 +18,6 @@ public class BudgetsScreen extends JPanel {
     private final JList<Budget> budgetList;
     private List<Budget> budgets;
 
-    private static final String
-            SELECT_BUDGET = "Select a budget to view details",
-            CREATE_NEW_BUDGET = "Create New Budget";
-
     public BudgetsScreen(MainFrame mainFrame) {
         setLayout(new BorderLayout());
 
@@ -66,4 +62,8 @@ public class BudgetsScreen extends JPanel {
         model.clear(); // Clear old data
         budgets.forEach(model::addElement); // Add new data
     }
+
+    private static final String
+            SELECT_BUDGET = "Select a budget to view details",
+            CREATE_NEW_BUDGET = "Create New Budget";
 }

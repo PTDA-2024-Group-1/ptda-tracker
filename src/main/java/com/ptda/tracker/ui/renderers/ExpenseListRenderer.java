@@ -1,22 +1,13 @@
 package com.ptda.tracker.ui.renderers;
 
 import com.ptda.tracker.models.tracker.Expense;
+import com.ptda.tracker.util.LocaleManager;
 
 import javax.swing.*;
 import java.awt.*;
 import java.text.SimpleDateFormat;
 
 public class ExpenseListRenderer extends JPanel implements ListCellRenderer<Expense> {
-
-    private JLabel amountLabel;
-    private JLabel titleLabel;
-    private JLabel categoryLabel;
-    private JLabel dateLabel;
-    private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("dd-MM-yyyy");
-
-    private static final String
-            NO_TITLE = "No Title",
-            OTHER = "OTHER";
 
     public ExpenseListRenderer() {
         setLayout(new BorderLayout(10, 10));
@@ -72,4 +63,14 @@ public class ExpenseListRenderer extends JPanel implements ListCellRenderer<Expe
 
         return this;
     }
+
+    private JLabel amountLabel;
+    private JLabel titleLabel;
+    private JLabel categoryLabel;
+    private JLabel dateLabel;
+    private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("dd-MM-yyyy");
+    private static final LocaleManager localeManager = LocaleManager.getInstance();
+    private static final String
+            NO_TITLE = localeManager.getTranslation("no_title"),
+            OTHER = localeManager.getTranslation("other");
 }

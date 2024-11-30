@@ -7,7 +7,6 @@ import java.awt.*;
 import java.text.SimpleDateFormat;
 
 public class TicketReplyRenderer extends DefaultListCellRenderer {
-    private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("dd-MM-yyyy HH:mm");
 
     @Override
     public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
@@ -35,4 +34,7 @@ public class TicketReplyRenderer extends DefaultListCellRenderer {
 
         return this;
     }
+
+    private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("dd-MM-yyyy HH:mm");
+
 }

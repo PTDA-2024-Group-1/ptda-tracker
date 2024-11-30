@@ -18,10 +18,6 @@ public class TicketsScreen extends JPanel {
     private final JList<Ticket> ticketList;
     private List<Ticket> tickets;
 
-    private static final String
-            SELECT_TICKET = "Select a ticket to view details",
-            CREATE_NEW_TICKET = "Create New Ticket";
-
     public TicketsScreen(MainFrame mainFrame) {
         setLayout(new BorderLayout());
 
@@ -67,4 +63,8 @@ public class TicketsScreen extends JPanel {
         model.clear(); // Clear old data
         tickets.forEach(model::addElement); // Add new data
     }
+
+    private static final String
+            SELECT_TICKET = "Select a ticket to view details",
+            CREATE_NEW_TICKET = "Create New Ticket";
 }

@@ -30,18 +30,6 @@ public class HomeScreen extends JPanel {
     private final long userId;
     private JList<Budget> budgetList;
     private JList<Expense> expenseList;
-    private JLabel budgetLabel, expenseLabel, ticketLabel;
-    private ChartPanel pieChartPanel;
-
-    private static final String
-            BUDGETS = "Budgets: ",
-            EXPENSES = "Expenses: ",
-            PENDING_TICKETS = "Pending Tickets: ",
-            SUMMARY = "Summary",
-            RECENT_DATA = "Recent Data",
-            RECENT_BUDGETS = "Recent Budgets",
-            RECENT_EXPENSES = "Recent Expenses",
-            EXPENSES_BY_CATEGORY = "Expenses by Category";
 
     public HomeScreen(MainFrame mainFrame) {
         this.mainFrame = mainFrame;
@@ -49,6 +37,46 @@ public class HomeScreen extends JPanel {
 
         initUI();
         refreshData();
+    }
+
+    public void refreshData() {
+        BudgetService budgetService = mainFrame.getContext().getBean(BudgetService.class);
+        ExpenseService expenseService = mainFrame.getContext().getBean(ExpenseService.class);
+        TicketService ticketService = mainFrame.getContext().getBean(TicketService.class);
+
+        int budgetCount = budgetService.getAllByUserId(userId).size();
+        int expenseCount = expenseService.getAllByUserId(userId).size();
+        int pendingTicketCount = ticketService.getOpenTicketsByUser(UserSession.getInstance().getUser()).size();
+
+        budgetLabel.setText(BUDGETS + budgetCount);
+        expenseLabel.setText(EXPENSES + expenseCount);
+        ticketLabel.setText(PENDING_TICKETS + pendingTicketCount);
+
+        List<Budget> recentBudgets = budgetService.getAllByUserId(userId).stream()
+                .sorted((b1, b2) -> Long.compare(b2.getCreatedAt(), b1.getCreatedAt()))
+                .limit(5)
+                .toList();
+        budgetList.setListData(recentBudgets.toArray(new Budget[0]));
+
+        List<Expense> recentExpenses = expenseService.getAllByUserId(userId).stream()
+                .sorted((e1, e2) -> Long.compare(e2.getCreatedAt(), e1.getCreatedAt()))
+                .limit(5)
+                .toList();
+        expenseList.setListData(recentExpenses.toArray(new Expense[0]));
+
+        DefaultPieDataset dataset = new DefaultPieDataset();
+        Map<String, Double> expensesByCategory = expenseService.getExpensesByCategory(userId);
+        for (Map.Entry<String, Double> entry : expensesByCategory.entrySet()) {
+            dataset.setValue(entry.getKey(), entry.getValue());
+        }
+
+        JFreeChart pieChart = ChartFactory.createPieChart(EXPENSES_BY_CATEGORY, dataset, true, true, false);
+        pieChartPanel.setChart(pieChart);
+        pieChart.setBackgroundPaint(new Color(0, 0, 0, 0));
+
+        // Set the title color to the system default label color
+        TextTitle chartTitle = pieChart.getTitle();
+        chartTitle.setPaint(UIManager.getColor("Label.foreground"));
     }
 
     private void initUI() {
@@ -122,47 +150,24 @@ public class HomeScreen extends JPanel {
         add(chartPanel, BorderLayout.SOUTH);
 
         pieChartPanel = new ChartPanel(null);
-        pieChartPanel.setBackground(getBackground());
         chartPanel.add(pieChartPanel, BorderLayout.CENTER);
+
+        // Add a property change listener for background color changes
+        addPropertyChangeListener("background", evt -> {
+            Color newColor = (Color) evt.getNewValue();
+            pieChartPanel.getChart().setBackgroundPaint(newColor);
+        });
     }
 
-    public void refreshData() {
-        BudgetService budgetService = mainFrame.getContext().getBean(BudgetService.class);
-        ExpenseService expenseService = mainFrame.getContext().getBean(ExpenseService.class);
-        TicketService ticketService = mainFrame.getContext().getBean(TicketService.class);
-
-        int budgetCount = budgetService.getAllByUserId(userId).size();
-        int expenseCount = expenseService.getAllByUserId(userId).size();
-        int pendingTicketCount = ticketService.getOpenTicketsByUser(UserSession.getInstance().getUser()).size();
-
-        budgetLabel.setText(BUDGETS + budgetCount);
-        expenseLabel.setText(EXPENSES + expenseCount);
-        ticketLabel.setText(PENDING_TICKETS + pendingTicketCount);
-
-        List<Budget> recentBudgets = budgetService.getAllByUserId(userId).stream()
-                .sorted((b1, b2) -> Long.compare(b2.getCreatedAt(), b1.getCreatedAt()))
-                .limit(5)
-                .toList();
-        budgetList.setListData(recentBudgets.toArray(new Budget[0]));
-
-        List<Expense> recentExpenses = expenseService.getAllByUserId(userId).stream()
-                .sorted((e1, e2) -> Long.compare(e2.getCreatedAt(), e1.getCreatedAt()))
-                .limit(5)
-                .toList();
-        expenseList.setListData(recentExpenses.toArray(new Expense[0]));
-
-        DefaultPieDataset dataset = new DefaultPieDataset();
-        Map<String, Double> expensesByCategory = expenseService.getExpensesByCategory(userId);
-        for (Map.Entry<String, Double> entry : expensesByCategory.entrySet()) {
-            dataset.setValue(entry.getKey(), entry.getValue());
-        }
-
-        JFreeChart pieChart = ChartFactory.createPieChart(EXPENSES_BY_CATEGORY, dataset, true, true, false);
-        pieChartPanel.setChart(pieChart);
-        pieChart.setBackgroundPaint(new Color(0, 0, 0, 0));
-
-        // Set the title color to the system default label color
-        TextTitle chartTitle = pieChart.getTitle();
-        chartTitle.setPaint(UIManager.getColor("Label.foreground"));
-    }
+    private JLabel budgetLabel, expenseLabel, ticketLabel;
+    private ChartPanel pieChartPanel;
+    private static final String
+            BUDGETS = "Budgets: ",
+            EXPENSES = "Expenses: ",
+            PENDING_TICKETS = "Pending Tickets: ",
+            SUMMARY = "Summary",
+            RECENT_DATA = "Recent Data",
+            RECENT_BUDGETS = "Recent Budgets",
+            RECENT_EXPENSES = "Recent Expenses",
+            EXPENSES_BY_CATEGORY = "Expenses by Category";
 }

@@ -1,19 +1,12 @@
 package com.ptda.tracker.ui.renderers;
 
 import com.ptda.tracker.models.assistance.Ticket;
+import com.ptda.tracker.util.LocaleManager;
 
 import javax.swing.*;
 import java.awt.*;
 
 public class TicketListRenderer extends JPanel implements ListCellRenderer<Ticket> {
-
-    private JLabel titleLabel;
-    private JLabel statusLabel;
-
-    private static final String
-            UNTITLED_TICKET = "Untitled Ticket",
-            STATUS_CLOSED = "Status: Closed",
-            STATUS_OPEN = "Status: Open";
 
     public TicketListRenderer() {
         setLayout(new BorderLayout(10, 10));
@@ -51,4 +44,12 @@ public class TicketListRenderer extends JPanel implements ListCellRenderer<Ticke
 
         return this;
     }
+
+    private JLabel titleLabel;
+    private JLabel statusLabel;
+    private static final LocaleManager localeManager = LocaleManager.getInstance();
+    private static final String
+            UNTITLED_TICKET = localeManager.getTranslation("untitled_ticket"),
+            STATUS_CLOSED = localeManager.getTranslation("status_closed"),
+            STATUS_OPEN = localeManager.getTranslation("status_open");
 }

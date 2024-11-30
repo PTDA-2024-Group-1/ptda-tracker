@@ -4,6 +4,7 @@ import com.ptda.tracker.models.assistance.Ticket;
 import com.ptda.tracker.services.tracker.TicketService;
 import com.ptda.tracker.ui.MainFrame;
 import com.ptda.tracker.ui.views.TicketDetailView;
+import com.ptda.tracker.util.LocaleManager;
 import com.ptda.tracker.util.ScreenNames;
 import com.ptda.tracker.util.UserSession;
 
@@ -15,18 +16,6 @@ public class TicketForm extends JPanel {
     private final Runnable onSaveCallback;
     private final Ticket existingTicket;
     private final TicketService ticketService;
-    private JTextField titleField;
-    private JTextArea descriptionArea;
-
-    private static final Color PRIMARY_COLOR = new Color(240, 240, 240);
-    private static final String
-            CREATE_NEW_TICKET = "Create New Ticket",
-            TITLE = "Title",
-            DESCRIPTION = "Description",
-            BACK = "Back",
-            SAVE = "Save",
-            TITLE_AND_DESCRIPTION_CANNOT_BE_EMPTY = "Title and Description cannot be empty",
-            ERROR = "Error";
 
     public TicketForm(MainFrame mainFrame, Runnable onSaveCallback, Ticket existingTicket) {
         this.mainFrame = mainFrame;
@@ -38,6 +27,39 @@ public class TicketForm extends JPanel {
         setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
         initUI();
+        setListeners();
+    }
+
+    private void setListeners() {
+        JButton backButton = new JButton(BACK);
+        backButton.addActionListener(e -> mainFrame.showScreen(ScreenNames.NAVIGATION_SCREEN));
+
+        JButton saveButton = new JButton(SAVE);
+        saveButton.addActionListener(e -> saveTicket());
+    }
+
+    private void saveTicket() {
+        String title = titleField.getText().trim();
+        String body = descriptionArea.getText().trim();
+
+        if (title.isEmpty() || body.isEmpty()) {
+            JOptionPane.showMessageDialog(this, TITLE_AND_DESCRIPTION_CANNOT_BE_EMPTY, ERROR, JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        Ticket ticket = (existingTicket == null) ? new Ticket() : existingTicket;
+
+        ticket.setTitle(title);
+        ticket.setBody(body);
+        ticket.setCreatedBy(UserSession.getInstance().getUser()); // Authenticated user
+        ticket.setAssistant(null); // Or use logic to select an assistant, if applicable.
+
+        ticketService.save(ticket);
+
+        if (onSaveCallback != null) {
+            onSaveCallback.run();
+        }
+        mainFrame.registerAndShowScreen(ScreenNames.TICKET_DETAIL_VIEW, new TicketDetailView(mainFrame, ticket));
     }
 
     private void initUI() {
@@ -92,32 +114,20 @@ public class TicketForm extends JPanel {
         add(buttonPanel, BorderLayout.SOUTH);
     }
 
-    private void saveTicket() {
-        String title = titleField.getText().trim();
-        String body = descriptionArea.getText().trim();
-
-        if (title.isEmpty() || body.isEmpty()) {
-            JOptionPane.showMessageDialog(this, TITLE_AND_DESCRIPTION_CANNOT_BE_EMPTY, ERROR, JOptionPane.ERROR_MESSAGE);
-            return;
-        }
-
-        Ticket ticket = (existingTicket == null) ? new Ticket() : existingTicket;
-
-        ticket.setTitle(title);
-        ticket.setBody(body);
-        ticket.setCreatedBy(UserSession.getInstance().getUser()); // Authenticated user
-        ticket.setAssistant(null); // Or use logic to select an assistant, if applicable.
-
-        ticketService.save(ticket);
-
-        if (onSaveCallback != null) {
-            onSaveCallback.run();
-        }
-        mainFrame.registerAndShowScreen(ScreenNames.TICKET_DETAIL_VIEW, new TicketDetailView(mainFrame, ticket));
-    }
-
     private void clear() {
         titleField.setText("");
         descriptionArea.setText("");
     }
+
+    private JTextField titleField;
+    private JTextArea descriptionArea;
+    private static final LocaleManager localeManager = LocaleManager.getInstance();
+    private static final String
+            CREATE_NEW_TICKET = localeManager.getTranslation("create_new_ticket"),
+            TITLE = localeManager.getTranslation("title"),
+            DESCRIPTION = localeManager.getTranslation("description"),
+            BACK = localeManager.getTranslation("back"),
+            SAVE = localeManager.getTranslation("save"),
+            TITLE_AND_DESCRIPTION_CANNOT_BE_EMPTY = localeManager.getTranslation("title_and_description_cannot_be_empty"),
+            ERROR = localeManager.getTranslation("error");
 }

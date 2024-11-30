@@ -7,15 +7,6 @@ import java.util.List;
 
 public class SubdivisionsDialog extends JDialog {
     private final List<Subdivision> subdivisions;
-    private JTable subdivisionsTable;
-
-    private static final String
-            TITLE = "Subdivisions",
-            ID = "ID",
-            AMOUNT = "Amount",
-            PERCENTAGE = "Percentage",
-            CREATED_BY = "Created By",
-            ASSOCIATED_USER = "Associated User";
 
     public SubdivisionsDialog(List<Subdivision> subdivisions) {
         this.subdivisions = subdivisions;
@@ -50,4 +41,13 @@ public class SubdivisionsDialog extends JDialog {
         }
         return new JTable(data, columnNames);
     }
+
+    private JTable subdivisionsTable;
+    private static final String
+            TITLE = "Subdivisions",
+            ID = "ID",
+            AMOUNT = "Amount",
+            PERCENTAGE = "Percentage",
+            CREATED_BY = "Created By",
+            ASSOCIATED_USER = "Associated User";
 }

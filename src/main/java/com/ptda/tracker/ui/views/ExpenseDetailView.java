@@ -29,30 +29,6 @@ public class ExpenseDetailView extends JPanel {
     private final String returnScreen;
     private final Runnable onBack;
 
-    private JLabel nameLabel, amountLabel, categoryLabel, dateLabel, createdByLabel;
-    private JTable subdivisionsTable;
-    private JButton backButton, editButton, deleteButton, distributeDivisionExpenseButton;
-
-    private static final String
-            EXPENSE_DETAILS = "Expense Details",
-            NAME = "Name",
-            AMOUNT = "Amount",
-            CATEGORY = "Category",
-            DATE = "Date",
-            CREATED_BY = "Created By",
-            SUBDIVISIONS = "Subdivisions",
-            BACK = "Back",
-            EDIT_EXPENSE = "Edit Expense",
-            DELETE_EXPENSE = "Delete Expense",
-            DISTRIBUTE_SUBDIVISIONS = "Distribute Subdivisions",
-            ERROR = "Error",
-            SUCCESS = "Success",
-            DELETE_CONFIRMATION = "Are you sure you want to delete this expense?",
-            DELETE_EXPENSE_TITLE = "Delete Expense",
-            EXPENSE_DELETED_SUCCESS = "Expense deleted successfully.",
-            DELETE_ERROR_MESSAGE = "An error occurred while deleting the expense",
-            EXPENSE_NOT_FOUND = "Expense not found.";
-
     public ExpenseDetailView(MainFrame mainFrame, Expense expense, String returnScreen, Runnable onBack) {
         this.mainFrame = mainFrame;
         this.expenseService = mainFrame.getContext().getBean(ExpenseService.class);
@@ -64,6 +40,56 @@ public class ExpenseDetailView extends JPanel {
 
         initUI();
         setListeners();
+    }
+
+    private void setListeners() {
+        backButton.addActionListener(e -> mainFrame.showScreen(returnScreen));
+        if (editButton != null) {
+            editButton.addActionListener(e -> {
+                ExpenseForm expenseForm = new ExpenseForm(mainFrame, expense, mainFrame.getCurrentScreen(), onBack);
+                mainFrame.registerAndShowScreen(ScreenNames.EXPENSE_FORM, expenseForm);
+            });
+        }
+        if (deleteButton != null) {
+            deleteButton.addActionListener(e -> delete());
+        }
+        if (distributeDivisionExpenseButton != null) {
+            distributeDivisionExpenseButton.addActionListener(e -> {
+                SubdivisionForm subdivisionForm = new SubdivisionForm(mainFrame, expense, expense.getBudget(), () -> mainFrame.registerAndShowScreen(ScreenNames.EXPENSE_DETAIL_VIEW, new ExpenseDetailView(mainFrame, expense, returnScreen, onBack)));
+                mainFrame.registerAndShowScreen(ScreenNames.SUBDIVISION_FORM, subdivisionForm);
+            });
+        }
+    }
+
+    private void setValues(Expense expense) {
+        nameLabel = new JLabel(NAME + ": " + expense.getTitle());
+        amountLabel = new JLabel(AMOUNT + ": €" + expense.getAmount());
+        categoryLabel = new JLabel(CATEGORY + ": " + expense.getCategory());
+        dateLabel = new JLabel(DATE + ": " + expense.getDate().toString());
+        createdByLabel = new JLabel(CREATED_BY + ": " + expense.getCreatedBy().getName());
+    }
+
+    private void delete() {
+        if (expense.getId() == null) {
+            JOptionPane.showMessageDialog(this, EXPENSE_NOT_FOUND, ERROR, JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        int confirm = JOptionPane.showConfirmDialog(this,
+                DELETE_CONFIRMATION, DELETE_EXPENSE_TITLE, JOptionPane.YES_NO_OPTION);
+        if (confirm == JOptionPane.YES_OPTION) {
+            try {
+                expenseService.delete(expense.getId());
+                JOptionPane.showMessageDialog(this, EXPENSE_DELETED_SUCCESS, SUCCESS, JOptionPane.INFORMATION_MESSAGE);
+                if (onBack != null) {
+                    onBack.run();
+                }
+                mainFrame.showScreen(returnScreen);
+            } catch (Exception ex) {
+                ex.printStackTrace();
+                JOptionPane.showMessageDialog(this, DELETE_ERROR_MESSAGE + ": " + ex.getMessage(),
+                        ERROR, JOptionPane.ERROR_MESSAGE);
+            }
+        }
     }
 
     private void initUI() {
@@ -137,57 +163,31 @@ public class ExpenseDetailView extends JPanel {
         // End Buttons Panel
     }
 
-    private void setListeners() {
-        backButton.addActionListener(e -> mainFrame.showScreen(returnScreen));
-        if (editButton != null) {
-            editButton.addActionListener(e -> {
-                ExpenseForm expenseForm = new ExpenseForm(mainFrame, expense, mainFrame.getCurrentScreen(), onBack);
-                mainFrame.registerAndShowScreen(ScreenNames.EXPENSE_FORM, expenseForm);
-            });
-        }
-        if (deleteButton != null) {
-            deleteButton.addActionListener(e -> delete());
-        }
-        if (distributeDivisionExpenseButton != null) {
-            distributeDivisionExpenseButton.addActionListener(e -> {
-                SubdivisionForm subdivisionForm = new SubdivisionForm(mainFrame, expense, expense.getBudget(), () -> mainFrame.registerAndShowScreen(ScreenNames.EXPENSE_DETAIL_VIEW, new ExpenseDetailView(mainFrame, expense, returnScreen, onBack)));
-                mainFrame.registerAndShowScreen(ScreenNames.SUBDIVISION_FORM, subdivisionForm);
-            });
-        }
-    }
-
     private JTable createSubdivisionsTable(List<Subdivision> subdivisions) {
         return createSubdivisionsJTable(subdivisions);
     }
 
-    private void delete() {
-        if (expense.getId() == null) {
-            JOptionPane.showMessageDialog(this, EXPENSE_NOT_FOUND, ERROR, JOptionPane.ERROR_MESSAGE);
-            return;
-        }
-        int confirm = JOptionPane.showConfirmDialog(this,
-                DELETE_CONFIRMATION, DELETE_EXPENSE_TITLE, JOptionPane.YES_NO_OPTION);
-        if (confirm == JOptionPane.YES_OPTION) {
-            try {
-                expenseService.delete(expense.getId());
-                JOptionPane.showMessageDialog(this, EXPENSE_DELETED_SUCCESS, SUCCESS, JOptionPane.INFORMATION_MESSAGE);
-                if (onBack != null) {
-                    onBack.run();
-                }
-                mainFrame.showScreen(returnScreen);
-            } catch (Exception ex) {
-                ex.printStackTrace();
-                JOptionPane.showMessageDialog(this, DELETE_ERROR_MESSAGE + ": " + ex.getMessage(),
-                        ERROR, JOptionPane.ERROR_MESSAGE);
-            }
-        }
-    }
+    private JLabel nameLabel, amountLabel, categoryLabel, dateLabel, createdByLabel;
+    private JTable subdivisionsTable;
+    private JButton backButton, editButton, deleteButton, distributeDivisionExpenseButton;
 
-    private void setValues(Expense expense) {
-        nameLabel = new JLabel(NAME + ": " + expense.getTitle());
-        amountLabel = new JLabel(AMOUNT + ": €" + expense.getAmount());
-        categoryLabel = new JLabel(CATEGORY + ": " + expense.getCategory());
-        dateLabel = new JLabel(DATE + ": " + expense.getDate().toString());
-        createdByLabel = new JLabel(CREATED_BY + ": " + expense.getCreatedBy().getName());
-    }
+    private static final String
+            EXPENSE_DETAILS = "Expense Details",
+            NAME = "Name",
+            AMOUNT = "Amount",
+            CATEGORY = "Category",
+            DATE = "Date",
+            CREATED_BY = "Created By",
+            SUBDIVISIONS = "Subdivisions",
+            BACK = "Back",
+            EDIT_EXPENSE = "Edit Expense",
+            DELETE_EXPENSE = "Delete Expense",
+            DISTRIBUTE_SUBDIVISIONS = "Distribute Subdivisions",
+            ERROR = "Error",
+            SUCCESS = "Success",
+            DELETE_CONFIRMATION = "Are you sure you want to delete this expense?",
+            DELETE_EXPENSE_TITLE = "Delete Expense",
+            EXPENSE_DELETED_SUCCESS = "Expense deleted successfully.",
+            DELETE_ERROR_MESSAGE = "An error occurred while deleting the expense",
+            EXPENSE_NOT_FOUND = "Expense not found.";
 }

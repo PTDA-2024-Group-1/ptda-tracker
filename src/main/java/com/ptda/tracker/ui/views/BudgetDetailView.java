@@ -23,26 +23,6 @@ public class BudgetDetailView extends JPanel {
     private final Budget budget;
     private final List<Expense> expenses;
 
-    private JTable expensesTable;
-    private JButton backButton, participantsButton, editButton, shareButton;
-
-    private static final String
-            BUDGET_DETAILS = "Budget Details",
-            NAME = "Name: ",
-            DESCRIPTION = "Description: ",
-            CREATED_BY = "Created By: ",
-            EXPENSES = "Expenses",
-            BACK_TO_BUDGETS = "Back to Budgets",
-            PARTICIPANTS = "Participants",
-            EDIT_BUDGET = "Edit Budget",
-            SHARE_BUDGET = "Share Budget",
-            SIMULATION_BUDGET = "Simulation Budget",
-            TITLE = "Title",
-            AMOUNT = "Amount",
-            CATEGORY = "Category",
-            DATE = "Date",
-            CREATED_BY_COLUMN = "Created By";
-
     public BudgetDetailView(MainFrame mainFrame, Budget budget) {
         this.mainFrame = mainFrame;
         budgetAccessService = mainFrame.getContext().getBean(BudgetAccessService.class);
@@ -51,6 +31,31 @@ public class BudgetDetailView extends JPanel {
 
         initUI();
         setListeners();
+    }
+
+    private void setListeners() {
+        backButton.addActionListener(e -> mainFrame.showScreen(ScreenNames.NAVIGATION_SCREEN));
+        participantsButton.addActionListener(e -> {
+            ParticipantsDialog participantsDialog = new ParticipantsDialog(mainFrame, budget);
+
+            participantsDialog.setVisible(true);
+        });
+        if (editButton != null) {
+            editButton.addActionListener(e -> mainFrame.registerAndShowScreen(ScreenNames.BUDGET_FORM, new BudgetForm(mainFrame, null, budget)));
+        }
+        if (shareButton != null) {
+            shareButton.addActionListener(e -> mainFrame.registerAndShowScreen(ScreenNames.BUDGET_SHARE_FORM, new ShareBudgetForm(mainFrame, budget)));
+        }
+        expensesTable.getSelectionModel().addListSelectionListener(e -> {
+            if (!e.getValueIsAdjusting()) {
+                int selectedRow = expensesTable.getSelectedRow();
+                if (selectedRow != -1) {
+                    Expense selectedExpense = expenses.get(selectedRow);
+                    mainFrame.registerAndShowScreen(ScreenNames.EXPENSE_DETAIL_VIEW, new ExpenseDetailView(mainFrame, selectedExpense, mainFrame.getCurrentScreen(), null));
+                    expensesTable.clearSelection();
+                }
+            }
+        });
     }
 
     private void initUI() {
@@ -134,28 +139,22 @@ public class BudgetDetailView extends JPanel {
         return new JTable(model);
     }
 
-    private void setListeners() {
-        backButton.addActionListener(e -> mainFrame.showScreen(ScreenNames.NAVIGATION_SCREEN));
-        participantsButton.addActionListener(e -> {
-            ParticipantsDialog participantsDialog = new ParticipantsDialog(mainFrame, budget);
-
-            participantsDialog.setVisible(true);
-        });
-        if (editButton != null) {
-            editButton.addActionListener(e -> mainFrame.registerAndShowScreen(ScreenNames.BUDGET_FORM, new BudgetForm(mainFrame, null, budget)));
-        }
-        if (shareButton != null) {
-            shareButton.addActionListener(e -> mainFrame.registerAndShowScreen(ScreenNames.BUDGET_SHARE_FORM, new ShareBudgetForm(mainFrame, budget)));
-        }
-        expensesTable.getSelectionModel().addListSelectionListener(e -> {
-            if (!e.getValueIsAdjusting()) {
-                int selectedRow = expensesTable.getSelectedRow();
-                if (selectedRow != -1) {
-                    Expense selectedExpense = expenses.get(selectedRow);
-                    mainFrame.registerAndShowScreen(ScreenNames.EXPENSE_DETAIL_VIEW, new ExpenseDetailView(mainFrame, selectedExpense, mainFrame.getCurrentScreen(), null));
-                    expensesTable.clearSelection();
-                }
-            }
-        });
-    }
+    private JTable expensesTable;
+    private JButton backButton, participantsButton, editButton, shareButton;
+    private static final String
+            BUDGET_DETAILS = "Budget Details",
+            NAME = "Name: ",
+            DESCRIPTION = "Description: ",
+            CREATED_BY = "Created By: ",
+            EXPENSES = "Expenses",
+            BACK_TO_BUDGETS = "Back to Budgets",
+            PARTICIPANTS = "Participants",
+            EDIT_BUDGET = "Edit Budget",
+            SHARE_BUDGET = "Share Budget",
+            SIMULATION_BUDGET = "Simulation Budget",
+            TITLE = "Title",
+            AMOUNT = "Amount",
+            CATEGORY = "Category",
+            DATE = "Date",
+            CREATED_BY_COLUMN = "Created By";
 }

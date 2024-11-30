@@ -17,26 +17,53 @@ import java.awt.*;
 
 public class ProfileView extends JPanel {
     private final MainFrame mainFrame;
-    private JLabel nameLabel, emailLabel;
-    private JButton editButton, changePasswordButton, deleteProfileButton;
-
-    private static final String
-            MY_PROFILE = "My Profile",
-            NAME = "Name:",
-            EMAIL = "Email:",
-            EDIT_PROFILE = "Edit Profile",
-            CHANGE_PASSWORD = "Change Password",
-            DELETE_PROFILE = "Delete Profile",
-            DELETE_PROFILE_CONFIRMATION = "Are you sure you want to delete your profile?",
-            DELETE_PROFILE_TITLE = "Delete Profile",
-            USER_NOT_FOUND = "User not found.",
-            ERROR = "Error";
 
     public ProfileView(MainFrame mainFrame) {
         this.mainFrame = mainFrame;
-
         initUI();
         refreshUserData();
+    }
+
+    private void refreshUserData() {
+        User user = UserSession.getInstance().getUser();
+        if (user != null) {
+            nameLabel.setText(user.getName());
+            emailLabel.setText(user.getEmail());
+        }
+    }
+
+    private void deleteProfile() {
+        JOptionPane.showMessageDialog(mainFrame, DELETE_PROFILE_CONFIRMATION, DELETE_PROFILE_TITLE, JOptionPane.WARNING_MESSAGE);
+
+        User user = UserSession.getInstance().getUser();
+        ApplicationContext context = mainFrame.getContext();
+        if (user == null) {
+            JOptionPane.showMessageDialog(mainFrame, USER_NOT_FOUND, ERROR, JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        BudgetAccessService budgetAccessService = context.getBean(BudgetAccessService.class);
+        budgetAccessService.deleteAllByUserId(user.getId());
+
+        ExpenseService expenseService = context.getBean(ExpenseService.class);
+        expenseService.deleteAllPersonalExpensesByUserId(user.getId());
+
+        user.setName("Deleted User");
+        user.setEmail("deleted");
+        user.setEmailVerified(false);
+        user.setPassword("deleted");
+        user.setActive(false);
+        UserService userService = context.getBean(UserService.class);
+        userService.update(user);
+
+        NavigationMenu.performLogout(mainFrame);
+    }
+
+    private void navigateToEditProfile() {
+        mainFrame.registerAndShowScreen(ScreenNames.PROFILE_FORM, new ProfileForm(mainFrame, this::refreshUserData));
+    }
+
+    private void navigateToChangePassword() {
+        mainFrame.registerAndShowScreen(ScreenNames.CHANGE_PASSWORD_FORM, new ChangePasswordForm(mainFrame));
     }
 
     private void initUI() {
@@ -114,45 +141,19 @@ public class ProfileView extends JPanel {
         add(buttonsPanel, gbc);
     }
 
-    private void refreshUserData() {
-        User user = UserSession.getInstance().getUser();
-        if (user != null) {
-            nameLabel.setText(user.getName());
-            emailLabel.setText(user.getEmail());
-        }
-    }
+    private JLabel nameLabel, emailLabel;
+    private JButton editButton, changePasswordButton, deleteProfileButton;
 
-    private void deleteProfile() {
-        JOptionPane.showMessageDialog(mainFrame, DELETE_PROFILE_CONFIRMATION, DELETE_PROFILE_TITLE, JOptionPane.WARNING_MESSAGE);
+    private static final String
+            MY_PROFILE = "My Profile",
+            NAME = "Name:",
+            EMAIL = "Email:",
+            EDIT_PROFILE = "Edit Profile",
+            CHANGE_PASSWORD = "Change Password",
+            DELETE_PROFILE = "Delete Profile",
+            DELETE_PROFILE_CONFIRMATION = "Are you sure you want to delete your profile?",
+            DELETE_PROFILE_TITLE = "Delete Profile",
+            USER_NOT_FOUND = "User not found.",
+            ERROR = "Error";
 
-        User user = UserSession.getInstance().getUser();
-        ApplicationContext context = mainFrame.getContext();
-        if (user == null) {
-            JOptionPane.showMessageDialog(mainFrame, USER_NOT_FOUND, ERROR, JOptionPane.ERROR_MESSAGE);
-            return;
-        }
-        BudgetAccessService budgetAccessService = context.getBean(BudgetAccessService.class);
-        budgetAccessService.deleteAllByUserId(user.getId());
-
-        ExpenseService expenseService = context.getBean(ExpenseService.class);
-        expenseService.deleteAllPersonalExpensesByUserId(user.getId());
-
-        user.setName("Deleted User");
-        user.setEmail("deleted");
-        user.setEmailVerified(false);
-        user.setPassword("deleted");
-        user.setActive(false);
-        UserService userService = context.getBean(UserService.class);
-        userService.update(user);
-
-        NavigationMenu.performLogout(mainFrame);
-    }
-
-    private void navigateToEditProfile() {
-        mainFrame.registerAndShowScreen(ScreenNames.PROFILE_FORM, new ProfileForm(mainFrame, this::refreshUserData));
-    }
-
-    private void navigateToChangePassword() {
-        mainFrame.registerAndShowScreen(ScreenNames.CHANGE_PASSWORD_FORM, new ChangePasswordForm(mainFrame));
-    }
 }

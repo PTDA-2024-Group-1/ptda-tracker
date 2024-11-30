@@ -19,23 +19,8 @@ import java.util.List;
 
 public class ParticipantsDialog extends JDialog {
     private List<BudgetAccess> accesses;
-    private JTable participantsTable;
     private BudgetAccessService budgetAccessService;
     private Budget budget;
-    private JButton saveButton;
-
-    private static final String
-            TITLE = "Participants",
-            REMOVE = "Remove",
-            SAVE = "Save",
-            NAME = "Name",
-            EMAIL = "Email",
-            ACCESS_LEVEL = "Access Level",
-            ONLY_OWNER_CAN_REMOVE = "Only the OWNER can remove participants.",
-            ONLY_OWNER_CAN_CHANGE_ACCESS = "Only the OWNER can change access levels.",
-            PARTICIPANT_REMOVED_SUCCESS = "Participant removed successfully.",
-            ACCESS_LEVEL_CHANGED_SUCCESS = "Access level changed successfully.",
-            SELECT_PARTICIPANT_TO_REMOVE = "Please select a participant to remove.";
 
     public ParticipantsDialog(MainFrame mainFrame, Budget budget) {
         this.budget = budget;
@@ -44,6 +29,77 @@ public class ParticipantsDialog extends JDialog {
 
         initUI();
         setListeners();
+    }
+
+    private void setListeners() {
+        participantsTable.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                int row = participantsTable.rowAtPoint(evt.getPoint());
+                if (row >= 0) {
+                    BudgetAccess selectedAccess = accesses.get(row);
+                    ProfileDialog profileDialog = new ProfileDialog(selectedAccess.getUser());
+                    profileDialog.setVisible(true);
+                }
+            }
+        });
+    }
+
+    private void removeSelectedParticipant() {
+        User currentUser = UserSession.getInstance().getUser();
+        BudgetAccess currentUserAccess = budgetAccessService.getAllByBudgetId(budget.getId())
+                .stream()
+                .filter(access -> access.getUser().getId().equals(currentUser.getId()))
+                .findFirst()
+                .orElse(null);
+
+        if (currentUserAccess == null || currentUserAccess.getAccessLevel() != BudgetAccessLevel.OWNER) {
+            JOptionPane.showMessageDialog(this, ONLY_OWNER_CAN_REMOVE);
+            return;
+        }
+
+        int selectedRow = participantsTable.getSelectedRow();
+        if (selectedRow >= 0) {
+            BudgetAccess selectedAccess = accesses.get(selectedRow);
+            if (selectedAccess.getAccessLevel() == BudgetAccessLevel.OWNER) {
+                JOptionPane.showMessageDialog(this, "You cannot remove an OWNER.");
+                return;
+            }
+            budgetAccessService.delete(selectedAccess.getId());
+            accesses.remove(selectedRow);
+            ((DefaultTableModel) participantsTable.getModel()).removeRow(selectedRow);
+            JOptionPane.showMessageDialog(this, PARTICIPANT_REMOVED_SUCCESS);
+        } else {
+            JOptionPane.showMessageDialog(this, SELECT_PARTICIPANT_TO_REMOVE);
+        }
+    }
+
+    private void saveAccessLevelChanges() {
+        User currentUser = UserSession.getInstance().getUser();
+        BudgetAccess currentUserAccess = budgetAccessService.getAllByBudgetId(budget.getId())
+                .stream()
+                .filter(access -> access.getUser().getId().equals(currentUser.getId()))
+                .findFirst()
+                .orElse(null);
+
+        if (currentUserAccess == null || currentUserAccess.getAccessLevel() != BudgetAccessLevel.OWNER) {
+            JOptionPane.showMessageDialog(this, ONLY_OWNER_CAN_CHANGE_ACCESS);
+            return;
+        }
+
+        for (int i = 0; i < participantsTable.getRowCount(); i++) {
+            BudgetAccess access = accesses.get(i);
+            BudgetAccessLevel newAccessLevel = (BudgetAccessLevel) participantsTable.getValueAt(i, 2);
+            if (access.getAccessLevel() == BudgetAccessLevel.OWNER && newAccessLevel != BudgetAccessLevel.OWNER) {
+                JOptionPane.showMessageDialog(this, "You cannot change the access level of an OWNER.");
+                return;
+            }
+            if (access.getAccessLevel() != newAccessLevel && access.getAccessLevel() != BudgetAccessLevel.OWNER) {
+                access.setAccessLevel(newAccessLevel);
+                budgetAccessService.update(access);
+            }
+        }
+        JOptionPane.showMessageDialog(this, ACCESS_LEVEL_CHANGED_SUCCESS);
     }
 
     private void initUI() {
@@ -134,74 +190,19 @@ public class ParticipantsDialog extends JDialog {
         return table;
     }
 
-    private void setListeners() {
-        participantsTable.addMouseListener(new java.awt.event.MouseAdapter() {
-            @Override
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                int row = participantsTable.rowAtPoint(evt.getPoint());
-                if (row >= 0) {
-                    BudgetAccess selectedAccess = accesses.get(row);
-                    ProfileDialog profileDialog = new ProfileDialog(selectedAccess.getUser());
-                    profileDialog.setVisible(true);
-                }
-            }
-        });
-    }
+    private JTable participantsTable;
+    private JButton saveButton;
+    private static final String
+            TITLE = "Participants",
+            REMOVE = "Remove",
+            SAVE = "Save",
+            NAME = "Name",
+            EMAIL = "Email",
+            ACCESS_LEVEL = "Access Level",
+            ONLY_OWNER_CAN_REMOVE = "Only the OWNER can remove participants.",
+            ONLY_OWNER_CAN_CHANGE_ACCESS = "Only the OWNER can change access levels.",
+            PARTICIPANT_REMOVED_SUCCESS = "Participant removed successfully.",
+            ACCESS_LEVEL_CHANGED_SUCCESS = "Access level changed successfully.",
+            SELECT_PARTICIPANT_TO_REMOVE = "Please select a participant to remove.";
 
-    private void removeSelectedParticipant() {
-        User currentUser = UserSession.getInstance().getUser();
-        BudgetAccess currentUserAccess = budgetAccessService.getAllByBudgetId(budget.getId())
-                .stream()
-                .filter(access -> access.getUser().getId().equals(currentUser.getId()))
-                .findFirst()
-                .orElse(null);
-
-        if (currentUserAccess == null || currentUserAccess.getAccessLevel() != BudgetAccessLevel.OWNER) {
-            JOptionPane.showMessageDialog(this, ONLY_OWNER_CAN_REMOVE);
-            return;
-        }
-
-        int selectedRow = participantsTable.getSelectedRow();
-        if (selectedRow >= 0) {
-            BudgetAccess selectedAccess = accesses.get(selectedRow);
-            if (selectedAccess.getAccessLevel() == BudgetAccessLevel.OWNER) {
-                JOptionPane.showMessageDialog(this, "You cannot remove an OWNER.");
-                return;
-            }
-            budgetAccessService.delete(selectedAccess.getId());
-            accesses.remove(selectedRow);
-            ((DefaultTableModel) participantsTable.getModel()).removeRow(selectedRow);
-            JOptionPane.showMessageDialog(this, PARTICIPANT_REMOVED_SUCCESS);
-        } else {
-            JOptionPane.showMessageDialog(this, SELECT_PARTICIPANT_TO_REMOVE);
-        }
-    }
-
-    private void saveAccessLevelChanges() {
-        User currentUser = UserSession.getInstance().getUser();
-        BudgetAccess currentUserAccess = budgetAccessService.getAllByBudgetId(budget.getId())
-                .stream()
-                .filter(access -> access.getUser().getId().equals(currentUser.getId()))
-                .findFirst()
-                .orElse(null);
-
-        if (currentUserAccess == null || currentUserAccess.getAccessLevel() != BudgetAccessLevel.OWNER) {
-            JOptionPane.showMessageDialog(this, ONLY_OWNER_CAN_CHANGE_ACCESS);
-            return;
-        }
-
-        for (int i = 0; i < participantsTable.getRowCount(); i++) {
-            BudgetAccess access = accesses.get(i);
-            BudgetAccessLevel newAccessLevel = (BudgetAccessLevel) participantsTable.getValueAt(i, 2);
-            if (access.getAccessLevel() == BudgetAccessLevel.OWNER && newAccessLevel != BudgetAccessLevel.OWNER) {
-                JOptionPane.showMessageDialog(this, "You cannot change the access level of an OWNER.");
-                return;
-            }
-            if (access.getAccessLevel() != newAccessLevel && access.getAccessLevel() != BudgetAccessLevel.OWNER) {
-                access.setAccessLevel(newAccessLevel);
-                budgetAccessService.update(access);
-            }
-        }
-        JOptionPane.showMessageDialog(this, ACCESS_LEVEL_CHANGED_SUCCESS);
-    }
 }
