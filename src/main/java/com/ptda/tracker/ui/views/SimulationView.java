@@ -62,7 +62,7 @@ public class SimulationView extends JPanel {
         gbc.gridwidth = 2;
         JLabel titleLabel = new JLabel(BUDGET_SIMULATION, SwingConstants.CENTER);
         titleLabel.setFont(new Font("Arial", Font.BOLD, 20));
-        titleLabel.setForeground(new Color(56, 56, 56));
+        //titleLabel.setForeground(new Color(56, 56, 56));
         add(titleLabel, gbc);
 
         // Search Field Panel
@@ -83,7 +83,7 @@ public class SimulationView extends JPanel {
 
         add(buttonsPanel, gbc);
 
-        setBackground(new Color(240, 240, 240));
+       // setBackground(new Color(240, 240, 240));
 
         // Add search functionality
         searchField.addCaretListener(e -> filterTable(searchField.getText()));

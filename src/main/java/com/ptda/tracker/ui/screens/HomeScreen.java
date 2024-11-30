@@ -6,6 +6,8 @@ import com.ptda.tracker.services.tracker.BudgetService;
 import com.ptda.tracker.services.tracker.ExpenseService;
 import com.ptda.tracker.services.tracker.TicketService;
 import com.ptda.tracker.ui.MainFrame;
+import com.ptda.tracker.ui.renderers.BudgetListRenderer;
+import com.ptda.tracker.ui.renderers.ExpenseListRenderer;
 import com.ptda.tracker.ui.views.BudgetDetailView;
 import com.ptda.tracker.ui.views.ExpenseDetailView;
 import com.ptda.tracker.util.ScreenNames;
@@ -13,6 +15,7 @@ import com.ptda.tracker.util.UserSession;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
+import org.jfree.chart.title.TextTitle;
 import org.jfree.data.general.DefaultPieDataset;
 
 import javax.swing.*;
@@ -75,6 +78,7 @@ public class HomeScreen extends JPanel {
         add(listsPanel, BorderLayout.CENTER);
 
         budgetList = new JList<>();
+        budgetList.setCellRenderer(new BudgetListRenderer()); // Set the cell renderer for budgetList
         budgetList.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
@@ -92,6 +96,7 @@ public class HomeScreen extends JPanel {
         listsPanel.add(budgetScrollPane);
 
         expenseList = new JList<>();
+        expenseList.setCellRenderer(new ExpenseListRenderer()); // Set the cell renderer for expenseList
         expenseList.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
@@ -154,5 +159,10 @@ public class HomeScreen extends JPanel {
 
         JFreeChart pieChart = ChartFactory.createPieChart(EXPENSES_BY_CATEGORY, dataset, true, true, false);
         pieChartPanel.setChart(pieChart);
+        pieChart.setBackgroundPaint(new Color(0, 0, 0, 0));
+
+        // Set the title color to the system default label color
+        TextTitle chartTitle = pieChart.getTitle();
+        chartTitle.setPaint(UIManager.getColor("Label.foreground"));
     }
 }

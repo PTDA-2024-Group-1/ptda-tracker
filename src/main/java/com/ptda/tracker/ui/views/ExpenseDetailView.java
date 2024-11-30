@@ -1,7 +1,10 @@
 package com.ptda.tracker.ui.views;
 
 import com.ptda.tracker.models.dispute.Subdivision;
+import com.ptda.tracker.models.tracker.BudgetAccess;
+import com.ptda.tracker.models.tracker.BudgetAccessLevel;
 import com.ptda.tracker.models.tracker.Expense;
+import com.ptda.tracker.models.user.User;
 import com.ptda.tracker.services.tracker.BudgetAccessService;
 import com.ptda.tracker.services.tracker.ExpenseService;
 import com.ptda.tracker.services.tracker.SubdivisionService;
@@ -9,6 +12,7 @@ import com.ptda.tracker.ui.MainFrame;
 import com.ptda.tracker.ui.forms.ExpenseForm;
 import com.ptda.tracker.ui.forms.SubdivisionForm;
 import com.ptda.tracker.util.ScreenNames;
+import com.ptda.tracker.util.UserSession;
 
 import javax.swing.*;
 import java.awt.*;
@@ -19,6 +23,7 @@ import static com.ptda.tracker.ui.dialogs.SubdivisionsDialog.createSubdivisionsJ
 public class ExpenseDetailView extends JPanel {
     private final MainFrame mainFrame;
     private final ExpenseService expenseService;
+    private final BudgetAccessService budgetAccessService;
     private Expense expense;
     private final List<Subdivision> subdivisions;
     private final String returnScreen;
@@ -50,9 +55,10 @@ public class ExpenseDetailView extends JPanel {
 
     public ExpenseDetailView(MainFrame mainFrame, Expense expense, String returnScreen, Runnable onBack) {
         this.mainFrame = mainFrame;
-        expenseService = mainFrame.getContext().getBean(ExpenseService.class);
+        this.expenseService = mainFrame.getContext().getBean(ExpenseService.class);
+        this.budgetAccessService = mainFrame.getContext().getBean(BudgetAccessService.class);
         this.expense = expense;
-        subdivisions = mainFrame.getContext().getBean(SubdivisionService.class).getAllByExpenseId(expense.getId());
+        this.subdivisions = mainFrame.getContext().getBean(SubdivisionService.class).getAllByExpenseId(expense.getId());
         this.returnScreen = returnScreen;
         this.onBack = onBack;
 
@@ -113,11 +119,19 @@ public class ExpenseDetailView extends JPanel {
         deleteButton = new JButton(DELETE_EXPENSE);
         buttonsPanel.add(deleteButton);
 
-        distributeDivisionExpenseButton = new JButton(DISTRIBUTE_SUBDIVISIONS);
-        if (expense.getBudget() == null) {
-            distributeDivisionExpenseButton.setVisible(false);
+        if (expense.getBudget() != null) {
+            User currentUser = UserSession.getInstance().getUser();
+            BudgetAccess currentUserAccess = budgetAccessService.getAllByBudgetId(expense.getBudget().getId())
+                    .stream()
+                    .filter(access -> access.getUser().getId().equals(currentUser.getId()))
+                    .findFirst()
+                    .orElse(null);
+
+            if (currentUserAccess == null || currentUserAccess.getAccessLevel() != BudgetAccessLevel.VIEWER) {
+                distributeDivisionExpenseButton = new JButton(DISTRIBUTE_SUBDIVISIONS);
+                buttonsPanel.add(distributeDivisionExpenseButton);
+            }
         }
-        buttonsPanel.add(distributeDivisionExpenseButton);
 
         add(buttonsPanel, BorderLayout.SOUTH);
         // End Buttons Panel
@@ -125,15 +139,21 @@ public class ExpenseDetailView extends JPanel {
 
     private void setListeners() {
         backButton.addActionListener(e -> mainFrame.showScreen(returnScreen));
-        editButton.addActionListener(e -> {
-            ExpenseForm expenseForm = new ExpenseForm(mainFrame, expense, mainFrame.getCurrentScreen(), onBack);
-            mainFrame.registerAndShowScreen(ScreenNames.EXPENSE_FORM, expenseForm);
-        });
-        deleteButton.addActionListener(e -> delete());
-        distributeDivisionExpenseButton.addActionListener(e -> {
-            SubdivisionForm subdivisionForm = new SubdivisionForm(mainFrame, expense, expense.getBudget(), () -> mainFrame.registerAndShowScreen(ScreenNames.EXPENSE_DETAIL_VIEW, new ExpenseDetailView(mainFrame, expense, returnScreen, onBack)));
-            mainFrame.registerAndShowScreen(ScreenNames.SUBDIVISION_FORM, subdivisionForm);
-        });
+        if (editButton != null) {
+            editButton.addActionListener(e -> {
+                ExpenseForm expenseForm = new ExpenseForm(mainFrame, expense, mainFrame.getCurrentScreen(), onBack);
+                mainFrame.registerAndShowScreen(ScreenNames.EXPENSE_FORM, expenseForm);
+            });
+        }
+        if (deleteButton != null) {
+            deleteButton.addActionListener(e -> delete());
+        }
+        if (distributeDivisionExpenseButton != null) {
+            distributeDivisionExpenseButton.addActionListener(e -> {
+                SubdivisionForm subdivisionForm = new SubdivisionForm(mainFrame, expense, expense.getBudget(), () -> mainFrame.registerAndShowScreen(ScreenNames.EXPENSE_DETAIL_VIEW, new ExpenseDetailView(mainFrame, expense, returnScreen, onBack)));
+                mainFrame.registerAndShowScreen(ScreenNames.SUBDIVISION_FORM, subdivisionForm);
+            });
+        }
     }
 
     private JTable createSubdivisionsTable(List<Subdivision> subdivisions) {

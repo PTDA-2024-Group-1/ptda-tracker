@@ -215,7 +215,7 @@ public class ExpenseForm extends JPanel {
 
         clearFields();
         onFormSubmit.run();
-        mainFrame.showScreen(ScreenNames.EXPENSE_DETAIL_VIEW);
+        mainFrame.showScreen(returnScreen);
     }
 
     private void clearFields() {

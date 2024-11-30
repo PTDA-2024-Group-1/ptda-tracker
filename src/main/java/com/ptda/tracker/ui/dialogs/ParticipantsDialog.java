@@ -9,6 +9,7 @@ import com.ptda.tracker.ui.MainFrame;
 import com.ptda.tracker.util.UserSession;
 
 import javax.swing.*;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumn;
 import java.awt.*;
@@ -55,26 +56,35 @@ public class ParticipantsDialog extends JDialog {
         JScrollPane scrollPane = new JScrollPane(participantsTable);
         add(scrollPane, BorderLayout.CENTER);
 
-        JPanel buttonPanel = new JPanel();
-        JButton removeButton = new JButton(REMOVE);
-        removeButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                removeSelectedParticipant();
-            }
-        });
-        buttonPanel.add(removeButton);
+        User currentUser = UserSession.getInstance().getUser();
+        BudgetAccess currentUserAccess = budgetAccessService.getAllByBudgetId(budget.getId())
+                .stream()
+                .filter(access -> access.getUser().getId().equals(currentUser.getId()))
+                .findFirst()
+                .orElse(null);
 
-        saveButton = new JButton(SAVE);
-        saveButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                saveAccessLevelChanges();
-            }
-        });
-        buttonPanel.add(saveButton);
+        if (currentUserAccess != null && currentUserAccess.getAccessLevel() == BudgetAccessLevel.OWNER) {
+            JPanel buttonPanel = new JPanel();
+            JButton removeButton = new JButton(REMOVE);
+            removeButton.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    removeSelectedParticipant();
+                }
+            });
+            buttonPanel.add(removeButton);
 
-        add(buttonPanel, BorderLayout.SOUTH);
+            saveButton = new JButton(SAVE);
+            saveButton.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    saveAccessLevelChanges();
+                }
+            });
+            buttonPanel.add(saveButton);
+
+            add(buttonPanel, BorderLayout.SOUTH);
+        }
     }
 
     private JTable createParticipantsTable() {
@@ -82,15 +92,44 @@ public class ParticipantsDialog extends JDialog {
         DefaultTableModel model = new DefaultTableModel(columnNames, 0);
 
         for (BudgetAccess access : accesses) {
-            if (access.getAccessLevel() != BudgetAccessLevel.OWNER) {
-                model.addRow(new Object[]{access.getUser().getName(), access.getUser().getEmail(), access.getAccessLevel()});
-            }
+            model.addRow(new Object[]{access.getUser().getName(), access.getUser().getEmail(), access.getAccessLevel()});
         }
 
-        JTable table = new JTable(model);
+        JTable table = new JTable(model) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                if (column == 2) { // ACCESS_LEVEL column
+                    User currentUser = UserSession.getInstance().getUser();
+                    BudgetAccess currentUserAccess = budgetAccessService.getAllByBudgetId(budget.getId())
+                            .stream()
+                            .filter(access -> access.getUser().getId().equals(currentUser.getId()))
+                            .findFirst()
+                            .orElse(null);
+
+                    if (currentUserAccess != null && currentUserAccess.getAccessLevel() == BudgetAccessLevel.VIEWER) {
+                        return false; // VIEWER cannot edit
+                    }
+
+                    BudgetAccess access = accesses.get(row);
+                    return access.getAccessLevel() != BudgetAccessLevel.OWNER;
+                }
+                return super.isCellEditable(row, column);
+            }
+        };
+
         TableColumn accessLevelColumn = table.getColumnModel().getColumn(2);
         JComboBox<BudgetAccessLevel> comboBox = new JComboBox<>(BudgetAccessLevel.values());
         accessLevelColumn.setCellEditor(new DefaultCellEditor(comboBox));
+
+        // Custom renderer to display "OWNER" as plain text
+        accessLevelColumn.setCellRenderer((table1, value, isSelected, hasFocus, row, column) -> {
+            BudgetAccess access = accesses.get(row);
+            if (access.getAccessLevel() == BudgetAccessLevel.OWNER) {
+                return new JLabel("OWNER");
+            } else {
+                return new DefaultTableCellRenderer().getTableCellRendererComponent(table1, value, isSelected, hasFocus, row, column);
+            }
+        });
 
         return table;
     }
@@ -125,6 +164,10 @@ public class ParticipantsDialog extends JDialog {
         int selectedRow = participantsTable.getSelectedRow();
         if (selectedRow >= 0) {
             BudgetAccess selectedAccess = accesses.get(selectedRow);
+            if (selectedAccess.getAccessLevel() == BudgetAccessLevel.OWNER) {
+                JOptionPane.showMessageDialog(this, "You cannot remove an OWNER.");
+                return;
+            }
             budgetAccessService.delete(selectedAccess.getId());
             accesses.remove(selectedRow);
             ((DefaultTableModel) participantsTable.getModel()).removeRow(selectedRow);
@@ -150,6 +193,10 @@ public class ParticipantsDialog extends JDialog {
         for (int i = 0; i < participantsTable.getRowCount(); i++) {
             BudgetAccess access = accesses.get(i);
             BudgetAccessLevel newAccessLevel = (BudgetAccessLevel) participantsTable.getValueAt(i, 2);
+            if (access.getAccessLevel() == BudgetAccessLevel.OWNER && newAccessLevel != BudgetAccessLevel.OWNER) {
+                JOptionPane.showMessageDialog(this, "You cannot change the access level of an OWNER.");
+                return;
+            }
             if (access.getAccessLevel() != newAccessLevel && access.getAccessLevel() != BudgetAccessLevel.OWNER) {
                 access.setAccessLevel(newAccessLevel);
                 budgetAccessService.update(access);

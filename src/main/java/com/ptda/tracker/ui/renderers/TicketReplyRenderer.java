@@ -27,9 +27,9 @@ public class TicketReplyRenderer extends DefaultListCellRenderer {
 
             // Background color for selection
             if (isSelected) {
-                setBackground(new Color(200, 200, 255)); // Light blue
+              //  setBackground(new Color(200, 200, 255)); // Light blue
             } else {
-                setBackground(index % 2 == 0 ? Color.LIGHT_GRAY : Color.WHITE); // Alternating colors
+               // setBackground(index % 2 == 0 ? Color.LIGHT_GRAY : Color.WHITE); // Alternating colors
             }
         }
 
