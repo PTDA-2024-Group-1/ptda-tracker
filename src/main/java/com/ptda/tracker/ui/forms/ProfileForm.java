@@ -19,7 +19,7 @@ public class ProfileForm extends JPanel {
         this.mainFrame = mainFrame;
         this.onSave = onSave;
         user = UserSession.getInstance().getUser();
-        initUI();
+        initComponents();
         setListeners();
     }
 
@@ -54,7 +54,7 @@ public class ProfileForm extends JPanel {
         mainFrame.showScreen(ScreenNames.NAVIGATION_SCREEN);
     }
 
-    private void initUI() {
+    private void initComponents() {
         setLayout(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.fill = GridBagConstraints.HORIZONTAL;

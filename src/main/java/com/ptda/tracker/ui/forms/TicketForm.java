@@ -26,7 +26,7 @@ public class TicketForm extends JPanel {
         setLayout(new BorderLayout(20, 20));
         setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
-        initUI();
+        initComponents();
         setListeners();
     }
 
@@ -62,7 +62,7 @@ public class TicketForm extends JPanel {
         mainFrame.registerAndShowScreen(ScreenNames.TICKET_DETAIL_VIEW, new TicketDetailView(mainFrame, ticket));
     }
 
-    private void initUI() {
+    private void initComponents() {
         // Header
         JLabel headerLabel = new JLabel(CREATE_NEW_TICKET);
         headerLabel.setFont(new Font("Arial", Font.BOLD, 22));

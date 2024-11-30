@@ -7,7 +7,6 @@ import com.ptda.tracker.services.tracker.ExpenseService;
 import com.ptda.tracker.services.tracker.BudgetService;
 import com.ptda.tracker.ui.MainFrame;
 import com.ptda.tracker.util.LocaleManager;
-import com.ptda.tracker.util.ScreenNames;
 import com.ptda.tracker.util.UserSession;
 
 import javax.swing.*;
@@ -21,15 +20,17 @@ public class ExpenseForm extends JPanel {
     private final MainFrame mainFrame;
     private Runnable onFormSubmit;
     private Expense expense;
+    private Budget budget;
     private final String returnScreen;
 
-    public ExpenseForm(MainFrame mainFrame, Expense expense, String returnScreen, Runnable onFormSubmit) {
+    public ExpenseForm(MainFrame mainFrame, Expense expense, Budget budget, String returnScreen, Runnable onFormSubmit) {
         this.mainFrame = mainFrame;
         this.onFormSubmit = onFormSubmit;
         this.expense = expense;
+        this.budget = budget;
         this.returnScreen = returnScreen;
 
-        initUI();
+        initComponents();
         setListeners();
     }
 
@@ -91,7 +92,7 @@ public class ExpenseForm extends JPanel {
         mainFrame.showScreen(returnScreen);
     }
 
-    private void initUI() {
+    private void initComponents() {
         setLayout(new BorderLayout(20, 20));
         setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
@@ -162,7 +163,9 @@ public class ExpenseForm extends JPanel {
             budgetComboBox.addItem(budget.getName());
             budgetMap.put(budget.getName(), budget);
         }
-        if (expense != null && expense.getBudget() != null) {
+        if (budget != null) {
+            budgetComboBox.setSelectedItem(budget.getName());
+        } else if (expense != null && expense.getBudget() != null) {
             budgetComboBox.setSelectedItem(expense.getBudget().getName());
         } else {
             budgetComboBox.setSelectedItem(NO_BUDGET);

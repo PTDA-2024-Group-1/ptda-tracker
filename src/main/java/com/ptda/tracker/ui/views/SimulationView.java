@@ -4,12 +4,12 @@ import com.ptda.tracker.models.tracker.Budget;
 import com.ptda.tracker.models.tracker.Expense;
 import com.ptda.tracker.models.dispute.Subdivision;
 import com.ptda.tracker.models.user.User;
-import com.ptda.tracker.services.tracker.BudgetAccessService;
 import com.ptda.tracker.services.tracker.ExpenseService;
 import com.ptda.tracker.services.tracker.SubdivisionService;
 import com.ptda.tracker.ui.MainFrame;
 import com.ptda.tracker.util.UserSession;
 import com.ptda.tracker.util.ScreenNames;
+import org.jdesktop.swingx.JXSearchField;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
@@ -21,23 +21,21 @@ import java.util.List;
 public class SimulationView extends JPanel {
     private final MainFrame mainFrame;
     private final Budget budget;
-    private final BudgetAccessService budgetAccessService;
     private final ExpenseService expenseService;
     private final SubdivisionService subdivisionService;
 
     public SimulationView(MainFrame mainFrame, Budget budget) {
         this.mainFrame = mainFrame;
         this.budget = budget;
-        this.budgetAccessService = mainFrame.getContext().getBean(BudgetAccessService.class);
         this.expenseService = mainFrame.getContext().getBean(ExpenseService.class);
         this.subdivisionService = mainFrame.getContext().getBean(SubdivisionService.class);
 
-        initUI();
+        initComponents();
         displayUserExpenses();
         displayUserRankings();
     }
 
-    private void initUI() {
+    private void initComponents() {
         setLayout(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.fill = GridBagConstraints.HORIZONTAL;
@@ -55,9 +53,7 @@ public class SimulationView extends JPanel {
         // Search Field Panel
         gbc.gridy = 1;
         JPanel searchPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
-        JLabel searchLabel = new JLabel(SEARCH + ": ");
-        JTextField searchField = new JTextField(20);
-        searchPanel.add(searchLabel);
+        JXSearchField searchField = new JXSearchField(SEARCH);
         searchPanel.add(searchField);
         add(searchPanel, gbc);
 

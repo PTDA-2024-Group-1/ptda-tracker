@@ -26,7 +26,7 @@ public class TicketReplyForm extends JPanel {
 
         setLayout(new BorderLayout());
 
-        initUI();
+        initComponents();
         setListeners();
     }
 
@@ -56,7 +56,7 @@ public class TicketReplyForm extends JPanel {
         mainFrame.registerAndShowScreen(ScreenNames.TICKET_DETAIL_VIEW, new TicketDetailView(mainFrame, ticket));
     }
 
-    private void initUI() {
+    private void initComponents() {
         JLabel titleLabel = new JLabel(REPLY_TO_TICKET + ticket.getTitle(), SwingConstants.CENTER);
         titleLabel.setFont(new Font("Arial", Font.BOLD, 24));
         add(titleLabel, BorderLayout.NORTH);

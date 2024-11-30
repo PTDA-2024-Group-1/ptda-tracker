@@ -38,7 +38,7 @@ public class ExpenseDetailView extends JPanel {
         this.returnScreen = returnScreen;
         this.onBack = onBack;
 
-        initUI();
+        initComponents();
         setListeners();
     }
 
@@ -46,7 +46,7 @@ public class ExpenseDetailView extends JPanel {
         backButton.addActionListener(e -> mainFrame.showScreen(returnScreen));
         if (editButton != null) {
             editButton.addActionListener(e -> {
-                ExpenseForm expenseForm = new ExpenseForm(mainFrame, expense, mainFrame.getCurrentScreen(), onBack);
+                ExpenseForm expenseForm = new ExpenseForm(mainFrame, expense, null, mainFrame.getCurrentScreen(), onBack);
                 mainFrame.registerAndShowScreen(ScreenNames.EXPENSE_FORM, expenseForm);
             });
         }
@@ -92,7 +92,7 @@ public class ExpenseDetailView extends JPanel {
         }
     }
 
-    private void initUI() {
+    private void initComponents() {
         setLayout(new BorderLayout(10, 10));
         setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 

@@ -3,11 +3,13 @@ package com.ptda.tracker.ui.views;
 import com.ptda.tracker.models.tracker.Budget;
 import com.ptda.tracker.models.tracker.BudgetAccessLevel;
 import com.ptda.tracker.models.tracker.Expense;
+import com.ptda.tracker.models.user.User;
 import com.ptda.tracker.services.tracker.BudgetAccessService;
 import com.ptda.tracker.services.tracker.ExpenseService;
 import com.ptda.tracker.ui.MainFrame;
 import com.ptda.tracker.ui.dialogs.ParticipantsDialog;
 import com.ptda.tracker.ui.forms.BudgetForm;
+import com.ptda.tracker.ui.forms.ExpenseForm;
 import com.ptda.tracker.ui.forms.ShareBudgetForm;
 import com.ptda.tracker.util.ScreenNames;
 import com.ptda.tracker.util.UserSession;
@@ -20,6 +22,7 @@ import java.util.List;
 public class BudgetDetailView extends JPanel {
     private final MainFrame mainFrame;
     private final BudgetAccessService budgetAccessService;
+    private final User user = UserSession.getInstance().getUser();
     private final Budget budget;
     private final List<Expense> expenses;
 
@@ -29,7 +32,7 @@ public class BudgetDetailView extends JPanel {
         this.budget = budget;
         expenses = mainFrame.getContext().getBean(ExpenseService.class).getAllByBudgetId(budget.getId());
 
-        initUI();
+        initComponents();
         setListeners();
     }
 
@@ -46,6 +49,9 @@ public class BudgetDetailView extends JPanel {
         if (shareButton != null) {
             shareButton.addActionListener(e -> mainFrame.registerAndShowScreen(ScreenNames.BUDGET_SHARE_FORM, new ShareBudgetForm(mainFrame, budget)));
         }
+        if (addExpenseButton != null) {
+            addExpenseButton.addActionListener(e -> mainFrame.registerAndShowScreen(ScreenNames.EXPENSE_FORM, new ExpenseForm(mainFrame, null, budget, mainFrame.getCurrentScreen(), this::refreshExpenses)));
+        }
         expensesTable.getSelectionModel().addListSelectionListener(e -> {
             if (!e.getValueIsAdjusting()) {
                 int selectedRow = expensesTable.getSelectedRow();
@@ -58,7 +64,32 @@ public class BudgetDetailView extends JPanel {
         });
     }
 
-    private void initUI() {
+    private void refreshExpenses() {
+        expenses.clear();
+        expenses.addAll(mainFrame.getContext().getBean(ExpenseService.class).getAllByBudgetId(budget.getId()));
+        expensesTable.setModel(createExpensesTableModel());
+    }
+
+    private DefaultTableModel createExpensesTableModel() {
+        String[] columnNames = {TITLE, AMOUNT, CATEGORY, DATE, CREATED_BY_COLUMN};
+        DefaultTableModel model = new DefaultTableModel(columnNames, 0) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
+        };
+        for (Expense expense : expenses) {
+            model.addRow(new Object[]{
+                    expense.getTitle(),
+                    expense.getAmount(),
+                    expense.getCategory(),
+                    expense.getDate(),
+                    expense.getCreatedBy().getName()});
+        }
+        return model;
+    }
+
+    private void initComponents() {
         setLayout(new BorderLayout(15, 15));
         setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
@@ -67,9 +98,9 @@ public class BudgetDetailView extends JPanel {
         detailsPanel.setLayout(new BoxLayout(detailsPanel, BoxLayout.Y_AXIS));
         detailsPanel.setBorder(BorderFactory.createTitledBorder(BUDGET_DETAILS));
 
-        JLabel nameLabel = new JLabel(NAME + budget.getName());
-        JLabel descriptionLabel = new JLabel(DESCRIPTION + budget.getDescription());
-        JLabel createdByLabel = new JLabel(CREATED_BY + budget.getCreatedBy().getName());
+        nameLabel = new JLabel(NAME + budget.getName());
+        descriptionLabel = new JLabel(DESCRIPTION + budget.getDescription());
+        createdByLabel = new JLabel(CREATED_BY + ": " + budget.getCreatedBy().getName());
 
         Font font = new Font("Arial", Font.PLAIN, 14);
         nameLabel.setFont(font);
@@ -87,7 +118,7 @@ public class BudgetDetailView extends JPanel {
         JPanel centerPanel = new JPanel(new GridLayout(2, 1, 10, 10));
         centerPanel.setBorder(BorderFactory.createTitledBorder(EXPENSES));
 
-        expensesTable = createExpensesTable();
+        expensesTable = new JTable(createExpensesTableModel());
         JScrollPane scrollPane = new JScrollPane(expensesTable);
         centerPanel.add(scrollPane);
         add(centerPanel, BorderLayout.CENTER);
@@ -100,17 +131,22 @@ public class BudgetDetailView extends JPanel {
         participantsButton = new JButton(PARTICIPANTS);
         buttonsPanel.add(participantsButton);
 
-        if (budgetAccessService.hasAccess(budget.getId(), UserSession.getInstance().getUser().getId(), BudgetAccessLevel.EDITOR)) {
+        boolean hasOwnerAccess = budgetAccessService.hasAccess(budget.getId(), UserSession.getInstance().getUser().getId(), BudgetAccessLevel.OWNER);
+        boolean hasEditorAccess = budgetAccessService.hasAccess(budget.getId(), UserSession.getInstance().getUser().getId(), BudgetAccessLevel.EDITOR);
+
+        if (hasEditorAccess) {
             editButton = new JButton(EDIT_BUDGET);
             buttonsPanel.add(editButton);
         }
-        if (budgetAccessService.hasAccess(budget.getId(), UserSession.getInstance().getUser().getId(), BudgetAccessLevel.EDITOR)) {
+        if (hasOwnerAccess) {
             shareButton = new JButton(SHARE_BUDGET);
             buttonsPanel.add(shareButton);
         }
-        if ((budgetAccessService.hasAccess(budget.getId(), UserSession.getInstance().getUser().getId(), BudgetAccessLevel.OWNER) ||
-                budgetAccessService.hasAccess(budget.getId(), UserSession.getInstance().getUser().getId(), BudgetAccessLevel.EDITOR) ||
-                budgetAccessService.hasAccess(budget.getId(), UserSession.getInstance().getUser().getId(), BudgetAccessLevel.VIEWER)) && !expenses.isEmpty()) {
+        if (hasEditorAccess) {
+            addExpenseButton = new JButton(ADD_EXPENSE);
+            buttonsPanel.add(addExpenseButton);
+        }
+        if (!expenses.isEmpty()) {
             JButton simulateBudget = new JButton(SIMULATION_BUDGET);
             simulateBudget.addActionListener(e -> mainFrame.registerAndShowScreen(ScreenNames.SIMULATE_VIEW, new SimulationView(mainFrame, budget)));
             buttonsPanel.add(simulateBudget);
@@ -120,36 +156,19 @@ public class BudgetDetailView extends JPanel {
         add(buttonsPanel, BorderLayout.SOUTH);
     }
 
-    private JTable createExpensesTable() {
-        String[] columnNames = {TITLE, AMOUNT, CATEGORY, DATE, CREATED_BY_COLUMN};
-        DefaultTableModel model = new DefaultTableModel(columnNames, 0) {
-            @Override
-            public boolean isCellEditable(int row, int column) {
-                return false;
-            }
-        };
-        for (Expense expense : expenses) {
-            model.addRow(new Object[]{
-                    expense.getTitle(),
-                    expense.getAmount(),
-                    expense.getCategory(),
-                    expense.getDate(),
-                    expense.getCreatedBy().getName()});
-        }
-        return new JTable(model);
-    }
-
     private JTable expensesTable;
-    private JButton backButton, participantsButton, editButton, shareButton;
+    JLabel nameLabel, descriptionLabel, createdByLabel;
+    private JButton backButton, participantsButton, editButton, shareButton, addExpenseButton;
     private static final String
             BUDGET_DETAILS = "Budget Details",
             NAME = "Name: ",
             DESCRIPTION = "Description: ",
-            CREATED_BY = "Created By: ",
+            CREATED_BY = "Created By",
             EXPENSES = "Expenses",
             BACK_TO_BUDGETS = "Back to Budgets",
             PARTICIPANTS = "Participants",
             EDIT_BUDGET = "Edit Budget",
+            ADD_EXPENSE = "Add Expense",
             SHARE_BUDGET = "Share Budget",
             SIMULATION_BUDGET = "Simulation Budget",
             TITLE = "Title",

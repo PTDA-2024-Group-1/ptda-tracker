@@ -38,7 +38,7 @@ public class ExpensesScreen extends JPanel {
         });
         createButton.addActionListener(e -> {
             // Open ExpenseForm in creation mode
-            mainFrame.registerScreen(ScreenNames.EXPENSE_FORM, new ExpenseForm(mainFrame, null, mainFrame.getCurrentScreen(), this::refreshExpenseList));
+            mainFrame.registerScreen(ScreenNames.EXPENSE_FORM, new ExpenseForm(mainFrame, null, null, mainFrame.getCurrentScreen(), this::refreshExpenseList));
             mainFrame.showScreen(ScreenNames.EXPENSE_FORM);
         });
     }

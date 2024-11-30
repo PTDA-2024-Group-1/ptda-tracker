@@ -37,11 +37,6 @@ public class MainFrame extends JFrame {
         this.cardLayout = new CardLayout();
         this.mainPanel = new JPanel(cardLayout);
 
-        // Set locale
-        Preferences preferences = Preferences.userNodeForPackage(TrackerApplication.class);
-        Locale locale = new Locale(preferences.get("language", "en"), preferences.get("country", "US"));
-        LocaleManager.getInstance().setLocale(locale);
-
         setJMenuBar(createMenuBar());
         themeManager = new ThemeManager(this);
         themeManager.setTheme(getThemePreference());

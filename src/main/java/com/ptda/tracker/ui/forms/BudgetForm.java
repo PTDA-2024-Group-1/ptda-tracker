@@ -23,7 +23,7 @@ public class BudgetForm extends JPanel {
         this.context = mainFrame.getContext();
         this.onFormSubmit = (onFormSubmit != null) ? onFormSubmit : () -> {};
         this.budget = budget;
-        initUI();
+        initComponents();
         setListeners();
     }
 
@@ -77,7 +77,7 @@ public class BudgetForm extends JPanel {
         }
     }
 
-    private void initUI() {
+    private void initComponents() {
         setLayout(new BorderLayout(20, 20));
 //        setBackground(BACKGROUND_COLOR);
         setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));

@@ -20,7 +20,7 @@ public class ProfileView extends JPanel {
 
     public ProfileView(MainFrame mainFrame) {
         this.mainFrame = mainFrame;
-        initUI();
+        initComponents();
         refreshUserData();
     }
 
@@ -66,7 +66,7 @@ public class ProfileView extends JPanel {
         mainFrame.registerAndShowScreen(ScreenNames.CHANGE_PASSWORD_FORM, new ChangePasswordForm(mainFrame));
     }
 
-    private void initUI() {
+    private void initComponents() {
         setLayout(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.fill = GridBagConstraints.HORIZONTAL;

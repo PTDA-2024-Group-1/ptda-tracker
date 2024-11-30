@@ -10,6 +10,7 @@ import com.ptda.tracker.services.user.UserService;
 import com.ptda.tracker.ui.MainFrame;
 import com.ptda.tracker.ui.forms.LoginForm;
 import com.ptda.tracker.ui.screens.CustomSplashScreen;
+import com.ptda.tracker.util.LocaleManager;
 import com.ptda.tracker.util.ScreenNames;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -18,6 +19,7 @@ import org.springframework.context.ApplicationContext;
 import javax.swing.*;
 import java.awt.*;
 import java.lang.reflect.InaccessibleObjectException;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.prefs.Preferences;
@@ -45,15 +47,17 @@ public class TrackerApplication {
 		}
 
 		SwingUtilities.invokeLater(() -> {
-			MainFrame mainFrame = new MainFrame(context);
-
 			Preferences preferences = Preferences.userNodeForPackage(TrackerApplication.class);
 			String username = preferences.get("email", null);
 			String encryptedPassword = preferences.get("password", null);
 
+			Locale locale = new Locale(preferences.get("language", "en"), preferences.get("country", "US"));
+			LocaleManager.getInstance().setLocale(locale);
+
 			UserService userService = context.getBean(UserService.class);
 			Optional<User> user = userService.getByEmail(username);
 
+			MainFrame mainFrame = new MainFrame(context);
 			if (user.isPresent() && Objects.equals(encryptedPassword, user.get().getPassword())) {
 				LoginForm.onAuthSuccess(user.get(), mainFrame);
 			} else {

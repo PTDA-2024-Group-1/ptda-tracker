@@ -39,7 +39,7 @@ public class SubdivisionForm extends JPanel {
         this.subdivisions = subdivisionService.getAllByExpenseId(expense.getId());
         this.onBack = onBack;
 
-        initUI();
+        initComponents();
         setListeners();
     }
 
@@ -312,7 +312,7 @@ public class SubdivisionForm extends JPanel {
         totalPercentageLabel.setText(TOTAL_PERCENTAGE + ": " + totalPercentage + "%");
     }
 
-    private void initUI() {
+    private void initComponents() {
         setLayout(new BorderLayout());
 
         JPanel formPanel = new JPanel(new GridBagLayout());

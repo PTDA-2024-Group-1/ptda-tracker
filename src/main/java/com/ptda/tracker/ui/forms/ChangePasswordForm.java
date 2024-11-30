@@ -16,7 +16,7 @@ public class ChangePasswordForm extends JPanel {
 
     public ChangePasswordForm(MainFrame mainFrame) {
         this.mainFrame = mainFrame;
-        initUI();
+        initComponents();
         setListeners();
     }
 
@@ -56,7 +56,7 @@ public class ChangePasswordForm extends JPanel {
         mainFrame.showScreen(ScreenNames.NAVIGATION_SCREEN);
     }
 
-    private void initUI() {
+    private void initComponents() {
         setLayout(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.fill = GridBagConstraints.HORIZONTAL;

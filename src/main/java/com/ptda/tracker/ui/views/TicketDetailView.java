@@ -9,6 +9,7 @@ import com.ptda.tracker.ui.forms.TicketReplyForm;
 import com.ptda.tracker.ui.renderers.TicketReplyRenderer;
 import com.ptda.tracker.util.ScreenNames;
 import com.ptda.tracker.util.UserSession;
+import org.jdesktop.swingx.JXList;
 
 import javax.swing.*;
 import java.awt.*;
@@ -27,42 +28,14 @@ public class TicketDetailView extends JPanel {
         this.ticketService = mainFrame.getContext().getBean(TicketService.class);
         this.ticketReplyService = mainFrame.getContext().getBean(TicketReplyService.class);
 
-        setLayout(new BorderLayout());
+        initComponents();
+    }
 
-        // Title
-        JLabel titleLabel = new JLabel(ticket.getTitle(), SwingConstants.CENTER);
-        titleLabel.setFont(new Font("Arial", Font.BOLD, 24));
-        add(titleLabel, BorderLayout.NORTH);
-
-        // Main Panel
-        JPanel mainPanel = new JPanel(new BorderLayout());
-        mainPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-
-        // Description
-        JTextArea descriptionArea = new JTextArea(ticket.getBody());
-        descriptionArea.setEditable(false);
-        descriptionArea.setLineWrap(true);
-        descriptionArea.setWrapStyleWord(true);
-        descriptionArea.setFont(new Font("Arial", Font.PLAIN, 14));
-        JScrollPane descriptionScroll = new JScrollPane(descriptionArea);
-        descriptionScroll.setBorder(BorderFactory.createTitledBorder(TICKET_DESCRIPTION));
-        mainPanel.add(descriptionScroll, BorderLayout.NORTH);
-
-        // Replies List
-        repliesList = new JList<>(new DefaultListModel<>());
-        repliesList.setCellRenderer(new TicketReplyRenderer());
-        refreshRepliesList();
-        JScrollPane repliesScroll = new JScrollPane(repliesList);
-        repliesScroll.setBorder(BorderFactory.createTitledBorder(REPLIES));
-        repliesScroll.setPreferredSize(new Dimension(300, 200));
-        mainPanel.add(repliesScroll, BorderLayout.CENTER);
-
-        add(mainPanel, BorderLayout.CENTER);
-
-        // Action Buttons
-        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
-        addButtons(buttonPanel);
-        add(buttonPanel, BorderLayout.SOUTH);
+    private void refreshRepliesList() {
+        replies = ticketReplyService.getAllByTicketId(ticket.getId());
+        DefaultListModel<TicketReply> model = (DefaultListModel<TicketReply>) repliesList.getModel();
+        model.clear();
+        replies.forEach(model::addElement);
     }
 
     private void addButtons(JPanel buttonPanel) {
@@ -110,15 +83,46 @@ public class TicketDetailView extends JPanel {
         buttonPanel.repaint();
     }
 
-    private void refreshRepliesList() {
-        replies = ticketReplyService.getAllByTicketId(ticket.getId());
-        replies.sort((r1, r2) -> Long.compare(r2.getCreatedAt(), r1.getCreatedAt())); // Sort by creation date (most recent first)
-        DefaultListModel<TicketReply> model = (DefaultListModel<TicketReply>) repliesList.getModel();
-        model.clear();
-        replies.forEach(model::addElement);
+    private void initComponents() {
+        setLayout(new BorderLayout());
+
+        // Title
+        JLabel titleLabel = new JLabel(ticket.getTitle(), SwingConstants.CENTER);
+        titleLabel.setFont(new Font("Arial", Font.BOLD, 24));
+        add(titleLabel, BorderLayout.NORTH);
+
+        // Main Panel
+        JPanel mainPanel = new JPanel(new BorderLayout());
+        mainPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+
+        // Description
+        JTextArea descriptionArea = new JTextArea(ticket.getBody());
+        descriptionArea.setEditable(false);
+        descriptionArea.setLineWrap(true);
+        descriptionArea.setWrapStyleWord(true);
+        descriptionArea.setFont(new Font("Arial", Font.PLAIN, 14));
+        JScrollPane descriptionScroll = new JScrollPane(descriptionArea);
+        descriptionScroll.setBorder(BorderFactory.createTitledBorder(TICKET_DESCRIPTION));
+        mainPanel.add(descriptionScroll, BorderLayout.NORTH);
+
+        // Replies List
+        repliesList = new JXList(new DefaultListModel<>());
+        repliesList.setCellRenderer(new TicketReplyRenderer());
+        refreshRepliesList();
+        JScrollPane repliesScroll = new JScrollPane(repliesList);
+        repliesScroll.setBorder(BorderFactory.createTitledBorder(REPLIES));
+        repliesScroll.setPreferredSize(new Dimension(300, 200));
+        mainPanel.add(repliesScroll, BorderLayout.CENTER);
+
+        add(mainPanel, BorderLayout.CENTER);
+
+        // Action Buttons
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
+        addButtons(buttonPanel);
+        add(buttonPanel, BorderLayout.SOUTH);
     }
 
-    private final JList<TicketReply> repliesList;
+    private JXList repliesList;
     private static final String
             TICKET_DESCRIPTION = "Ticket Description",
             REPLIES = "Replies",

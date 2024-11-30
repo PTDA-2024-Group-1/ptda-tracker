@@ -20,7 +20,7 @@ public class ShareBudgetForm extends JPanel {
         this.mainFrame = mainFrame;
         this.budget = budget;
         budgetAccessService = mainFrame.getContext().getBean(BudgetAccessService.class);
-        initUI();
+        initComponents();
         setListeners();
     }
 
@@ -47,7 +47,7 @@ public class ShareBudgetForm extends JPanel {
         }
     }
 
-    private void initUI() {
+    private void initComponents() {
         setLayout(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.fill = GridBagConstraints.HORIZONTAL;

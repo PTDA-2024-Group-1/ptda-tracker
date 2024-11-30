@@ -31,15 +31,15 @@ public class BudgetAccessServiceHibernateImpl implements BudgetAccessService {
     }
 
     @Override
-    public boolean hasAccess(Long budgetId, Long userId, BudgetAccessLevel accessLevel) {
+    public boolean hasAccess(Long budgetId, Long userId, BudgetAccessLevel requiredAccessLevel) {
         Optional<BudgetAccess> budgetAccess = budgetAccessRepository.findByBudgetIdAndUserId(budgetId, userId);
-        return budgetAccess.isPresent() && budgetAccess.get().getAccessLevel().compareTo(accessLevel) <= 0;
+        return budgetAccess.isPresent() && budgetAccess.get().getAccessLevel().compareTo(requiredAccessLevel) <= 0;
     }
 
     @Override
-    public boolean hasAccess(Long budgetId, String userEmail, BudgetAccessLevel accessLevel) {
+    public boolean hasAccess(Long budgetId, String userEmail, BudgetAccessLevel requiredAccessLevel) {
         Optional<User> user = userService.getByEmail(userEmail);
-        return user.isPresent() && hasAccess(budgetId, user.get().getId(), accessLevel);
+        return user.isPresent() && hasAccess(budgetId, user.get().getId(), requiredAccessLevel);
     }
 
     @Override

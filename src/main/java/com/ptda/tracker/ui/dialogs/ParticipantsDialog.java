@@ -43,6 +43,17 @@ public class ParticipantsDialog extends JDialog {
                 }
             }
         });
+        addWindowListener(new java.awt.event.WindowAdapter() {
+            @Override
+            public void windowClosed(java.awt.event.WindowEvent windowEvent) {
+                Window[] windows = Window.getWindows();
+                for (Window window : windows) {
+                    if (window instanceof ProfileDialog) {
+                        window.dispose();
+                    }
+                }
+            }
+        });
     }
 
     private void removeSelectedParticipant() {

@@ -12,8 +12,7 @@ public class TicketReplyRenderer extends DefaultListCellRenderer {
     public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
         super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
 
-        if (value instanceof TicketReply) {
-            TicketReply reply = (TicketReply) value;
+        if (value instanceof TicketReply reply) {
 
             // Format the createdAt date
             String formattedDate = DATE_FORMAT.format(reply.getCreatedAt());
@@ -23,13 +22,6 @@ public class TicketReplyRenderer extends DefaultListCellRenderer {
                     reply.getCreatedBy().getName(), // Creator's name
                     formattedDate, // Formatted creation date
                     reply.getBody())); // Reply body
-
-            // Background color for selection
-            if (isSelected) {
-              //  setBackground(new Color(200, 200, 255)); // Light blue
-            } else {
-               // setBackground(index % 2 == 0 ? Color.LIGHT_GRAY : Color.WHITE); // Alternating colors
-            }
         }
 
         return this;
