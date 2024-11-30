@@ -70,7 +70,7 @@ public class HomeScreen extends JPanel {
             dataset.setValue(entry.getKey(), entry.getValue());
         }
 
-        JFreeChart pieChart = ChartFactory.createPieChart(EXPENSES_BY_CATEGORY, dataset, true, true, false);
+        JFreeChart pieChart = ChartFactory.createPieChart("", dataset, true, true, false);
         pieChartPanel.setChart(pieChart);
         pieChart.setBackgroundPaint(new Color(0, 0, 0, 0));
 
