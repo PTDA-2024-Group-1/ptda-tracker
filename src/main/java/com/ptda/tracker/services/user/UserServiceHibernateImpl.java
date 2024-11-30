@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -61,10 +62,14 @@ public class UserServiceHibernateImpl implements UserService {
     }
 
     @Override
+    public List<User> getAll() {
+        return userRepository.findAll();
+    }
+
+    @Override
     public User update(User user) {
         return userRepository.save(user);
     }
-
 
     @Override
     public User changePassword(String email, String oldPassword, String newPassword) {

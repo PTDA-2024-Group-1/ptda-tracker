@@ -4,6 +4,7 @@ import com.ptda.tracker.models.user.Tier;
 import com.ptda.tracker.models.user.User;
 
 import java.util.Optional;
+import java.util.List;
 
 public interface UserService {
 
@@ -14,6 +15,8 @@ public interface UserService {
     Optional<User> getByEmail(String email);
 
     Optional<User> getById(Long id);
+
+    List<User> getAll();
 
     User update(User user);
 

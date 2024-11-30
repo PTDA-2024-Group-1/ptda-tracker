@@ -5,6 +5,7 @@ import com.ptda.tracker.models.user.Tier;
 // import com.ptda.tracker.models.tracker.ActionType;
 import com.ptda.tracker.services.user.TierService;
 import com.ptda.tracker.services.user.DailyLimitService;
+import com.ptda.tracker.services.user.UserService;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -14,6 +15,7 @@ import java.util.List;
 @Component
 @RequiredArgsConstructor
 public class DataInit {
+    private final UserService userService;
     private final TierService tierService;
     private final DailyLimitService dailyLimitService;
 

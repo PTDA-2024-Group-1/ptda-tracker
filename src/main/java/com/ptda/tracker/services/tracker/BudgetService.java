@@ -12,8 +12,6 @@ public interface BudgetService {
     List<Budget> getAllByUserId(Long userId);
 
     List<Budget> getAll();
-    
-    
 
     double getTotalBudgetAmount(Long userId);
 

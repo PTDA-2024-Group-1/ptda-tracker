@@ -12,11 +12,17 @@ import com.ptda.tracker.ui.user.views.BudgetDetailView;
 import com.ptda.tracker.ui.user.views.ExpenseDetailView;
 import com.ptda.tracker.util.ScreenNames;
 import com.ptda.tracker.util.UserSession;
+
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
+import org.jfree.chart.plot.CategoryPlot;
+import org.jfree.chart.plot.PiePlot;
+import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.title.TextTitle;
+import org.jfree.data.category.DefaultCategoryDataset;
 import org.jfree.data.general.DefaultPieDataset;
+import org.jfree.chart.ChartUtilities;
 
 import javax.swing.*;
 import java.awt.*;
@@ -30,6 +36,8 @@ public class HomeScreen extends JPanel {
     private final long userId;
     private JList<Budget> budgetList;
     private JList<Expense> expenseList;
+    private ChartPanel pieChartPanel;
+    private ChartPanel barChartPanel;
 
     public HomeScreen(MainFrame mainFrame) {
         this.mainFrame = mainFrame;
@@ -64,26 +72,47 @@ public class HomeScreen extends JPanel {
                 .toList();
         expenseList.setListData(recentExpenses.toArray(new Expense[0]));
 
-        DefaultPieDataset dataset = new DefaultPieDataset();
+        DefaultPieDataset pieDataset = new DefaultPieDataset();
         Map<String, Double> expensesByCategory = expenseService.getExpensesByCategory(userId);
         for (Map.Entry<String, Double> entry : expensesByCategory.entrySet()) {
-            dataset.setValue(entry.getKey(), entry.getValue());
+            pieDataset.setValue(entry.getKey(), entry.getValue());
         }
 
-        JFreeChart pieChart = ChartFactory.createPieChart("", dataset, true, true, false);
-        pieChartPanel.setChart(pieChart);
-        pieChart.setBackgroundPaint(new Color(0, 0, 0, 0));
+        JFreeChart pieChart = ChartFactory.createPieChart("", pieDataset, true, true, false);
+        ChartUtilities.applyCurrentTheme(pieChart);
 
-        // Set the title color to the system default label color
-        TextTitle chartTitle = pieChart.getTitle();
-        chartTitle.setPaint(UIManager.getColor("Label.foreground"));
+        // Ajuste do fundo do plot do gráfico de pizza
+        PiePlot piePlot = (PiePlot) pieChart.getPlot();
+        piePlot.setBackgroundPaint(UIManager.getColor("Panel.background"));
+        pieChart.setBackgroundPaint(UIManager.getColor("Panel.background"));
+
+        DefaultCategoryDataset barDataset = new DefaultCategoryDataset();
+        for (Budget budget : recentBudgets) {
+            double totalAmount = budgetService.getTotalBudgetAmount(budget.getId());
+            barDataset.addValue(totalAmount, BUDGET, budget.getName());
+        }
+
+        JFreeChart barChart = ChartFactory.createBarChart(
+                "", BUDGET, TOTAL_AMOUNT, barDataset, PlotOrientation.VERTICAL, true, true, false);
+        ChartUtilities.applyCurrentTheme(barChart);
+
+        // Ajuste do fundo do plot do gráfico de barras
+        CategoryPlot barPlot = barChart.getCategoryPlot();
+        barPlot.setBackgroundPaint(UIManager.getColor("Panel.background"));
+        barChart.setBackgroundPaint(UIManager.getColor("Panel.background"));
+
+        pieChartPanel.setChart(pieChart);
+        barChartPanel.setChart(barChart);
+
+        pieChartPanel.repaint();
+        barChartPanel.repaint();
     }
+
 
     private void initUI() {
         setLayout(new BorderLayout());
         setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
-        // Top panel with summaries
         JPanel summaryPanel = new JPanel(new GridLayout(1, 3, 10, 10));
         summaryPanel.setBorder(BorderFactory.createTitledBorder(SUMMARY));
         add(summaryPanel, BorderLayout.NORTH);
@@ -100,13 +129,12 @@ public class HomeScreen extends JPanel {
         summaryPanel.add(expenseLabel);
         summaryPanel.add(ticketLabel);
 
-        // Central panel with budget and expense lists
         JPanel listsPanel = new JPanel(new GridLayout(1, 2, 10, 10));
         listsPanel.setBorder(BorderFactory.createTitledBorder(RECENT_DATA));
         add(listsPanel, BorderLayout.CENTER);
 
         budgetList = new JList<>();
-        budgetList.setCellRenderer(new BudgetListRenderer()); // Set the cell renderer for budgetList
+        budgetList.setCellRenderer(new BudgetListRenderer());
         budgetList.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
@@ -114,7 +142,7 @@ public class HomeScreen extends JPanel {
                     Budget selectedBudget = budgetList.getSelectedValue();
                     if (selectedBudget != null) {
                         mainFrame.registerAndShowScreen(ScreenNames.BUDGET_DETAIL_VIEW, new BudgetDetailView(mainFrame, selectedBudget));
-                        budgetList.clearSelection(); // Clear selection after opening details
+                        budgetList.clearSelection();
                     }
                 }
             }
@@ -124,7 +152,7 @@ public class HomeScreen extends JPanel {
         listsPanel.add(budgetScrollPane);
 
         expenseList = new JList<>();
-        expenseList.setCellRenderer(new ExpenseListRenderer()); // Set the cell renderer for expenseList
+        expenseList.setCellRenderer(new ExpenseListRenderer());
         expenseList.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
@@ -135,7 +163,7 @@ public class HomeScreen extends JPanel {
                                 ScreenNames.EXPENSE_DETAIL_VIEW,
                                 new ExpenseDetailView(mainFrame, selectedExpense, mainFrame.getCurrentScreen(), HomeScreen.this::refreshData)
                         );
-                        expenseList.clearSelection(); // Clear selection after opening details
+                        expenseList.clearSelection();
                     }
                 }
             }
@@ -144,24 +172,26 @@ public class HomeScreen extends JPanel {
         expenseScrollPane.setBorder(BorderFactory.createTitledBorder(RECENT_EXPENSES));
         listsPanel.add(expenseScrollPane);
 
-        // Bottom panel with chart
-        JPanel chartPanel = new JPanel(new BorderLayout());
+        JPanel chartPanel = new JPanel(new GridLayout(1, 2, 10, 10));
         chartPanel.setBorder(BorderFactory.createTitledBorder(EXPENSES_BY_CATEGORY));
         add(chartPanel, BorderLayout.SOUTH);
 
         pieChartPanel = new ChartPanel(null);
-        chartPanel.add(pieChartPanel, BorderLayout.CENTER);
+        barChartPanel = new ChartPanel(null);
+        chartPanel.add(pieChartPanel);
+        chartPanel.add(barChartPanel);
 
-        // Add a property change listener for background color changes
         addPropertyChangeListener("background", evt -> {
             Color newColor = (Color) evt.getNewValue();
             pieChartPanel.getChart().setBackgroundPaint(newColor);
+            barChartPanel.getChart().setBackgroundPaint(newColor);
         });
     }
 
+
     private JLabel budgetLabel, expenseLabel, ticketLabel;
-    private ChartPanel pieChartPanel;
     private static final String
+            BUDGET = "Budget",
             BUDGETS = "Budgets: ",
             EXPENSES = "Expenses: ",
             PENDING_TICKETS = "Pending Tickets: ",
@@ -169,5 +199,6 @@ public class HomeScreen extends JPanel {
             RECENT_DATA = "Recent Data",
             RECENT_BUDGETS = "Recent Budgets",
             RECENT_EXPENSES = "Recent Expenses",
-            EXPENSES_BY_CATEGORY = "Expenses by Category";
+            EXPENSES_BY_CATEGORY = "Expenses by Category",
+            TOTAL_AMOUNT = "Total Amount";
 }
