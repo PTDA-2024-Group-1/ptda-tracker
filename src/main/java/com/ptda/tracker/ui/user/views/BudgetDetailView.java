@@ -93,7 +93,7 @@ public class BudgetDetailView extends JPanel {
         setLayout(new BorderLayout(15, 15));
         setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
-        // Details Panel
+        // Painel de Detalhes do Orçamento
         JPanel detailsPanel = new JPanel();
         detailsPanel.setLayout(new BoxLayout(detailsPanel, BoxLayout.Y_AXIS));
         detailsPanel.setBorder(BorderFactory.createTitledBorder(BUDGET_DETAILS));
@@ -112,48 +112,62 @@ public class BudgetDetailView extends JPanel {
         detailsPanel.add(descriptionLabel);
         detailsPanel.add(Box.createRigidArea(new Dimension(0, 5)));
         detailsPanel.add(createdByLabel);
-        add(detailsPanel, BorderLayout.NORTH);
 
-        // Central Panel
-        JPanel centerPanel = new JPanel(new GridLayout(2, 1, 10, 10));
-        centerPanel.setBorder(BorderFactory.createTitledBorder(EXPENSES));
-
-        expensesTable = new JTable(createExpensesTableModel());
-        JScrollPane scrollPane = new JScrollPane(expensesTable);
-        centerPanel.add(scrollPane);
-        add(centerPanel, BorderLayout.CENTER);
-
-        // Buttons Panel
-        JPanel buttonsPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-        backButton = new JButton(BACK);
-        buttonsPanel.add(backButton);
-
+        // Painel para botões próximos aos detalhes (alinhados à direita)
+        JPanel topButtonsPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         participantsButton = new JButton(PARTICIPANTS);
-        buttonsPanel.add(participantsButton);
+        topButtonsPanel.add(participantsButton);
 
         boolean hasOwnerAccess = budgetAccessService.hasAccess(budget.getId(), user.getId(), BudgetAccessLevel.OWNER);
         boolean hasEditorAccess = budgetAccessService.hasAccess(budget.getId(), user.getId(), BudgetAccessLevel.EDITOR);
 
         if (hasEditorAccess) {
             editButton = new JButton(EDIT_BUDGET);
-            buttonsPanel.add(editButton);
+            topButtonsPanel.add(editButton);
         }
         if (hasOwnerAccess) {
             shareButton = new JButton(SHARE_BUDGET);
-            buttonsPanel.add(shareButton);
+            topButtonsPanel.add(shareButton);
         }
         if (hasEditorAccess) {
             addExpenseButton = new JButton(ADD_EXPENSE);
-            buttonsPanel.add(addExpenseButton);
+            topButtonsPanel.add(addExpenseButton);
         }
+
+        // Adiciona os detalhes e os botões ao topo
+        JPanel topPanel = new JPanel();
+        topPanel.setLayout(new BorderLayout());
+        topPanel.add(detailsPanel, BorderLayout.CENTER);
+        topPanel.add(topButtonsPanel, BorderLayout.SOUTH);
+        add(topPanel, BorderLayout.NORTH);
+
+        // Painel Central (Tabela de Despesas)
+        JPanel centerPanel = new JPanel(new BorderLayout());
+        centerPanel.setBorder(BorderFactory.createTitledBorder(EXPENSES));
+        expensesTable = new JTable(createExpensesTableModel());
+        JScrollPane scrollPane = new JScrollPane(expensesTable);
+        centerPanel.add(scrollPane, BorderLayout.CENTER);
+        add(centerPanel, BorderLayout.CENTER);
+
+        // Painel Inferior dividido para Back e Simulate Budget
+        JPanel bottomPanel = new JPanel(new BorderLayout());
+
+        // Painel do botão "Back" (alinhado à esquerda)
+        JPanel leftButtonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        backButton = new JButton(BACK);
+        leftButtonPanel.add(backButton);
+        bottomPanel.add(leftButtonPanel, BorderLayout.WEST);
+
+        // Painel do botão "Simulate Budget" (alinhado à direita)
         if (!expenses.isEmpty()) {
+            JPanel rightButtonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
             JButton simulateBudget = new JButton(SIMULATION_BUDGET);
             simulateBudget.addActionListener(e -> mainFrame.registerAndShowScreen(ScreenNames.SIMULATE_VIEW, new SimulationView(mainFrame, budget)));
-            buttonsPanel.add(simulateBudget);
+            rightButtonPanel.add(simulateBudget);
+            bottomPanel.add(rightButtonPanel, BorderLayout.EAST);
         }
-        // End Buttons Panel
 
-        add(buttonsPanel, BorderLayout.SOUTH);
+        add(bottomPanel, BorderLayout.SOUTH);
     }
 
     private JTable expensesTable;

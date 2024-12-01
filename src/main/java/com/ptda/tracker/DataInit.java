@@ -35,8 +35,8 @@ public class DataInit {
             createDefaultTiers();
         }
 
-        Optional<User> user = userService.getByEmail("ratmir.m2004@gmail.com");
-        roleManagementService.promoteUserToAssistant(user.get());
+        // Optional<User> user = userService.getByEmail("ratmir.m2004@gmail.com");
+        // roleManagementService.promoteUserToAssistant(user.get());
 
         /* if (dailyLimitService.getAll().isEmpty()) {
             System.out.println("No daily limits found, creating default daily limits...");

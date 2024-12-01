@@ -18,11 +18,14 @@ public class EmailVerificationForm extends JPanel {
     private final String returnScreen;
 
     public EmailVerificationForm(MainFrame mainFrame, User newUser, String returnScreen) {
-        new Thread(this::sendVerificationCode).start();
+        if (newUser == null) {
+            throw new IllegalArgumentException("newUser cannot be null");
+        }
         this.mainFrame = mainFrame;
         this.emailVerificationService = mainFrame.getContext().getBean(EmailVerificationService.class);
         this.newUser = newUser;
         this.returnScreen = returnScreen;
+        new Thread(this::sendVerificationCode).start();
         initComponents();
         setListeners();
     }
