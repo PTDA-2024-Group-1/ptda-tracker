@@ -10,21 +10,24 @@ import com.ptda.tracker.util.LocaleManager;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.Optional;
 
 public class EmailVerificationForm extends JPanel {
     private final MainFrame mainFrame;
     private final EmailVerificationService emailVerificationService;
-    private final User newUser;
+    private final User user;
     private final String returnScreen;
+    private final Runnable onVerificationSuccess;
 
-    public EmailVerificationForm(MainFrame mainFrame, User newUser, String returnScreen) {
-        if (newUser == null) {
+    public EmailVerificationForm(MainFrame mainFrame, User user, String returnScreen, Runnable onVerificationSuccess) {
+        if (user == null) {
             throw new IllegalArgumentException("newUser cannot be null");
         }
         this.mainFrame = mainFrame;
         this.emailVerificationService = mainFrame.getContext().getBean(EmailVerificationService.class);
-        this.newUser = newUser;
+        this.user = user;
         this.returnScreen = returnScreen;
+        this.onVerificationSuccess = onVerificationSuccess;
         new Thread(this::sendVerificationCode).start();
         initComponents();
         setListeners();
@@ -36,10 +39,11 @@ public class EmailVerificationForm extends JPanel {
         });
         verifyButton.addActionListener(e -> {
             if (verifyEmail()) {
-                LoginForm.onAuthSuccess(newUser, mainFrame);
+                LoginForm.saveCredentials(user);
+                onVerificationSuccess.run();
                 JOptionPane.showMessageDialog(
                         this,
-                        REGISTRATION_SUCCESSFUL,
+                        EMAIL_VERIFIED_SUCCESSFULLY,
                         SUCCESS,
                         JOptionPane.INFORMATION_MESSAGE
                 );
@@ -48,18 +52,27 @@ public class EmailVerificationForm extends JPanel {
     }
 
     private void sendVerificationCode() {
-        EmailVerification emailVerification = emailVerificationService.create(newUser.getEmail());
+        EmailVerification emailVerification = emailVerificationService.create(user.getEmail());
         EmailService emailService = mainFrame.getContext().getBean(EmailService.class);
-        String subject = EMAIL_VERIFICATION;
+        String subject = "Divi - " + EMAIL_VERIFICATION;
         String message = VERIFICATION_CODE_MESSAGE + ": " + emailVerification.getCode();
-        emailService.sendEmail(newUser.getEmail(), subject, message);
+        emailService.sendEmail(user.getEmail(), subject, message);
     }
 
     private boolean verifyEmail() {
         String verificationCode = verificationCodeField.getText();
-        EmailVerification emailVerification = emailVerificationService.
-                getByEmail(newUser.getEmail()).orElse(null);
-        if (emailVerification == null) {
+        Optional<EmailVerification> emailVerification = emailVerificationService.
+                getByEmail(user.getEmail());
+        if (emailVerification.isEmpty()) {
+            JOptionPane.showMessageDialog(
+                    this,
+                    NO_EMAIL_VERIFICATION_FOUND,
+                    ERROR,
+                    JOptionPane.ERROR_MESSAGE
+            );
+            return false;
+        }
+        if (!String.valueOf(emailVerification.get().getCode()).equals(verificationCode)) {
             JOptionPane.showMessageDialog(
                     this,
                     VERIFICATION_CODE_INCORRECT,
@@ -68,7 +81,16 @@ public class EmailVerificationForm extends JPanel {
             );
             return false;
         }
-        if (emailVerification.isUsed()) {
+        if (emailVerification.get().getCreatedAt() + 5 * 60000 > System.currentTimeMillis()) {
+            JOptionPane.showMessageDialog(
+                    this,
+                    VERIFICATION_CODE_EXPIRED,
+                    ERROR,
+                    JOptionPane.ERROR_MESSAGE
+            );
+            return false;
+        }
+        if (emailVerification.get().isUsed()) {
             JOptionPane.showMessageDialog(
                     this,
                     VERIFICATION_CODE_ALREADY_USED,
@@ -77,7 +99,7 @@ public class EmailVerificationForm extends JPanel {
             );
             return false;
         }
-        if (!emailVerification.getCode().equals(verificationCode)) {
+        if (!emailVerification.get().getCode().equals(verificationCode)) {
             JOptionPane.showMessageDialog(
                     this,
                     INVALID_VERIFICATION_CODE,
@@ -87,9 +109,9 @@ public class EmailVerificationForm extends JPanel {
             return false;
         }
         UserService userService = mainFrame.getContext().getBean(UserService.class);
-        newUser.setEmailVerified(true);
-        userService.update(newUser);
-        emailVerificationService.activate(emailVerification);
+        user.setEmailVerified(true);
+        userService.update(user);
+        emailVerificationService.activate(emailVerification.get());
         JOptionPane.showMessageDialog(
                 this,
                 EMAIL_VERIFIED_SUCCESSFULLY,
@@ -104,7 +126,7 @@ public class EmailVerificationForm extends JPanel {
 
         JPanel topPanel = new JPanel();
         topPanel.setLayout(new BoxLayout(topPanel, BoxLayout.Y_AXIS));
-        JLabel instructionLabel = new JLabel(ENTER_VERIFICATION_CODE_SENT + ": " + newUser.getEmail());
+        JLabel instructionLabel = new JLabel(ENTER_VERIFICATION_CODE_SENT + ": " + user.getEmail());
         instructionLabel.setHorizontalAlignment(SwingConstants.CENTER);
         instructionLabel.setFont(new Font("Arial", Font.PLAIN, 16));
         topPanel.add(Box.createRigidArea(new Dimension(0, 10))); // Space between title and top
@@ -164,8 +186,10 @@ public class EmailVerificationForm extends JPanel {
             VERIFICATION_CODE = localeManager.getTranslation("verification_code"),
             VERIFICATION_CODE_MESSAGE = localeManager.getTranslation("verification_code_message"),
             VERIFICATION_CODE_INCORRECT = localeManager.getTranslation("verification_code_incorrect"),
+            NO_EMAIL_VERIFICATION_FOUND = localeManager.getTranslation("no_email_verification_found"),
             ERROR = localeManager.getTranslation("error"),
             VERIFICATION_CODE_ALREADY_USED = localeManager.getTranslation("verification_code_already_used"),
+            VERIFICATION_CODE_EXPIRED = localeManager.getTranslation("verification_code_expired"),
             INVALID_VERIFICATION_CODE = localeManager.getTranslation("invalid_verification_code"),
             EMAIL_VERIFIED_SUCCESSFULLY = localeManager.getTranslation("email_verified_successfully");
 }

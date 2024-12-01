@@ -19,6 +19,7 @@ import static com.ptda.tracker.config.AppConfig.LOGO_PATH;
 public class LoginForm extends JPanel {
     private final MainFrame mainFrame;
     private final UserService userService;
+    private User user;
 
     public LoginForm(MainFrame mainFrame) {
         this.mainFrame = mainFrame;
@@ -39,50 +40,41 @@ public class LoginForm extends JPanel {
         String email = usernameField.getText().trim();
         String password = new String(passwordField.getPassword()).trim();
 
-        // Validations
-        int i = 0;
-        if (email.isEmpty()) {
-            showError(EMAIL_REQUIRED, usernameField);
-            i++;
+        // Validation
+        if (email.isEmpty() || password.isEmpty()) {
+            JOptionPane.showMessageDialog(this, ALL_FIELDS_REQUIRED, ERROR, JOptionPane.ERROR_MESSAGE);
+            return;
         }
-        if (password.isEmpty()) {
-            showError(PASSWORD_REQUIRED, passwordField);
-            i++;
-        }
-        if (i > 0) return;
 
         // Login
-        Optional<User> user = userService.login(email, password);
-        if (user.isEmpty()) {
+        Optional<User> userOptional = userService.login(email, password);
+        System.out.println(userOptional);
+        if (userOptional.isEmpty()) {
             JOptionPane.showMessageDialog(this, INVALID_CREDENTIALS, ERROR, JOptionPane.ERROR_MESSAGE);
             return;
         }
-        if (user.get().isEmailVerified()) {
-            onAuthSuccess(user.get(), mainFrame);
+        this.user = userOptional.get();
+        if (user.isEmailVerified()) {
+            saveCredentials(user);
             JOptionPane.showMessageDialog(this, WELCOME_BACK, MESSAGE, JOptionPane.INFORMATION_MESSAGE);
         } else {
-            mainFrame.registerAndShowScreen(ScreenNames.EMAIL_VERIFICATION_FORM, new EmailVerificationForm(mainFrame, user.get(), mainFrame.getCurrentScreen()));
+            mainFrame.registerAndShowScreen(ScreenNames.EMAIL_VERIFICATION_FORM, new EmailVerificationForm(mainFrame, user, mainFrame.getCurrentScreen(), this::onEmailVerificationSuccess));
         }
     }
 
-    private void showError(String message, JComponent component) {
-        JOptionPane.showMessageDialog(this, message, ERROR, JOptionPane.ERROR_MESSAGE);
-        component.requestFocusInWindow();
+    private void onEmailVerificationSuccess() {
+        saveCredentials(user);
+        mainFrame.registerAndShowScreen(ScreenNames.NAVIGATION_SCREEN, new NavigationScreen(mainFrame));
+        mainFrame.removeScreen(ScreenNames.LOGIN_FORM);
+        mainFrame.removeScreen(ScreenNames.EMAIL_VERIFICATION_FORM);
+        mainFrame.removeScreen(ScreenNames.REGISTER_FORM);
     }
 
-    public static void onAuthSuccess(User user, MainFrame mainFrame) {
+    public static void saveCredentials(User user) {
         Preferences preferences = Preferences.userNodeForPackage(TrackerApplication.class);
         preferences.put("email", user.getEmail());
         preferences.put("password", user.getPassword());
         UserSession.getInstance().setUser(user);
-
-        mainFrame.removeScreen(ScreenNames.LOGIN_FORM);
-        mainFrame.removeScreen(ScreenNames.REGISTER_FORM);
-
-        // Create the NavigationScreen
-        NavigationScreen navigationScreen = new NavigationScreen(mainFrame);
-        mainFrame.registerAndShowScreen(ScreenNames.NAVIGATION_SCREEN, navigationScreen);
-        mainFrame.setVisible(true);
     }
 
     private void initComponents() {
@@ -172,6 +164,7 @@ public class LoginForm extends JPanel {
             GO_TO_REGISTER = localeManager.getTranslation("go_to_register"),
             EMAIL_REQUIRED = localeManager.getTranslation("email_required"),
             PASSWORD_REQUIRED = localeManager.getTranslation("password_required"),
+            ALL_FIELDS_REQUIRED = localeManager.getTranslation("all_fields_required"),
             WELCOME_BACK = localeManager.getTranslation("welcome_back"),
             INVALID_CREDENTIALS = localeManager.getTranslation("invalid_credentials"),
             ERROR = localeManager.getTranslation("error"),

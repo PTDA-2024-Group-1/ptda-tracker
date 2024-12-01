@@ -3,6 +3,7 @@ package com.ptda.tracker.ui.user.forms;
 import com.ptda.tracker.models.user.User;
 import com.ptda.tracker.services.user.UserService;
 import com.ptda.tracker.ui.MainFrame;
+import com.ptda.tracker.ui.user.screens.NavigationScreen;
 import com.ptda.tracker.util.LocaleManager;
 import com.ptda.tracker.util.ScreenNames;
 
@@ -31,10 +32,10 @@ public class RegisterForm extends JPanel {
     }
 
     private void register() {
-        JOptionPane.showMessageDialog(this,ARE_YOU_SURE_YOU_WANT_TO_REGISTER, CONFIRMATION, JOptionPane.WARNING_MESSAGE);
+        JOptionPane.showMessageDialog(this,SURE_ALL_DATA_CORRECT, CONFIRMATION, JOptionPane.WARNING_MESSAGE);
 
-        String name = nameField.getText();
-        String email = emailField.getText();
+        String name = nameField.getText().trim();
+        String email = emailField.getText().trim();
         String password = new String(passwordField.getPassword());
         String confirmPassword = new String(confirmPasswordField.getPassword());
 
@@ -63,7 +64,7 @@ public class RegisterForm extends JPanel {
             if (newUser != null) {
                 mainFrame.registerAndShowScreen(
                         ScreenNames.EMAIL_VERIFICATION_FORM,
-                        new EmailVerificationForm(mainFrame, newUser, ScreenNames.LOGIN_FORM)
+                        new EmailVerificationForm(mainFrame, newUser, ScreenNames.LOGIN_FORM, this::onEmailVerificationSuccess)
                 );
                 // Clear fields
                 nameField.setText("");
@@ -74,8 +75,15 @@ public class RegisterForm extends JPanel {
                 JOptionPane.showMessageDialog(this, REGISTRATION_FAILED, ERROR, JOptionPane.ERROR_MESSAGE);
             }
         } catch (Exception ex) {
-            JOptionPane.showMessageDialog(this, AN_ERROR_OCCURRED + ex.getMessage(), ERROR, JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, AN_ERROR_OCCURRED + ": " + ex.getMessage(), ERROR, JOptionPane.ERROR_MESSAGE);
         }
+    }
+
+    private void onEmailVerificationSuccess() {
+        mainFrame.registerAndShowScreen(ScreenNames.NAVIGATION_SCREEN, new NavigationScreen(mainFrame));
+        mainFrame.removeScreen(ScreenNames.LOGIN_FORM);
+        mainFrame.removeScreen(ScreenNames.EMAIL_VERIFICATION_FORM);
+        mainFrame.removeScreen(ScreenNames.REGISTER_FORM);
     }
 
     private void initComponents() {
@@ -219,5 +227,6 @@ public class RegisterForm extends JPanel {
             REGISTRATION_FAILED = localeManager.getTranslation("registration_failed"),
             AN_ERROR_OCCURRED = localeManager.getTranslation("an_error_occurred"),
             ARE_YOU_SURE_YOU_WANT_TO_REGISTER = localeManager.getTranslation("are_you_sure_you_want_to_register"),
+            SURE_ALL_DATA_CORRECT = localeManager.getTranslation("sure_all_data_correct"),
             CONFIRMATION = localeManager.getTranslation("confirmation");
 }

@@ -44,15 +44,18 @@ public class UserServiceHibernateImpl implements UserService {
     @Override
     public Optional<User> login(String email, String password) {
         if (password == null || email == null) {
+            System.out.println("Email or password is null.");
             return Optional.empty();
         }
         if (!userRepository.existsByEmail(email)) {
+            System.out.println("User with email " + email + " does not exist.");
             return Optional.empty();
         }
         Optional<User> userOptional = userRepository.findByEmail(email);
         if (userOptional.isPresent() && passwordEncoder.matches(password, userOptional.get().getPassword())) {
             return userOptional;
         }
+        System.out.println("Invalid password.");
         return Optional.empty();
     }
 

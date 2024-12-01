@@ -9,8 +9,10 @@ import com.ptda.tracker.services.user.UserService;
 import com.ptda.tracker.ui.MainFrame;
 import com.ptda.tracker.ui.user.forms.LoginForm;
 import com.ptda.tracker.ui.user.screens.CustomSplashScreen;
+import com.ptda.tracker.ui.user.screens.NavigationScreen;
 import com.ptda.tracker.util.LocaleManager;
 import com.ptda.tracker.util.ScreenNames;
+import com.ptda.tracker.util.UserSession;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ApplicationContext;
@@ -57,7 +59,8 @@ public class TrackerApplication {
 
 			MainFrame mainFrame = new MainFrame(context);
 			if (user.isPresent() && Objects.equals(encryptedPassword, user.get().getPassword())) {
-				LoginForm.onAuthSuccess(user.get(), mainFrame);
+				UserSession.getInstance().setUser(user.get());
+				mainFrame.registerAndShowScreen(ScreenNames.NAVIGATION_SCREEN, new NavigationScreen(mainFrame));
 			} else {
 				mainFrame.registerAndShowScreen(ScreenNames.LOGIN_FORM, new LoginForm(mainFrame));
 			}
