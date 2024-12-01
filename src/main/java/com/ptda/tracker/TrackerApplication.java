@@ -34,7 +34,6 @@ public class TrackerApplication {
         }
 
         ApplicationContext context = SpringApplication.run(TrackerApplication.class, args);
-		context.getBean(DataInit.class).init();
 
 		CustomSplashScreen splashScreen = new CustomSplashScreen();
 		splashScreen.showSplashScreen();

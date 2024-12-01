@@ -96,7 +96,6 @@ public class LoginForm extends JPanel {
 
         JLabel titleLabel = new JLabel("Login", SwingConstants.CENTER);
         titleLabel.setFont(new Font("Arial", Font.BOLD, 20));
-        titleLabel.setForeground(new Color(0, 0, 0)); // Black
         titleLabel.setAlignmentX(CENTER_ALIGNMENT);
         topPanel.add(titleLabel);
 

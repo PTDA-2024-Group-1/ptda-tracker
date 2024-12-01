@@ -11,11 +11,10 @@ import lombok.NoArgsConstructor;
 
 @Entity
 @DiscriminatorValue("ASSISTANT")
-@EqualsAndHashCode(callSuper = true)
 @Data
-//@Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@EqualsAndHashCode(callSuper = true)
 public class Assistant extends User {
 
     @ManyToOne

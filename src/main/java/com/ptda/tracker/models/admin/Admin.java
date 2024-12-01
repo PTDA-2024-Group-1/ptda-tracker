@@ -10,11 +10,10 @@ import lombok.NoArgsConstructor;
 
 @Entity
 @DiscriminatorValue("ADMIN")
-@EqualsAndHashCode(callSuper = true)
 @Data
-//@Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@EqualsAndHashCode(callSuper = true)
 public class Admin extends Assistant {
 
     private AdminAccessLevel adminAccessLevel;

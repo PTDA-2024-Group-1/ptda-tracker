@@ -99,7 +99,7 @@ public class BudgetDetailView extends JPanel {
         detailsPanel.setBorder(BorderFactory.createTitledBorder(BUDGET_DETAILS));
 
         nameLabel = new JLabel(NAME + ": " + budget.getName());
-        descriptionLabel = new JLabel(DESCRIPTION + budget.getDescription());
+        descriptionLabel = new JLabel(DESCRIPTION + ": " + budget.getDescription());
         createdByLabel = new JLabel(CREATED_BY + ": " + budget.getCreatedBy().getName());
 
         Font font = new Font("Arial", Font.PLAIN, 14);
@@ -131,8 +131,8 @@ public class BudgetDetailView extends JPanel {
         participantsButton = new JButton(PARTICIPANTS);
         buttonsPanel.add(participantsButton);
 
-        boolean hasOwnerAccess = budgetAccessService.hasAccess(budget.getId(), UserSession.getInstance().getUser().getId(), BudgetAccessLevel.OWNER);
-        boolean hasEditorAccess = budgetAccessService.hasAccess(budget.getId(), UserSession.getInstance().getUser().getId(), BudgetAccessLevel.EDITOR);
+        boolean hasOwnerAccess = budgetAccessService.hasAccess(budget.getId(), user.getId(), BudgetAccessLevel.OWNER);
+        boolean hasEditorAccess = budgetAccessService.hasAccess(budget.getId(), user.getId(), BudgetAccessLevel.EDITOR);
 
         if (hasEditorAccess) {
             editButton = new JButton(EDIT_BUDGET);
@@ -162,7 +162,7 @@ public class BudgetDetailView extends JPanel {
     private static final String
             BUDGET_DETAILS = "Budget Details",
             NAME = "Name",
-            DESCRIPTION = "Description: ",
+            DESCRIPTION = "Description",
             CREATED_BY = "Created By",
             EXPENSES = "Expenses",
             BACK = "Back",

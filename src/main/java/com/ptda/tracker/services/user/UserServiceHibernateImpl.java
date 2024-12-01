@@ -37,6 +37,11 @@ public class UserServiceHibernateImpl implements UserService {
     }
 
     @Override
+    public List<User> create(List<User> users) {
+        return userRepository.saveAll(users);
+    }
+
+    @Override
     public Optional<User> login(String email, String password) {
         if (password == null || email == null) {
             return Optional.empty();
@@ -62,14 +67,10 @@ public class UserServiceHibernateImpl implements UserService {
     }
 
     @Override
-    public List<User> getAll() {
-        return userRepository.findAll();
-    }
-
-    @Override
     public User update(User user) {
         return userRepository.save(user);
     }
+
 
     @Override
     public User changePassword(String email, String oldPassword, String newPassword) {
