@@ -22,17 +22,6 @@ public class SimulationView extends JPanel {
     private final ExpenseService expenseService;
     private final SubdivisionService subdivisionService;
 
-    private CardLayout cardLayout;
-    private JPanel mainPanel;
-    private JTable rankingTable;
-    private DefaultTableModel rankingTableModel;
-    private JButton backButton;
-
-    private static final String
-            BUDGET_SIMULATION = "Budget Simulation",
-            BACK = "Back",
-            ALL_USERS_TOTAL_EXPENSES = "All Users - Total Expenses";
-
     public SimulationView(MainFrame mainFrame, Budget budget) {
         this.mainFrame = mainFrame;
         this.budget = budget;
@@ -40,6 +29,40 @@ public class SimulationView extends JPanel {
         this.subdivisionService = mainFrame.getContext().getBean(SubdivisionService.class);
 
         initComponents();
+    }
+
+    private void populateRankingsTable() {
+        List<Expense> expenses = expenseService.getAllByBudgetId(budget.getId());
+        Map<User, Double> userPayments = new HashMap<>();
+
+        for (Expense expense : expenses) {
+            List<Subdivision> subdivisions = subdivisionService.getAllByExpenseId(expense.getId());
+            for (Subdivision subdivision : subdivisions) {
+                User user = subdivision.getUser();
+                double userAmount = expense.getAmount() * (subdivision.getPercentage() / 100);
+                userPayments.put(user, userPayments.getOrDefault(user, 0.0) + userAmount);
+            }
+        }
+
+        rankingTableModel.setRowCount(0);
+        for (Map.Entry<User, Double> entry : userPayments.entrySet()) {
+            User user = entry.getKey();
+            double totalPaid = entry.getValue();
+            rankingTableModel.addRow(new Object[]{user.getName(), "€" + String.format("%.2f", totalPaid)});
+        }
+    }
+
+    private User getUserByName(String name) {
+        List<Expense> expenses = expenseService.getAllByBudgetId(budget.getId());
+        for (Expense expense : expenses) {
+            List<Subdivision> subdivisions = subdivisionService.getAllByExpenseId(expense.getId());
+            for (Subdivision subdivision : subdivisions) {
+                if (subdivision.getUser().getName().equals(name)) {
+                    return subdivision.getUser();
+                }
+            }
+        }
+        return null;
     }
 
     private void initComponents() {
@@ -118,38 +141,15 @@ public class SimulationView extends JPanel {
         return panel;
     }
 
+    private CardLayout cardLayout;
+    private JPanel mainPanel;
+    private JTable rankingTable;
+    private DefaultTableModel rankingTableModel;
+    private JButton backButton;
 
-    private void populateRankingsTable() {
-        List<Expense> expenses = expenseService.getAllByBudgetId(budget.getId());
-        Map<User, Double> userPayments = new HashMap<>();
+    private static final String
+            BUDGET_SIMULATION = "Budget Simulation",
+            BACK = "Back",
+            ALL_USERS_TOTAL_EXPENSES = "All Users - Total Expenses";
 
-        for (Expense expense : expenses) {
-            List<Subdivision> subdivisions = subdivisionService.getAllByExpenseId(expense.getId());
-            for (Subdivision subdivision : subdivisions) {
-                User user = subdivision.getUser();
-                double userAmount = expense.getAmount() * (subdivision.getPercentage() / 100);
-                userPayments.put(user, userPayments.getOrDefault(user, 0.0) + userAmount);
-            }
-        }
-
-        rankingTableModel.setRowCount(0);
-        for (Map.Entry<User, Double> entry : userPayments.entrySet()) {
-            User user = entry.getKey();
-            double totalPaid = entry.getValue();
-            rankingTableModel.addRow(new Object[]{user.getName(), "€" + String.format("%.2f", totalPaid)});
-        }
-    }
-
-    private User getUserByName(String name) {
-        List<Expense> expenses = expenseService.getAllByBudgetId(budget.getId());
-        for (Expense expense : expenses) {
-            List<Subdivision> subdivisions = subdivisionService.getAllByExpenseId(expense.getId());
-            for (Subdivision subdivision : subdivisions) {
-                if (subdivision.getUser().getName().equals(name)) {
-                    return subdivision.getUser();
-                }
-            }
-        }
-        return null;
-    }
 }

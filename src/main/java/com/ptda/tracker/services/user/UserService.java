@@ -18,6 +18,8 @@ public interface UserService {
 
     Optional<User> getById(Long id);
 
+    List<User> getAllUsers();
+
     User update(User user);
 
     User changePassword(String email, String oldPassword, String newPassword);

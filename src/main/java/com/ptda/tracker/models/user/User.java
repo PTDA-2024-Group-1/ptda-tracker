@@ -21,6 +21,9 @@ public class User {
     @GeneratedValue
     private Long id;
 
+    @Column(name = "user_type", insertable = false, updatable = false)
+    private String userType;
+
     private String name;
 
     @Column(unique = true, nullable = false)

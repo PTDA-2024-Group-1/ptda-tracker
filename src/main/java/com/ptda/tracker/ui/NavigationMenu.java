@@ -1,6 +1,7 @@
 package com.ptda.tracker.ui;
 
 import com.ptda.tracker.TrackerApplication;
+import com.ptda.tracker.ui.admin.screens.AdministrationOptionsScreen;
 import com.ptda.tracker.ui.user.forms.LoginForm;
 import com.ptda.tracker.ui.user.screens.*;
 import com.ptda.tracker.ui.user.views.ProfileView;
@@ -22,11 +23,9 @@ public class NavigationMenu extends JPanel {
 
         setLayout(new BorderLayout());
         setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-        //setBackground(new Color(56, 56, 56)); // Color #383838
 
         // Top panel
         JPanel topPanel = new JPanel(new GridBagLayout());
-        //topPanel.setBackground(new Color(56, 56, 56)); // Background color #383838
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.insets = new Insets(10, 10, 10, 10); // Space between buttons
@@ -36,29 +35,30 @@ public class NavigationMenu extends JPanel {
         addButtonToPanel(topPanel, BUDGETS, BUDGETS_SCREEN, gbc, 1);
         addButtonToPanel(topPanel, EXPENSES, EXPENSES_SCREEN, gbc, 2);
         addButtonToPanel(topPanel, SUPPORT, USER_TICKETS_SCREEN, gbc, 3);
+        addButtonToPanel(topPanel, ADMINISTRATION, ADMINISTRATION_OPTIONS_SCREEN, gbc, 4);
 
         // Bottom panel
         JPanel bottomPanel = new JPanel(new GridBagLayout());
-        //bottomPanel.setBackground(BACKGROUND_COLOR);
-        gbc.gridy = 0; // Reinicia o índice para o painel inferior
+        gbc.gridy = 0; // Reset the index for the bottom panel
 
         // Adds bottom buttons
         addButtonToPanel(bottomPanel, PROFILE, PROFILE_SCREEN, gbc, 0);
         addButtonToPanel(bottomPanel, LOGOUT, null, gbc, 1);
 
-        // Adiciona os painéis superior e inferior ao layout principal
-        add(topPanel, BorderLayout.CENTER); // Botões principais ficam no meio
-        add(bottomPanel, BorderLayout.SOUTH); // Botões inferiores ficam embaixo
+        // Add the top and bottom panels to the main layout
+        add(topPanel, BorderLayout.CENTER); // Main buttons in the middle
+        add(bottomPanel, BorderLayout.SOUTH); // Bottom buttons at the bottom
     }
 
     private void addButtonToPanel(JPanel panel, String label, String screenName, GridBagConstraints gbc, int row) {
+        // Check if the user is an admin before adding the administration button
+        if (label.equals(ADMINISTRATION) && !UserSession.getInstance().getUser().getUserType().equals("ADMIN")) {
+            return; // Do not add the button if the user is not an admin
+        }
+
         JButton button = new JButton(label);
         button.setFont(new Font("Arial", Font.BOLD, 14));
-//        button.setBackground(BACKGROUND_COLOR);
-//        button.setForeground(Color.WHITE);
-//        button.setFocusPainted(false);
-//        button.setBorder(BorderFactory.createLineBorder(new Color(56, 56, 56), 2, true)); // Borda arredondada
-        button.setActionCommand(screenName); // Ação do botão, para verificar se é o botão ativo
+        button.setActionCommand(screenName); // Button action command to check if it's the active button
         button.addActionListener(e -> {
             if (screenName != null) {
                 navigateToScreen(screenName);
@@ -67,7 +67,7 @@ public class NavigationMenu extends JPanel {
             }
         });
 
-        // Configurações para o layout
+        // Layout settings
         gbc.gridx = 0;
         gbc.gridy = row;
         panel.add(button, gbc);
@@ -80,6 +80,7 @@ public class NavigationMenu extends JPanel {
             case EXPENSES_SCREEN -> new ExpensesScreen(mainFrame);
             case USER_TICKETS_SCREEN -> new UserTicketsScreen(mainFrame);
             case PROFILE_SCREEN -> new ProfileView(mainFrame);
+            case ADMINISTRATION_OPTIONS_SCREEN -> new AdministrationOptionsScreen(mainFrame);
             default -> new JPanel(); // Return an empty panel if the screen is not found
         };
     }
@@ -88,7 +89,6 @@ public class NavigationMenu extends JPanel {
         NavigationScreen navigationScreen = (NavigationScreen) mainFrame.getScreen(NAVIGATION_SCREEN);
         navigationScreen.setContent(screenName, () -> getScreenInstance(screenName));
         mainFrame.showScreen(NAVIGATION_SCREEN);
-//        updateActiveScreen(screenName);
     }
 
     private void logout() {
@@ -119,10 +119,8 @@ public class NavigationMenu extends JPanel {
                     if (innerComponent instanceof JButton button) {
                         // Set the background color and font size for the active button
                         if (button.getActionCommand().equals(currentScreen)) {
-                            //button.setBackground(new Color(0, 0, 0));
                             button.setFont(new Font("Arial", Font.BOLD, 16));
                         } else {
-                            //button.setBackground(new Color(56, 56, 56));
                             button.setFont(new Font("Arial", Font.BOLD, 14));
                         }
                     }
@@ -130,6 +128,7 @@ public class NavigationMenu extends JPanel {
             }
         }
     }
+
     private String currentScreen;
 
     private static final String
@@ -138,6 +137,7 @@ public class NavigationMenu extends JPanel {
             EXPENSES_SCREEN = ScreenNames.EXPENSES_SCREEN,
             USER_TICKETS_SCREEN = ScreenNames.USER_TICKETS_SCREEN,
             PROFILE_SCREEN = ScreenNames.PROFILE_SCREEN,
+            ADMINISTRATION_OPTIONS_SCREEN = ScreenNames.ADMINISTRATION_OPTIONS_SCREEN,
             NAVIGATION_SCREEN = ScreenNames.NAVIGATION_SCREEN,
             LOGIN_SCREEN = ScreenNames.LOGIN_FORM;
 
@@ -148,6 +148,7 @@ public class NavigationMenu extends JPanel {
             TICKETS = "Tickets",
             SUPPORT = "Support",
             PROFILE = "Profile",
+            ADMINISTRATION = "Administration",
             LOGOUT = "Logout",
             ARE_YOU_SURE = "Are you sure you want to logout?";
 }

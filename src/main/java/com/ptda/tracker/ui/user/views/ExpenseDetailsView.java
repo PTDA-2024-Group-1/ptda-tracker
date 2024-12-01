@@ -20,67 +20,13 @@ public class ExpenseDetailsView extends JPanel {
     private final ExpenseService expenseService;
     private final SubdivisionService subdivisionService;
     private final Long budgetId;
-
-    private User selectedUser; // Armazena o usuário selecionado
-
-    private DefaultTableModel expenseTableModel;
-    private JTextField searchField;
-    private JComboBox<String> categoryFilter;
-    private JTable expenseTable;
+    private User selectedUser;
 
     public ExpenseDetailsView(ExpenseService expenseService, SubdivisionService subdivisionService, Long budgetId) {
         this.expenseService = expenseService;
         this.subdivisionService = subdivisionService;
         this.budgetId = budgetId;
         initComponents();
-    }
-
-    private void initComponents() {
-        setLayout(new BorderLayout());
-        setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-
-        JLabel expenseDetailsTitle = new JLabel("My Expenses", SwingConstants.LEFT);
-        expenseDetailsTitle.setFont(new Font("Arial", Font.BOLD, 16));
-        add(expenseDetailsTitle, BorderLayout.NORTH);
-
-        JPanel filterPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        searchField = new JTextField(15);
-        searchField.setToolTipText("Search by expense title");
-        searchField.getDocument().addDocumentListener(new DocumentListener() {
-            @Override
-            public void insertUpdate(DocumentEvent e) {
-                filterExpenses();
-            }
-
-            @Override
-            public void removeUpdate(DocumentEvent e) {
-                filterExpenses();
-            }
-
-            @Override
-            public void changedUpdate(DocumentEvent e) {
-                filterExpenses();
-            }
-        });
-
-        categoryFilter = new JComboBox<>(getAllCategories());
-        categoryFilter.setToolTipText("Filter by category");
-        categoryFilter.addActionListener(e -> filterExpenses());
-
-        filterPanel.add(new JLabel("Search:"));
-        filterPanel.add(searchField);
-        filterPanel.add(new JLabel("Category:"));
-        filterPanel.add(categoryFilter);
-
-        add(filterPanel, BorderLayout.NORTH);
-
-        expenseTableModel = new DefaultTableModel(new String[]{"Expense", "Total Cost", "Amount Paid", "Category"}, 0);
-        expenseTable = new JTable(expenseTableModel);
-        expenseTable.setFillsViewportHeight(true);
-        expenseTable.setDefaultEditor(Object.class, null);
-
-        JScrollPane scrollPane = new JScrollPane(expenseTable);
-        add(scrollPane, BorderLayout.CENTER);
     }
 
     private String[] getAllCategories() {
@@ -136,4 +82,58 @@ public class ExpenseDetailsView extends JPanel {
             }
         }
     }
+
+    private void initComponents() {
+        setLayout(new BorderLayout());
+        setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+
+        JLabel expenseDetailsTitle = new JLabel("My Expenses", SwingConstants.LEFT);
+        expenseDetailsTitle.setFont(new Font("Arial", Font.BOLD, 16));
+        add(expenseDetailsTitle, BorderLayout.NORTH);
+
+        JPanel filterPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        searchField = new JTextField(15);
+        searchField.setToolTipText("Search by expense title");
+        searchField.getDocument().addDocumentListener(new DocumentListener() {
+            @Override
+            public void insertUpdate(DocumentEvent e) {
+                filterExpenses();
+            }
+
+            @Override
+            public void removeUpdate(DocumentEvent e) {
+                filterExpenses();
+            }
+
+            @Override
+            public void changedUpdate(DocumentEvent e) {
+                filterExpenses();
+            }
+        });
+
+        categoryFilter = new JComboBox<>(getAllCategories());
+        categoryFilter.setToolTipText("Filter by category");
+        categoryFilter.addActionListener(e -> filterExpenses());
+
+        filterPanel.add(new JLabel("Search:"));
+        filterPanel.add(searchField);
+        filterPanel.add(new JLabel("Category:"));
+        filterPanel.add(categoryFilter);
+
+        add(filterPanel, BorderLayout.NORTH);
+
+        expenseTableModel = new DefaultTableModel(new String[]{"Expense", "Total Cost", "Amount Paid", "Category"}, 0);
+        expenseTable = new JTable(expenseTableModel);
+        expenseTable.setFillsViewportHeight(true);
+        expenseTable.setDefaultEditor(Object.class, null);
+
+        JScrollPane scrollPane = new JScrollPane(expenseTable);
+        add(scrollPane, BorderLayout.CENTER);
+    }
+
+    private DefaultTableModel expenseTableModel;
+    private JTextField searchField;
+    private JComboBox<String> categoryFilter;
+    private JTable expenseTable;
+
 }

@@ -24,4 +24,6 @@ public class ScreenNames {
     public static final String SIMULATE_VIEW = "simulateView";
     public static final String SUBDIVISION_FORM = "subdivisionForm";
     public static final String EMAIL_VERIFICATION_FORM = "emailVerificationForm";
+    public static final String ADMINISTRATION_OPTIONS_SCREEN = "administrationOptionsScreen";
+    public static final String MANAGE_USER_VIEW = "manageUserView";
 }

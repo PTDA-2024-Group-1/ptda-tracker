@@ -67,6 +67,11 @@ public class UserServiceHibernateImpl implements UserService {
     }
 
     @Override
+    public List<User> getAllUsers() {
+        return userRepository.findAll();
+    }
+
+    @Override
     public User update(User user) {
         return userRepository.save(user);
     }
