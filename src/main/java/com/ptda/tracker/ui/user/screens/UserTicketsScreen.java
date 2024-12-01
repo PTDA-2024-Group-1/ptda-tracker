@@ -40,7 +40,6 @@ public class UserTicketsScreen extends JPanel {
         add(new JScrollPane(ticketList), BorderLayout.CENTER);
 
         JLabel label = new JLabel(SELECT_TICKET, SwingConstants.CENTER);
-        label.setFont(new Font("Arial", Font.BOLD, 16));
         add(label, BorderLayout.NORTH);
 
         JButton createButton = new JButton(CREATE_NEW_TICKET);

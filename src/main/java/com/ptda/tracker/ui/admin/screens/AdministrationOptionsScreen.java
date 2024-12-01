@@ -16,17 +16,31 @@ public class AdministrationOptionsScreen extends JPanel {
     }
 
     private void initComponents() {
-        setLayout(new BorderLayout());
+        setLayout(new GridBagLayout()); // Layout to center all content
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        gbc.anchor = GridBagConstraints.CENTER;
+
+        JPanel contentPanel = new JPanel(new BorderLayout());
+        contentPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+
+        // Title configuration
         JLabel titleLabel = new JLabel("Administration Options", SwingConstants.CENTER);
-        titleLabel.setFont(new Font("Arial", Font.BOLD, 16));
-        add(titleLabel, BorderLayout.NORTH);
+        titleLabel.setFont(new Font("Arial", Font.BOLD, 22));
+        titleLabel.setBorder(BorderFactory.createEmptyBorder(20, 10, 20, 10));
+        contentPanel.add(titleLabel, BorderLayout.NORTH);
 
+        // Central panel configuration
+        JPanel buttonPanel = new JPanel(new GridBagLayout());
         JButton manageUsersButton = new JButton("Manage Users");
-        manageUsersButton.setFont(new Font("Arial", Font.BOLD, 14));
-        manageUsersButton.addActionListener(e -> mainFrame.registerAndShowScreen(ScreenNames.MANAGE_USER_VIEW, new ManageUserView(mainFrame)));
+        manageUsersButton.addActionListener(e -> {
+            mainFrame.registerAndShowScreen(ScreenNames.MANAGE_USER_VIEW, new ManageUserView(mainFrame));
+        });
+        buttonPanel.add(manageUsersButton, new GridBagConstraints());
 
-        JPanel buttonPanel = new JPanel();
-        buttonPanel.add(manageUsersButton);
-        add(buttonPanel, BorderLayout.CENTER);
+        contentPanel.add(buttonPanel, BorderLayout.CENTER);
+
+        add(contentPanel, gbc);
     }
 }

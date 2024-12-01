@@ -1,28 +1,32 @@
-package com.ptda.tracker.ui.admin.forms;
+package com.ptda.tracker.ui.admin.dialogs;
 
 import com.ptda.tracker.models.admin.Admin;
 import com.ptda.tracker.models.assistance.Assistant;
 import com.ptda.tracker.models.user.User;
 import com.ptda.tracker.services.admin.RoleManagementService;
 import com.ptda.tracker.ui.MainFrame;
+import com.ptda.tracker.ui.admin.views.ManageUserView;
 import com.ptda.tracker.util.LocaleManager;
+import com.ptda.tracker.util.ScreenNames;
 
 import javax.swing.*;
 import java.awt.*;
 
-public class ManageUserForm extends JDialog {
+public class ManageUserDialog extends JDialog {
+    private MainFrame mainFrame;
     private final RoleManagementService roleManagementService;
     private final User user;
+    private final Runnable onFormSubmit;
     private JComboBox<String> roleComboBox;
 
-    public ManageUserForm(MainFrame mainFrame, User user) {
-        super(mainFrame, TITLE, true);
+    public ManageUserDialog(MainFrame mainFrame, Runnable onFormSubmit, User user) {
+        this.mainFrame = mainFrame;
         this.roleManagementService = mainFrame.getContext().getBean(RoleManagementService.class);
         this.user = user;
+        this.onFormSubmit = onFormSubmit;
         initComponents();
         loadUserData();
         setLocationRelativeTo(mainFrame);
-        setSize(400, 300);
     }
 
     private void loadUserData() {
@@ -44,6 +48,8 @@ public class ManageUserForm extends JDialog {
                 }
             }
             JOptionPane.showMessageDialog(this, USER_ROLE_UPDATED_SUCCESSFULLY);
+            if (onFormSubmit != null) onFormSubmit.run();
+            mainFrame.registerAndShowScreen(ScreenNames.MANAGE_USER_VIEW, new ManageUserView(mainFrame));
             dispose();
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this, ERROR_UPDATING_USER_ROLE + e.getMessage(), ERROR, JOptionPane.ERROR_MESSAGE);
@@ -51,6 +57,8 @@ public class ManageUserForm extends JDialog {
     }
 
     private void initComponents() {
+        setTitle(TITLE);
+        setSize(400, 300);
         setLayout(new BorderLayout());
         JPanel formPanel = new JPanel(new GridLayout(5, 2, 10, 10));
         formPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));

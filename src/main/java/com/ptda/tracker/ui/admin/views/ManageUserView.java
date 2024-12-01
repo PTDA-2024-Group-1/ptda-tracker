@@ -4,8 +4,8 @@ import com.ptda.tracker.models.user.User;
 import com.ptda.tracker.services.user.UserService;
 import com.ptda.tracker.ui.MainFrame;
 import com.ptda.tracker.ui.admin.renderers.UserRenderer;
-import com.ptda.tracker.ui.admin.forms.ManageUserForm;
-import com.ptda.tracker.ui.admin.screens.AdministrationOptionsScreen;
+import com.ptda.tracker.ui.admin.dialogs.ManageUserDialog;
+import com.ptda.tracker.util.ScreenNames;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
@@ -38,7 +38,7 @@ public class ManageUserView extends JPanel {
                     if (selectedRow != -1) {
                         Long userId = (Long) userTableModel.getValueAt(selectedRow, 0);
                         Optional<User> user = userService.getById(userId);
-                        new ManageUserForm(mainFrame, user.orElse(null)).setVisible(true);
+                        new ManageUserDialog(mainFrame, null, user.orElse(null)).setVisible(true);
                     }
                 }
             }
@@ -82,10 +82,10 @@ public class ManageUserView extends JPanel {
         add(scrollPane, BorderLayout.CENTER);
 
         // Add Back button
+        JPanel leftButtonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         JButton backButton = new JButton("Back");
-        backButton.addActionListener(e -> mainFrame.registerAndShowScreen("administrationOptionsScreen", new AdministrationOptionsScreen(mainFrame)));
-        JPanel buttonPanel = new JPanel();
-        buttonPanel.add(backButton);
-        add(buttonPanel, BorderLayout.SOUTH);
+        backButton.addActionListener(e -> mainFrame.showScreen(ScreenNames.NAVIGATION_SCREEN));
+        leftButtonPanel.add(backButton);
+        add(leftButtonPanel, BorderLayout.SOUTH);
     }
 }
