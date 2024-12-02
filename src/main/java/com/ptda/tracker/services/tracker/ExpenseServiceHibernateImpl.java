@@ -108,4 +108,9 @@ public class ExpenseServiceHibernateImpl implements ExpenseService {
         expenseRepository.deleteAll(personalExpenses);
         return true;
     }
+
+    @Override
+    public void saveAll(List<Expense> importedExpenses) {
+        expenseRepository.saveAll(importedExpenses);
+    }
 }

@@ -32,4 +32,5 @@ public interface ExpenseService {
 
     boolean deleteAllPersonalExpensesByUserId(Long userId);
 
+    void saveAll(List<Expense> importedExpenses);
 }
