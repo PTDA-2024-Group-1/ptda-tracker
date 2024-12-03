@@ -7,7 +7,7 @@ import com.ptda.tracker.models.tracker.Expense;
 import com.ptda.tracker.models.user.User;
 import com.ptda.tracker.services.tracker.BudgetAccessService;
 import com.ptda.tracker.services.tracker.ExpenseService;
-import com.ptda.tracker.services.tracker.SubdivisionService;
+import com.ptda.tracker.services.tracker.ExpenseDivisionService;
 import com.ptda.tracker.ui.MainFrame;
 import com.ptda.tracker.ui.user.forms.ExpenseForm;
 import com.ptda.tracker.ui.user.forms.SubdivisionForm;
@@ -34,7 +34,7 @@ public class ExpenseDetailView extends JPanel {
         this.expenseService = mainFrame.getContext().getBean(ExpenseService.class);
         this.budgetAccessService = mainFrame.getContext().getBean(BudgetAccessService.class);
         this.expense = expense;
-        this.expenseDivisions = mainFrame.getContext().getBean(SubdivisionService.class).getAllByExpenseId(expense.getId());
+        this.expenseDivisions = mainFrame.getContext().getBean(ExpenseDivisionService.class).getAllByExpenseId(expense.getId());
         this.returnScreen = returnScreen;
         this.onBack = onBack;
 

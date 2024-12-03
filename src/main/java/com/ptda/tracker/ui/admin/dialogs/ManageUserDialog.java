@@ -3,7 +3,7 @@ package com.ptda.tracker.ui.admin.dialogs;
 import com.ptda.tracker.models.admin.Admin;
 import com.ptda.tracker.models.assistance.Assistant;
 import com.ptda.tracker.models.user.User;
-import com.ptda.tracker.services.admin.RoleManagementService;
+import com.ptda.tracker.services.administration.RoleManagementService;
 import com.ptda.tracker.ui.MainFrame;
 import com.ptda.tracker.ui.admin.views.ManageUserView;
 import com.ptda.tracker.util.LocaleManager;

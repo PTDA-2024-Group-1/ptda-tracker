@@ -1,7 +1,7 @@
 package com.ptda.tracker.ui.user.screens;
 
 import com.ptda.tracker.models.assistance.Ticket;
-import com.ptda.tracker.services.tracker.TicketService;
+import com.ptda.tracker.services.assistance.TicketService;
 import com.ptda.tracker.ui.MainFrame;
 import com.ptda.tracker.ui.user.forms.TicketForm;
 import com.ptda.tracker.ui.user.renderers.TicketListRenderer;

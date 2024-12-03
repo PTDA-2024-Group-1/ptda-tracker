@@ -1,4 +1,4 @@
-package com.ptda.tracker.services.admin;
+package com.ptda.tracker.services.administration;
 
 import com.ptda.tracker.models.admin.Admin;
 import com.ptda.tracker.repositories.AdminRepository;

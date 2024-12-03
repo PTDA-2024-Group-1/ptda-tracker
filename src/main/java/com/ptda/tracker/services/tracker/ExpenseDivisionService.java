@@ -4,7 +4,7 @@ import com.ptda.tracker.models.tracker.ExpenseDivision;
 
 import java.util.List;
 
-public interface SubdivisionService {
+public interface ExpenseDivisionService {
 
     ExpenseDivision create(ExpenseDivision expenseDivision);
 

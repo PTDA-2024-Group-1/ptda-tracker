@@ -5,7 +5,7 @@ import com.ptda.tracker.models.tracker.Expense;
 import com.ptda.tracker.models.tracker.ExpenseDivision;
 import com.ptda.tracker.models.user.User;
 import com.ptda.tracker.services.tracker.ExpenseService;
-import com.ptda.tracker.services.tracker.SubdivisionService;
+import com.ptda.tracker.services.tracker.ExpenseDivisionService;
 import com.ptda.tracker.ui.MainFrame;
 import com.ptda.tracker.util.ScreenNames;
 
@@ -20,13 +20,13 @@ public class SimulationView extends JPanel {
     private final MainFrame mainFrame;
     private final Budget budget;
     private final ExpenseService expenseService;
-    private final SubdivisionService subdivisionService;
+    private final ExpenseDivisionService expenseDivisionService;
 
     public SimulationView(MainFrame mainFrame, Budget budget) {
         this.mainFrame = mainFrame;
         this.budget = budget;
         this.expenseService = mainFrame.getContext().getBean(ExpenseService.class);
-        this.subdivisionService = mainFrame.getContext().getBean(SubdivisionService.class);
+        this.expenseDivisionService = mainFrame.getContext().getBean(ExpenseDivisionService.class);
 
         initComponents();
     }
@@ -36,7 +36,7 @@ public class SimulationView extends JPanel {
         Map<User, Double> userPayments = new HashMap<>();
 
         for (Expense expense : expenses) {
-            List<ExpenseDivision> expenseDivisions = subdivisionService.getAllByExpenseId(expense.getId());
+            List<ExpenseDivision> expenseDivisions = expenseDivisionService.getAllByExpenseId(expense.getId());
             for (ExpenseDivision expenseDivision : expenseDivisions) {
                 User user = expenseDivision.getUser();
                 double userAmount = expense.getAmount() * (expenseDivision.getPercentage() / 100);
@@ -55,7 +55,7 @@ public class SimulationView extends JPanel {
     private User getUserByName(String name) {
         List<Expense> expenses = expenseService.getAllByBudgetId(budget.getId());
         for (Expense expense : expenses) {
-            List<ExpenseDivision> expenseDivisions = subdivisionService.getAllByExpenseId(expense.getId());
+            List<ExpenseDivision> expenseDivisions = expenseDivisionService.getAllByExpenseId(expense.getId());
             for (ExpenseDivision expenseDivision : expenseDivisions) {
                 if (expenseDivision.getUser().getName().equals(name)) {
                     return expenseDivision.getUser();
@@ -86,7 +86,7 @@ public class SimulationView extends JPanel {
         mainPanel = new JPanel(cardLayout);
 
         mainPanel.add(createRankingsPanel(), "Rankings");
-        mainPanel.add(new ExpenseDetailsView(expenseService, subdivisionService, budget.getId()), "Expenses");
+        mainPanel.add(new ExpenseDetailsView(expenseService, expenseDivisionService, budget.getId()), "Expenses");
 
         add(mainPanel, BorderLayout.CENTER);
 

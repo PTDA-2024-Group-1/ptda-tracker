@@ -1,4 +1,4 @@
-package com.ptda.tracker.services.dispute;
+package com.ptda.tracker.services.tracker;
 
 import com.ptda.tracker.models.tracker.dispute.Dispute;
 import com.ptda.tracker.models.tracker.dispute.DisputeStatus;
@@ -37,6 +37,16 @@ public class DisputeServiceHibernateImpl implements DisputeService {
     @Override
     public Dispute update(Dispute dispute) {
         return disputeRepository.save(dispute);
+    }
+
+    @Override
+    public Dispute updateStatus(Long id, DisputeStatus disputeStatus) {
+        Dispute dispute = disputeRepository.findById(id).orElse(null);
+        if (dispute != null) {
+            dispute.setDisputeStatus(disputeStatus);
+            return disputeRepository.save(dispute);
+        }
+        return null;
     }
 
     @Override

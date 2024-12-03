@@ -1,4 +1,4 @@
-package com.ptda.tracker.services.dispute;
+package com.ptda.tracker.services.tracker;
 
 import com.ptda.tracker.models.tracker.dispute.Dispute;
 import com.ptda.tracker.models.tracker.dispute.DisputeStatus;
@@ -16,6 +16,8 @@ public interface DisputeService {
     List<Dispute> create(List<Dispute> disputes);
 
     Dispute update(Dispute dispute);
+
+    Dispute updateStatus(Long id, DisputeStatus disputeStatus);
 
     boolean deleteById(Long id);
 

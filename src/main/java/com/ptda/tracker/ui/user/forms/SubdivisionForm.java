@@ -6,7 +6,7 @@ import com.ptda.tracker.models.tracker.BudgetAccess;
 import com.ptda.tracker.models.tracker.Expense;
 import com.ptda.tracker.models.user.User;
 import com.ptda.tracker.services.tracker.BudgetAccessService;
-import com.ptda.tracker.services.tracker.SubdivisionService;
+import com.ptda.tracker.services.tracker.ExpenseDivisionService;
 import com.ptda.tracker.ui.MainFrame;
 import com.ptda.tracker.ui.user.views.ExpenseDetailView;
 import com.ptda.tracker.util.LocaleManager;
@@ -26,7 +26,7 @@ public class SubdivisionForm extends JPanel {
     private final Expense expense;
     private final Budget budget;
     private final BudgetAccessService budgetAccessService;
-    private final SubdivisionService subdivisionService;
+    private final ExpenseDivisionService expenseDivisionService;
     private final List<ExpenseDivision> expenseDivisions;
     private final Runnable onBack;
 
@@ -35,8 +35,8 @@ public class SubdivisionForm extends JPanel {
         this.expense = expense;
         this.budget = budget;
         this.budgetAccessService = mainFrame.getContext().getBean(BudgetAccessService.class);
-        this.subdivisionService = mainFrame.getContext().getBean(SubdivisionService.class);
-        this.expenseDivisions = subdivisionService.getAllByExpenseId(expense.getId());
+        this.expenseDivisionService = mainFrame.getContext().getBean(ExpenseDivisionService.class);
+        this.expenseDivisions = expenseDivisionService.getAllByExpenseId(expense.getId());
         this.onBack = onBack;
 
         initComponents();
@@ -70,7 +70,7 @@ public class SubdivisionForm extends JPanel {
 
     private void distributeEquitably() {
         Expense selectedExpense = expense;
-        List<ExpenseDivision> existingExpenseDivisions = subdivisionService.getAllByExpenseId(selectedExpense.getId());
+        List<ExpenseDivision> existingExpenseDivisions = expenseDivisionService.getAllByExpenseId(selectedExpense.getId());
         double totalPercentage = existingExpenseDivisions.stream().mapToDouble(ExpenseDivision::getPercentage).sum();
         double remainingPercentage = 100 - totalPercentage;
         User currentUser = UserSession.getInstance().getUser();
@@ -117,7 +117,7 @@ public class SubdivisionForm extends JPanel {
                     .build();
 
             expenseDivisions.add(expenseDivision);
-            subdivisionService.create(expenseDivision);
+            expenseDivisionService.create(expenseDivision);
         }
 
         JOptionPane.showMessageDialog(this, REMAINING_PERCENTAGE_DISTRIBUTED + equalPercentage + "%.");
@@ -150,7 +150,7 @@ public class SubdivisionForm extends JPanel {
 
     private void distributeCustom() {
         Expense selectedExpense = expense;
-        List<ExpenseDivision> existingExpenseDivisions = subdivisionService.getAllByExpenseId(selectedExpense.getId());
+        List<ExpenseDivision> existingExpenseDivisions = expenseDivisionService.getAllByExpenseId(selectedExpense.getId());
         User currentUser = UserSession.getInstance().getUser();
 
         double newTotalPercentage = 0;
@@ -210,16 +210,16 @@ public class SubdivisionForm extends JPanel {
 
                 if (!existingExpenseDivisions.contains(expenseDivision)) {
                     expenseDivisions.add(expenseDivision);
-                    subdivisionService.create(expenseDivision);
+                    expenseDivisionService.create(expenseDivision);
                 } else {
-                    subdivisionService.update(expenseDivision);
+                    expenseDivisionService.update(expenseDivision);
                 }
             }
         }
 
         for (ExpenseDivision sub : subdivisionsToRemove) {
             expenseDivisions.remove(sub);
-            subdivisionService.delete(sub.getId());
+            expenseDivisionService.delete(sub.getId());
         }
 
         double remainingAfterDistribution = 100 - newTotalPercentage;

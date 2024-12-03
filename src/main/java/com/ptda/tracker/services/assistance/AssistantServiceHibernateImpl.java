@@ -1,4 +1,4 @@
-package com.ptda.tracker.services.assistant;
+package com.ptda.tracker.services.assistance;
 
 import com.ptda.tracker.models.assistance.Assistant;
 import com.ptda.tracker.repositories.AssistantRepository;

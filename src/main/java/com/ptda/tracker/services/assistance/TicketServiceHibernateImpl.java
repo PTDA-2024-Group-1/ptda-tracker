@@ -1,4 +1,4 @@
-package com.ptda.tracker.services.tracker;
+package com.ptda.tracker.services.assistance;
 
 import com.ptda.tracker.models.assistance.Ticket;
 import com.ptda.tracker.models.user.User;
@@ -20,24 +20,22 @@ public class TicketServiceHibernateImpl implements TicketService {
     }
 
     @Override
-    public Ticket save(Ticket ticket) {
+    public List<Ticket> getOpenTicketsByUser(User createdBy) {
+        return ticketRepository.findAllByIsClosedIsFalseAndCreatedBy(createdBy);
+    }
+
+    @Override
+    public Ticket create(Ticket ticket) {
+        return ticketRepository.save(ticket);
+    }
+
+    @Override
+    public Ticket update(Ticket ticket) {
         return ticketRepository.save(ticket);
     }
 
     @Override
     public void delete(Ticket ticket) {
         ticketRepository.delete(ticket);
-    }
-
-    @Override
-    public void update(Ticket ticket) {
-        if (ticketRepository.existsById(ticket.getId())) {
-            ticketRepository.save(ticket);
-        }
-    }
-
-    @Override
-    public List<Ticket> getOpenTicketsByUser(User createdBy) {
-        return ticketRepository.findAllByIsClosedIsFalseAndCreatedBy(createdBy);
     }
 }

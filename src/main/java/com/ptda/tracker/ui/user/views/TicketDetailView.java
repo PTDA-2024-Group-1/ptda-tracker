@@ -2,8 +2,8 @@ package com.ptda.tracker.ui.user.views;
 
 import com.ptda.tracker.models.assistance.Ticket;
 import com.ptda.tracker.models.assistance.TicketReply;
-import com.ptda.tracker.services.tracker.TicketService;
-import com.ptda.tracker.services.tracker.TicketReplyService;
+import com.ptda.tracker.services.assistance.TicketService;
+import com.ptda.tracker.services.assistance.TicketReplyService;
 import com.ptda.tracker.ui.MainFrame;
 import com.ptda.tracker.ui.user.forms.TicketReplyForm;
 import com.ptda.tracker.ui.user.renderers.TicketReplyRenderer;
@@ -51,7 +51,7 @@ public class TicketDetailView extends JPanel {
                         .createdBy(UserSession.getInstance().getUser())
                         .body("Reopened the ticket.")
                         .build();
-                ticketReplyService.save(reply);
+                ticketReplyService.create(reply);
                 ticket.setClosed(false);
                 ticketService.update(ticket);
                 JOptionPane.showMessageDialog(this, TICKET_REOPENED_SUCCESS);

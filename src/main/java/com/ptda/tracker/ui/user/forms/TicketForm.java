@@ -1,7 +1,7 @@
 package com.ptda.tracker.ui.user.forms;
 
 import com.ptda.tracker.models.assistance.Ticket;
-import com.ptda.tracker.services.tracker.TicketService;
+import com.ptda.tracker.services.assistance.TicketService;
 import com.ptda.tracker.ui.MainFrame;
 import com.ptda.tracker.ui.user.views.TicketDetailView;
 import com.ptda.tracker.util.LocaleManager;
@@ -54,7 +54,7 @@ public class TicketForm extends JPanel {
         ticket.setCreatedBy(UserSession.getInstance().getUser()); // Authenticated user
         ticket.setAssistant(null); // Or use logic to select an assistant, if applicable.
 
-        ticketService.save(ticket);
+        ticketService.create(ticket);
 
         if (onSaveCallback != null) {
             onSaveCallback.run();

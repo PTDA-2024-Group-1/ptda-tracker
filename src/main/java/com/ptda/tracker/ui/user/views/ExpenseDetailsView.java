@@ -4,7 +4,7 @@ import com.ptda.tracker.models.tracker.Expense;
 import com.ptda.tracker.models.tracker.ExpenseDivision;
 import com.ptda.tracker.models.user.User;
 import com.ptda.tracker.services.tracker.ExpenseService;
-import com.ptda.tracker.services.tracker.SubdivisionService;
+import com.ptda.tracker.services.tracker.ExpenseDivisionService;
 
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
@@ -17,13 +17,13 @@ import java.util.HashSet;
 
 public class ExpenseDetailsView extends JPanel {
     private final ExpenseService expenseService;
-    private final SubdivisionService subdivisionService;
+    private final ExpenseDivisionService expenseDivisionService;
     private final Long budgetId;
     private User selectedUser;
 
-    public ExpenseDetailsView(ExpenseService expenseService, SubdivisionService subdivisionService, Long budgetId) {
+    public ExpenseDetailsView(ExpenseService expenseService, ExpenseDivisionService expenseDivisionService, Long budgetId) {
         this.expenseService = expenseService;
-        this.subdivisionService = subdivisionService;
+        this.expenseDivisionService = expenseDivisionService;
         this.budgetId = budgetId;
         initComponents();
     }
@@ -54,7 +54,7 @@ public class ExpenseDetailsView extends JPanel {
         expenseTableModel.setRowCount(0);
 
         for (Expense expense : expenses) {
-            List<ExpenseDivision> expenseDivisions = subdivisionService.getAllByExpenseId(expense.getId());
+            List<ExpenseDivision> expenseDivisions = expenseDivisionService.getAllByExpenseId(expense.getId());
             boolean userIsAssociated = expenseDivisions.stream()
                     .anyMatch(subdivision -> subdivision.getUser().getId().equals(selectedUser.getId()));
 

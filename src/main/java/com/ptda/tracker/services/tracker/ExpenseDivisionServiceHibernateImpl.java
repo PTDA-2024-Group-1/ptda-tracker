@@ -11,7 +11,7 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
-public class SubdivisionServiceHibernateImpl implements SubdivisionService {
+public class ExpenseDivisionServiceHibernateImpl implements ExpenseDivisionService {
 
     private final ExpenseDivisionRepository expenseDivisionRepository;
 

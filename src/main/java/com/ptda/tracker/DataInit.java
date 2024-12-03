@@ -2,9 +2,9 @@ package com.ptda.tracker;
 
 import com.ptda.tracker.models.user.Tier;
 import com.ptda.tracker.models.user.User;
-import com.ptda.tracker.services.admin.AdminService;
-import com.ptda.tracker.services.admin.RoleManagementService;
-import com.ptda.tracker.services.assistant.AssistantService;
+import com.ptda.tracker.services.administration.AdminService;
+import com.ptda.tracker.services.administration.RoleManagementService;
+import com.ptda.tracker.services.assistance.AssistantService;
 import com.ptda.tracker.services.user.TierService;
 import com.ptda.tracker.services.user.TierLimitService;
 import com.ptda.tracker.services.user.UserService;
