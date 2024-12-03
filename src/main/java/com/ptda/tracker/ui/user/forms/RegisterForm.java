@@ -6,6 +6,7 @@ import com.ptda.tracker.ui.MainFrame;
 import com.ptda.tracker.ui.user.screens.NavigationScreen;
 import com.ptda.tracker.util.LocaleManager;
 import com.ptda.tracker.util.ScreenNames;
+import com.ptda.tracker.util.UserSession;
 
 import javax.swing.*;
 import java.awt.*;
@@ -14,6 +15,7 @@ import static com.ptda.tracker.config.AppConfig.LOGO_PATH;
 
 public class RegisterForm extends JPanel {
     private final MainFrame mainFrame;
+    private User newUser;
 
     public RegisterForm(MainFrame mainFrame) {
         this.mainFrame = mainFrame;
@@ -44,10 +46,10 @@ public class RegisterForm extends JPanel {
             JOptionPane.showMessageDialog(this, ALL_FIELDS_REQUIRED, ERROR, JOptionPane.ERROR_MESSAGE);
             return;
         }
-        if (!email.matches("^[A-Za-z0-9+_.-]+@(.+)$")) {
-            JOptionPane.showMessageDialog(this, INVALID_EMAIL_FORMAT, ERROR, JOptionPane.ERROR_MESSAGE);
-            return;
-        }
+//        if (!email.matches("^[A-Za-z0-9+_.-]+@(.+)$")) {
+//            JOptionPane.showMessageDialog(this, INVALID_EMAIL_FORMAT, ERROR, JOptionPane.ERROR_MESSAGE);
+//            return;
+//        }
         if (!password.equals(confirmPassword)) {
             JOptionPane.showMessageDialog(this, PASSWORDS_DO_NOT_MATCH, ERROR, JOptionPane.ERROR_MESSAGE);
             return;
@@ -60,12 +62,13 @@ public class RegisterForm extends JPanel {
                 JOptionPane.showMessageDialog(this, EMAIL_ALREADY_REGISTERED, ERROR, JOptionPane.ERROR_MESSAGE);
                 return;
             }
-            User newUser = userService.register(name, email, password);
+            newUser = userService.register(name, email, password);
             if (newUser != null) {
-                mainFrame.registerAndShowScreen(
-                        ScreenNames.EMAIL_VERIFICATION_FORM,
-                        new EmailVerificationForm(mainFrame, newUser, ScreenNames.LOGIN_FORM, this::onEmailVerificationSuccess)
-                );
+//                mainFrame.registerAndShowScreen(
+//                        ScreenNames.EMAIL_VERIFICATION_FORM,
+//                        new EmailVerificationForm(mainFrame, newUser, ScreenNames.LOGIN_FORM, this::onEmailVerificationSuccess)
+//                );
+                onEmailVerificationSuccess();
                 // Clear fields
                 nameField.setText("");
                 emailField.setText("");
@@ -80,6 +83,11 @@ public class RegisterForm extends JPanel {
     }
 
     private void onEmailVerificationSuccess() {
+        UserService userService = mainFrame.getContext().getBean(UserService.class);
+        newUser.setEmailVerified(true);
+        userService.update(newUser);
+        LoginForm.saveCredentials(newUser);
+        UserSession.getInstance().setUser(newUser);
         mainFrame.registerAndShowScreen(ScreenNames.NAVIGATION_SCREEN, new NavigationScreen(mainFrame));
         mainFrame.removeScreen(ScreenNames.LOGIN_FORM);
         mainFrame.removeScreen(ScreenNames.EMAIL_VERIFICATION_FORM);

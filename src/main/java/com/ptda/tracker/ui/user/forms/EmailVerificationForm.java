@@ -101,10 +101,7 @@ public class EmailVerificationForm extends JPanel {
             );
             return false;
         }
-        if (!emailVerification.get().getCode().equals(verificationCode)) {
-            UserService userService = mainFrame.getContext().getBean(UserService.class);
-            user.setEmailVerified(true);
-            userService.update(user);
+        if (emailVerification.get().getCode().equals(verificationCode)) {
             emailVerificationService.activate(emailVerification.get());
             return true;
         } else {

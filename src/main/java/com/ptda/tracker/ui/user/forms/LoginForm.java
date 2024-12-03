@@ -60,11 +60,14 @@ public class LoginForm extends JPanel {
             mainFrame.registerAndShowScreen(ScreenNames.NAVIGATION_SCREEN, new NavigationScreen(mainFrame));
             JOptionPane.showMessageDialog(this, WELCOME_BACK, MESSAGE, JOptionPane.INFORMATION_MESSAGE);
         } else {
-            mainFrame.registerAndShowScreen(ScreenNames.EMAIL_VERIFICATION_FORM, new EmailVerificationForm(mainFrame, user, mainFrame.getCurrentScreen(), this::onEmailVerificationSuccess));
+            onEmailVerificationSuccess();
+            //mainFrame.registerAndShowScreen(ScreenNames.EMAIL_VERIFICATION_FORM, new EmailVerificationForm(mainFrame, user, mainFrame.getCurrentScreen(), this::onEmailVerificationSuccess));
         }
     }
 
     private void onEmailVerificationSuccess() {
+        user.setEmailVerified(true);
+        user = userService.update(user);
         saveCredentials(user);
         UserSession.getInstance().setUser(user);
         mainFrame.registerAndShowScreen(ScreenNames.NAVIGATION_SCREEN, new NavigationScreen(mainFrame));
