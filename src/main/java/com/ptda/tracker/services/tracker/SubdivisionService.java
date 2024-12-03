@@ -1,20 +1,21 @@
 package com.ptda.tracker.services.tracker;
 
-import com.ptda.tracker.models.tracker.Subdivision;
+import com.ptda.tracker.models.tracker.ExpenseDivision;
+
 import java.util.List;
 
 public interface SubdivisionService {
 
-    Subdivision create(Subdivision subdivision);
+    ExpenseDivision create(ExpenseDivision expenseDivision);
 
-    List<Subdivision> create(List<Subdivision> subdivisions);
+    List<ExpenseDivision> create(List<ExpenseDivision> expenseDivisions);
 
-    Subdivision update(Subdivision subdivision);
+    ExpenseDivision update(ExpenseDivision expenseDivision);
 
     boolean delete(Long id);
 
-    Subdivision getById(Long id);
+    ExpenseDivision getById(Long id);
 
-    List<Subdivision> getAllByExpenseId(Long expenseId);
+    List<ExpenseDivision> getAllByExpenseId(Long expenseId);
 
 }

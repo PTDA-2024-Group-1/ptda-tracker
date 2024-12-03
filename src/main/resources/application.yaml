@@ -18,6 +18,11 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.MySQLDialect
         show_sql: true
+      envers:
+        audit_table_suffix: _AUDIT
+        revision_field_name: rev
+        revision_type_field_name: revtype
+        store_data_at_delete: true
   mail:
     host: smtp.gmail.com
     port: 587

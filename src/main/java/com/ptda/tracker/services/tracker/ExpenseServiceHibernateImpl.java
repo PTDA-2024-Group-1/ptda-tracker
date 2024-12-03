@@ -3,7 +3,7 @@ package com.ptda.tracker.services.tracker;
 import com.ptda.tracker.models.tracker.Budget;
 import com.ptda.tracker.models.tracker.Expense;
 import com.ptda.tracker.repositories.ExpenseRepository;
-import com.ptda.tracker.repositories.SubdivisionRepository;
+import com.ptda.tracker.repositories.ExpenseDivisionRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
 public class ExpenseServiceHibernateImpl implements ExpenseService {
 
     private final ExpenseRepository expenseRepository;
-    private final SubdivisionRepository subdivisionRepository;
+    private final ExpenseDivisionRepository expenseDivisionRepository;
 
     @Override
     @Transactional
@@ -94,7 +94,7 @@ public class ExpenseServiceHibernateImpl implements ExpenseService {
     public boolean delete(Long id) {
         if (expenseRepository.existsById(id)) {
             // Delete related subdivisions first
-            subdivisionRepository.deleteByExpenseId(id);
+            expenseDivisionRepository.deleteByExpenseId(id);
             // Then delete the expense
             expenseRepository.deleteById(id);
             return true;

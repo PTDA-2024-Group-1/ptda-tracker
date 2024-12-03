@@ -1,11 +1,10 @@
 package com.ptda.tracker.ui.user.views;
 
 import com.ptda.tracker.models.tracker.Expense;
-import com.ptda.tracker.models.tracker.Subdivision;
+import com.ptda.tracker.models.tracker.ExpenseDivision;
 import com.ptda.tracker.models.user.User;
 import com.ptda.tracker.services.tracker.ExpenseService;
 import com.ptda.tracker.services.tracker.SubdivisionService;
-import com.ptda.tracker.util.UserSession;
 
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
@@ -55,8 +54,8 @@ public class ExpenseDetailsView extends JPanel {
         expenseTableModel.setRowCount(0);
 
         for (Expense expense : expenses) {
-            List<Subdivision> subdivisions = subdivisionService.getAllByExpenseId(expense.getId());
-            boolean userIsAssociated = subdivisions.stream()
+            List<ExpenseDivision> expenseDivisions = subdivisionService.getAllByExpenseId(expense.getId());
+            boolean userIsAssociated = expenseDivisions.stream()
                     .anyMatch(subdivision -> subdivision.getUser().getId().equals(selectedUser.getId()));
 
             if (!userIsAssociated) {
@@ -68,7 +67,7 @@ public class ExpenseDetailsView extends JPanel {
                     expense.getCategory().toString().equalsIgnoreCase(selectedCategory);
 
             if (matchesSearch && matchesCategory) {
-                double userAmount = subdivisions.stream()
+                double userAmount = expenseDivisions.stream()
                         .filter(subdivision -> subdivision.getUser().getId().equals(selectedUser.getId()))
                         .mapToDouble(subdivision -> expense.getAmount() * (subdivision.getPercentage() / 100))
                         .sum();

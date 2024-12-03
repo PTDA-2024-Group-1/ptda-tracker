@@ -27,7 +27,9 @@ public class TierHistory {
 
     @PrePersist
     protected void onCreate() {
-        this.createdAt = System.currentTimeMillis();
+        if (createdAt == 0) {
+            createdAt = System.currentTimeMillis();
+        }
     }
 
 }

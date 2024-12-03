@@ -29,9 +29,8 @@ public class EmailVerification {
     private long createdAt;
 
     @PostConstruct
-    public void init() {
-        this.isUsed = false;
-        this.createdAt = System.currentTimeMillis();
+    protected void onCreate() {
+        createdAt = System.currentTimeMillis();
     }
 
 }

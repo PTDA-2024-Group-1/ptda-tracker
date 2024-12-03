@@ -5,8 +5,10 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.envers.Audited;
 
 @Entity
+@Audited
 @Table(name = "_user")
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @DiscriminatorColumn(name = "user_type", discriminatorType = DiscriminatorType.STRING)
@@ -42,7 +44,9 @@ public class User {
 
     @PrePersist
     protected void onCreate() {
-        this.isActive = true;
-        this.createdAt = System.currentTimeMillis();
+        isActive = true;
+        if (createdAt == 0) {
+            createdAt = System.currentTimeMillis();
+        }
     }
 }

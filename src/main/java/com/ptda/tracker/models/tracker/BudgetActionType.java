@@ -1,6 +1,7 @@
 package com.ptda.tracker.models.tracker;
 
-public enum ActionType {
+public enum BudgetActionType {
+
     CREATE_BUDGET,
     UPDATE_BUDGET,
     DELETE_BUDGET,
@@ -13,7 +14,12 @@ public enum ActionType {
     UPDATE_BUDGET_ACCESS,
     DELETE_BUDGET_ACCESS,
 
-    CREATE_USER,
-    UPDATE_USER,
-    DELETE_USER
+    CREATE_EXPENSE_DIVISION,
+    UPDATE_EXPENSE_DIVISION,
+    DELETE_EXPENSE_DIVISION,
+
+    CREATE_DISPUTE,
+    UPDATE_DISPUTE,
+    DELETE_DISPUTE
+
 }

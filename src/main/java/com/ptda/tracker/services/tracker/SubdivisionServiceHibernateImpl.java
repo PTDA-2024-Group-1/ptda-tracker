@@ -1,7 +1,7 @@
 package com.ptda.tracker.services.tracker;
 
-import com.ptda.tracker.models.tracker.Subdivision;
-import com.ptda.tracker.repositories.SubdivisionRepository;
+import com.ptda.tracker.models.tracker.ExpenseDivision;
+import com.ptda.tracker.repositories.ExpenseDivisionRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -13,44 +13,44 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class SubdivisionServiceHibernateImpl implements SubdivisionService {
 
-    private final SubdivisionRepository subdivisionRepository;
+    private final ExpenseDivisionRepository expenseDivisionRepository;
 
     @Override
     @Transactional
-    public Subdivision create(Subdivision subdivision) {
-        return subdivisionRepository.save(subdivision);
+    public ExpenseDivision create(ExpenseDivision expenseDivision) {
+        return expenseDivisionRepository.save(expenseDivision);
     }
 
     @Override
-    public List<Subdivision> create(List<Subdivision> subdivisions) {
-        return subdivisionRepository.saveAll(subdivisions);
+    public List<ExpenseDivision> create(List<ExpenseDivision> expenseDivisions) {
+        return expenseDivisionRepository.saveAll(expenseDivisions);
     }
 
     @Override
     @Transactional
-    public Subdivision update(Subdivision subdivision) {
-        return subdivisionRepository.save(subdivision);
+    public ExpenseDivision update(ExpenseDivision expenseDivision) {
+        return expenseDivisionRepository.save(expenseDivision);
     }
 
     @Override
     @Transactional
     public boolean delete(Long id) {
-        if (subdivisionRepository.existsById(id)) {
-            subdivisionRepository.deleteById(id);
+        if (expenseDivisionRepository.existsById(id)) {
+            expenseDivisionRepository.deleteById(id);
             return true;
         }
         return false;
     }
 
     @Override
-    public Subdivision getById(Long id) {
-        Optional<Subdivision> optionalSubdivision = subdivisionRepository.findById(id);
+    public ExpenseDivision getById(Long id) {
+        Optional<ExpenseDivision> optionalSubdivision = expenseDivisionRepository.findById(id);
         return optionalSubdivision.orElse(null);
     }
 
     @Override
-    public List<Subdivision> getAllByExpenseId(Long expenseId) {
-        return subdivisionRepository.findAllByExpenseId(expenseId);
+    public List<ExpenseDivision> getAllByExpenseId(Long expenseId) {
+        return expenseDivisionRepository.findAllByExpenseId(expenseId);
     }
 
 }

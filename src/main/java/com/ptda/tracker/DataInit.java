@@ -6,7 +6,7 @@ import com.ptda.tracker.services.admin.AdminService;
 import com.ptda.tracker.services.admin.RoleManagementService;
 import com.ptda.tracker.services.assistant.AssistantService;
 import com.ptda.tracker.services.user.TierService;
-import com.ptda.tracker.services.user.DailyLimitService;
+import com.ptda.tracker.services.user.TierLimitService;
 import com.ptda.tracker.services.user.UserService;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
@@ -14,7 +14,6 @@ import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @Component
 @RequiredArgsConstructor
@@ -24,7 +23,7 @@ public class DataInit {
     private final AssistantService assistantService;
     private final AdminService adminService;
     private final RoleManagementService roleManagementService;
-    private final DailyLimitService dailyLimitService;
+    private final TierLimitService tierLimitService;
 
     @PostConstruct
     public void init() {
@@ -38,7 +37,7 @@ public class DataInit {
         // Optional<User> user = userService.getByEmail("ratmir.m2004@gmail.com");
         // roleManagementService.promoteUserToAssistant(user.get());
 
-        /* if (dailyLimitService.getAll().isEmpty()) {
+        /* if (tierLimitService.getAll().isEmpty()) {
             System.out.println("No daily limits found, creating default daily limits...");
             createDefaultDailyLimits();
         }
@@ -71,17 +70,17 @@ public class DataInit {
     }
 
     /* private void createDefaultDailyLimits() {
-        List<DailyLimit> dailyLimits = List.of(
-                DailyLimit.builder().actionType(ActionType.CREATE_BUDGET).limit(5).tier(tierService.getByName("Bronze")).build(),
-                DailyLimit.builder().actionType(ActionType.CREATE_EXPENSE).limit(10).tier(tierService.getByName("Bronze")).build(),
-                DailyLimit.builder().actionType(ActionType.CREATE_BUDGET).limit(10).tier(tierService.getByName("Silver")).build(),
-                DailyLimit.builder().actionType(ActionType.CREATE_EXPENSE).limit(20).tier(tierService.getByName("Silver")).build(),
-                DailyLimit.builder().actionType(ActionType.CREATE_BUDGET).limit(15).tier(tierService.getByName("Gold")).build(),
-                DailyLimit.builder().actionType(ActionType.CREATE_EXPENSE).limit(30).tier(tierService.getByName("Gold")).build(),
-                DailyLimit.builder().actionType(ActionType.CREATE_BUDGET).limit(20).tier(tierService.getByName("Platinum")).build(),
-                DailyLimit.builder().actionType(ActionType.CREATE_EXPENSE).limit(40).tier(tierService.getByName("Platinum")).build()
+        List<TierLimit> dailyLimits = List.of(
+                TierLimit.builder().budgetActionType(BudgetActionType.CREATE_BUDGET).limit(5).tier(tierService.getByName("Bronze")).build(),
+                TierLimit.builder().budgetActionType(BudgetActionType.CREATE_EXPENSE).limit(10).tier(tierService.getByName("Bronze")).build(),
+                TierLimit.builder().budgetActionType(BudgetActionType.CREATE_BUDGET).limit(10).tier(tierService.getByName("Silver")).build(),
+                TierLimit.builder().budgetActionType(BudgetActionType.CREATE_EXPENSE).limit(20).tier(tierService.getByName("Silver")).build(),
+                TierLimit.builder().budgetActionType(BudgetActionType.CREATE_BUDGET).limit(15).tier(tierService.getByName("Gold")).build(),
+                TierLimit.builder().budgetActionType(BudgetActionType.CREATE_EXPENSE).limit(30).tier(tierService.getByName("Gold")).build(),
+                TierLimit.builder().budgetActionType(BudgetActionType.CREATE_BUDGET).limit(20).tier(tierService.getByName("Platinum")).build(),
+                TierLimit.builder().budgetActionType(BudgetActionType.CREATE_EXPENSE).limit(40).tier(tierService.getByName("Platinum")).build()
         );
-        dailyLimitService.create(dailyLimits);
+        tierLimitService.create(dailyLimits);
     }
     */
 }

@@ -16,12 +16,12 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class ActionRecord {
+public class BudgetActionRecord {
 
     @Id
     private Long id;
 
-    private ActionType actionType;
+    private BudgetActionType budgetActionType;
 
     private String objectBefore;
 

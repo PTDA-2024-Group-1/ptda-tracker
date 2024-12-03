@@ -2,7 +2,7 @@ package com.ptda.tracker.ui.user.views;
 
 import com.ptda.tracker.models.tracker.Budget;
 import com.ptda.tracker.models.tracker.Expense;
-import com.ptda.tracker.models.tracker.Subdivision;
+import com.ptda.tracker.models.tracker.ExpenseDivision;
 import com.ptda.tracker.models.user.User;
 import com.ptda.tracker.services.tracker.ExpenseService;
 import com.ptda.tracker.services.tracker.SubdivisionService;
@@ -36,10 +36,10 @@ public class SimulationView extends JPanel {
         Map<User, Double> userPayments = new HashMap<>();
 
         for (Expense expense : expenses) {
-            List<Subdivision> subdivisions = subdivisionService.getAllByExpenseId(expense.getId());
-            for (Subdivision subdivision : subdivisions) {
-                User user = subdivision.getUser();
-                double userAmount = expense.getAmount() * (subdivision.getPercentage() / 100);
+            List<ExpenseDivision> expenseDivisions = subdivisionService.getAllByExpenseId(expense.getId());
+            for (ExpenseDivision expenseDivision : expenseDivisions) {
+                User user = expenseDivision.getUser();
+                double userAmount = expense.getAmount() * (expenseDivision.getPercentage() / 100);
                 userPayments.put(user, userPayments.getOrDefault(user, 0.0) + userAmount);
             }
         }
@@ -55,10 +55,10 @@ public class SimulationView extends JPanel {
     private User getUserByName(String name) {
         List<Expense> expenses = expenseService.getAllByBudgetId(budget.getId());
         for (Expense expense : expenses) {
-            List<Subdivision> subdivisions = subdivisionService.getAllByExpenseId(expense.getId());
-            for (Subdivision subdivision : subdivisions) {
-                if (subdivision.getUser().getName().equals(name)) {
-                    return subdivision.getUser();
+            List<ExpenseDivision> expenseDivisions = subdivisionService.getAllByExpenseId(expense.getId());
+            for (ExpenseDivision expenseDivision : expenseDivisions) {
+                if (expenseDivision.getUser().getName().equals(name)) {
+                    return expenseDivision.getUser();
                 }
             }
         }

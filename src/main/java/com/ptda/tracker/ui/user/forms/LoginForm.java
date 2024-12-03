@@ -56,6 +56,8 @@ public class LoginForm extends JPanel {
         this.user = userOptional.get();
         if (user.isEmailVerified()) {
             saveCredentials(user);
+            UserSession.getInstance().setUser(user);
+            mainFrame.registerAndShowScreen(ScreenNames.NAVIGATION_SCREEN, new NavigationScreen(mainFrame));
             JOptionPane.showMessageDialog(this, WELCOME_BACK, MESSAGE, JOptionPane.INFORMATION_MESSAGE);
         } else {
             mainFrame.registerAndShowScreen(ScreenNames.EMAIL_VERIFICATION_FORM, new EmailVerificationForm(mainFrame, user, mainFrame.getCurrentScreen(), this::onEmailVerificationSuccess));
@@ -64,6 +66,7 @@ public class LoginForm extends JPanel {
 
     private void onEmailVerificationSuccess() {
         saveCredentials(user);
+        UserSession.getInstance().setUser(user);
         mainFrame.registerAndShowScreen(ScreenNames.NAVIGATION_SCREEN, new NavigationScreen(mainFrame));
         mainFrame.removeScreen(ScreenNames.LOGIN_FORM);
         mainFrame.removeScreen(ScreenNames.EMAIL_VERIFICATION_FORM);
@@ -74,7 +77,6 @@ public class LoginForm extends JPanel {
         Preferences preferences = Preferences.userNodeForPackage(TrackerApplication.class);
         preferences.put("email", user.getEmail());
         preferences.put("password", user.getPassword());
-        UserSession.getInstance().setUser(user);
     }
 
     private void initComponents() {
@@ -86,7 +88,7 @@ public class LoginForm extends JPanel {
         topPanel.setLayout(new BoxLayout(topPanel, BoxLayout.Y_AXIS));
         topPanel.setAlignmentX(CENTER_ALIGNMENT);
 
-        JLabel titleLabel = new JLabel("Login", SwingConstants.CENTER);
+        JLabel titleLabel = new JLabel(LOGIN, SwingConstants.CENTER);
         titleLabel.setFont(new Font("Arial", Font.BOLD, 20));
         titleLabel.setAlignmentX(CENTER_ALIGNMENT);
         topPanel.add(titleLabel);

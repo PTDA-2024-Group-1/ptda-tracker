@@ -1,9 +1,8 @@
 package com.ptda.tracker.models.tracker.dispute;
 
 public enum DisputeStatus {
-    OPEN,
-    CLOSED,
+    ACTIVE,
     RESOLVED,
-    PENDING,
-    CANCELLED
+    REJECTED,
+    CANCELED
 }

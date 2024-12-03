@@ -4,8 +4,10 @@ import com.ptda.tracker.models.user.User;
 import com.ptda.tracker.util.UserSession;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.envers.Audited;
 
 @Entity
+@Audited
 @Data
 @Builder
 @NoArgsConstructor

@@ -2,6 +2,7 @@ package com.ptda.tracker.models.tracker;
 
 import com.ptda.tracker.models.tracker.dispute.Dispute;
 import com.ptda.tracker.models.user.User;
+import com.ptda.tracker.util.UserSession;
 import jakarta.persistence.*;
 
 import lombok.AllArgsConstructor;
@@ -14,7 +15,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class Subdivision {
+public class ExpenseDivision {
 
     @Id
     @GeneratedValue
@@ -31,6 +32,7 @@ public class Subdivision {
     private Dispute dispute;
 
     @ManyToOne
+    @JoinColumn(nullable = false)
     private User user;
 
     @ManyToOne
@@ -38,7 +40,7 @@ public class Subdivision {
 
     @PrePersist
     public void prePersist() {
-        createdBy = user;
+        createdBy = UserSession.getInstance().getUser();
     }
 
 }

@@ -7,6 +7,7 @@ import com.ptda.tracker.services.user.EmailVerificationService;
 import com.ptda.tracker.services.user.UserService;
 import com.ptda.tracker.ui.MainFrame;
 import com.ptda.tracker.util.LocaleManager;
+import com.ptda.tracker.util.UserSession;
 
 import javax.swing.*;
 import java.awt.*;
@@ -21,7 +22,7 @@ public class EmailVerificationForm extends JPanel {
 
     public EmailVerificationForm(MainFrame mainFrame, User user, String returnScreen, Runnable onVerificationSuccess) {
         if (user == null) {
-            throw new IllegalArgumentException("newUser cannot be null");
+            throw new IllegalArgumentException("newUser passed to EmailVerificationForm cannot be null");
         }
         this.mainFrame = mainFrame;
         this.emailVerificationService = mainFrame.getContext().getBean(EmailVerificationService.class);
@@ -40,6 +41,7 @@ public class EmailVerificationForm extends JPanel {
         verifyButton.addActionListener(e -> {
             if (verifyEmail()) {
                 LoginForm.saveCredentials(user);
+                UserSession.getInstance().setUser(user);
                 onVerificationSuccess.run();
                 JOptionPane.showMessageDialog(
                         this,
@@ -100,6 +102,12 @@ public class EmailVerificationForm extends JPanel {
             return false;
         }
         if (!emailVerification.get().getCode().equals(verificationCode)) {
+            UserService userService = mainFrame.getContext().getBean(UserService.class);
+            user.setEmailVerified(true);
+            userService.update(user);
+            emailVerificationService.activate(emailVerification.get());
+            return true;
+        } else {
             JOptionPane.showMessageDialog(
                     this,
                     INVALID_VERIFICATION_CODE,
@@ -108,17 +116,6 @@ public class EmailVerificationForm extends JPanel {
             );
             return false;
         }
-        UserService userService = mainFrame.getContext().getBean(UserService.class);
-        user.setEmailVerified(true);
-        userService.update(user);
-        emailVerificationService.activate(emailVerification.get());
-        JOptionPane.showMessageDialog(
-                this,
-                EMAIL_VERIFIED_SUCCESSFULLY,
-                SUCCESS,
-                JOptionPane.INFORMATION_MESSAGE
-        );
-        return true;
     }
 
     private void initComponents() {

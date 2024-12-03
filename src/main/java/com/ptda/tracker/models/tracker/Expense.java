@@ -4,15 +4,16 @@ import com.ptda.tracker.models.user.User;
 import com.ptda.tracker.util.UserSession;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.envers.Audited;
 
 import java.util.Date;
 
 @Entity
+@Audited
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@ToString
 public class Expense {
 
     @Id
@@ -57,10 +58,6 @@ public class Expense {
     protected void onUpdate() {
         this.updatedAt = System.currentTimeMillis();
         this.updatedBy = UserSession.getInstance().getUser();
-    }
-
-    public String toString() {
-        return title;
     }
 
 }

@@ -1,6 +1,6 @@
 package com.ptda.tracker.ui.user.views;
 
-import com.ptda.tracker.models.tracker.Subdivision;
+import com.ptda.tracker.models.tracker.ExpenseDivision;
 import com.ptda.tracker.models.tracker.BudgetAccess;
 import com.ptda.tracker.models.tracker.BudgetAccessLevel;
 import com.ptda.tracker.models.tracker.Expense;
@@ -18,14 +18,14 @@ import javax.swing.*;
 import java.awt.*;
 import java.util.List;
 
-import static com.ptda.tracker.ui.user.dialogs.SubdivisionsDialog.createSubdivisionsJTable;
+import static com.ptda.tracker.ui.user.dialogs.ExpenseDivisionsDialog.createDivisionsJTable;
 
 public class ExpenseDetailView extends JPanel {
     private final MainFrame mainFrame;
     private final ExpenseService expenseService;
     private final BudgetAccessService budgetAccessService;
     private Expense expense;
-    private final List<Subdivision> subdivisions;
+    private final List<ExpenseDivision> expenseDivisions;
     private final String returnScreen;
     private final Runnable onBack;
 
@@ -34,7 +34,7 @@ public class ExpenseDetailView extends JPanel {
         this.expenseService = mainFrame.getContext().getBean(ExpenseService.class);
         this.budgetAccessService = mainFrame.getContext().getBean(BudgetAccessService.class);
         this.expense = expense;
-        this.subdivisions = mainFrame.getContext().getBean(SubdivisionService.class).getAllByExpenseId(expense.getId());
+        this.expenseDivisions = mainFrame.getContext().getBean(SubdivisionService.class).getAllByExpenseId(expense.getId());
         this.returnScreen = returnScreen;
         this.onBack = onBack;
 
@@ -122,12 +122,12 @@ public class ExpenseDetailView extends JPanel {
         add(detailsPanel, BorderLayout.CENTER);
         // End Expense Details Panel
 
-        // Subdivisions Panel (Only show if subdivisions exist)
-        if (!subdivisions.isEmpty()) {
+        // Subdivisions Panel (Only show if expenseDivisions exist)
+        if (!expenseDivisions.isEmpty()) {
             JPanel subdivisionsPanel = new JPanel();
             subdivisionsPanel.setLayout(new BoxLayout(subdivisionsPanel, BoxLayout.Y_AXIS));
             subdivisionsPanel.setBorder(BorderFactory.createTitledBorder(SUBDIVISIONS));
-            subdivisionsTable = createSubdivisionsTable(subdivisions);
+            subdivisionsTable = createSubdivisionsTable(expenseDivisions);
             subdivisionsPanel.add(new JScrollPane(subdivisionsTable));
             add(subdivisionsPanel, BorderLayout.EAST);
         }
@@ -163,8 +163,8 @@ public class ExpenseDetailView extends JPanel {
         // End Buttons Panel
     }
 
-    private JTable createSubdivisionsTable(List<Subdivision> subdivisions) {
-        return createSubdivisionsJTable(subdivisions);
+    private JTable createSubdivisionsTable(List<ExpenseDivision> expenseDivisions) {
+        return createDivisionsJTable(expenseDivisions);
     }
 
     private JLabel nameLabel, amountLabel, categoryLabel, dateLabel, createdByLabel;
