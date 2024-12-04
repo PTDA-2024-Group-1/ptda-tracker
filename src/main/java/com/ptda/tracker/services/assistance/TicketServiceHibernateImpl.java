@@ -20,6 +20,11 @@ public class TicketServiceHibernateImpl implements TicketService {
     }
 
     @Override
+    public List<Ticket> getAll() {
+        return ticketRepository.findAll();
+    }
+
+    @Override
     public List<Ticket> getOpenTicketsByUser(User createdBy) {
         return ticketRepository.findAllByIsClosedIsFalseAndCreatedBy(createdBy);
     }

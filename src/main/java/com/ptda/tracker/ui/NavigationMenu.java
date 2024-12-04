@@ -2,6 +2,7 @@ package com.ptda.tracker.ui;
 
 import com.ptda.tracker.TrackerApplication;
 import com.ptda.tracker.ui.admin.screens.AdministrationOptionsScreen;
+import com.ptda.tracker.ui.assistant.AssistanceScreen;
 import com.ptda.tracker.ui.user.forms.LoginForm;
 import com.ptda.tracker.ui.user.screens.*;
 import com.ptda.tracker.ui.user.views.ProfileView;
@@ -35,7 +36,8 @@ public class NavigationMenu extends JPanel {
         addButtonToPanel(topPanel, BUDGETS, BUDGETS_SCREEN, gbc, 1);
         addButtonToPanel(topPanel, EXPENSES, EXPENSES_SCREEN, gbc, 2);
         addButtonToPanel(topPanel, SUPPORT, USER_TICKETS_SCREEN, gbc, 3);
-        addButtonToPanel(topPanel, ADMINISTRATION, ADMINISTRATION_OPTIONS_SCREEN, gbc, 4);
+        addButtonToPanel(topPanel, ASSISTANCE, ASSISTANCE_SCREEN, gbc, 4);
+        addButtonToPanel(topPanel, ADMINISTRATION, ADMINISTRATION_OPTIONS_SCREEN, gbc, 5);
 
         // Bottom panel
         JPanel bottomPanel = new JPanel(new GridBagLayout());
@@ -53,6 +55,9 @@ public class NavigationMenu extends JPanel {
     private void addButtonToPanel(JPanel panel, String label, String screenName, GridBagConstraints gbc, int row) {
         // Check if the user is an admin before adding the administration button
         if (label.equals(ADMINISTRATION) && !UserSession.getInstance().getUser().getUserType().equals("ADMIN")) {
+            return; // Do not add the button if the user is not an admin
+        }
+        if (label.equals(ASSISTANCE) && !UserSession.getInstance().getUser().getUserType().equals("ASSISTANT")) {
             return; // Do not add the button if the user is not an admin
         }
 
@@ -79,6 +84,7 @@ public class NavigationMenu extends JPanel {
             case BUDGETS_SCREEN -> new BudgetsScreen(mainFrame);
             case EXPENSES_SCREEN -> new ExpensesScreen(mainFrame);
             case USER_TICKETS_SCREEN -> new UserTicketsScreen(mainFrame);
+            case ASSISTANCE_SCREEN -> new AssistanceScreen(mainFrame);
             case PROFILE_SCREEN -> new ProfileView(mainFrame);
             case ADMINISTRATION_OPTIONS_SCREEN -> new AdministrationOptionsScreen(mainFrame);
             default -> new JPanel(); // Return an empty panel if the screen is not found
@@ -139,7 +145,11 @@ public class NavigationMenu extends JPanel {
             PROFILE_SCREEN = ScreenNames.PROFILE_SCREEN,
             ADMINISTRATION_OPTIONS_SCREEN = ScreenNames.ADMINISTRATION_OPTIONS_SCREEN,
             NAVIGATION_SCREEN = ScreenNames.NAVIGATION_SCREEN,
-            LOGIN_SCREEN = ScreenNames.LOGIN_FORM;
+            LOGIN_SCREEN = ScreenNames.LOGIN_FORM,
+            ASSISTANCE_SCREEN = ScreenNames.ASSISTANCE_SCREEN;
+
+
+
 
     private static final String
             HOME = "Home",
@@ -147,6 +157,7 @@ public class NavigationMenu extends JPanel {
             EXPENSES = "My Expenses",
             TICKETS = "Tickets",
             SUPPORT = "Support",
+            ASSISTANCE = "Assistance",
             PROFILE = "Profile",
             ADMINISTRATION = "Administration",
             LOGOUT = "Logout",

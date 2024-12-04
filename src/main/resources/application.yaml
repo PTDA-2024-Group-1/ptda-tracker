@@ -9,7 +9,7 @@ spring:
   datasource:
     url: jdbc:mysql://localhost:3306/PTDA24_BD_01
     username: root
-    password: Pass123!
+    password: qwerty
     driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
     hibernate:

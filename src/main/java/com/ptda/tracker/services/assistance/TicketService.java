@@ -9,6 +9,9 @@ public interface TicketService {
 
     List<Ticket> getAllByUser(User user);
 
+    List<Ticket> getAll();
+
+
     List<Ticket> getOpenTicketsByUser(User createdBy);
 
     Ticket create(Ticket ticket);
