@@ -1,19 +1,16 @@
 package com.ptda.tracker.ui.user.views;
 
 import com.ptda.tracker.models.user.User;
-import com.ptda.tracker.services.tracker.BudgetAccessService;
-import com.ptda.tracker.services.tracker.ExpenseService;
-import com.ptda.tracker.services.user.UserService;
 import com.ptda.tracker.ui.MainFrame;
-import com.ptda.tracker.ui.NavigationMenu;
 import com.ptda.tracker.ui.user.forms.ChangePasswordForm;
 import com.ptda.tracker.ui.user.forms.ProfileForm;
 import com.ptda.tracker.util.ScreenNames;
 import com.ptda.tracker.util.UserSession;
-import org.springframework.context.ApplicationContext;
 
 import javax.swing.*;
 import java.awt.*;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 public class ProfileView extends JPanel {
     private final MainFrame mainFrame;
@@ -29,131 +26,90 @@ public class ProfileView extends JPanel {
         if (user != null) {
             nameLabel.setText(user.getName());
             emailLabel.setText(user.getEmail());
+            tierLabel.setText(user.getTier() != null ? user.getTier().getName() : "N/A");
+            createdDateLabel.setText(new SimpleDateFormat("dd/MM/yyyy").format(new Date(user.getCreatedAt())));
+            accountAgeLabel.setText(calculateAccountAge(user.getCreatedAt()));
         }
-    }
-
-    private void deleteProfile() {
-        JOptionPane.showMessageDialog(mainFrame, DELETE_PROFILE_CONFIRMATION, DELETE_PROFILE_TITLE, JOptionPane.WARNING_MESSAGE);
-
-        User user = UserSession.getInstance().getUser();
-        ApplicationContext context = mainFrame.getContext();
-        if (user == null) {
-            JOptionPane.showMessageDialog(mainFrame, USER_NOT_FOUND, ERROR, JOptionPane.ERROR_MESSAGE);
-            return;
-        }
-        BudgetAccessService budgetAccessService = context.getBean(BudgetAccessService.class);
-        budgetAccessService.deleteAllByUserId(user.getId());
-
-        ExpenseService expenseService = context.getBean(ExpenseService.class);
-        expenseService.deleteAllPersonalExpensesByUserId(user.getId());
-
-        user.setName("Deleted User");
-        user.setEmail("deleted");
-        user.setEmailVerified(false);
-        user.setPassword("deleted");
-        user.setActive(false);
-        UserService userService = context.getBean(UserService.class);
-        userService.update(user);
-
-        NavigationMenu.performLogout(mainFrame);
-    }
-
-    private void navigateToEditProfile() {
-        mainFrame.registerAndShowScreen(ScreenNames.PROFILE_FORM, new ProfileForm(mainFrame, this::refreshUserData));
-    }
-
-    private void navigateToChangePassword() {
-        mainFrame.registerAndShowScreen(ScreenNames.CHANGE_PASSWORD_FORM, new ChangePasswordForm(mainFrame));
     }
 
     private void initComponents() {
         setLayout(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.fill = GridBagConstraints.HORIZONTAL;
-        gbc.insets = new Insets(20, 20, 20, 20);
+        gbc.insets = new Insets(15, 15, 15, 15);
 
-        // Title
+        // Painel de Informações (User Information)
+        JPanel infoPanel = new JPanel(new GridLayout(6, 1, 10, 10)); // 6 linhas para incluir os botões
+        infoPanel.setBorder(BorderFactory.createTitledBorder("User Information"));
         gbc.gridx = 0;
         gbc.gridy = 0;
         gbc.gridwidth = 2;
-        JLabel titleLabel = new JLabel(MY_PROFILE, SwingConstants.CENTER);
-        titleLabel.setFont(new Font("Arial", Font.BOLD, 24));
-        add(titleLabel, gbc);
+        gbc.weightx = 1;
+        gbc.weighty = 1;
+        add(infoPanel, gbc);
 
-        // Spacer
-        gbc.gridy = 1;
-        gbc.gridwidth = 2;
-        add(Box.createVerticalStrut(20), gbc);
+        // Adicionando campos de informações
+        infoPanel.add(createInfoBox(" Name: ", nameLabel = new JLabel()));
+        infoPanel.add(createInfoBox(" Email: ", emailLabel = new JLabel()));
+        infoPanel.add(createInfoBox(" Tier: ", tierLabel = new JLabel()));
+        infoPanel.add(createInfoBox(" Joined: ", createdDateLabel = new JLabel()));
+        infoPanel.add(createInfoBox(" Account Age: ", accountAgeLabel = new JLabel()));
 
-        // Name
-        gbc.gridwidth = 1;
-        gbc.gridx = 0;
-        gbc.gridy = 2;
-        JLabel nameLabelText = new JLabel(NAME);
-        nameLabelText.setFont(new Font("Arial", Font.PLAIN, 16));
-        add(nameLabelText, gbc);
+        // Painel de Botões dentro do infoPanel
+        JPanel buttonsPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 10));
+        infoPanel.add(buttonsPanel);
 
-        gbc.gridx = 1;
-        nameLabel = new JLabel();
-        nameLabel.setFont(new Font("Arial", Font.PLAIN, 16));
-        add(nameLabel, gbc);
-
-        // Email
-        gbc.gridx = 0;
-        gbc.gridy = 3;
-        JLabel emailLabelText = new JLabel(EMAIL);
-        emailLabelText.setFont(new Font("Arial", Font.PLAIN, 16));
-        add(emailLabelText, gbc);
-
-        gbc.gridx = 1;
-        emailLabel = new JLabel();
-        emailLabel.setFont(new Font("Arial", Font.PLAIN, 16));
-        add(emailLabel, gbc);
-
-        // Spacer
-        gbc.gridy = 4;
-        add(Box.createVerticalStrut(30), gbc);
-
-        // Buttons Panel
-        gbc.gridwidth = 2;
-        gbc.gridx = 0;
-        gbc.gridy = 5;
-        JPanel buttonsPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
-
-        // Edit Profile Button
-        editButton = new JButton(EDIT_PROFILE);
-        editButton.addActionListener(e -> navigateToEditProfile());
+        // Adicionando botões
+        JButton editButton = new JButton("Edit Profile");
+        editButton.addActionListener(e -> mainFrame.registerAndShowScreen(ScreenNames.PROFILE_FORM, new ProfileForm(mainFrame, this::refreshUserData)));
         buttonsPanel.add(editButton);
 
-        // Spacer
-        buttonsPanel.add(Box.createHorizontalStrut(20));
-
-        // Change Password Button
-        changePasswordButton = new JButton(CHANGE_PASSWORD);
-        changePasswordButton.addActionListener(e -> navigateToChangePassword());
+        JButton changePasswordButton = new JButton("Change Password");
+        changePasswordButton.addActionListener(e -> mainFrame.registerAndShowScreen(ScreenNames.CHANGE_PASSWORD_FORM, new ChangePasswordForm(mainFrame)));
         buttonsPanel.add(changePasswordButton);
 
-        // Delete Profile Button
-        deleteProfileButton = new JButton(DELETE_PROFILE);
+        JButton deleteProfileButton = new JButton("Delete Profile");
         deleteProfileButton.addActionListener(e -> deleteProfile());
         buttonsPanel.add(deleteProfileButton);
-
-        add(buttonsPanel, gbc);
     }
 
-    private JLabel nameLabel, emailLabel;
-    private JButton editButton, changePasswordButton, deleteProfileButton;
+    // Método auxiliar para criar uma linha de informação simples
+    private JPanel createInfoBox(String labelText, JLabel valueLabel) {
+        JPanel panel = new JPanel(new BorderLayout());
+        JLabel label = new JLabel(labelText);
+        panel.add(label, BorderLayout.WEST);
+        panel.add(valueLabel, BorderLayout.CENTER);
+        return panel;
+    }
 
-    private static final String
-            MY_PROFILE = "My Profile",
-            NAME = "Name:",
-            EMAIL = "Email:",
-            EDIT_PROFILE = "Edit Profile",
-            CHANGE_PASSWORD = "Change Password",
-            DELETE_PROFILE = "Delete Profile",
-            DELETE_PROFILE_CONFIRMATION = "Are you sure you want to delete your profile?",
-            DELETE_PROFILE_TITLE = "Delete Profile",
-            USER_NOT_FOUND = "User not found.",
-            ERROR = "Error";
 
+    private void deleteProfile() {
+        JOptionPane.showMessageDialog(mainFrame, "Are you sure you want to delete your profile?", "Delete Profile", JOptionPane.WARNING_MESSAGE);
+
+        User user = UserSession.getInstance().getUser();
+        if (user != null) {
+            user.setName("Deleted User");
+            user.setEmail("deleted");
+            user.setActive(false);
+            JOptionPane.showMessageDialog(mainFrame, "Profile deleted successfully.");
+        }
+    }
+
+    private String calculateAccountAge(long createdAt) {
+        long currentTime = System.currentTimeMillis();
+        long diffInMillis = currentTime - createdAt;
+        long days = diffInMillis / (1000 * 60 * 60 * 24);
+        long months = days / 30;
+        long years = months / 12;
+
+        if (years > 0) {
+            return years + " year(s), " + (months % 12) + " month(s)";
+        } else if (months > 0) {
+            return months + " month(s), " + (days % 30) + " day(s)";
+        } else {
+            return days + " day(s)";
+        }
+    }
+
+    private JLabel nameLabel, emailLabel, tierLabel, createdDateLabel, accountAgeLabel;
 }
