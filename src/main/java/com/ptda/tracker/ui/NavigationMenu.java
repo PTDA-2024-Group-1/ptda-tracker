@@ -2,7 +2,7 @@ package com.ptda.tracker.ui;
 
 import com.ptda.tracker.TrackerApplication;
 import com.ptda.tracker.ui.admin.screens.AdministrationOptionsScreen;
-import com.ptda.tracker.ui.assistant.AssistanceScreen;
+import com.ptda.tracker.ui.assistant.screens.AssistanceScreen;
 import com.ptda.tracker.ui.user.forms.LoginForm;
 import com.ptda.tracker.ui.user.screens.*;
 import com.ptda.tracker.ui.user.views.ProfileView;
@@ -53,12 +53,16 @@ public class NavigationMenu extends JPanel {
     }
 
     private void addButtonToPanel(JPanel panel, String label, String screenName, GridBagConstraints gbc, int row) {
-        // Check if the user is an admin before adding the administration button
-        if (label.equals(ADMINISTRATION) && !UserSession.getInstance().getUser().getUserType().equals("ADMIN")) {
-            return; // Do not add the button if the user is not an admin
+        String userType = UserSession.getInstance().getUser().getUserType();
+
+        // Check if the user is of type "USER" before adding the assistance or administration button
+        if (userType.equals("USER") && (label.equals(ASSISTANCE) || label.equals(ADMINISTRATION))) {
+            return; // Do not add the button if the user is of type "USER"
         }
-        if (label.equals(ASSISTANCE) && !UserSession.getInstance().getUser().getUserType().equals("ASSISTANT")) {
-            return; // Do not add the button if the user is not an admin
+
+        // Check if the user is of type "ASSISTANT" before adding the administration button
+        if (userType.equals("ASSISTANT") && label.equals(ADMINISTRATION)) {
+            return; // Do not add the administration button if the user is of type "ASSISTANT"
         }
 
         JButton button = new JButton(label);

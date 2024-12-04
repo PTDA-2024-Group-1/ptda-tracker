@@ -1,8 +1,10 @@
 package com.ptda.tracker.ui.user.views;
 
+import com.ptda.tracker.models.tracker.BudgetAccess;
 import com.ptda.tracker.models.tracker.Expense;
 import com.ptda.tracker.models.tracker.ExpenseDivision;
 import com.ptda.tracker.models.user.User;
+import com.ptda.tracker.services.tracker.BudgetAccessService;
 import com.ptda.tracker.services.tracker.ExpenseService;
 import com.ptda.tracker.services.tracker.ExpenseDivisionService;
 
@@ -18,12 +20,14 @@ import java.util.HashSet;
 public class ExpenseDetailsView extends JPanel {
     private final ExpenseService expenseService;
     private final ExpenseDivisionService expenseDivisionService;
+    private final BudgetAccessService budgetAccessService;
     private final Long budgetId;
     private User selectedUser;
 
-    public ExpenseDetailsView(ExpenseService expenseService, ExpenseDivisionService expenseDivisionService, Long budgetId) {
+    public ExpenseDetailsView(ExpenseService expenseService, ExpenseDivisionService expenseDivisionService, BudgetAccessService budgetAccessService, Long budgetId) {
         this.expenseService = expenseService;
         this.expenseDivisionService = expenseDivisionService;
+        this.budgetAccessService = budgetAccessService;
         this.budgetId = budgetId;
         initComponents();
     }
@@ -39,12 +43,12 @@ public class ExpenseDetailsView extends JPanel {
 
     public void setSelectedUser(User user) {
         this.selectedUser = user;
-        filterExpenses(); // Atualizar a tabela ao trocar de usuário
+        filterExpenses(); // Update the table when changing the user
     }
 
-    public void filterExpenses() {
+    private void filterExpenses() {
         if (selectedUser == null) {
-            return; // Não há usuário selecionado
+            return;
         }
 
         String searchText = searchField.getText().toLowerCase();
@@ -53,31 +57,41 @@ public class ExpenseDetailsView extends JPanel {
         List<Expense> expenses = expenseService.getAllByBudgetId(budgetId);
         expenseTableModel.setRowCount(0);
 
+        List<BudgetAccess> budgetAccesses = budgetAccessService.getAllByBudgetId(budgetId);
+        List<User> users = budgetAccesses.stream()
+                .map(BudgetAccess::getUser)
+                .toList();
+
+        Set<Long> displayedExpenses = new HashSet<>();
+
         for (Expense expense : expenses) {
             List<ExpenseDivision> expenseDivisions = expenseDivisionService.getAllByExpenseId(expense.getId());
-            boolean userIsAssociated = expenseDivisions.stream()
-                    .anyMatch(subdivision -> subdivision.getUser().getId().equals(selectedUser.getId()));
 
-            if (!userIsAssociated) {
-                continue;
+            double userAmount = expenseDivisions.stream()
+                    .filter(subdivision -> subdivision.getUser().getId().equals(selectedUser.getId()))
+                    .mapToDouble(subdivision -> expense.getAmount() * (subdivision.getPercentage() / 100))
+                    .sum();
+
+            boolean userIsAssociated = expenseDivisions.stream()
+                    .anyMatch(subdivision -> subdivision.getUser().getId().equals(selectedUser.getId())) || expenseDivisions.isEmpty();
+
+            if (expenseDivisions.isEmpty() && !displayedExpenses.contains(expense.getId())) {
+                userAmount = expense.getAmount() / users.size();
+                userIsAssociated = true;
             }
 
             boolean matchesSearch = expense.getTitle().toLowerCase().contains(searchText);
             boolean matchesCategory = selectedCategory.equals("All") ||
                     expense.getCategory().toString().equalsIgnoreCase(selectedCategory);
 
-            if (matchesSearch && matchesCategory) {
-                double userAmount = expenseDivisions.stream()
-                        .filter(subdivision -> subdivision.getUser().getId().equals(selectedUser.getId()))
-                        .mapToDouble(subdivision -> expense.getAmount() * (subdivision.getPercentage() / 100))
-                        .sum();
-
+            if (matchesSearch && matchesCategory && userIsAssociated) {
                 expenseTableModel.addRow(new Object[]{
                         expense.getTitle(),
                         "€" + String.format("%.2f", expense.getAmount()),
                         "€" + String.format("%.2f", userAmount),
                         expense.getCategory()
                 });
+                displayedExpenses.add(expense.getId());
             }
         }
     }
@@ -134,5 +148,4 @@ public class ExpenseDetailsView extends JPanel {
     private JTextField searchField;
     private JComboBox<String> categoryFilter;
     private JTable expenseTable;
-
 }

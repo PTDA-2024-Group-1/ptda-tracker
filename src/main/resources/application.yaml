@@ -2,7 +2,7 @@ spring:
   application:
     name: tracker
 #  datasource:
-#   url: jdbc:mysql://estga-dev.ua.pt:3306/PTDA24_BD_01
+#    url: jdbc:mysql://estga-dev.ua.pt:3306/PTDA24_BD_01
 #    username: PTDA24_01
 #    password: Xdft#345
 #    driver-class-name: com.mysql.cj.jdbc.Driver

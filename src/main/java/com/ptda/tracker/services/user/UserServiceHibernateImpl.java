@@ -28,6 +28,7 @@ public class UserServiceHibernateImpl implements UserService {
         }
         Tier tier = tierService.getTopTierByPoints(0).orElse(null);
         User user = User.builder()
+                .userType("USER")
                 .name(name)
                 .email(email)
                 .password(passwordEncoder.encode(password))

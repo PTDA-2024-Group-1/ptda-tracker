@@ -18,4 +18,7 @@ public interface RoleManagementService {
 
     Assistant demoteAdminToAssistant(Admin admin);
 
+    void updateUser(User user);
+
+    User findUserById(Long id);
 }

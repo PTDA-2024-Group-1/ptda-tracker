@@ -1,10 +1,12 @@
 package com.ptda.tracker.ui.user.views;
 
 import com.ptda.tracker.models.tracker.Budget;
+import com.ptda.tracker.models.tracker.BudgetAccess;
 import com.ptda.tracker.models.tracker.Expense;
 import com.ptda.tracker.models.tracker.ExpenseDivision;
 import com.ptda.tracker.models.user.User;
 import com.ptda.tracker.services.tracker.ExpenseService;
+import com.ptda.tracker.services.tracker.BudgetAccessService;
 import com.ptda.tracker.services.tracker.ExpenseDivisionService;
 import com.ptda.tracker.ui.MainFrame;
 import com.ptda.tracker.util.ScreenNames;
@@ -20,12 +22,14 @@ public class SimulationView extends JPanel {
     private final MainFrame mainFrame;
     private final Budget budget;
     private final ExpenseService expenseService;
+    private final BudgetAccessService budgetAccessService;
     private final ExpenseDivisionService expenseDivisionService;
 
     public SimulationView(MainFrame mainFrame, Budget budget) {
         this.mainFrame = mainFrame;
         this.budget = budget;
         this.expenseService = mainFrame.getContext().getBean(ExpenseService.class);
+        this.budgetAccessService = mainFrame.getContext().getBean(BudgetAccessService.class);
         this.expenseDivisionService = mainFrame.getContext().getBean(ExpenseDivisionService.class);
 
         initComponents();
@@ -34,13 +38,23 @@ public class SimulationView extends JPanel {
     private void populateRankingsTable() {
         List<Expense> expenses = expenseService.getAllByBudgetId(budget.getId());
         Map<User, Double> userPayments = new HashMap<>();
+        List<BudgetAccess> budgetAccesses = budgetAccessService.getAllByBudgetId(budget.getId());
 
         for (Expense expense : expenses) {
             List<ExpenseDivision> expenseDivisions = expenseDivisionService.getAllByExpenseId(expense.getId());
-            for (ExpenseDivision expenseDivision : expenseDivisions) {
-                User user = expenseDivision.getUser();
-                double userAmount = expense.getAmount() * (expenseDivision.getPercentage() / 100);
-                userPayments.put(user, userPayments.getOrDefault(user, 0.0) + userAmount);
+            if (expenseDivisions.isEmpty()) {
+                // Distribute the expense equally among all users
+                double equalShare = expense.getAmount() / budgetAccesses.size();
+                for (BudgetAccess budgetAccess : budgetAccesses) {
+                    User user = budgetAccess.getUser();
+                    userPayments.put(user, userPayments.getOrDefault(user, 0.0) + equalShare);
+                }
+            } else {
+                for (ExpenseDivision expenseDivision : expenseDivisions) {
+                    User user = expenseDivision.getUser();
+                    double userAmount = expense.getAmount() * (expenseDivision.getPercentage() / 100);
+                    userPayments.put(user, userPayments.getOrDefault(user, 0.0) + userAmount);
+                }
             }
         }
 
@@ -78,7 +92,7 @@ public class SimulationView extends JPanel {
             }
         });
 
-        JLabel titleLabel = new JLabel(BUDGET_SIMULATION, SwingConstants.CENTER);
+        JLabel titleLabel = new JLabel(SPLIT_SIMULATION, SwingConstants.CENTER);
         titleLabel.setFont(new Font("Arial", Font.BOLD, 20));
         add(titleLabel, BorderLayout.NORTH);
 
@@ -86,7 +100,7 @@ public class SimulationView extends JPanel {
         mainPanel = new JPanel(cardLayout);
 
         mainPanel.add(createRankingsPanel(), "Rankings");
-        mainPanel.add(new ExpenseDetailsView(expenseService, expenseDivisionService, budget.getId()), "Expenses");
+        mainPanel.add(new ExpenseDetailsView(expenseService, expenseDivisionService, budgetAccessService, budget.getId()), "Expenses");
 
         add(mainPanel, BorderLayout.CENTER);
 
@@ -130,13 +144,11 @@ public class SimulationView extends JPanel {
                 String selectedUserName = rankingTableModel.getValueAt(rankingTable.getSelectedRow(), 0).toString();
                 User selectedUser = getUserByName(selectedUserName);
 
-                // Passar o usuário selecionado para o painel de detalhes
                 ExpenseDetailsView expenseDetailsView = (ExpenseDetailsView) mainPanel.getComponent(1);
                 expenseDetailsView.setSelectedUser(selectedUser);
                 cardLayout.show(mainPanel, "Expenses");
             }
         });
-
 
         return panel;
     }
@@ -148,7 +160,7 @@ public class SimulationView extends JPanel {
     private JButton backButton;
 
     private static final String
-            BUDGET_SIMULATION = "Budget Simulation",
+            SPLIT_SIMULATION = "Split Simulation",
             BACK = "Back",
             ALL_USERS_TOTAL_EXPENSES = "All Users - Total Expenses";
 

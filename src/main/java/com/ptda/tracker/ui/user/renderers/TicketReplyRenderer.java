@@ -22,7 +22,7 @@ public class TicketReplyRenderer extends DefaultListCellRenderer {
 
             setText(replyText);
 
-            if (reply.getCreatedBy().getId().equals(UserSession.getInstance().getUser().getId())) {
+            if (reply.getCreatedBy().getUserType().equals("USER")) {
                 setHorizontalAlignment(SwingConstants.RIGHT);
             } else {
                 setHorizontalAlignment(SwingConstants.LEFT);

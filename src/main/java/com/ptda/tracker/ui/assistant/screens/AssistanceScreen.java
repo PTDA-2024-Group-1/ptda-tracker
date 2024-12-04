@@ -1,4 +1,4 @@
-package com.ptda.tracker.ui.assistant;
+package com.ptda.tracker.ui.assistant.screens;
 
 import com.ptda.tracker.models.assistance.Ticket;
 import com.ptda.tracker.services.assistance.TicketService;
@@ -41,14 +41,6 @@ public class AssistanceScreen extends JPanel {
 
         JLabel label = new JLabel(SELECT_TICKET, SwingConstants.CENTER);
         add(label, BorderLayout.NORTH);
-
-        JButton createButton = new JButton(CREATE_NEW_TICKET);
-        createButton.addActionListener(e -> {
-            // Open TicketForm in creation mode
-            mainFrame.registerScreen(ScreenNames.TICKET_FORM, new TicketForm(mainFrame, this::refreshTicketList, null));
-            mainFrame.showScreen(ScreenNames.TICKET_FORM);
-        });
-        add(createButton, BorderLayout.SOUTH);
     }
 
     private void refreshTicketList() {
@@ -64,8 +56,5 @@ public class AssistanceScreen extends JPanel {
     }
 
     private static final String
-            SELECT_TICKET = "Select a ticket to view details",
-            CREATE_NEW_TICKET = "Create New Ticket";
-
-
+            SELECT_TICKET = "Select a ticket to view details";
 }

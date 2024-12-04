@@ -31,22 +31,32 @@ public class ManageUserDialog extends JDialog {
 
     private void loadUserData() {
         roleComboBox.setSelectedItem(user.getUserType());
+        emailVerifiedCheckBox.setSelected(user.isEmailVerified());
+        activeCheckBox.setSelected(user.isActive());
     }
 
-    private void saveUserRole() {
+    private void saveUserDetails() {
         String selectedRole = (String) roleComboBox.getSelectedItem();
         try {
-            switch (selectedRole) {
-                case "ASSISTANT" -> roleManagementService.promoteUserToAssistant(user);
-                case "ADMIN" -> roleManagementService.promoteUserToAdmin(user);
-                case "USER" -> {
-                    if (user instanceof Assistant) {
-                        roleManagementService.demoteAssistant((Assistant) user);
-                    } else if (user instanceof Admin) {
-                        roleManagementService.demoteAdminToUser((Admin) user);
+            if (!selectedRole.equals(user.getUserType())) {
+                switch (selectedRole) {
+                    case "ASSISTANT" -> roleManagementService.promoteUserToAssistant(user);
+                    case "ADMIN" -> roleManagementService.promoteUserToAdmin(user);
+                    case "USER" -> {
+                        if (user instanceof Assistant) {
+                            roleManagementService.demoteAssistant((Assistant) user);
+                        } else if (user instanceof Admin) {
+                            roleManagementService.demoteAdminToUser((Admin) user);
+                        }
                     }
                 }
             }
+
+            User reloadedUser = roleManagementService.findUserById(user.getId());
+            reloadedUser.setEmailVerified(emailVerifiedCheckBox.isSelected());
+            reloadedUser.setActive(activeCheckBox.isSelected());
+            roleManagementService.updateUser(reloadedUser);
+
             JOptionPane.showMessageDialog(this, USER_ROLE_UPDATED_SUCCESSFULLY);
             if (onFormSubmit != null) onFormSubmit.run();
             mainFrame.registerAndShowScreen(ScreenNames.MANAGE_USER_VIEW, new ManageUserView(mainFrame));
@@ -58,9 +68,9 @@ public class ManageUserDialog extends JDialog {
 
     private void initComponents() {
         setTitle(TITLE);
-        setSize(400, 300);
+        setSize(400, 400);
         setLayout(new BorderLayout());
-        JPanel formPanel = new JPanel(new GridLayout(5, 2, 10, 10));
+        JPanel formPanel = new JPanel(new GridLayout(7, 2, 10, 10));
         formPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
         formPanel.add(new JLabel(ID));
@@ -82,11 +92,19 @@ public class ManageUserDialog extends JDialog {
         roleComboBox = new JComboBox<>(new String[]{"USER", "ASSISTANT", "ADMIN"});
         formPanel.add(roleComboBox);
 
+        formPanel.add(new JLabel("Email Verified"));
+        emailVerifiedCheckBox = new JCheckBox();
+        formPanel.add(emailVerifiedCheckBox);
+
+        formPanel.add(new JLabel("Active"));
+        activeCheckBox = new JCheckBox();
+        formPanel.add(activeCheckBox);
+
         add(formPanel, BorderLayout.CENTER);
 
         JPanel buttonPanel = new JPanel();
         JButton saveButton = new JButton(SAVE);
-        saveButton.addActionListener(e -> saveUserRole());
+        saveButton.addActionListener(e -> saveUserDetails());
         buttonPanel.add(saveButton);
 
         JButton cancelButton = new JButton(CANCEL);
@@ -95,6 +113,9 @@ public class ManageUserDialog extends JDialog {
 
         add(buttonPanel, BorderLayout.SOUTH);
     }
+
+    private JCheckBox emailVerifiedCheckBox;
+    private JCheckBox activeCheckBox;
 
     private static final LocaleManager localeManager = LocaleManager.getInstance();
     private static final String

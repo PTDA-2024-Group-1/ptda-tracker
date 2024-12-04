@@ -9,6 +9,7 @@ import org.hibernate.envers.AuditReaderFactory;
 import org.hibernate.envers.query.AuditEntity;
 import org.hibernate.envers.query.AuditQuery;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -19,6 +20,7 @@ public class ExpenseAuditServiceHibernateImpl implements ExpenseAuditService {
     @PersistenceContext
     private final EntityManager entityManager;
 
+    @Transactional(readOnly = true)
     public List<Object[]> getExpenseRevisionsWithDetails(Long expenseId) {
         AuditReader auditReader = AuditReaderFactory.get(entityManager);
         AuditQuery query = auditReader.createQuery()
@@ -27,11 +29,13 @@ public class ExpenseAuditServiceHibernateImpl implements ExpenseAuditService {
         return query.getResultList();
     }
 
+    @Transactional(readOnly = true)
     public List<Number> getExpenseRevisions(Long expenseId) {
         AuditReader auditReader = AuditReaderFactory.get(entityManager);
         return auditReader.getRevisions(Expense.class, expenseId);
     }
 
+    @Transactional(readOnly = true)
     public Expense getExpenseAtRevision(Long expenseId, Number revision) {
         AuditReader auditReader = AuditReaderFactory.get(entityManager);
         return auditReader.find(Expense.class, expenseId, revision);

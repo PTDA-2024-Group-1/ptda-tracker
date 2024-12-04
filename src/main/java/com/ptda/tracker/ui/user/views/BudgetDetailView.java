@@ -192,6 +192,11 @@ public class BudgetDetailView extends JPanel {
         importButton = new JButton("Import Expenses");
         topButtonsPanel.add(importButton);
 
+        // Add the audit button
+        auditButton = new JButton("Audit Changes");
+        auditButton.addActionListener(e -> mainFrame.registerAndShowScreen(ScreenNames.BUDGET_AUDIT_DETAIL_VIEW, new BudgetAuditDetailView(mainFrame, budget)));
+        topButtonsPanel.add(auditButton);
+
         // Adiciona os detalhes e os botões ao topo
         JPanel topPanel = new JPanel();
         topPanel.setLayout(new BorderLayout());
@@ -219,9 +224,9 @@ public class BudgetDetailView extends JPanel {
         // Painel do botão "Simulate Budget" (alinhado à direita)
         JPanel rightButtonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         if (!expenses.isEmpty()) {
-            JButton simulateBudget = new JButton(SIMULATION_BUDGET);
-            simulateBudget.addActionListener(e -> mainFrame.registerAndShowScreen(ScreenNames.SIMULATE_VIEW, new SimulationView(mainFrame, budget)));
-            rightButtonPanel.add(simulateBudget);
+            JButton splitSimulation = new JButton(SPLIT_SIMULATION);
+            splitSimulation.addActionListener(e -> mainFrame.registerAndShowScreen(ScreenNames.SIMULATE_VIEW, new SimulationView(mainFrame, budget)));
+            rightButtonPanel.add(splitSimulation);
         }
         if (hasEditorAccess) {
             addExpenseButton = new JButton(ADD_EXPENSE);
@@ -234,7 +239,7 @@ public class BudgetDetailView extends JPanel {
 
     private JTable expensesTable;
     JLabel nameLabel, descriptionLabel, createdByLabel;
-    private JButton backButton, participantsButton, editButton, shareButton, addExpenseButton, importButton;
+    private JButton auditButton, backButton, participantsButton, editButton, shareButton, addExpenseButton, importButton;
     private static final String
             BUDGET_DETAILS = "Budget Details",
             NAME = "Name",
@@ -246,7 +251,7 @@ public class BudgetDetailView extends JPanel {
             EDIT_BUDGET = "Edit Budget",
             ADD_EXPENSE = "Add Expense",
             SHARE_BUDGET = "Share Budget",
-            SIMULATION_BUDGET = "Simulation Budget",
+            SPLIT_SIMULATION = "Split Simulation",
             TITLE = "Title",
             AMOUNT = "Amount",
             CATEGORY = "Category",

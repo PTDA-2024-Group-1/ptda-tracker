@@ -2,6 +2,7 @@ package com.ptda.tracker.services.tracker;
 
 import com.ptda.tracker.models.tracker.BudgetAccess;
 import com.ptda.tracker.models.tracker.BudgetAccessLevel;
+import com.ptda.tracker.models.user.User;
 
 import java.util.List;
 
@@ -26,5 +27,4 @@ public interface BudgetAccessService {
     boolean delete(Long accessId);
 
     boolean deleteAllByUserId(Long userId);
-
 }

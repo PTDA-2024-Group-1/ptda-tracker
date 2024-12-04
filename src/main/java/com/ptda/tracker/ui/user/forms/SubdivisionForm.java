@@ -102,17 +102,26 @@ public class SubdivisionForm extends JPanel {
             return;
         }
 
-        double equalPercentage = remainingPercentage / selectedUsers.size();
+        int userCount = selectedUsers.size();
+        double equalPercentage = remainingPercentage / userCount;
+        double roundedPercentage = Math.round(equalPercentage * 10.0) / 10.0;
+        double totalRoundedPercentage = roundedPercentage * userCount;
+        double adjustment = remainingPercentage - totalRoundedPercentage;
 
-        for (BudgetAccess userAccess : selectedUsers) {
-            User user = userAccess.getUser();
-            double amount = expense.getAmount() * (equalPercentage / 100);
+        for (int i = 0; i < userCount; i++) {
+            User user = selectedUsers.get(i).getUser();
+            double finalPercentage = roundedPercentage;
+            if (i < adjustment) {
+                finalPercentage += 0.1;
+            }
+
+            double amount = expense.getAmount() * (finalPercentage / 100);
 
             ExpenseDivision expenseDivision = ExpenseDivision.builder()
                     .expense(expense)
                     .user(user)
                     .amount(amount)
-                    .percentage(equalPercentage)
+                    .percentage(finalPercentage)
                     .createdBy(currentUser)
                     .build();
 
@@ -120,7 +129,7 @@ public class SubdivisionForm extends JPanel {
             expenseDivisionService.create(expenseDivision);
         }
 
-        JOptionPane.showMessageDialog(this, REMAINING_PERCENTAGE_DISTRIBUTED + equalPercentage + "%.");
+        JOptionPane.showMessageDialog(this, REMAINING_PERCENTAGE_DISTRIBUTED + roundedPercentage + "%.");
 
         if (onBack != null) {
             onBack.run();

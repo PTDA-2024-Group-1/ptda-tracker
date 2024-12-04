@@ -20,7 +20,6 @@ public class RoleManagementServiceHibernateImpl implements RoleManagementService
             throw new IllegalArgumentException("User is already an Assistant or higher!");
         }
 
-        // Update the user_type and assistant_level_id fields in the database
         String updateQuery = "UPDATE _user SET user_type = 'ASSISTANT', assistant_level_id = NULL WHERE id = :id";
         int updatedRows = entityManager.createNativeQuery(updateQuery)
                 .setParameter("id", user.getId())
@@ -30,7 +29,6 @@ public class RoleManagementServiceHibernateImpl implements RoleManagementService
             throw new IllegalStateException("Failed to promote User with ID: " + user.getId());
         }
 
-        // Reload the updated entity as Assistant
         return entityManager.find(Assistant.class, user.getId());
     }
 
@@ -41,7 +39,6 @@ public class RoleManagementServiceHibernateImpl implements RoleManagementService
             throw new IllegalArgumentException("User is already an Admin or higher!");
         }
 
-        // Update the user_type and assistant_level_id fields in the database
         String updateQuery = "UPDATE _user SET user_type = 'ADMIN', assistant_level_id = NULL WHERE id = :id";
         int updatedRows = entityManager.createNativeQuery(updateQuery)
                 .setParameter("id", user.getId())
@@ -51,7 +48,6 @@ public class RoleManagementServiceHibernateImpl implements RoleManagementService
             throw new IllegalStateException("Failed to promote User with ID: " + user.getId());
         }
 
-        // Reload the updated entity as Admin
         return entityManager.find(Admin.class, user.getId());
     }
 
@@ -62,7 +58,6 @@ public class RoleManagementServiceHibernateImpl implements RoleManagementService
             throw new IllegalArgumentException("User is not an Assistant!");
         }
 
-        // Update user_type back to 'USER'
         String updateQuery = "UPDATE _user SET user_type = 'USER' WHERE id = :id";
         int updatedRows = entityManager.createNativeQuery(updateQuery)
                 .setParameter("id", assistant.getId())
@@ -72,7 +67,6 @@ public class RoleManagementServiceHibernateImpl implements RoleManagementService
             throw new IllegalStateException("Failed to demote Assistant with ID: " + assistant.getId());
         }
 
-        // Reload the entity as a User
         return entityManager.find(User.class, assistant.getId());
     }
 
@@ -83,7 +77,6 @@ public class RoleManagementServiceHibernateImpl implements RoleManagementService
             throw new IllegalArgumentException("User is not an Assistant!");
         }
 
-        // Update the user_type and assistant_level_id fields in the database
         String updateQuery = "UPDATE _user SET user_type = 'ADMIN' WHERE id = :id";
         int updatedRows = entityManager.createNativeQuery(updateQuery)
                 .setParameter("id", user.getId())
@@ -93,7 +86,6 @@ public class RoleManagementServiceHibernateImpl implements RoleManagementService
             throw new IllegalStateException("Failed to promote Assistant with ID: " + user.getId());
         }
 
-        // Reload the updated entity as Admin
         return entityManager.find(Admin.class, user.getId());
     }
 
@@ -104,9 +96,7 @@ public class RoleManagementServiceHibernateImpl implements RoleManagementService
             throw new IllegalArgumentException("User is not an Admin!");
         }
 
-        // Update user_type back to 'USER'
         String updateQuery = "UPDATE _user SET user_type = 'USER' WHERE id = :id";
-
         int updatedRows = entityManager.createNativeQuery(updateQuery)
                 .setParameter("id", admin.getId())
                 .executeUpdate();
@@ -115,7 +105,6 @@ public class RoleManagementServiceHibernateImpl implements RoleManagementService
             throw new IllegalStateException("Failed to demote Admin with ID: " + admin.getId());
         }
 
-        // Reload the entity as a User
         return entityManager.find(User.class, admin.getId());
     }
 
@@ -126,9 +115,7 @@ public class RoleManagementServiceHibernateImpl implements RoleManagementService
             throw new IllegalArgumentException("User is not an Admin!");
         }
 
-        // Update the user_type back to 'ASSISTANT'
         String updateQuery = "UPDATE _user SET user_type = 'ASSISTANT' WHERE id = :id";
-
         int updatedRows = entityManager.createNativeQuery(updateQuery)
                 .setParameter("id", admin.getId())
                 .executeUpdate();
@@ -137,8 +124,20 @@ public class RoleManagementServiceHibernateImpl implements RoleManagementService
             throw new IllegalStateException("Failed to demote Admin with ID: " + admin.getId());
         }
 
-        // Reload the entity as an Assistant
         return entityManager.find(Assistant.class, admin.getId());
     }
 
+    @Override
+    @Transactional
+    public void updateUser(User user) {
+        User updatedUser = entityManager.merge(user);
+        if (updatedUser == null) {
+            throw new IllegalStateException("Failed to update User with ID: " + user.getId());
+        }
+    }
+
+    @Override
+    public User findUserById(Long id) {
+        return entityManager.find(User.class, id);
+    }
 }

@@ -43,34 +43,35 @@ public class TicketDetailView extends JPanel {
         backButton.addActionListener(e -> mainFrame.showScreen(ScreenNames.NAVIGATION_SCREEN));
         buttonPanel.add(backButton);
 
-        if (ticket.isClosed()) {
-            JButton reopenButton = new JButton(REOPEN_TICKET);
-            reopenButton.addActionListener(e -> {
-                TicketReply reply = TicketReply.builder()
-                        .ticket(ticket)
-                        .createdBy(UserSession.getInstance().getUser())
-                        .body("Reopened the ticket.")
-                        .build();
-                ticketReplyService.create(reply);
-                ticket.setClosed(false);
-                ticketService.update(ticket);
-                JOptionPane.showMessageDialog(this, TICKET_REOPENED_SUCCESS);
-                refreshRepliesList();
-                updateButtons(buttonPanel);
-            });
-            buttonPanel.add(reopenButton);
-        } else {
-            JButton closeButton = new JButton(CLOSE_TICKET);
-            closeButton.addActionListener(e -> {
-                ticket.setClosed(true);
-                ticketService.update(ticket);
-                JOptionPane.showMessageDialog(this, TICKET_CLOSED_SUCCESS);
-                refreshRepliesList();
-                updateButtons(buttonPanel);
-            });
-            buttonPanel.add(closeButton);
+        if (UserSession.getInstance().getUser().getUserType().equals("USER")) {
+            if (ticket.isClosed()) {
+                reopenButton.addActionListener(e -> {
+                    TicketReply reply = TicketReply.builder()
+                            .ticket(ticket)
+                            .createdBy(UserSession.getInstance().getUser())
+                            .body("Reopened the ticket.")
+                            .build();
+                    ticketReplyService.create(reply);
+                    ticket.setClosed(false);
+                    ticketService.update(ticket);
+                    JOptionPane.showMessageDialog(this, TICKET_REOPENED_SUCCESS);
+                    refreshRepliesList();
+                    updateButtons(buttonPanel);
+                });
+                buttonPanel.add(reopenButton);
+            } else {
+                closeButton.addActionListener(e -> {
+                    ticket.setClosed(true);
+                    ticketService.update(ticket);
+                    JOptionPane.showMessageDialog(this, TICKET_CLOSED_SUCCESS);
+                    refreshRepliesList();
+                    updateButtons(buttonPanel);
+                });
+                buttonPanel.add(closeButton);
+            }
+        }
 
-            JButton replyButton = new JButton(REPLY);
+        if (!ticket.isClosed()) {
             replyButton.addActionListener(e -> mainFrame.registerAndShowScreen(ScreenNames.TICKET_REPLY_FORM, new TicketReplyForm(mainFrame, null, ticket)));
             buttonPanel.add(replyButton);
         }
@@ -121,7 +122,9 @@ public class TicketDetailView extends JPanel {
         addButtons(buttonPanel);
         add(buttonPanel, BorderLayout.SOUTH);
     }
-
+    JButton replyButton = new JButton(REPLY);
+    JButton closeButton = new JButton(CLOSE_TICKET);
+    JButton reopenButton = new JButton(REOPEN_TICKET);
     private JXList repliesList;
     private static final String
             TICKET_DESCRIPTION = "Ticket Description",

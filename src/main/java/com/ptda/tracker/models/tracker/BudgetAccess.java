@@ -26,7 +26,7 @@ public class BudgetAccess {
     @ManyToOne
     private Budget budget;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     private User user;
 
     @ManyToOne

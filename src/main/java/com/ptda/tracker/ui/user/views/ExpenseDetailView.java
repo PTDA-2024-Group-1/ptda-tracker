@@ -145,6 +145,11 @@ public class ExpenseDetailView extends JPanel {
         deleteButton = new JButton(DELETE_EXPENSE);
         buttonsPanel.add(deleteButton);
 
+        // Add the audit button
+        JButton auditButton = new JButton("Audit Expense");
+        auditButton.addActionListener(e -> mainFrame.registerAndShowScreen(ScreenNames.EXPENSE_AUDIT_DETAIL_VIEW, new ExpenseAuditDetailView(mainFrame, expense)));
+        buttonsPanel.add(auditButton);
+
         if (expense.getBudget() != null) {
             User currentUser = UserSession.getInstance().getUser();
             BudgetAccess currentUserAccess = budgetAccessService.getAllByBudgetId(expense.getBudget().getId())

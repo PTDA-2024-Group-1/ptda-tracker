@@ -7,8 +7,8 @@ import lombok.RequiredArgsConstructor;
 import org.hibernate.envers.AuditReader;
 import org.hibernate.envers.AuditReaderFactory;
 import org.hibernate.envers.query.AuditEntity;
-import org.hibernate.envers.query.AuditQuery;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -20,12 +20,13 @@ public class BudgetAuditServiceHibernateImpl implements BudgetAuditService {
     private final EntityManager entityManager;
 
     @Override
+    @Transactional(readOnly = true)
     public List<Object[]> getBudgetRevisionsWithDetails(Long budgetId) {
         AuditReader auditReader = AuditReaderFactory.get(entityManager);
-        AuditQuery query = auditReader.createQuery()
+        return auditReader.createQuery()
                 .forRevisionsOfEntity(Budget.class, false, true)
-                .add(AuditEntity.id().eq(budgetId));
-        return query.getResultList();
+                .add(AuditEntity.id().eq(budgetId))
+                .getResultList();
     }
 
     @Override
@@ -38,5 +39,18 @@ public class BudgetAuditServiceHibernateImpl implements BudgetAuditService {
     public Budget getBudgetAtRevision(Long budgetId, Number revision) {
         AuditReader auditReader = AuditReaderFactory.get(entityManager);
         return auditReader.find(Budget.class, budgetId, revision);
+    }
+
+    public boolean hasNameOrDescriptionChanged(Long budgetId, Number revision) {
+        AuditReader auditReader = AuditReaderFactory.get(entityManager);
+        Budget currentRevision = auditReader.find(Budget.class, budgetId, revision);
+        Budget previousRevision = auditReader.find(Budget.class, budgetId, revision.intValue() - 1);
+
+        if (previousRevision == null) {
+            return false;
+        }
+
+        return !currentRevision.getName().equals(previousRevision.getName()) ||
+                !currentRevision.getDescription().equals(previousRevision.getDescription());
     }
 }

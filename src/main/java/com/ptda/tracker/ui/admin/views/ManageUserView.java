@@ -54,7 +54,9 @@ public class ManageUserView extends JPanel {
                     user.getId(),
                     user.getName(),
                     user.getEmail(),
-                    user.getUserType()
+                    user.getUserType(),
+                    user.isEmailVerified(),
+                    user.isActive()
             });
         }
     }
@@ -67,7 +69,7 @@ public class ManageUserView extends JPanel {
         titleLabel.setFont(new Font("Arial", Font.BOLD, 16));
         add(titleLabel, BorderLayout.NORTH);
 
-        userTableModel = new DefaultTableModel(new String[]{"ID", "Name", "Email", "Role"}, 0);
+        userTableModel = new DefaultTableModel(new String[]{"ID", "Name", "Email", "Role", "Email Verified", "Active"}, 0);
         userTable = new JTable(userTableModel);
         userTable.setFillsViewportHeight(true);
         userTable.setDefaultEditor(Object.class, null);
