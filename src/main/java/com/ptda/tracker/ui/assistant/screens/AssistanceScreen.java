@@ -1,9 +1,9 @@
 package com.ptda.tracker.ui.assistant.screens;
 
 import com.ptda.tracker.models.assistance.Ticket;
+import com.ptda.tracker.models.user.User;
 import com.ptda.tracker.services.assistance.TicketService;
 import com.ptda.tracker.ui.MainFrame;
-import com.ptda.tracker.ui.user.forms.TicketForm;
 import com.ptda.tracker.ui.user.renderers.TicketListRenderer;
 import com.ptda.tracker.ui.user.views.TicketDetailView;
 import com.ptda.tracker.util.ScreenNames;
@@ -24,8 +24,8 @@ public class AssistanceScreen extends JPanel {
         ticketList = new JList<>(new DefaultListModel<>());
         ticketList.setCellRenderer(new TicketListRenderer());
         ticketService = mainFrame.getContext().getBean(TicketService.class);
-        tickets = ticketService.getAll();
-        setTicketList(tickets);
+
+        refreshTicketList(); // Call refreshTicketList to initialize the ticket list
 
         ticketList.addListSelectionListener(e -> {
             if (!e.getValueIsAdjusting()) {
@@ -44,8 +44,10 @@ public class AssistanceScreen extends JPanel {
     }
 
     private void refreshTicketList() {
-        ticketList.clearSelection();
-        tickets = ticketService.getAllByUser(UserSession.getInstance().getUser());
+        User currentUser = UserSession.getInstance().getUser();
+        tickets = ticketService.getAll().stream()
+                .filter(ticket -> !ticket.isClosed() && (ticket.getAssistant() == null || ticket.getAssistant().getId().equals(currentUser.getId())))
+                .toList();
         setTicketList(tickets);
     }
 

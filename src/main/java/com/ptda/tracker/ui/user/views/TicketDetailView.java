@@ -1,5 +1,6 @@
 package com.ptda.tracker.ui.user.views;
 
+import com.ptda.tracker.models.assistance.Assistant;
 import com.ptda.tracker.models.assistance.Ticket;
 import com.ptda.tracker.models.assistance.TicketReply;
 import com.ptda.tracker.services.assistance.TicketService;
@@ -72,7 +73,13 @@ public class TicketDetailView extends JPanel {
         }
 
         if (!ticket.isClosed()) {
-            replyButton.addActionListener(e -> mainFrame.registerAndShowScreen(ScreenNames.TICKET_REPLY_FORM, new TicketReplyForm(mainFrame, null, ticket)));
+            replyButton.addActionListener(e -> {
+                if (ticket.getAssistant() == null && UserSession.getInstance().getUser() instanceof Assistant) {
+                    ticket.setAssistant((Assistant) UserSession.getInstance().getUser());
+                    ticketService.update(ticket);
+                }
+                mainFrame.registerAndShowScreen(ScreenNames.TICKET_REPLY_FORM, new TicketReplyForm(mainFrame, null, ticket));
+            });
             buttonPanel.add(replyButton);
         }
     }
