@@ -8,6 +8,7 @@ import com.ptda.tracker.services.tracker.BudgetService;
 import com.ptda.tracker.ui.MainFrame;
 import com.ptda.tracker.util.LocaleManager;
 import com.ptda.tracker.util.UserSession;
+import com.toedter.calendar.JDateChooser;
 
 import javax.swing.*;
 import java.awt.*;
@@ -16,12 +17,15 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+
+
 public class ExpenseForm extends JPanel {
     private final MainFrame mainFrame;
     private Runnable onFormSubmit;
     private Expense expense;
     private Budget budget;
     private final String returnScreen;
+
 
     public ExpenseForm(MainFrame mainFrame, Expense expense, Budget budget, String returnScreen, Runnable onFormSubmit) {
         this.mainFrame = mainFrame;
@@ -48,10 +52,15 @@ public class ExpenseForm extends JPanel {
         String description = descriptionArea.getText().trim();
         String amountText = amountField.getText().trim();
         double amount = amountText.isEmpty() ? 0 : Double.parseDouble(amountText);
-        Date date = (Date) dateSpinner.getValue();
+        Date date = dateChooser.getDate();
         ExpenseCategory category = (ExpenseCategory) categoryComboBox.getSelectedItem();
-        String budgetName = (String) budgetComboBox.getSelectedItem();
-        Budget budget = budgetMap.get(budgetName);
+        Budget selectedBudget = budget;
+
+        // Only get the selected budget from budgetComboBox if budget is null
+        if (selectedBudget == null) {
+            String budgetName = (String) budgetComboBox.getSelectedItem();
+            selectedBudget = budgetMap.get(budgetName);
+        }
 
         // verifications
         if (title.isEmpty() || amount <= 0) {
@@ -67,7 +76,7 @@ public class ExpenseForm extends JPanel {
         expense.setAmount(amount);
         expense.setDate(date);
         expense.setCategory(category);
-        expense.setBudget(budget);
+        expense.setBudget(selectedBudget);
         expense.setDescription(description);
 
         // save expense
@@ -132,10 +141,8 @@ public class ExpenseForm extends JPanel {
         formPanel.add(new JLabel(DATE + ":"), gbc);
 
         gbc.gridx = 1;
-        dateSpinner = new JSpinner(new SpinnerDateModel(expense != null ? expense.getDate() : new Date(), null, null, java.util.Calendar.DAY_OF_MONTH));
-        JSpinner.DateEditor editor = new JSpinner.DateEditor(dateSpinner, "yyyy-MM-dd");
-        dateSpinner.setEditor(editor);
-        formPanel.add(dateSpinner, gbc);
+        dateChooser = new JDateChooser(expense != null ? expense.getDate() : new Date());
+        formPanel.add(dateChooser, gbc);
 
         // Category ComboBox
         gbc.gridx = 0;
@@ -149,12 +156,7 @@ public class ExpenseForm extends JPanel {
         }
         formPanel.add(categoryComboBox, gbc);
 
-        // Budget ComboBox
-        gbc.gridx = 0;
-        gbc.gridy = 4;
-        formPanel.add(new JLabel(BUDGET + ":"), gbc);
-
-        gbc.gridx = 1;
+        // Budget ComboBox (initialize but do not add if budget is not null)
         budgetMap = new HashMap<>();
         budgetComboBox = new JComboBox<>();
         budgetComboBox.addItem(NO_BUDGET);
@@ -163,18 +165,23 @@ public class ExpenseForm extends JPanel {
             budgetComboBox.addItem(budget.getName());
             budgetMap.put(budget.getName(), budget);
         }
-        if (budget != null) {
-            budgetComboBox.setSelectedItem(budget.getName());
-        } else if (expense != null && expense.getBudget() != null) {
+        if (expense != null && expense.getBudget() != null) {
             budgetComboBox.setSelectedItem(expense.getBudget().getName());
         } else {
             budgetComboBox.setSelectedItem(NO_BUDGET);
         }
-        formPanel.add(budgetComboBox, gbc);
+        if (budget == null) {
+            gbc.gridx = 0;
+            gbc.gridy = 4;
+            formPanel.add(new JLabel(BUDGET + ":"), gbc);
+
+            gbc.gridx = 1;
+            formPanel.add(budgetComboBox, gbc);
+        }
 
         // Description Area
         gbc.gridx = 0;
-        gbc.gridy = 5;
+        gbc.gridy = budget == null ? 5 : 4;
         formPanel.add(new JLabel(DESCRIPTION + ":"), gbc);
 
         gbc.gridx = 1;
@@ -201,7 +208,7 @@ public class ExpenseForm extends JPanel {
     private void clearFields() {
         titleField.setText("");
         amountField.setText("");
-        dateSpinner.setValue(new Date());
+        dateChooser.setDate(new Date());
         categoryComboBox.setSelectedIndex(0);
         budgetComboBox.setSelectedIndex(0);
         descriptionArea.setText("");
@@ -212,7 +219,7 @@ public class ExpenseForm extends JPanel {
     private JComboBox<String> budgetComboBox;
     private Map<String, Budget> budgetMap;
     private JComboBox<ExpenseCategory> categoryComboBox;
-    private JSpinner dateSpinner;
+    private JDateChooser dateChooser;
     private JButton saveButton, backButton;
     private static final LocaleManager localeManager = LocaleManager.getInstance();
     private static final String

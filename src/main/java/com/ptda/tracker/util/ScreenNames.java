@@ -29,4 +29,6 @@ public class ScreenNames {
     public static final String BUDGET_AUDIT_DETAIL_VIEW = "budgetAuditDetailView";
     public static final String EXPENSE_AUDIT_DETAIL_VIEW = "expenseAuditDetailView";
     public static final String ASSISTANCE_SCREEN = "assistanceScreen";
+    public static final String MANAGE_TICKET_VIEW = "manageTicketView";
+
 }

@@ -1,11 +1,13 @@
 package com.ptda.tracker.ui.admin.screens;
 
 import com.ptda.tracker.ui.MainFrame;
+import com.ptda.tracker.ui.admin.views.ManageTicketView;
 import com.ptda.tracker.ui.admin.views.ManageUserView;
 import com.ptda.tracker.util.ScreenNames;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionListener;
 
 public class AdministrationOptionsScreen extends JPanel {
     private final MainFrame mainFrame;
@@ -37,7 +39,12 @@ public class AdministrationOptionsScreen extends JPanel {
         manageUsersButton.addActionListener(e -> {
             mainFrame.registerAndShowScreen(ScreenNames.MANAGE_USER_VIEW, new ManageUserView(mainFrame));
         });
+        JButton manageTicketsButton = new JButton("Manage Tickets");
+        manageTicketsButton.addActionListener(e -> {
+            mainFrame.registerAndShowScreen(ScreenNames.MANAGE_TICKET_VIEW, new ManageTicketView(mainFrame));
+        });
         buttonPanel.add(manageUsersButton, new GridBagConstraints());
+        buttonPanel.add(manageTicketsButton, new GridBagConstraints());
 
         contentPanel.add(buttonPanel, BorderLayout.CENTER);
 

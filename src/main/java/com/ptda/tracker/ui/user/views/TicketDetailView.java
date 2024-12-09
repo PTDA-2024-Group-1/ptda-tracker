@@ -72,15 +72,17 @@ public class TicketDetailView extends JPanel {
             }
         }
 
-        if (!ticket.isClosed()) {
-            replyButton.addActionListener(e -> {
-                if (ticket.getAssistant() == null && UserSession.getInstance().getUser() instanceof Assistant) {
-                    ticket.setAssistant((Assistant) UserSession.getInstance().getUser());
-                    ticketService.update(ticket);
-                }
-                mainFrame.registerAndShowScreen(ScreenNames.TICKET_REPLY_FORM, new TicketReplyForm(mainFrame, null, ticket));
-            });
-            buttonPanel.add(replyButton);
+        if(!UserSession.getInstance().getUser().getUserType().equals("ADMIN")) {
+            if (!ticket.isClosed()) {
+                replyButton.addActionListener(e -> {
+                    if (ticket.getAssistant() == null && UserSession.getInstance().getUser() instanceof Assistant) {
+                        ticket.setAssistant((Assistant) UserSession.getInstance().getUser());
+                        ticketService.update(ticket);
+                    }
+                    mainFrame.registerAndShowScreen(ScreenNames.TICKET_REPLY_FORM, new TicketReplyForm(mainFrame, null, ticket));
+                });
+                buttonPanel.add(replyButton);
+            }
         }
     }
 
