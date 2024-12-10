@@ -9,6 +9,7 @@ import com.ptda.tracker.ui.MainFrame;
 import com.ptda.tracker.util.LocaleManager;
 import com.ptda.tracker.util.UserSession;
 import com.toedter.calendar.JDateChooser;
+import org.jdesktop.swingx.JXDatePicker;
 
 import javax.swing.*;
 import java.awt.*;
@@ -141,7 +142,11 @@ public class ExpenseForm extends JPanel {
         formPanel.add(new JLabel(DATE + ":"), gbc);
 
         gbc.gridx = 1;
-        dateChooser = new JDateChooser(expense != null ? expense.getDate() : new Date());
+        dateChooser = new JXDatePicker();
+        dateChooser.getEditor().setEditable(false);
+        // set it all clickable
+        dateChooser.setFormats("dd-MM-yyyy");
+        dateChooser.setDate(expense != null ? expense.getDate() : new Date());
         formPanel.add(dateChooser, gbc);
 
         // Category ComboBox
@@ -219,7 +224,7 @@ public class ExpenseForm extends JPanel {
     private JComboBox<String> budgetComboBox;
     private Map<String, Budget> budgetMap;
     private JComboBox<ExpenseCategory> categoryComboBox;
-    private JDateChooser dateChooser;
+    private JXDatePicker dateChooser;
     private JButton saveButton, backButton;
     private static final LocaleManager localeManager = LocaleManager.getInstance();
     private static final String

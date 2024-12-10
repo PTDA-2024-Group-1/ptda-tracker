@@ -37,9 +37,6 @@ public class User {
 
     private boolean isEmailVerified;
 
-    @ManyToOne
-    private Tier tier;
-
     private long createdAt;
 
     @PrePersist

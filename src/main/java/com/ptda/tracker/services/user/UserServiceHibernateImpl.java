@@ -1,8 +1,8 @@
 package com.ptda.tracker.services.user;
 
-import com.ptda.tracker.models.user.Tier;
 import com.ptda.tracker.models.user.User;
 import com.ptda.tracker.repositories.UserRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -15,10 +15,10 @@ import java.util.Optional;
 public class UserServiceHibernateImpl implements UserService {
 
     private final UserRepository userRepository;
-    private final TierService tierService;
     private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     @Override
+    @Transactional
     public User register(String name, String email, String password) {
         if (name == null || email == null || password == null) {
             return null;
@@ -26,13 +26,11 @@ public class UserServiceHibernateImpl implements UserService {
         if (userRepository.findByEmail(email).isPresent()) {
             return null;
         }
-        Tier tier = tierService.getTopTierByPoints(0).orElse(null);
         User user = User.builder()
                 .userType("USER")
                 .name(name)
                 .email(email)
                 .password(passwordEncoder.encode(password))
-                .tier(tier)
                 .build();
         return userRepository.save(user);
     }
@@ -91,13 +89,6 @@ public class UserServiceHibernateImpl implements UserService {
             return user;
         }
         throw new IllegalArgumentException("Invalid email or password.");
-    }
-
-    @Override
-    public boolean setTier(User user, Tier tier) {
-        user.setTier(tier);
-        userRepository.save(user);
-        return true;
     }
 
     @Override

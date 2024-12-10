@@ -1,6 +1,5 @@
 package com.ptda.tracker.models.tracker;
 
-import com.ptda.tracker.models.tracker.dispute.Dispute;
 import com.ptda.tracker.models.user.User;
 import com.ptda.tracker.util.UserSession;
 import jakarta.persistence.*;
@@ -27,9 +26,6 @@ public class ExpenseDivision {
 
     @ManyToOne
     private Expense expense;
-
-    @ManyToOne
-    private Dispute dispute;
 
     @ManyToOne
     @JoinColumn(nullable = false)

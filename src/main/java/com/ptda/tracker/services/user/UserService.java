@@ -1,6 +1,5 @@
 package com.ptda.tracker.services.user;
 
-import com.ptda.tracker.models.user.Tier;
 import com.ptda.tracker.models.user.User;
 
 import java.util.List;
@@ -23,8 +22,6 @@ public interface UserService {
     User update(User user);
 
     User changePassword(String email, String oldPassword, String newPassword);
-
-    boolean setTier(User user, Tier tier);
 
     boolean deleteById(Long id);
 

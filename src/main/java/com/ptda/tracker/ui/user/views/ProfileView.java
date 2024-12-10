@@ -26,7 +26,6 @@ public class ProfileView extends JPanel {
         if (user != null) {
             nameLabel.setText(user.getName());
             emailLabel.setText(user.getEmail());
-            tierLabel.setText(user.getTier() != null ? user.getTier().getName() : "N/A");
             createdDateLabel.setText(new SimpleDateFormat("dd/MM/yyyy").format(new Date(user.getCreatedAt())));
             accountAgeLabel.setText(calculateAccountAge(user.getCreatedAt()));
         }
@@ -51,7 +50,6 @@ public class ProfileView extends JPanel {
         // Adicionando campos de informações
         infoPanel.add(createInfoBox(" Name: ", nameLabel = new JLabel()));
         infoPanel.add(createInfoBox(" Email: ", emailLabel = new JLabel()));
-        infoPanel.add(createInfoBox(" Tier: ", tierLabel = new JLabel()));
         infoPanel.add(createInfoBox(" Joined: ", createdDateLabel = new JLabel()));
         infoPanel.add(createInfoBox(" Account Age: ", accountAgeLabel = new JLabel()));
 
@@ -73,7 +71,7 @@ public class ProfileView extends JPanel {
         buttonsPanel.add(deleteProfileButton);
     }
 
-    // Método auxiliar para criar uma linha de informação simples
+    // Métod.o auxiliar para criar uma linha de informação simples
     private JPanel createInfoBox(String labelText, JLabel valueLabel) {
         JPanel panel = new JPanel(new BorderLayout());
         JLabel label = new JLabel(labelText);
@@ -111,5 +109,5 @@ public class ProfileView extends JPanel {
         }
     }
 
-    private JLabel nameLabel, emailLabel, tierLabel, createdDateLabel, accountAgeLabel;
+    private JLabel nameLabel, emailLabel, createdDateLabel, accountAgeLabel;
 }
