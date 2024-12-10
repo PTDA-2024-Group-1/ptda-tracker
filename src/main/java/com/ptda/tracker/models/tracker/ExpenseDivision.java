@@ -20,6 +20,8 @@ public class ExpenseDivision {
     @GeneratedValue
     private Long id;
 
+    private ExpenseDivisionState state = ExpenseDivisionState.PENDING;
+
     private double amount;
 
     private double percentage;
@@ -34,9 +36,12 @@ public class ExpenseDivision {
     @ManyToOne
     private User createdBy;
 
+    private long createdAt;
+
     @PrePersist
     public void prePersist() {
         createdBy = UserSession.getInstance().getUser();
+        createdAt = System.currentTimeMillis();
     }
 
 }
