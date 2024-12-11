@@ -3,30 +3,55 @@ package com.ptda.tracker.ui.user.screens;
 import javax.swing.*;
 import java.awt.*;
 
-import static com.ptda.tracker.config.AppConfig.APP_NAME;
-import static com.ptda.tracker.config.AppConfig.LOGO_PATH;
-
 public class CustomSplashScreen extends JFrame {
 
     public CustomSplashScreen() {
-        setTitle(APP_NAME + " - Loading");
-        setSize(350, 350);
+        // Set up the main frame properties
+        setTitle("Divi - Loading");
+        setSize(800, 800); // Adjust the frame size
         setLocationRelativeTo(null);
-        setUndecorated(true);
-        setLayout(new BorderLayout());
-        setBackground(new Color(250, 250, 250, 200)); // Set background to transparent
+        setUndecorated(true); // Remove borders
+        setBackground(new Color(0, 0, 0, 0)); // Set transparent background
 
-        // Logo
-        Image scaledImage = new ImageIcon(LOGO_PATH).getImage().getScaledInstance(300, 270, Image.SCALE_SMOOTH);
-        ImageIcon logo = new ImageIcon(scaledImage);
-        JLabel logoLabel = new JLabel(logo);
-        logoLabel.setHorizontalAlignment(SwingConstants.CENTER);
-        add(logoLabel, BorderLayout.CENTER);
+        // Configure a transparent layered pane
+        JLayeredPane layeredPane = new JLayeredPane() {
+            @Override
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
+                Graphics2D g2d = (Graphics2D) g;
+                g2d.setComposite(AlphaComposite.SrcOver);
+                g2d.setColor(new Color(0, 0, 0, 0)); // Fully transparent background
+                g2d.fillRect(0, 0, getWidth(), getHeight());
+            }
+        };
+        layeredPane.setPreferredSize(new Dimension(800, 800));
 
-        // Loading message
-//        JLabel loadingLabel = new JLabel(APP_NAME + " is loading...");
-//        loadingLabel.setHorizontalAlignment(SwingConstants.CENTER);
-//        add(loadingLabel, BorderLayout.SOUTH);
+        // Add the foreground image (divi_1.png) scaled to 2x the original size
+        JLabel foregroundLabel = createTransparentImageLabel("src/main/resources/images/divi_1.png", 700, 600);
+        foregroundLabel.setBounds(50, 100, 700, 600); // Adjust bounds to center the larger logo
+        layeredPane.add(foregroundLabel, Integer.valueOf(1)); // Add foreground at the top layer
+
+        // Set the layeredPane as the content pane
+        setContentPane(layeredPane);
+    }
+
+    /**
+     * Configures and returns a JLabel for a splash screen image.
+     *
+     * @param imagePath the path to the image file
+     * @param width     the width to scale the image
+     * @param height    the height to scale the image
+     * @return a JLabel containing the customized transparent image
+     */
+    private JLabel createTransparentImageLabel(String imagePath, int width, int height) {
+        ImageIcon originalIcon = new ImageIcon(imagePath);
+        Image scaledImage = originalIcon.getImage().getScaledInstance(width, height, Image.SCALE_SMOOTH);
+        ImageIcon scaledIcon = new ImageIcon(scaledImage);
+
+        JLabel imageLabel = new JLabel(scaledIcon);
+        imageLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        imageLabel.setVerticalAlignment(SwingConstants.CENTER);
+        return imageLabel;
     }
 
     public void showSplashScreen() {
@@ -36,5 +61,21 @@ public class CustomSplashScreen extends JFrame {
     public void hideSplashScreen() {
         setVisible(false);
         dispose();
+    }
+
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> {
+            CustomSplashScreen splashScreen = new CustomSplashScreen();
+            splashScreen.showSplashScreen();
+
+            // Simulate loading process
+            try {
+                Thread.sleep(5000); // Keep splash screen visible for 5 seconds
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+            splashScreen.hideSplashScreen();
+        });
     }
 }
