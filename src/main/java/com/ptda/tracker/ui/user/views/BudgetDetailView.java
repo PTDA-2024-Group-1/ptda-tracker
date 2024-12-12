@@ -6,6 +6,7 @@ import com.ptda.tracker.models.tracker.Expense;
 import com.ptda.tracker.models.tracker.ExpenseCategory;
 import com.ptda.tracker.models.user.User;
 import com.ptda.tracker.services.tracker.BudgetAccessService;
+import com.ptda.tracker.services.tracker.BudgetService;
 import com.ptda.tracker.services.tracker.ExpenseService;
 import com.ptda.tracker.ui.MainFrame;
 import com.ptda.tracker.ui.user.dialogs.ParticipantsDialog;
@@ -44,6 +45,7 @@ public class BudgetDetailView extends JPanel {
 
         initComponents();
         setListeners();
+        refreshExpenses();
     }
 
     private void setListeners() {
@@ -124,12 +126,37 @@ public class BudgetDetailView extends JPanel {
     }
 
     private void refreshExpenses() {
+        int offset = currentPage * PAGE_SIZE;
         expenses.clear();
-        expenses.addAll(mainFrame.getContext().getBean(ExpenseService.class).getAllByBudgetId(budget.getId()));
-        expensesTable.setModel(createExpensesTableModel());
+        expenses.addAll(mainFrame.getContext().getBean(ExpenseService.class).getExpensesByBudgetIdWithPagination(budget.getId(), offset, PAGE_SIZE));
+        updateExpenseTable();
     }
 
-    private DefaultTableModel createExpensesTableModel() {
+    private void updateExpenseTable() {
+        expensesTable.setModel(createExpensesTableModel(expenses));
+        updatePaginationPanel();
+    }
+
+    private void updatePaginationPanel() {
+        paginationPanel.removeAll();
+        long totalExpenses = mainFrame.getContext().getBean(ExpenseService.class).countByBudgetId(budget.getId());
+        int totalPages = (int) Math.ceil((double) totalExpenses / PAGE_SIZE);
+        if (totalPages > 1) {
+            for (int i = 0; i < totalPages; i++) {
+                int pageIndex = i;
+                JButton pageButton = new JButton(String.valueOf(i + 1));
+                pageButton.addActionListener(e -> {
+                    currentPage = pageIndex;
+                    refreshExpenses();
+                });
+                paginationPanel.add(pageButton);
+            }
+        }
+        paginationPanel.revalidate();
+        paginationPanel.repaint();
+    }
+
+    private DefaultTableModel createExpensesTableModel(List<Expense> expenses) {
         String[] columnNames = {TITLE, AMOUNT, CATEGORY, DATE, CREATED_BY_COLUMN};
         DefaultTableModel model = new DefaultTableModel(columnNames, 0) {
             @Override
@@ -172,6 +199,16 @@ public class BudgetDetailView extends JPanel {
         detailsPanel.add(Box.createRigidArea(new Dimension(0, 5)));
         detailsPanel.add(createdByLabel);
 
+        // Checkbox for favorites
+        JCheckBox favoriteCheckBox = new JCheckBox("Favorite");
+        favoriteCheckBox.setSelected(budget.isFavorite());
+        favoriteCheckBox.addActionListener(e -> {
+            budget.setFavorite(favoriteCheckBox.isSelected());
+            mainFrame.getContext().getBean(BudgetService.class).update(budget);
+        });
+        detailsPanel.add(Box.createRigidArea(new Dimension(0, 5)));
+        detailsPanel.add(favoriteCheckBox);
+
         // Painel para botões próximos aos detalhes (alinhados à direita)
         JPanel topButtonsPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         participantsButton = new JButton(PARTICIPANTS);
@@ -207,8 +244,16 @@ public class BudgetDetailView extends JPanel {
         // Painel Central (Tabela de Despesas)
         JPanel centerPanel = new JPanel(new BorderLayout());
         centerPanel.setBorder(BorderFactory.createTitledBorder(EXPENSES));
-        expensesTable = new JTable(createExpensesTableModel());
+
+        // Configurar o JScrollPane para a tabela
+        expensesTable = new JTable(createExpensesTableModel(new ArrayList<>()));
+        expensesTable.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS); // Certifica-se de ajustar as colunas corretamente
         JScrollPane scrollPane = new JScrollPane(expensesTable);
+
+        // Configurar políticas de barras de rolagem
+        scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
+
         centerPanel.add(scrollPane, BorderLayout.CENTER);
         add(centerPanel, BorderLayout.CENTER);
 
@@ -234,9 +279,16 @@ public class BudgetDetailView extends JPanel {
         }
         bottomPanel.add(rightButtonPanel, BorderLayout.EAST);
 
+        // Adicionar painel de paginação
+        paginationPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        bottomPanel.add(paginationPanel, BorderLayout.CENTER);
+
         add(bottomPanel, BorderLayout.SOUTH);
     }
 
+    private int currentPage = 0;
+    private static final int PAGE_SIZE = 20;
+    private JPanel paginationPanel;
     private JTable expensesTable;
     JLabel nameLabel, descriptionLabel, createdByLabel;
     private JButton auditButton, backButton, participantsButton, editButton, shareButton, addExpenseButton, importButton;

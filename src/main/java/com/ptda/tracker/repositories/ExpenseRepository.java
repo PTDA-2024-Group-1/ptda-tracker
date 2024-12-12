@@ -1,7 +1,10 @@
 package com.ptda.tracker.repositories;
 
 import com.ptda.tracker.models.tracker.Expense;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -15,4 +18,9 @@ public interface ExpenseRepository extends JpaRepository<Expense, Long> {
 
     List<Expense> findAllByCreatedById(Long userId);
 
+    List<Expense> findByBudgetIdOrderByDateDesc(Long budgetId, Pageable pageable);
+
+    List<Expense> findByCreatedByIdAndBudgetNullOrderByDateDesc(Long userId, Pageable pageable);
+
+    long countByBudgetId(Long id);
 }

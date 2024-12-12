@@ -8,6 +8,7 @@ import com.ptda.tracker.ui.user.views.TicketDetailView;
 import com.ptda.tracker.util.LocaleManager;
 import com.ptda.tracker.util.ScreenNames;
 import com.ptda.tracker.util.UserSession;
+import com.ptda.tracker.ui.assistant.screens.AssistanceScreen;
 
 import javax.swing.*;
 import java.awt.*;
@@ -54,6 +55,7 @@ public class TicketReplyForm extends JPanel {
         JOptionPane.showMessageDialog(this, REPLY_SAVED_SUCCESSFULLY);
         onFormSubmit.run();
         mainFrame.registerAndShowScreen(ScreenNames.TICKET_DETAIL_VIEW, new TicketDetailView(mainFrame, ticket));
+        AssistanceScreen.refreshTicketLists();
     }
 
     private void initComponents() {

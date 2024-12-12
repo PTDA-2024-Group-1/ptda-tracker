@@ -12,51 +12,81 @@ import com.ptda.tracker.util.UserSession;
 import javax.swing.*;
 import java.awt.*;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class AssistanceScreen extends JPanel {
-    private final TicketService ticketService;
-    private final JList<Ticket> ticketList;
-    private List<Ticket> tickets;
+    private static TicketService ticketService;
+    private static JList<Ticket> assignedTicketList;
+    private static JList<Ticket> unassignedTicketList;
+    private static List<Ticket> assignedTickets;
+    private static List<Ticket> unassignedTickets;
+    private final JComboBox<String> ticketSelector;
+    private final JPanel listPanel;
 
     public AssistanceScreen(MainFrame mainFrame) {
         setLayout(new BorderLayout());
 
-        ticketList = new JList<>(new DefaultListModel<>());
-        ticketList.setCellRenderer(new TicketListRenderer());
         ticketService = mainFrame.getContext().getBean(TicketService.class);
 
-        refreshTicketList(); // Call refreshTicketList to initialize the ticket list
+        ticketSelector = new JComboBox<>(new String[]{"Assigned Ticket", "Tickets to be Assigned"});
+        ticketSelector.addActionListener(e -> updateTicketListVisibility());
+        add(ticketSelector, BorderLayout.NORTH);
 
-        ticketList.addListSelectionListener(e -> {
+        assignedTicketList = new JList<>(new DefaultListModel<>());
+        assignedTicketList.setCellRenderer(new TicketListRenderer());
+        assignedTicketList.addListSelectionListener(e -> {
             if (!e.getValueIsAdjusting()) {
-                Ticket selectedTicket = ticketList.getSelectedValue();
+                Ticket selectedTicket = assignedTicketList.getSelectedValue();
                 if (selectedTicket != null) {
                     mainFrame.registerAndShowScreen(ScreenNames.TICKET_DETAIL_VIEW, new TicketDetailView(mainFrame, selectedTicket));
-                    ticketList.clearSelection(); // Clear selection to allow new interaction
+                    assignedTicketList.clearSelection(); // Clear selection to allow new interaction
                 }
             }
         });
 
-        add(new JScrollPane(ticketList), BorderLayout.CENTER);
+        unassignedTicketList = new JList<>(new DefaultListModel<>());
+        unassignedTicketList.setCellRenderer(new TicketListRenderer());
+        unassignedTicketList.addListSelectionListener(e -> {
+            if (!e.getValueIsAdjusting()) {
+                Ticket selectedTicket = unassignedTicketList.getSelectedValue();
+                if (selectedTicket != null) {
+                    mainFrame.registerAndShowScreen(ScreenNames.TICKET_DETAIL_VIEW, new TicketDetailView(mainFrame, selectedTicket));
+                    unassignedTicketList.clearSelection(); // Clear selection to allow new interaction
+                }
+            }
+        });
 
-        JLabel label = new JLabel(SELECT_TICKET, SwingConstants.CENTER);
-        add(label, BorderLayout.NORTH);
+        listPanel = new JPanel(new CardLayout());
+        listPanel.add(new JScrollPane(assignedTicketList), "Assigned Ticket");
+        listPanel.add(new JScrollPane(unassignedTicketList), "Tickets to be Assigned");
+        add(listPanel, BorderLayout.CENTER);
+
+        refreshTicketLists();
+        updateTicketListVisibility();
     }
 
-    private void refreshTicketList() {
+    public static void refreshTicketLists() {
         User currentUser = UserSession.getInstance().getUser();
-        tickets = ticketService.getAll().stream()
-                .filter(ticket -> !ticket.isClosed() && (ticket.getAssistant() == null || ticket.getAssistant().getId().equals(currentUser.getId())))
-                .toList();
-        setTicketList(tickets);
+        List<Ticket> allTickets = ticketService.getAll();
+        assignedTickets = allTickets.stream()
+                .filter(ticket -> ticket.getAssistant() != null && ticket.getAssistant().getId().equals(currentUser.getId()) && !ticket.isClosed())
+                .collect(Collectors.toList());
+        unassignedTickets = allTickets.stream()
+                .filter(ticket -> ticket.getAssistant() == null && !ticket.isClosed())
+                .collect(Collectors.toList());
+        setTicketList(assignedTicketList, assignedTickets);
+        setTicketList(unassignedTicketList, unassignedTickets);
     }
 
-    public void setTicketList(List<Ticket> tickets) {
-        DefaultListModel<Ticket> model = (DefaultListModel<Ticket>) ticketList.getModel();
+    private static void setTicketList(JList<Ticket> list, List<Ticket> tickets) {
+        DefaultListModel<Ticket> model = (DefaultListModel<Ticket>) list.getModel();
         model.clear(); // Clear old data
         tickets.forEach(model::addElement); // Add new data
     }
 
-    private static final String
-            SELECT_TICKET = "Select a ticket to view details";
+    private void updateTicketListVisibility() {
+        CardLayout cl = (CardLayout) (listPanel.getLayout());
+        String selectedOption = (String) ticketSelector.getSelectedItem();
+        cl.show(listPanel, selectedOption);
+    }
 }

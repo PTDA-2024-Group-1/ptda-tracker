@@ -158,9 +158,9 @@ public class LoginForm extends JPanel {
         add(formPanel, BorderLayout.CENTER);
     }
 
-    private JTextField usernameField;
-    private JPasswordField passwordField;
-    private JButton loginButton, registerButton;
+    public JTextField usernameField;
+    public JPasswordField passwordField;
+    public JButton loginButton, registerButton;
     private static final LocaleManager localeManager = LocaleManager.getInstance();
     private static final String
             LOGIN = localeManager.getTranslation("login"),

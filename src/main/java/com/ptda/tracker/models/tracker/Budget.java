@@ -32,6 +32,8 @@ public class Budget {
 
     private long updatedAt;
 
+    private boolean isFavorite;
+    
     @PrePersist
     protected void onCreate() {
         this.createdAt = System.currentTimeMillis();

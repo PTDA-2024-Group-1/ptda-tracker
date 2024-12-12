@@ -22,6 +22,10 @@ public interface ExpenseService {
 
     Map<String, Double> getExpensesByCategory(Long userId);
 
+    List<Expense> getExpensesByBudgetIdWithPagination(Long budgetId, int offset, int limit);
+
+    List<Expense> getPersonalExpensesByUserIdWithPagination(Long userId, int offset, int limit);
+
     Expense create(Expense expense);
 
     Expense update(Expense expense);
@@ -33,4 +37,6 @@ public interface ExpenseService {
     boolean deleteAllPersonalExpensesByUserId(Long userId);
 
     void saveAll(List<Expense> importedExpenses);
+
+    long countByBudgetId(Long id);
 }

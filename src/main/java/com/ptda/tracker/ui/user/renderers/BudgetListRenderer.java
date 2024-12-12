@@ -6,6 +6,8 @@ import com.ptda.tracker.util.LocaleManager;
 import javax.swing.*;
 import java.awt.*;
 
+import static com.ptda.tracker.config.AppConfig.FAVORITE_ICON_PATH;
+
 public class BudgetListRenderer extends JPanel implements ListCellRenderer<Budget> {
 
     public BudgetListRenderer() {
@@ -18,6 +20,16 @@ public class BudgetListRenderer extends JPanel implements ListCellRenderer<Budge
         descriptionLabel = new JLabel();
         descriptionLabel.setFont(new Font("Arial", Font.PLAIN, 12));
 
+        starLabel = new JLabel();
+        java.net.URL imgURL = getClass().getResource(FAVORITE_ICON_PATH);
+        if (imgURL != null) {
+            ImageIcon originalIcon = new ImageIcon(imgURL);
+            Image scaledImage = originalIcon.getImage().getScaledInstance(20, 20, Image.SCALE_SMOOTH); // Resize to 16x16 pixels
+            starLabel.setIcon(new ImageIcon(scaledImage));
+        } else {
+            System.err.println("Couldn't find file: /images/favorite.png");
+        }
+
         // Left panel for name and description
         JPanel leftPanel = new JPanel();
         leftPanel.setLayout(new BoxLayout(leftPanel, BoxLayout.Y_AXIS));
@@ -27,6 +39,7 @@ public class BudgetListRenderer extends JPanel implements ListCellRenderer<Budge
         leftPanel.add(descriptionLabel);
 
         add(leftPanel, BorderLayout.CENTER);
+        add(starLabel, BorderLayout.EAST);
     }
 
     @Override
@@ -41,13 +54,18 @@ public class BudgetListRenderer extends JPanel implements ListCellRenderer<Budge
         nameLabel.setText(budget.getName() != null ? budget.getName() : UNNAMED_BUDGET);
         descriptionLabel.setText(budget.getDescription() != null ? budget.getDescription() : NO_DESCRIPTION);
 
+        // Show or hide the star icon based on the isFavorite property
+        starLabel.setVisible(budget.isFavorite());
+
         return this;
     }
 
     private JLabel nameLabel;
     private JLabel descriptionLabel;
+    private JLabel starLabel;
     private static final LocaleManager localeManager = LocaleManager.getInstance();
     private static final String
             UNNAMED_BUDGET = localeManager.getTranslation("unnamed_budget"),
             NO_DESCRIPTION = localeManager.getTranslation("no_description");
+
 }
