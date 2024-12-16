@@ -35,7 +35,12 @@ public class NavigationMenu extends JPanel {
         addButtonToPanel(topPanel, HOME, HOME_SCREEN, gbc, 0);
         addButtonToPanel(topPanel, BUDGETS, BUDGETS_SCREEN, gbc, 1);
         addButtonToPanel(topPanel, EXPENSES, EXPENSES_SCREEN, gbc, 2);
-        addButtonToPanel(topPanel, SUPPORT, USER_TICKETS_SCREEN, gbc, 3);
+
+        // Only add the "Support" button for common users
+        if (UserSession.getInstance().getUser().getUserType().equals("USER")) {
+            addButtonToPanel(topPanel, SUPPORT, USER_TICKETS_SCREEN, gbc, 3);
+        }
+
         addButtonToPanel(topPanel, ASSISTANCE, ASSISTANCE_SCREEN, gbc, 4);
         addButtonToPanel(topPanel, ADMINISTRATION, ADMINISTRATION_OPTIONS_SCREEN, gbc, 5);
 

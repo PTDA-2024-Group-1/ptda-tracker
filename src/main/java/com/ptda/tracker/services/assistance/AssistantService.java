@@ -2,6 +2,7 @@ package com.ptda.tracker.services.assistance;
 
 import com.ptda.tracker.models.assistance.Assistant;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface AssistantService {
@@ -16,4 +17,5 @@ public interface AssistantService {
 
     boolean delete(Assistant assistant);
 
+    List<Assistant> getAll();
 }

@@ -266,8 +266,16 @@ public class BudgetDetailView extends JPanel {
         leftButtonPanel.add(backButton);
         bottomPanel.add(leftButtonPanel, BorderLayout.WEST);
 
-        // Painel do botão "Simulate Budget" (alinhado à direita)
+        // Painel do botão "Simulate Budget" e "Statistics" (alinhado à direita)
         JPanel rightButtonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+
+        if (!expenses.isEmpty()) {
+            // Adicionar botão de estatísticas
+            JButton statisticsButton = new JButton(STATISTICS);
+            statisticsButton.addActionListener(e -> mainFrame.registerAndShowScreen(ScreenNames.BUDGET_STATISTICS_VIEW, new BudgetStatisticsView(mainFrame, budget)));
+            rightButtonPanel.add(statisticsButton);
+        }
+
         if (!expenses.isEmpty()) {
             JButton splitSimulation = new JButton(SPLIT_SIMULATION);
             splitSimulation.addActionListener(e -> mainFrame.registerAndShowScreen(ScreenNames.SIMULATE_VIEW, new SimulationView(mainFrame, budget)));
@@ -277,6 +285,7 @@ public class BudgetDetailView extends JPanel {
             addExpenseButton = new JButton(ADD_EXPENSE);
             rightButtonPanel.add(addExpenseButton);
         }
+
         bottomPanel.add(rightButtonPanel, BorderLayout.EAST);
 
         // Adicionar painel de paginação
@@ -301,6 +310,7 @@ public class BudgetDetailView extends JPanel {
             BACK = "Back",
             PARTICIPANTS = "Participants",
             EDIT_BUDGET = "Edit Budget",
+            STATISTICS = "Statistics",
             ADD_EXPENSE = "Add Expense",
             SHARE_BUDGET = "Share Budget",
             SPLIT_SIMULATION = "Split Simulation",

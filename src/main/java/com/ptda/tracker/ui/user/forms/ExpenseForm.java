@@ -8,7 +8,6 @@ import com.ptda.tracker.services.tracker.BudgetService;
 import com.ptda.tracker.ui.MainFrame;
 import com.ptda.tracker.util.LocaleManager;
 import com.ptda.tracker.util.UserSession;
-import com.toedter.calendar.JDateChooser;
 import org.jdesktop.swingx.JXDatePicker;
 
 import javax.swing.*;
@@ -17,8 +16,6 @@ import java.awt.event.ActionEvent;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-
-
 
 public class ExpenseForm extends JPanel {
     private final MainFrame mainFrame;
@@ -144,7 +141,6 @@ public class ExpenseForm extends JPanel {
         gbc.gridx = 1;
         dateChooser = new JXDatePicker();
         dateChooser.getEditor().setEditable(false);
-        // set it all clickable
         dateChooser.setFormats("dd-MM-yyyy");
         dateChooser.setDate(expense != null ? expense.getDate() : new Date());
         formPanel.add(dateChooser, gbc);
@@ -175,7 +171,7 @@ public class ExpenseForm extends JPanel {
         } else {
             budgetComboBox.setSelectedItem(NO_BUDGET);
         }
-        if (budget == null) {
+        if (budget == null && (expense == null || expense.getBudget() == null)) {
             gbc.gridx = 0;
             gbc.gridy = 4;
             formPanel.add(new JLabel(BUDGET + ":"), gbc);
@@ -186,7 +182,7 @@ public class ExpenseForm extends JPanel {
 
         // Description Area
         gbc.gridx = 0;
-        gbc.gridy = budget == null ? 5 : 4;
+        gbc.gridy = budget == null && (expense == null || expense.getBudget() == null) ? 5 : 4;
         formPanel.add(new JLabel(DESCRIPTION + ":"), gbc);
 
         gbc.gridx = 1;
