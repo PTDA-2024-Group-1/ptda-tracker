@@ -1,10 +1,10 @@
 package com.ptda.tracker.ui;
 
-import com.ptda.tracker.TrackerApplication;
 import com.ptda.tracker.config.AppConfig;
 import com.ptda.tracker.theme.ThemeManager;
 import com.ptda.tracker.ui.user.dialogs.AboutDialog;
 import com.ptda.tracker.ui.user.dialogs.ChooseLanguageDialog;
+import com.ptda.tracker.util.ImageResourceManager;
 import com.ptda.tracker.util.LocaleManager;
 import lombok.Getter;
 import org.springframework.context.ApplicationContext;
@@ -30,7 +30,7 @@ public class MainFrame extends JFrame {
     private String currentScreen;
 
     public MainFrame(ApplicationContext context) {
-        this.context = context; // Inject Spring context
+        this.context = context;
         this.screens = new HashMap<>();
         this.cardLayout = new CardLayout();
         this.mainPanel = new JPanel(cardLayout);
@@ -80,7 +80,6 @@ public class MainFrame extends JFrame {
     }
 
     public void setCurrentScreen(String screen) {
-        // Notify NavigationMenu to update highlights
         if (screens.get("navMenu") != null) {
             ((NavigationMenu) screens.get("navMenu")).updateActiveScreen(screen);
         }
@@ -91,10 +90,8 @@ public class MainFrame extends JFrame {
     }
 
     private JMenuBar createMenuBar() {
-        // Create the menu bar
         JMenuBar menuBar = new JMenuBar();
 
-        // Create "File" menu
         JMenu fileMenu = new JMenu(FILE);
         JMenuItem languageMenuItem = new JMenuItem(LANGUAGE);
         languageMenuItem.addActionListener(e -> new ChooseLanguageDialog(this).setVisible(true));
@@ -103,7 +100,6 @@ public class MainFrame extends JFrame {
         exitMenuItem.addActionListener(e -> System.exit(0));
         fileMenu.add(exitMenuItem);
 
-        // Create "Theme" menu
         JMenu themeMenu = new JMenu(THEME);
 
         lightTheme = new JCheckBoxMenuItem();
@@ -116,13 +112,11 @@ public class MainFrame extends JFrame {
         darkTheme.setText(DARK);
         themeMenu.add(darkTheme);
 
-        // Create "Help" menu
         JMenu helpMenu = new JMenu(HELP);
         JMenuItem aboutMenuItem = new JMenuItem(ABOUT);
         aboutMenuItem.addActionListener(e -> new AboutDialog(this).setVisible(true));
         helpMenu.add(aboutMenuItem);
 
-        // Add menus to the menu bar
         menuBar.add(fileMenu);
         menuBar.add(themeMenu);
         menuBar.add(helpMenu);
@@ -147,23 +141,17 @@ public class MainFrame extends JFrame {
     }
 
     private void setThemePreference(String theme) {
-        Preferences preferences = Preferences.userNodeForPackage(TrackerApplication.class);
+        Preferences preferences = Preferences.userNodeForPackage(MainFrame.class);
         preferences.put("theme", theme);
     }
 
     private String getThemePreference() {
-        Preferences preferences = Preferences.userNodeForPackage(TrackerApplication.class);
+        Preferences preferences = Preferences.userNodeForPackage(MainFrame.class);
         return preferences.get("theme", AppConfig.DEFAULT_LIGHT_THEME);
     }
 
-    private void toggleTheme() {
-        themeManager.toggleTheme();
-        updateLogoImage();
-    }
-
-    private void updateLogoImage() {
-        String imagePath = themeManager.isDark() ? "/images/divi_dark.png" : "/images/divi.png.png";
-        ImageIcon logoIcon = new ImageIcon(getClass().getResource(imagePath));
+    public void updateLogoImage() {
+        ImageIcon logoIcon = ImageResourceManager.getThemeBasedIcon(themeManager.isDark());
         logoLabel.setIcon(logoIcon);
     }
 

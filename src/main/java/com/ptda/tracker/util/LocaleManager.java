@@ -13,7 +13,6 @@ public class LocaleManager {
     private Locale currentLocale;
     private ResourceBundle translations;
 
-    // Private constructor to prevent instantiation
     private LocaleManager() {
     }
 

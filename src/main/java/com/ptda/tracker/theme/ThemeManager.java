@@ -5,6 +5,8 @@ import com.jthemedetecor.OsThemeDetector;
 import com.ptda.tracker.config.AppConfig;
 import com.ptda.tracker.theme.custom.Dark;
 import com.ptda.tracker.theme.custom.Light;
+import com.ptda.tracker.ui.MainFrame;
+
 import lombok.Getter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,14 +26,8 @@ public class ThemeManager {
 
     public ThemeManager(Component window) {
         this.window = window;
-
-        // Custom themes (in resources folder)
-        // https://www.formdev.com/flatlaf/theme-editor/
         Light.installLafInfo();
         Dark.installLafInfo();
-
-        // Install other themes
-        // FlatGitHubDarkContrastIJTheme.installLafInfo();
 
         final OsThemeDetector detector = OsThemeDetector.getDetector();
         var selectedTheme = detector.isDark() ? AppConfig.DEFAULT_DARK_THEME : AppConfig.DEFAULT_LIGHT_THEME;
@@ -66,6 +62,13 @@ public class ThemeManager {
             setTheme(AppConfig.DEFAULT_DARK_THEME);
         }
         isDark = !isDark;
+        notifyThemeChange();
+    }
+
+    private void notifyThemeChange() {
+        if (window instanceof MainFrame) {
+            ((MainFrame) window).updateLogoImage();
+        }
     }
 
     private void setSystemLookAndFeel() {
