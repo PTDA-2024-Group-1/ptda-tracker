@@ -21,6 +21,7 @@ public class MainFrame extends JFrame {
     private final JPanel mainPanel;
     private JCheckBoxMenuItem lightTheme, darkTheme;
     private final ThemeManager themeManager;
+    private JLabel logoLabel;
 
     private final Map<String, JPanel> screens;
     @Getter
@@ -37,6 +38,10 @@ public class MainFrame extends JFrame {
         setJMenuBar(createMenuBar());
         themeManager = new ThemeManager(this);
         themeManager.setTheme(getThemePreference());
+
+        logoLabel = new JLabel();
+        updateLogoImage();
+
         if (themeManager.isDark()) {
             darkTheme.setSelected(true);
         } else {
@@ -47,7 +52,8 @@ public class MainFrame extends JFrame {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(1000, 800);
         setLocationRelativeTo(null);
-        add(mainPanel);
+        add(logoLabel, BorderLayout.NORTH);
+        add(mainPanel, BorderLayout.CENTER);
     }
 
     public void registerScreen(String name, JPanel screen) {
@@ -129,6 +135,7 @@ public class MainFrame extends JFrame {
         darkTheme.setSelected(false);
         themeManager.setTheme(AppConfig.DEFAULT_LIGHT_THEME);
         setThemePreference(AppConfig.DEFAULT_LIGHT_THEME);
+        updateLogoImage();
     }
 
     private void darkThemeClicked(ActionEvent e) {
@@ -136,6 +143,7 @@ public class MainFrame extends JFrame {
         darkTheme.setSelected(true);
         themeManager.setTheme(AppConfig.DEFAULT_DARK_THEME);
         setThemePreference(AppConfig.DEFAULT_DARK_THEME);
+        updateLogoImage();
     }
 
     private void setThemePreference(String theme) {
@@ -146,6 +154,12 @@ public class MainFrame extends JFrame {
     private String getThemePreference() {
         Preferences preferences = Preferences.userNodeForPackage(TrackerApplication.class);
         return preferences.get("theme", AppConfig.DEFAULT_LIGHT_THEME);
+    }
+
+    private void updateLogoImage() {
+        String imagePath = themeManager.isDark() ? "/images/divi_dark.png" : "/images/divi_1.png";
+        ImageIcon logoIcon = new ImageIcon(getClass().getResource(imagePath));
+        logoLabel.setIcon(logoIcon);
     }
 
     private static final LocaleManager localeManager = LocaleManager.getInstance();
