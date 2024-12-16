@@ -21,15 +21,11 @@ import java.io.IOException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 public class ExpensesScreen extends JPanel {
     private final MainFrame mainFrame;
     private ExpenseService expenseService;
-
-    private JList<Expense> expensesList;
-    private List<Expense> expenses;
 
     public ExpensesScreen(MainFrame mainFrame) {
         this.mainFrame = mainFrame;
@@ -43,12 +39,11 @@ public class ExpensesScreen extends JPanel {
                 Expense selectedExpense = expensesList.getSelectedValue();
                 if (selectedExpense != null) {
                     mainFrame.registerAndShowScreen(ScreenNames.EXPENSE_DETAIL_VIEW, new ExpenseDetailView(mainFrame, selectedExpense, mainFrame.getCurrentScreen(), this::refreshExpenseList));
-                    expensesList.clearSelection(); // Clear selection to allow new interaction
+                    expensesList.clearSelection();
                 }
             }
         });
         createButton.addActionListener(e -> {
-            // Open ExpenseForm in creation mode
             mainFrame.registerScreen(ScreenNames.EXPENSE_FORM, new ExpenseForm(mainFrame, null, null, mainFrame.getCurrentScreen(), this::refreshExpenseList));
             mainFrame.showScreen(ScreenNames.EXPENSE_FORM);
         });
@@ -58,6 +53,18 @@ public class ExpensesScreen extends JPanel {
             if (result == JFileChooser.APPROVE_OPTION) {
                 File selectedFile = fileChooser.getSelectedFile();
                 importExpensesFromCSV(selectedFile);
+            }
+        });
+        nextPageButton.addActionListener(e -> {
+            if ((currentPage + 1) * PAGE_SIZE < expenses.size()) {
+                currentPage++;
+                updatePagination();
+            }
+        });
+        prevPageButton.addActionListener(e -> {
+            if (currentPage > 0) {
+                currentPage--;
+                updatePagination();
             }
         });
     }
@@ -89,7 +96,6 @@ public class ExpensesScreen extends JPanel {
             JOptionPane.showMessageDialog(this, "Error importing expenses: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
 
-        // After importing, refresh the expense list
         refreshExpenseList();
     }
 
@@ -97,21 +103,47 @@ public class ExpensesScreen extends JPanel {
         try {
             return ExpenseCategory.valueOf(category.toUpperCase());
         } catch (IllegalArgumentException e) {
-            // Handle the case where the category does not match any enum constant
             JOptionPane.showMessageDialog(this, "Unknown category: " + category, "Error", JOptionPane.ERROR_MESSAGE);
-            return null; // or handle it in another way
+            return null;
         }
     }
+
     private void refreshExpenseList() {
         expensesList.clearSelection();
-        expenses = expenseService.getPersonalExpensesByUserId(UserSession.getInstance().getUser().getId());
-        setExpensesList(expenses);
+        expenses = expenseService.getPersonalExpensesByUserIdWithPagination(UserSession.getInstance().getUser().getId(), currentPage * PAGE_SIZE, PAGE_SIZE);
+        updatePagination();
     }
 
-    public void setExpensesList(List<Expense> expenses) {
+    private void updatePaginationPanel() {
+        paginationPanel.removeAll();
+        long totalExpenses = expenseService.countByBudgetId(UserSession.getInstance().getUser().getId());
+        int totalPages = (int) Math.ceil((double) totalExpenses / PAGE_SIZE);
+        if (totalExpenses > PAGE_SIZE) {
+            for (int i = 0; i < totalPages; i++) {
+                int pageIndex = i;
+                JButton pageButton = new JButton(String.valueOf(i + 1));
+                pageButton.setEnabled(pageIndex != currentPage);
+                pageButton.addActionListener(e -> {
+                    currentPage = pageIndex;
+                    refreshExpenseList();
+                });
+                paginationPanel.add(pageButton);
+            }
+            paginationPanel.setVisible(true);
+        } else {
+            paginationPanel.setVisible(false);
+        }
+        paginationPanel.revalidate();
+        paginationPanel.repaint();
+    }
+
+    private void updatePagination() {
         DefaultListModel<Expense> model = (DefaultListModel<Expense>) expensesList.getModel();
-        model.clear(); // Clear old data
-        expenses.forEach(model::addElement); // Add new data
+        model.clear();
+        for (Expense expense : expenses) {
+            model.addElement(expense);
+        }
+        updatePaginationPanel();
     }
 
     private void initUI() {
@@ -121,13 +153,13 @@ public class ExpensesScreen extends JPanel {
         expensesList.setCellRenderer(new ExpenseListRenderer());
         expenseService = mainFrame.getContext().getBean(ExpenseService.class);
         expenses = expenseService.getPersonalExpensesByUserId(UserSession.getInstance().getUser().getId());
-        setExpensesList(expenses);
 
         add(new JScrollPane(expensesList), BorderLayout.CENTER);
 
         JLabel label = new JLabel(SELECT_EXPENSE, SwingConstants.CENTER);
         add(label, BorderLayout.NORTH);
 
+        // Painel de botões
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         createButton = new JButton(CREATE_NEW_EXPENSE);
         importButton = new JButton(IMPORT_EXPENSES);
@@ -135,10 +167,32 @@ public class ExpensesScreen extends JPanel {
         buttonPanel.add(importButton);
         buttonPanel.add(createButton);
 
-        add(buttonPanel, BorderLayout.SOUTH);
+        // Initialize pagination buttons
+        prevPageButton = new JButton();
+        nextPageButton = new JButton();
+
+        // Add pagination buttons to the pagination panel
+        paginationPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        paginationPanel.add(prevPageButton);
+        paginationPanel.add(nextPageButton);
+
+        // Painel inferior que contém os botões e a paginação
+        JPanel bottomPanel = new JPanel(new BorderLayout());
+        bottomPanel.add(buttonPanel, BorderLayout.EAST);
+        bottomPanel.add(paginationPanel, BorderLayout.CENTER);
+
+        add(bottomPanel, BorderLayout.SOUTH);
+
+        refreshExpenseList();
     }
 
-    private JButton createButton, importButton;
+    private JList<Expense> expensesList;
+    private List<Expense> expenses;
+    private int currentPage = 0;
+    private static final int PAGE_SIZE = 20;
+    private JPanel paginationPanel;
+
+    private JButton createButton, importButton, prevPageButton, nextPageButton;
     private static final String
             SELECT_EXPENSE = "Select an expense to view details",
             CREATE_NEW_EXPENSE = "Create New Expense",

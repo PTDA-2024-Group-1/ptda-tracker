@@ -12,6 +12,7 @@ import com.ptda.tracker.util.UserSession;
 import javax.swing.*;
 import java.awt.*;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class BudgetsScreen extends JPanel {
     private final BudgetService budgetService;
@@ -37,10 +38,23 @@ public class BudgetsScreen extends JPanel {
             }
         });
 
-        add(new JScrollPane(budgetList), BorderLayout.CENTER);
-
+        JPanel topPanel = new JPanel(new BorderLayout());
         JLabel label = new JLabel(SELECT_BUDGET, SwingConstants.CENTER);
-        add(label, BorderLayout.NORTH);
+        topPanel.add(label, BorderLayout.NORTH);
+
+        JPanel buttonPanel = new JPanel(new FlowLayout());
+        JButton allButton = new JButton("All");
+        JButton favoritesButton = new JButton("Favorites");
+
+        allButton.addActionListener(e -> setBudgetList(budgets));
+        favoritesButton.addActionListener(e -> setBudgetList(budgets.stream().filter(Budget::isFavorite).collect(Collectors.toList())));
+
+        buttonPanel.add(allButton);
+        buttonPanel.add(favoritesButton);
+        topPanel.add(buttonPanel, BorderLayout.SOUTH);
+
+        add(topPanel, BorderLayout.NORTH);
+        add(new JScrollPane(budgetList), BorderLayout.CENTER);
 
         JButton createButton = new JButton(CREATE_NEW_BUDGET);
         createButton.addActionListener(e -> {
@@ -55,6 +69,7 @@ public class BudgetsScreen extends JPanel {
         budgetList.clearSelection();
         budgets = budgetService.getAllByUserId(UserSession.getInstance().getUser().getId());
         setBudgetList(budgets);
+        budgetList.updateUI();
     }
 
     public void setBudgetList(List<Budget> budgets) {

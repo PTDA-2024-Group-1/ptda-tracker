@@ -76,6 +76,10 @@ public class NavigationMenu extends JPanel {
             }
         });
 
+        // Desativar o foco automático e remover o estilo de foco
+        // button.setFocusable(false);
+        button.setFocusPainted(false);
+
         // Layout settings
         gbc.gridx = 0;
         gbc.gridy = row;
@@ -152,14 +156,10 @@ public class NavigationMenu extends JPanel {
             LOGIN_SCREEN = ScreenNames.LOGIN_FORM,
             ASSISTANCE_SCREEN = ScreenNames.ASSISTANCE_SCREEN;
 
-
-
-
     private static final String
             HOME = "Home",
             BUDGETS = "Budgets",
             EXPENSES = "My Expenses",
-            TICKETS = "Tickets",
             SUPPORT = "Support",
             ASSISTANCE = "Assistance",
             PROFILE = "Profile",

@@ -43,17 +43,11 @@ public class ManageTicketView extends JPanel{
         add(label, BorderLayout.NORTH);
 
         JPanel leftButtonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        JButton backButton = new JButton("Back");
+        JButton backButton = new JButton(BACK);
         backButton.addActionListener(e -> mainFrame.showScreen(ScreenNames.NAVIGATION_SCREEN));
         leftButtonPanel.add(backButton);
         add(leftButtonPanel, BorderLayout.SOUTH);
     }
-
-//    private void refreshTicketList() {
-//        ticketList.clearSelection();
-//        tickets = ticketService.getAllByUser(UserSession.getInstance().getUser());
-//        setTicketList(tickets);
-//    }
 
     public void setTicketList(List<Ticket> tickets) {
         DefaultListModel<Ticket> model = (DefaultListModel<Ticket>) ticketList.getModel();

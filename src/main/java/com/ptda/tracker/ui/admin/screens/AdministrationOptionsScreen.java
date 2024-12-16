@@ -7,7 +7,6 @@ import com.ptda.tracker.util.ScreenNames;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionListener;
 
 public class AdministrationOptionsScreen extends JPanel {
     private final MainFrame mainFrame;
@@ -35,16 +34,23 @@ public class AdministrationOptionsScreen extends JPanel {
 
         // Central panel configuration
         JPanel buttonPanel = new JPanel(new GridBagLayout());
+        GridBagConstraints buttonGbc = new GridBagConstraints();
+        buttonGbc.gridx = 0;
+        buttonGbc.gridy = 0;
+        buttonGbc.insets = new Insets(10, 0, 10, 0); // Add some spacing between buttons
+
         JButton manageUsersButton = new JButton("Manage Users");
         manageUsersButton.addActionListener(e -> {
             mainFrame.registerAndShowScreen(ScreenNames.MANAGE_USER_VIEW, new ManageUserView(mainFrame));
         });
+        buttonPanel.add(manageUsersButton, buttonGbc);
+
+        buttonGbc.gridy = 1; // Move to the next row
         JButton manageTicketsButton = new JButton("Manage Tickets");
         manageTicketsButton.addActionListener(e -> {
             mainFrame.registerAndShowScreen(ScreenNames.MANAGE_TICKET_VIEW, new ManageTicketView(mainFrame));
         });
-        buttonPanel.add(manageUsersButton, new GridBagConstraints());
-        buttonPanel.add(manageTicketsButton, new GridBagConstraints());
+        buttonPanel.add(manageTicketsButton, buttonGbc);
 
         contentPanel.add(buttonPanel, BorderLayout.CENTER);
 

@@ -6,6 +6,8 @@ import com.ptda.tracker.repositories.ExpenseRepository;
 import com.ptda.tracker.repositories.ExpenseDivisionRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -69,6 +71,18 @@ public class ExpenseServiceHibernateImpl implements ExpenseService {
     }
 
     @Override
+    public List<Expense> getExpensesByBudgetIdWithPagination(Long budgetId, int offset, int limit) {
+        Pageable pageable = PageRequest.of(offset / limit, limit);
+        return expenseRepository.findByBudgetIdOrderByDateDesc(budgetId, pageable);
+    }
+
+    @Override
+    public List<Expense> getPersonalExpensesByUserIdWithPagination(Long userId, int offset, int limit) {
+        Pageable pageable = PageRequest.of(offset / limit, limit);
+        return expenseRepository.findByCreatedByIdAndBudgetNullOrderByDateDesc(userId, pageable);
+    }
+
+    @Override
     @Transactional
     public Expense update(Expense expense) {
         return expenseRepository.save(expense);
@@ -112,5 +126,10 @@ public class ExpenseServiceHibernateImpl implements ExpenseService {
     @Override
     public void saveAll(List<Expense> importedExpenses) {
         expenseRepository.saveAll(importedExpenses);
+    }
+
+    @Override
+    public long countByBudgetId(Long id) {
+        return expenseRepository.countByBudgetId(id);
     }
 }
