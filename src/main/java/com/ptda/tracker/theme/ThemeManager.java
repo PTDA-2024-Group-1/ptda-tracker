@@ -59,6 +59,15 @@ public class ThemeManager {
         }
     }
 
+    public void toggleTheme() {
+        if (isDark) {
+            setTheme(AppConfig.DEFAULT_LIGHT_THEME);
+        } else {
+            setTheme(AppConfig.DEFAULT_DARK_THEME);
+        }
+        isDark = !isDark;
+    }
+
     private void setSystemLookAndFeel() {
         try {
             JFrame.setDefaultLookAndFeelDecorated(false);

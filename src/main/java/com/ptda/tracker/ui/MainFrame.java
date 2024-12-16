@@ -156,8 +156,13 @@ public class MainFrame extends JFrame {
         return preferences.get("theme", AppConfig.DEFAULT_LIGHT_THEME);
     }
 
+    private void toggleTheme() {
+        themeManager.toggleTheme();
+        updateLogoImage();
+    }
+
     private void updateLogoImage() {
-        String imagePath = themeManager.isDark() ? "/images/divi_dark.png" : "/images/divi_1.png";
+        String imagePath = themeManager.isDark() ? "/images/divi_dark.png" : "/images/divi.png.png";
         ImageIcon logoIcon = new ImageIcon(getClass().getResource(imagePath));
         logoLabel.setIcon(logoIcon);
     }
