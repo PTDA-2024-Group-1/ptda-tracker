@@ -52,6 +52,7 @@ public class MainFrame extends JFrame {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(1000, 800);
         setLocationRelativeTo(null);
+
         add(logoLabel, BorderLayout.NORTH);
         add(mainPanel, BorderLayout.CENTER);
     }
@@ -152,7 +153,9 @@ public class MainFrame extends JFrame {
 
     public void updateLogoImage() {
         ImageIcon logoIcon = ImageResourceManager.getThemeBasedIcon(themeManager.isDark());
-        logoLabel.setIcon(logoIcon);
+        if (logoIcon != null) {
+            logoLabel.setIcon(logoIcon);
+        }
     }
 
     private static final LocaleManager localeManager = LocaleManager.getInstance();

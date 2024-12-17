@@ -26,6 +26,7 @@ public class ThemeManager {
 
     public ThemeManager(Component window) {
         this.window = window;
+
         Light.installLafInfo();
         Dark.installLafInfo();
 
@@ -48,26 +49,20 @@ public class ThemeManager {
 
             FlatLaf.setup(instance);
             FlatLaf.updateUI();
+
         } catch (NoSuchElementException | NoSuchMethodException | IllegalAccessException | InvocationTargetException |
                  ClassNotFoundException | InstantiationException e) {
             LOGGER.error("Unable to set FlatLaf theme", e);
             setSystemLookAndFeel();
         }
-    }
 
-    public void toggleTheme() {
-        if (isDark) {
-            setTheme(AppConfig.DEFAULT_LIGHT_THEME);
-        } else {
-            setTheme(AppConfig.DEFAULT_DARK_THEME);
-        }
-        isDark = !isDark;
         notifyThemeChange();
     }
 
     private void notifyThemeChange() {
         if (window instanceof MainFrame) {
             ((MainFrame) window).updateLogoImage();
+            SwingUtilities.updateComponentTreeUI(window);
         }
     }
 
@@ -80,6 +75,14 @@ public class ThemeManager {
         } catch (UnsupportedLookAndFeelException | ClassNotFoundException | InstantiationException |
                  IllegalAccessException e) {
             LOGGER.error("Unable to set system look and feel", e);
+        }
+    }
+
+    public void toggleTheme() {
+        if (isDark) {
+            setTheme(AppConfig.DEFAULT_LIGHT_THEME);
+        } else {
+            setTheme(AppConfig.DEFAULT_DARK_THEME);
         }
     }
 }
