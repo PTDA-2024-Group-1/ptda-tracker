@@ -118,9 +118,12 @@ public class MainFrame extends JFrame {
     }
 
     public void registerScreen(String name, JPanel screen) {
-        LOGGER.debug("Registering screen: {}", name);
         screens.put(name, screen);
         mainPanel.add(screen, name);
+    }
+
+    public JPanel getScreen(String screenName) {
+        return screens.get(screenName);
     }
 
     public void showScreen(String name) {
