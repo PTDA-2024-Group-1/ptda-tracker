@@ -5,7 +5,7 @@ import com.ptda.tracker.models.tracker.ExpenseCategory;
 import com.ptda.tracker.services.tracker.ExpenseService;
 import com.ptda.tracker.ui.MainFrame;
 import com.ptda.tracker.ui.user.forms.ExpenseForm;
-import com.ptda.tracker.ui.user.renderers.ExpenseListRenderer;
+import com.ptda.tracker.ui.user.components.renderers.ExpenseListRenderer;
 import com.ptda.tracker.ui.user.views.ExpenseDetailView;
 import com.ptda.tracker.util.ScreenNames;
 import com.ptda.tracker.util.UserSession;

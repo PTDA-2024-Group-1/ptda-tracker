@@ -9,7 +9,7 @@ import com.ptda.tracker.ui.MainFrame;
 import com.ptda.tracker.ui.admin.dialogs.ChangeAssignmentDialog;
 import com.ptda.tracker.ui.admin.views.ManageTicketView;
 import com.ptda.tracker.ui.user.forms.TicketReplyForm;
-import com.ptda.tracker.ui.user.renderers.TicketReplyRenderer;
+import com.ptda.tracker.ui.user.components.renderers.TicketReplyRenderer;
 import com.ptda.tracker.util.ScreenNames;
 import com.ptda.tracker.util.UserSession;
 import org.jdesktop.swingx.JXList;

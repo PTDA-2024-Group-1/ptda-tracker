@@ -4,7 +4,7 @@ import com.ptda.tracker.models.tracker.Budget;
 import com.ptda.tracker.services.tracker.BudgetService;
 import com.ptda.tracker.ui.MainFrame;
 import com.ptda.tracker.ui.user.forms.BudgetForm;
-import com.ptda.tracker.ui.user.renderers.BudgetListRenderer;
+import com.ptda.tracker.ui.user.components.renderers.BudgetListRenderer;
 import com.ptda.tracker.ui.user.views.BudgetDetailView;
 import com.ptda.tracker.util.ScreenNames;
 import com.ptda.tracker.util.UserSession;

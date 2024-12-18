@@ -1,4 +1,4 @@
-package com.ptda.tracker.ui.user.renderers;
+package com.ptda.tracker.ui.user.components.renderers;
 
 import com.ptda.tracker.models.assistance.TicketReply;
 import com.ptda.tracker.util.UserSession;

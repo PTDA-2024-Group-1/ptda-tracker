@@ -4,7 +4,7 @@ import com.ptda.tracker.models.assistance.Ticket;
 import com.ptda.tracker.models.user.User;
 import com.ptda.tracker.services.assistance.TicketService;
 import com.ptda.tracker.ui.MainFrame;
-import com.ptda.tracker.ui.user.renderers.TicketListRenderer;
+import com.ptda.tracker.ui.user.components.renderers.TicketListRenderer;
 import com.ptda.tracker.ui.user.views.TicketDetailView;
 import com.ptda.tracker.util.ScreenNames;
 import com.ptda.tracker.util.UserSession;
