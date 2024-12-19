@@ -7,10 +7,10 @@ import javax.swing.table.TableCellEditor;
 import java.awt.*;
 import java.util.Date;
 
-public class DatePickerEditor extends AbstractCellEditor implements TableCellEditor {
+public class DatePickerCellEditor extends AbstractCellEditor implements TableCellEditor {
     private final JXDatePicker datePicker = new JXDatePicker();
 
-    public DatePickerEditor() {
+    public DatePickerCellEditor() {
         datePicker.getEditor().setEditable(false); // Disable text editing
     }
 

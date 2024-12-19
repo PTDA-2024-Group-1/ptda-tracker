@@ -1,9 +1,9 @@
 package com.ptda.tracker.ui.user.dialogs.expenses;
 
+import com.ptda.tracker.ui.user.components.tables.ColumnsTableModel;
 import com.ptda.tracker.util.ImportSharedData;
 
 import javax.swing.*;
-import javax.swing.table.AbstractTableModel;
 import java.awt.*;
 import java.util.HashMap;
 import java.util.Map;
@@ -36,14 +36,15 @@ public class ImportColumnsDialog extends JDialog {
         Map<String, Integer> columnMapping = new HashMap<>();
 
         for (int i = 0; i < model.getRowCount(); i++) {
+            String columnName = (String) model.getValueAt(i, 0);
             ExpenseFieldOptions selectedField = (ExpenseFieldOptions) model.getValueAt(i, 1);
 
-            // Use selectedField's name as the key and the row index as the value
             if (selectedField != ExpenseFieldOptions.IGNORE) {
-                columnMapping.put(selectedField.name(), i);
+                columnMapping.put(columnName, selectedField.ordinal());
             }
         }
 
+        // Save updated mappings to sharedData
         sharedData.setColumnMapping(columnMapping);
     }
 
@@ -88,78 +89,20 @@ public class ImportColumnsDialog extends JDialog {
 
     private JTable columnsTable;
     private JButton cancelButton, confirmButton;
+    private static final String
+            IMPORT_COLUMNS_MAPPING = "Import Columns Mapping",
+            CANCEL = "Cancel",
+            CONFIRM = "Confirm",
 
-    private static class ColumnsTableModel extends AbstractTableModel {
-        private final String[] columnNames = {COLUMN_NAME, MAPPED_FIELD};
-        private final Object[][] data;
+    IGNORE = ExpenseFieldOptions.IGNORE.toString(),
+            AMOUNT = ExpenseFieldOptions.AMOUNT.toString(),
+            DATE = ExpenseFieldOptions.DATE.toString(),
+            CATEGORY = ExpenseFieldOptions.CATEGORY.toString(),
+            TITLE = ExpenseFieldOptions.TITLE.toString(),
+            DESCRIPTION = ExpenseFieldOptions.DESCRIPTION.toString();
 
-        public ColumnsTableModel(Map<String, Integer> existingMapping) {
-            ImportSharedData sharedData = ImportSharedData.getInstance();
-            String[] rawColumnNames;
-
-            // Check if the data has a header; generate generic names if not
-            if (sharedData.isHasHeader()) {
-                rawColumnNames = sharedData.getRawData().getFirst();
-            } else {
-                int columnCount = sharedData.getRawData().getFirst().length;
-                rawColumnNames = new String[columnCount];
-                for (int i = 0; i < columnCount; i++) {
-                    rawColumnNames[i] = COLUMN + " " + (i + 1);
-                }
-            }
-
-            data = new Object[rawColumnNames.length][2];
-
-            for (int i = 0; i < rawColumnNames.length; i++) {
-                data[i][0] = rawColumnNames[i];
-                // Restore mapping or default to IGNORE
-                ExpenseFieldOptions defaultOption = ExpenseFieldOptions.IGNORE;
-                if (existingMapping != null && existingMapping.containsKey(rawColumnNames[i])) {
-                    defaultOption = ExpenseFieldOptions.values()[existingMapping.get(rawColumnNames[i])];
-                }
-                data[i][1] = defaultOption;
-            }
-        }
-
-        @Override
-        public int getRowCount() {
-            return data.length;
-        }
-
-        @Override
-        public int getColumnCount() {
-            return columnNames.length;
-        }
-
-        @Override
-        public Object getValueAt(int rowIndex, int columnIndex) {
-            return data[rowIndex][columnIndex];
-        }
-
-        @Override
-        public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
-            data[rowIndex][columnIndex] = aValue;
-            fireTableCellUpdated(rowIndex, columnIndex);
-        }
-
-        @Override
-        public boolean isCellEditable(int rowIndex, int columnIndex) {
-            return columnIndex == 1;
-        }
-
-        @Override
-        public String getColumnName(int column) {
-            return columnNames[column];
-        }
-
-        public boolean isOptionUsed(ExpenseFieldOptions option, int excludeRow) {
-            for (int i = 0; i < getRowCount(); i++) {
-                if (i != excludeRow && data[i][1] == option) {
-                    return true;
-                }
-            }
-            return false;
-        }
+    public enum ExpenseFieldOptions {
+        IGNORE, AMOUNT, DATE, CATEGORY, TITLE, DESCRIPTION
     }
 
     private class UniqueComboBoxEditor extends DefaultCellEditor {
@@ -190,23 +133,4 @@ public class ImportColumnsDialog extends JDialog {
             return super.stopCellEditing();
         }
     }
-
-    public enum ExpenseFieldOptions {
-        IGNORE, AMOUNT, DATE, CATEGORY, TITLE, DESCRIPTION
-    }
-
-    private static final String
-            IMPORT_COLUMNS_MAPPING = "Import Columns Mapping",
-            COLUMN = "Column",
-            COLUMN_NAME = "Column Name",
-            MAPPED_FIELD = "Mapped Field",
-            CANCEL = "Cancel",
-            CONFIRM = "Confirm",
-
-            IGNORE = ExpenseFieldOptions.IGNORE.toString(),
-            AMOUNT = ExpenseFieldOptions.AMOUNT.toString(),
-            DATE = ExpenseFieldOptions.DATE.toString(),
-            CATEGORY = ExpenseFieldOptions.CATEGORY.toString(),
-            TITLE = ExpenseFieldOptions.TITLE.toString(),
-            DESCRIPTION = ExpenseFieldOptions.DESCRIPTION.toString();
 }

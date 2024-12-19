@@ -31,15 +31,9 @@ public class ImportSourceDialog extends JDialog {
     }
 
     private void setListeners() {
-        cancelButton.addActionListener(e -> {
-            dispose();
-        });
-        fileButton.addActionListener(e -> {
-            importFromFile();
-        });
-        clipboardButton.addActionListener(e -> {
-            importFromClipboard();
-        });
+        cancelButton.addActionListener(e -> dispose());
+        fileButton.addActionListener(e -> importFromFile());
+        clipboardButton.addActionListener(e -> importFromClipboard());
         confirmButton.addActionListener(e -> {
             sharedData.setRawData(rawData);
             sharedData.setHasHeader(hasHeader);
@@ -134,6 +128,7 @@ public class ImportSourceDialog extends JDialog {
 
         confirmButton.setEnabled(true);
         pack();
+        setLocationRelativeTo(null);
     }
 
     private void createTablePreview(String[][] data, String[] columnNames) {

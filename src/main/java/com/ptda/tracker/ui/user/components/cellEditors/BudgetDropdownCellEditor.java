@@ -10,11 +10,11 @@ import java.util.Map;
 
 import static com.ptda.tracker.ui.user.forms.ExpensesEditForm.createBudgetMap;
 
-public class BudgetDropdownEditor extends AbstractCellEditor implements TableCellEditor {
+public class BudgetDropdownCellEditor extends AbstractCellEditor implements TableCellEditor {
     private final JComboBox<String> comboBox;
     private final Map<String, Budget> budgetMap;
 
-    public BudgetDropdownEditor(List<Budget> budgets) {
+    public BudgetDropdownCellEditor(List<Budget> budgets) {
         this.budgetMap = createBudgetMap(budgets);
         this.comboBox = new JComboBox<>(budgetMap.keySet().toArray(new String[0]));
     }

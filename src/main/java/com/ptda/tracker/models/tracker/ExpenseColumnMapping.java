@@ -7,8 +7,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.Map;
-
 @Entity
 @Data
 @Builder
@@ -22,11 +20,8 @@ public class ExpenseColumnMapping {
 
     private String name;
 
-    @ElementCollection
-    @CollectionTable(name = "column_mapping_entries", joinColumns = @JoinColumn(name = "mapping_id"))
-    @MapKeyColumn(name = "column_name")
-    @Column(name = "mapped_field")
-    private Map<String, String> columnMapping;
+    @Enumerated(EnumType.STRING)
+    private ExpenseCategory category;
 
     @ManyToOne
     private User createdBy;

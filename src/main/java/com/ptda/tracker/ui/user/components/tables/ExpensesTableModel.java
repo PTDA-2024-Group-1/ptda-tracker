@@ -40,7 +40,7 @@ public class ExpensesTableModel extends AbstractTableModel {
             case 0: return expense.getTitle();
             case 1: return expense.getAmount();
             case 2: return expense.getDate();
-            case 3: return expense.getCategory();
+            case 3: return expense.getCategory() != null ? expense.getCategory() : ExpenseCategory.OTHER; // Default to OTHER
             case 4: return expense.getDescription();
             case 5: return expense.getBudget() != null ? expense.getBudget().getName() : ""; // Display only the budget name
             default: return null;
@@ -54,11 +54,15 @@ public class ExpensesTableModel extends AbstractTableModel {
             case 0: expense.setTitle((String) aValue); break;
             case 1: expense.setAmount(((Number) aValue).doubleValue()); break;
             case 2: expense.setDate((Date) aValue); break;
-            case 3: expense.setCategory((ExpenseCategory) aValue); break;
+            case 3:
+                if (aValue instanceof ExpenseCategory) {
+                    expense.setCategory((ExpenseCategory) aValue);
+                }
+                break;
             case 4: expense.setDescription((String) aValue); break;
             case 5:
                 if (aValue instanceof String) {
-                    expense.setBudget(findBudgetByName((String) aValue)); // Set the correct Budget object based on the name
+                    expense.setBudget(findBudgetByName((String) aValue));
                 }
                 break;
         }
