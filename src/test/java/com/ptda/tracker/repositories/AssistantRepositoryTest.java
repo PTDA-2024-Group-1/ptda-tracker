@@ -9,6 +9,7 @@ import org.springframework.test.context.ActiveProfiles;
 
 import java.util.Optional;
 
+import static org.assertj.core.api.Assertions.as;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @ActiveProfiles("test")
@@ -72,5 +73,37 @@ public class AssistantRepositoryTest {
 
         Optional<Assistant> retrieved = assistantRepository.findByEmail("assistant@example.com");
         assertThat(retrieved).isNotPresent();
+    }
+
+    @Test
+    void testFindById(){
+        Assistant assistant = new Assistant();
+        assistant.setName("Assistant User");
+        assistant.setEmail("assistant@example.com");
+        assistant.setPassword("password");
+
+        assistantRepository.save(assistant);
+
+        Optional<Assistant> retrieved = assistantRepository.findById(assistant.getId());
+        assertThat(retrieved).isPresent();
+        assertThat(retrieved.get().getName()).isEqualTo("Assistant User");
+    }
+
+    @Test
+    void testGetAll(){
+        Assistant assistant = new Assistant();
+        assistant.setName("Assistant User");
+        assistant.setEmail("assistant@example.com");
+        assistant.setPassword("password");
+
+        Assistant assistant2 = new Assistant();
+        assistant2.setName("Assistant User 2");
+        assistant2.setEmail("assistant2@example.com");
+        assistant2.setPassword("password");
+
+        assistantRepository.save(assistant);
+        assistantRepository.save(assistant2);
+
+        assertThat(assistantRepository.findAll()).hasSize(2);
     }
 }

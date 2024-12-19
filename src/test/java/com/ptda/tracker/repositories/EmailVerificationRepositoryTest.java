@@ -77,5 +77,4 @@ public class EmailVerificationRepositoryTest {
         Optional<EmailVerification> result = emailVerificationRepository.findByEmailAndIsUsedIsFalse("nonexistent@example.com");
         assertThat(result).isNotPresent();
     }
-
 }

@@ -72,4 +72,35 @@ public class AdminRepositoryTest {
         Optional<Admin> retrieved = adminRepository.findByEmail("admin@example.com");
         assertThat(retrieved).isNotPresent();
     }
+
+    @Test
+    void testFindById() {
+        Admin admin = new Admin();
+        admin.setName("Admin User");
+        admin.setEmail("admin@example.com");
+        admin.setPassword("password");
+
+        adminRepository.save(admin);
+
+        Optional<Admin> retrieved = adminRepository.findById(admin.getId());
+        assertThat(retrieved).isPresent();
+    }
+
+    @Test
+    void testFindAll(){
+        Admin admin = new Admin();
+        admin.setName("Admin User");
+        admin.setEmail("admin@example.com");
+        admin.setPassword("password");
+
+        adminRepository.save(admin);
+
+        Admin admin2 = new Admin();
+        admin2.setName("Admin User 2");
+        admin2.setEmail("admin2@example.com");
+
+        adminRepository.save(admin2);
+
+        assertThat(adminRepository.findAll()).hasSize(2);
+    }
 }

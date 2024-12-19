@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.context.ActiveProfiles;
 
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -105,6 +106,18 @@ public class UserRepositoryTest {
     }
 
     @Test
+    void testFindById() {
+        User user = User.builder()
+                .name("Test User")
+                .email("user@example.com")
+                .password("password")
+                .build();
+        userRepository.save(user);
+        Optional<User> retrieved = userRepository.findById(user.getId());
+        assertThat(retrieved).isPresent();
+    }
+
+    @Test
     void testUpdateUser() {
         User user = User.builder()
                 .name("Test User")
@@ -148,11 +161,22 @@ public class UserRepositoryTest {
                 .password("password")
                 .build();
 
+        User user2 = User.builder()
+                .name("Test User 2")
+                .email("test2@example.com")
+                .password("password")
+                .build();
+
         userRepository.save(user);
+        userRepository.save(user2);
+
         userRepository.delete(user);
+        userRepository.deleteById(user2.getId());
 
         Optional<User> retrieved = userRepository.findByEmail("test@example.com");
+        Optional<User> retrieved2 = userRepository.findByEmail("test2@example.com");
         assertThat(retrieved).isNotPresent();
+        assertThat(retrieved2).isNotPresent();
     }
 
     @Test
@@ -169,4 +193,21 @@ public class UserRepositoryTest {
             assertThat(e).isInstanceOf(Exception.class);
         }
     }
+
+    @Test
+    void testSaveAll() {
+        User user1 = User.builder()
+                .name("User One")
+                .email("user@example.com")
+                .password("password")
+                .build();
+        User user2 = User.builder()
+                .name("User Two")
+                .email("user2@example.com")
+                .password("password")
+                .build();
+        userRepository.saveAll(List.of(user1, user2));
+        assertThat(userRepository.findAll()).hasSize(2);
+    }
+
 }

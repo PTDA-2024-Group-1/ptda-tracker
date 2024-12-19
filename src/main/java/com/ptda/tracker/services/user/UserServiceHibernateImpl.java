@@ -8,6 +8,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -95,5 +96,10 @@ public class UserServiceHibernateImpl implements UserService {
     public boolean deleteById(Long id) {
         userRepository.deleteById(id);
         return true;
+    }
+
+    @Override
+    public int countByUserType(String userType) {
+        return (int) userRepository.countByUserType(userType);
     }
 }

@@ -97,4 +97,32 @@ public class TicketRepositoryTest {
         assertThat(updatedTicket.isClosed()).isTrue();
     }
 
+    @Test
+    void testFindAllTickets() {
+        User user = User.builder()
+                .name("Test User")
+                .email("test@example.com")
+                .password("password")
+                .build();
+        userRepository.save(user);
+
+        Ticket ticket1 = Ticket.builder()
+                .title("Open Ticket")
+                .body("Open Body")
+                .createdBy(user)
+                .isClosed(false)
+                .build();
+        ticketRepository.save(ticket1);
+        Ticket ticket2 = Ticket.builder()
+                .title("Closed Ticket")
+                .body("Closed Body")
+                .createdBy(user)
+                .isClosed(true)
+                .build();
+        ticketRepository.save(ticket2);
+
+        List<Ticket> tickets = ticketRepository.findAll();
+        assertThat(tickets).hasSize(2);
+
+    }
 }

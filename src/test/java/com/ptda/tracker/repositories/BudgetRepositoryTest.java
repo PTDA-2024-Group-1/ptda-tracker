@@ -1,7 +1,9 @@
 package com.ptda.tracker.repositories;
 
 import com.ptda.tracker.models.tracker.Budget;
+import com.ptda.tracker.models.tracker.Expense;
 import com.ptda.tracker.models.user.User;
+import com.ptda.tracker.services.tracker.ExpenseService;
 import com.ptda.tracker.util.UserSession;
 import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.Test;
@@ -161,6 +163,33 @@ public class BudgetRepositoryTest {
         Optional<Budget> retrieved = budgetRepository.findById(budget.getId());
         assertThat(retrieved).isPresent();
         assertThat(retrieved.get().isFavorite()).isTrue();
+    }
+
+    @Test
+    void testFindAll(){
+        User user = User.builder()
+                .name("Test User")
+                .email("dsad@da.com")
+                .password("password")
+                .build();
+        userRepository.save(user);
+
+        UserSession.getInstance().setUser(user);
+
+        Budget budget = Budget.builder()
+                .name("Test Budget")
+                .description("Test Description")
+                .createdBy(user)
+                .build();
+        budgetRepository.save(budget);
+        Budget budget2 = Budget.builder()
+                .name("Test Budget2")
+                .description("Test Description2")
+                .createdBy(user)
+                .build();
+        budgetRepository.save(budget2);
+        List<Budget> budgets = budgetRepository.findAll();
+        assertThat(budgets).isNotEmpty();
     }
 
 }

@@ -157,4 +157,31 @@ public class TicketReplyRepositoryTest {
         assertThat(ticketReply.getCreatedAt()).isGreaterThan(0L);
     }
 
+    @Test
+    void testGetById() {
+        User user = User.builder()
+                .name("Test User")
+                .email("test@example.com")
+                .password("password")
+                .build();
+        userRepository.save(user);
+
+        Ticket ticket = Ticket.builder()
+                .title("Test Ticket")
+                .body("Test Body")
+                .createdBy(user)
+                .build();
+        ticketRepository.save(ticket);
+
+        TicketReply ticketReply = TicketReply.builder()
+                .body("Test Reply")
+                .ticket(ticket)
+                .createdBy(user)
+                .build();
+        ticketReplyRepository.save(ticketReply);
+
+        TicketReply foundReply = ticketReplyRepository.findById(ticketReply.getId()).orElse(null);
+        assertThat(foundReply).isNotNull();
+        assertThat(foundReply.getBody()).isEqualTo("Test Reply");
+    }
 }

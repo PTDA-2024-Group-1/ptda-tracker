@@ -70,6 +70,11 @@ public class NavigationMenu extends JPanel {
             return; // Do not add the administration button if the user is of type "ASSISTANT"
         }
 
+        // Check if the user is of type "ADMIN" before adding the assistance button
+        if (userType.equals("ADMIN") && label.equals(ASSISTANCE)) {
+            return; // Do not add the assistance button if the user is of type "ADMIN"
+        }
+
         JButton button = new JButton(label);
         button.setFont(new Font("Arial", Font.BOLD, 14));
         button.setActionCommand(screenName); // Button action command to check if it's the active button

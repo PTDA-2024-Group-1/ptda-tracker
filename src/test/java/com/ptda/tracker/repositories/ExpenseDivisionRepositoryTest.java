@@ -177,6 +177,34 @@ public class ExpenseDivisionRepositoryTest {
 //    }
 
     @Test
+    void testExpenseDivisionExistsByID() {
+        User user = User.builder()
+                .name("Test User")
+                .email("test@email.com")
+                .password("password")
+                .build();
+        userRepository.save(user);
+
+        UserSession.getInstance().setUser(user);
+
+        Expense expense = Expense.builder()
+                .description("Test Expense")
+                .amount(100.0)
+                .build();
+        expenseRepository.save(expense);
+
+        ExpenseDivision division = ExpenseDivision.builder()
+                .amount(50.0)
+                .percentage(50.0)
+                .expense(expense)
+                .user(user)
+                .build();
+        expenseDivisionRepository.save(division);
+
+        assertThat(expenseDivisionRepository.existsById(division.getId())).isTrue();
+    }
+
+    @Test
     void testCreatedByIsSetAutomatically() {
         User sessionUser = User.builder()
                 .name("Session User")

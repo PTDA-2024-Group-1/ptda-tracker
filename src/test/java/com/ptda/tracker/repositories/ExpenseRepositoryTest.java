@@ -1,5 +1,6 @@
 package com.ptda.tracker.repositories;
 
+import com.ptda.tracker.models.tracker.Budget;
 import com.ptda.tracker.models.tracker.Expense;
 import com.ptda.tracker.models.tracker.ExpenseCategory;
 import com.ptda.tracker.models.user.User;
@@ -23,6 +24,8 @@ public class ExpenseRepositoryTest {
 
     private final ExpenseRepository expenseRepository;
     private final UserRepository userRepository;
+    @Autowired
+    private BudgetRepository budgetRepository;
 
     @Test
     void testInsertExpense() {
@@ -225,6 +228,122 @@ public class ExpenseRepositoryTest {
         Optional<Expense> updatedExpense = expenseRepository.findById(expense.getId());
         assertThat(updatedExpense).isPresent();
         assertThat(updatedExpense.get().getCategory()).isEqualTo(ExpenseCategory.FOOD);
+    }
+
+    @Test
+    void testGetAllByBudgetId() {
+
+        User user = User.builder()
+                .name("Test User")
+                .email("test@user.com")
+                .password("password")
+                .build();
+        userRepository.save(user);
+        UserSession.getInstance().setUser(user);
+
+        Budget budget = new Budget();
+        budget.setName("Test Budget");
+        budget.setDescription("Test Description");
+        budgetRepository.save(budget);
+
+        Expense expense = new Expense();
+        expense.setTitle("Test Expense");
+        expense.setAmount(100.0);
+        expense.setDate(new Date());
+        expense.setCategory(ExpenseCategory.OTHER);
+        expense.setCreatedBy(user);
+        expense.setBudget(budget);
+        expenseRepository.save(expense);
+
+        List<Expense> expenses = expenseRepository.findAllByBudgetId(expense.getBudget().getId());
+        assertThat(expenses).isNotEmpty();
+    }
+
+    @Test
+    void testCountExpensesByBudget() {
+
+        User user = User.builder()
+                .name("Test User")
+                .email("test@email.com")
+                .password("password")
+                .build();
+
+        userRepository.save(user);
+        UserSession.getInstance().setUser(user);
+
+        Budget budget = new Budget();
+        budget.setName("Test Budget");
+        budget.setDescription("Test Description");
+        budgetRepository.save(budget);
+
+        Expense expense = new Expense();
+        expense.setTitle("Test Expense");
+        expense.setAmount(100.0);
+        expense.setDate(new Date());
+        expense.setCategory(ExpenseCategory.OTHER);
+        expense.setCreatedBy(user);
+        expense.setBudget(budget);
+        expenseRepository.save(expense);
+
+        long count = expenseRepository.countByBudgetId(budget.getId());
+        assertThat(count).isEqualTo(1);
+
+    }
+
+    @Test
+    void testFindAllExpenses(){
+
+        User user = User.builder()
+                .name("Test User")
+                .email("test@email.com")
+                .password("password")
+                .build();
+
+        userRepository.save(user);
+        UserSession.getInstance().setUser(user);
+
+        Expense expense = new Expense();
+        expense.setTitle("Test Expense");
+        expense.setAmount(100.0);
+        expense.setDate(new Date());
+        expense.setCategory(ExpenseCategory.OTHER);
+        expense.setCreatedBy(user);
+        expenseRepository.save(expense);
+
+        Expense expense2 = new Expense();
+        expense2.setTitle("Test Expense 2");
+        expense2.setAmount(200.0);
+        expense2.setDate(new Date());
+        expense2.setCategory(ExpenseCategory.OTHER);
+        expense2.setCreatedBy(user);
+        expenseRepository.save(expense2);
+
+        List<Expense> expenses = expenseRepository.findAll();
+        assertThat(expenses).isNotEmpty();
+    }
+
+    @Test
+    void TestFindAllByCreatedByIdAndBudgetNull() {
+        User user = User.builder()
+                .name("Test User")
+                .email("example@test.com")
+                .password("password")
+                .build();
+        userRepository.save(user);
+
+        UserSession.getInstance().setUser(user);
+
+        Expense expense = new Expense();
+        expense.setTitle("Test Expense");
+        expense.setAmount(100.0);
+        expense.setDate(new Date());
+        expense.setDescription("Test Description");
+        expense.setCategory(ExpenseCategory.OTHER);
+        expenseRepository.save(expense);
+
+        List<Expense> expenses = expenseRepository.findAllByCreatedByIdAndBudgetNull(user.getId());
+        assertThat(expenses).isNotEmpty();
+
     }
 
 }

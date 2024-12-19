@@ -5,6 +5,7 @@ import com.ptda.tracker.models.assistance.Assistant;
 import com.ptda.tracker.models.user.User;
 import com.ptda.tracker.repositories.UserRepository;
 import com.ptda.tracker.services.administration.RoleManagementServiceHibernateImpl;
+import com.ptda.tracker.util.UserSession;
 import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -33,18 +34,29 @@ public class RoleManagementServiceTest {
     }
 
 //    @Test
+//    void testPromoteUserToAssistant() {
+//        User user = new User();
+//        user.setName("Test User");
+//        user.setEmail("testEmail@example.com");
+//        user.setPassword("password");
+//        userRepository.save(user);
+//
+//        Assistant promotedAssistant = roleManagementService.promoteUserToAssistant(user);
+//        assertThat(promotedAssistant).isNotNull();
+//        assertThat(promotedAssistant.getEmail()).isEqualTo("testEmail@example.com");
+//    }
+
+//    @Test
 //    void testPromoteUserToAdmin() {
 //        User user = new User();
 //        user.setName("Test User");
-//        user.setEmail("user@example.com");
+//        user.setEmail("testEmail@example.com");
 //        user.setPassword("password");
-//        user.setUserType("USER");
 //        userRepository.save(user);
 //
 //        Admin promotedAdmin = roleManagementService.promoteUserToAdmin(user);
-//
 //        assertThat(promotedAdmin).isNotNull();
-//        assertThat(promotedAdmin.getEmail()).isEqualTo("user@example.com");
+//        assertThat(promotedAdmin.getEmail()).isEqualTo("testEmail@example.com");
 //    }
 
 
@@ -73,6 +85,20 @@ public class RoleManagementServiceTest {
         assertThat(demotedUser.getEmail()).isEqualTo("admin@example.com");
     }
 
+    @Test
+    void testDemoteAdminToAssistant() {
+        Admin admin = new Admin();
+        admin.setName("Test Admin");
+        admin.setEmail("admin@example.com");
+        admin.setPassword("password");
+        userRepository.save(admin);
+
+        Assistant demotedAssistant = roleManagementService.demoteAdminToAssistant(admin);
+
+        assertThat(demotedAssistant).isNotNull();
+        assertThat(demotedAssistant.getEmail()).isEqualTo("admin@example.com");
+    }
+
 //    @Test
 //    void testPromoteAssistantToAdmin() {
 //        Assistant assistant = new Assistant();
@@ -87,21 +113,6 @@ public class RoleManagementServiceTest {
 //        assertThat(promotedAdmin).isNotNull();
 //        assertThat(promotedAdmin.getEmail()).isEqualTo("assistant@example.com");
 //    }
-
-
-    @Test
-    void testDemoteAdminToAssistant() {
-        Admin admin = new Admin();
-        admin.setName("Test Admin");
-        admin.setEmail("admin@example.com");
-        admin.setPassword("password");
-        userRepository.save(admin);
-
-        Assistant demotedAssistant = roleManagementService.demoteAdminToAssistant(admin);
-
-        assertThat(demotedAssistant).isNotNull();
-        assertThat(demotedAssistant.getEmail()).isEqualTo("admin@example.com");
-    }
 
     @Test
     void testDemoteAssistantToUser() {

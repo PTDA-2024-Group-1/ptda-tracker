@@ -18,6 +18,7 @@ import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.ChartUtilities;
 import org.jfree.chart.JFreeChart;
+import org.jfree.chart.plot.CategoryPlot;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.PiePlot;
 import org.jfree.data.category.DefaultCategoryDataset;
@@ -33,15 +34,12 @@ import java.util.stream.Collectors;
 
 public class BudgetStatisticsView extends JPanel {
     private final MainFrame mainFrame;
-    private final BudgetService budgetService;
     private final ExpenseService expenseService;
     private final ExpenseDivisionService expenseDivisionService;
     private final Budget budget;
-    private ChartUtilities ChartUtils;
 
     public BudgetStatisticsView(MainFrame mainFrame, Budget budget) {
         this.mainFrame = mainFrame;
-        this.budgetService = mainFrame.getContext().getBean(BudgetService.class);
         this.expenseService = mainFrame.getContext().getBean(ExpenseService.class);
         this.expenseDivisionService = mainFrame.getContext().getBean(ExpenseDivisionService.class);
         this.budget = budget;
@@ -56,13 +54,16 @@ public class BudgetStatisticsView extends JPanel {
 
         userExpenses.forEach((user, amount) -> dataset.addValue(amount, "Amount", user));
 
-        return ChartFactory.createBarChart(
+        JFreeChart chart = ChartFactory.createBarChart(
                 EXPENSES_BY_USER_TITLE,
                 "User",
                 "Amount",
                 dataset,
                 PlotOrientation.VERTICAL,
                 true, true, false);
+
+        applyThemeSettings(chart);
+        return chart;
     }
 
     private JFreeChart createPieChart() {
@@ -77,8 +78,7 @@ public class BudgetStatisticsView extends JPanel {
                 dataset,
                 true, true, false);
 
-        PiePlot plot = (PiePlot) chart.getPlot();
-        plot.setSectionOutlinesVisible(false);
+        applyThemeSettings(chart);
         return chart;
     }
 
@@ -88,13 +88,16 @@ public class BudgetStatisticsView extends JPanel {
             dataset.addValue(expense.getAmount(), "Expenses", expense.getDate());
         });
 
-        return ChartFactory.createLineChart(
+        JFreeChart chart = ChartFactory.createLineChart(
                 TRENDS_OVER_TIME_TITLE,
                 "Date",
                 "Amount",
                 dataset,
                 PlotOrientation.VERTICAL,
                 true, true, false);
+
+        applyThemeSettings(chart);
+        return chart;
     }
 
     private JFreeChart createStackedBarChart() {
@@ -103,13 +106,16 @@ public class BudgetStatisticsView extends JPanel {
             dataset.addValue(expense.getAmount(), expense.getCategory().toString(), expense.getCreatedBy().getName());
         });
 
-        return ChartFactory.createStackedBarChart(
+        JFreeChart chart = ChartFactory.createStackedBarChart(
                 CATEGORY_BREAKDOWN_TITLE,
                 "User",
                 "Amount",
                 dataset,
                 PlotOrientation.VERTICAL,
                 true, true, false);
+
+        applyThemeSettings(chart);
+        return chart;
     }
 
     private JFreeChart createAreaChart() {
@@ -118,13 +124,16 @@ public class BudgetStatisticsView extends JPanel {
             dataset.addValue(expense.getAmount(), "Cumulative Expenses", expense.getDate());
         });
 
-        return ChartFactory.createAreaChart(
+        JFreeChart chart = ChartFactory.createAreaChart(
                 CUMULATIVE_TRENDS_TITLE,
                 "Date",
                 "Amount",
                 dataset,
                 PlotOrientation.VERTICAL,
                 true, true, false);
+
+        applyThemeSettings(chart);
+        return chart;
     }
 
     private void generatePdf(Map<String, Double> userExpenses) {
@@ -172,6 +181,11 @@ public class BudgetStatisticsView extends JPanel {
     }
 
     private void addChartToPdf(Document document, JFreeChart chart, String chartTitle) throws IOException {
+        // Definir a cor de fundo clara para o gráfico
+        Color lightBackground = Color.WHITE;
+        chart.setBackgroundPaint(lightBackground);
+        chart.getPlot().setBackgroundPaint(lightBackground);
+
         // Exportar o gráfico para um ByteArrayOutputStream
         ByteArrayOutputStream chartOutputStream = new ByteArrayOutputStream();
         ChartUtils.writeChartAsPNG(chartOutputStream, chart, 500, 400);
@@ -183,6 +197,34 @@ public class BudgetStatisticsView extends JPanel {
         Image chartImage = new Image(ImageDataFactory.create(chartBytes));
         document.add(chartImage.setAutoScale(true));
     }
+
+    private void applyThemeSettings(JFreeChart chart) {
+        Color backgroundColor = UIManager.getColor("Panel.background");
+        chart.setBackgroundPaint(backgroundColor);
+        chart.getPlot().setBackgroundPaint(backgroundColor);
+
+        if (isDarkTheme(backgroundColor)) {
+            chart.getTitle().setPaint(Color.WHITE);
+            if (chart.getPlot() instanceof CategoryPlot) {
+                CategoryPlot plot = (CategoryPlot) chart.getPlot();
+                plot.getDomainAxis().setLabelPaint(Color.WHITE);
+                plot.getRangeAxis().setLabelPaint(Color.WHITE);
+            } else if (chart.getPlot() instanceof PiePlot) {
+                PiePlot plot = (PiePlot) chart.getPlot();
+                plot.setLabelPaint(Color.WHITE);
+            }
+        }
+    }
+
+    private boolean isDarkTheme(Color backgroundColor) {
+        int brightness = (int) Math.sqrt(
+                backgroundColor.getRed() * backgroundColor.getRed() * 0.241 +
+                        backgroundColor.getGreen() * backgroundColor.getGreen() * 0.691 +
+                        backgroundColor.getBlue() * backgroundColor.getBlue() * 0.068);
+        return brightness < 130;
+    }
+
+
 
     private void initComponents() {
         setLayout(new BorderLayout());
@@ -204,11 +246,42 @@ public class BudgetStatisticsView extends JPanel {
         // Painel de Tabs para Gráficos
         JTabbedPane tabbedPane = new JTabbedPane();
 
-        tabbedPane.addTab(EXPENSES_BY_USER_TITLE, new ChartPanel(createBarChart()));
-        tabbedPane.addTab(EXPENSES_BY_CATEGORY_TITLE, new ChartPanel(createPieChart()));
-        tabbedPane.addTab(TRENDS_OVER_TIME_TITLE, new ChartPanel(createLineChart()));
-        tabbedPane.addTab(CATEGORY_BREAKDOWN_TITLE, new ChartPanel(createStackedBarChart()));
-        tabbedPane.addTab(CUMULATIVE_TRENDS_TITLE, new ChartPanel(createAreaChart()));
+        JPanel expensesByUserPanel = new JPanel(new BorderLayout());
+        tabbedPane.addTab(EXPENSES_BY_USER_TITLE, expensesByUserPanel);
+        tabbedPane.addTab(EXPENSES_BY_CATEGORY_TITLE, new JPanel(new BorderLayout()));
+        tabbedPane.addTab(TRENDS_OVER_TIME_TITLE, new JPanel(new BorderLayout()));
+        tabbedPane.addTab(CATEGORY_BREAKDOWN_TITLE, new JPanel(new BorderLayout()));
+        tabbedPane.addTab(CUMULATIVE_TRENDS_TITLE, new JPanel(new BorderLayout()));
+
+        tabbedPane.addChangeListener(e -> {
+            int selectedIndex = tabbedPane.getSelectedIndex();
+            String title = tabbedPane.getTitleAt(selectedIndex);
+            JPanel selectedPanel = (JPanel) tabbedPane.getComponentAt(selectedIndex);
+            if (selectedPanel.getComponentCount() == 0) {
+                switch (title) {
+                    case EXPENSES_BY_USER_TITLE:
+                        selectedPanel.add(new ChartPanel(createBarChart()), BorderLayout.CENTER);
+                        break;
+                    case EXPENSES_BY_CATEGORY_TITLE:
+                        selectedPanel.add(new ChartPanel(createPieChart()), BorderLayout.CENTER);
+                        break;
+                    case TRENDS_OVER_TIME_TITLE:
+                        selectedPanel.add(new ChartPanel(createLineChart()), BorderLayout.CENTER);
+                        break;
+                    case CATEGORY_BREAKDOWN_TITLE:
+                        selectedPanel.add(new ChartPanel(createStackedBarChart()), BorderLayout.CENTER);
+                        break;
+                    case CUMULATIVE_TRENDS_TITLE:
+                        selectedPanel.add(new ChartPanel(createAreaChart()), BorderLayout.CENTER);
+                        break;
+                }
+                selectedPanel.revalidate();
+            }
+        });
+
+        // Carregar o gráfico da primeira aba
+        expensesByUserPanel.add(new ChartPanel(createBarChart()), BorderLayout.CENTER);
+        expensesByUserPanel.revalidate();
 
         // ScrollPane para permitir rolagem
         JScrollPane scrollPane = new JScrollPane(tabbedPane);
@@ -238,6 +311,7 @@ public class BudgetStatisticsView extends JPanel {
         add(bottomPanel, BorderLayout.SOUTH);
     }
 
+    private ChartUtilities ChartUtils;
     private static final String PARTICIPANTS_TITLE = "Participants";
     private static final String EXPENSES_BY_USER_TITLE = "Expenses by User";
     private static final String EXPENSES_BY_CATEGORY_TITLE = "Expenses by Category";
