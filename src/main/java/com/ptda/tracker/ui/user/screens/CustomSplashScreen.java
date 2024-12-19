@@ -43,16 +43,18 @@ public class CustomSplashScreen extends JFrame {
      * @param height    the height to scale the image
      * @return a JLabel containing the customized transparent image
      */
-    private JLabel createTransparentImageLabel(String imagePath, int width, int height) {
-        ImageIcon originalIcon = new ImageIcon(imagePath);
-        Image scaledImage = originalIcon.getImage().getScaledInstance(width, height, Image.SCALE_SMOOTH);
-        ImageIcon scaledIcon = new ImageIcon(scaledImage);
+private JLabel createTransparentImageLabel(String imagePath, int width, int height) {
+    ImageIcon originalIcon = new ImageIcon(imagePath);
+    Image scaledImage = originalIcon.getImage().getScaledInstance(width, height, Image.SCALE_SMOOTH);
+    ImageIcon scaledIcon = new ImageIcon(scaledImage);
 
-        JLabel imageLabel = new JLabel(scaledIcon);
-        imageLabel.setHorizontalAlignment(SwingConstants.CENTER);
-        imageLabel.setVerticalAlignment(SwingConstants.CENTER);
-        return imageLabel;
-    }
+    JLabel imageLabel = new JLabel(scaledIcon);
+    imageLabel.setHorizontalAlignment(SwingConstants.CENTER);
+    imageLabel.setVerticalAlignment(SwingConstants.CENTER);
+    imageLabel.setBackground(Color.WHITE); 
+    imageLabel.setOpaque(true); 
+    return imageLabel;
+}
 
     public void showSplashScreen() {
         SwingUtilities.invokeLater(() -> setVisible(true));
@@ -68,7 +70,6 @@ public class CustomSplashScreen extends JFrame {
             CustomSplashScreen splashScreen = new CustomSplashScreen();
             splashScreen.showSplashScreen();
 
-            // Simulate loading process
             try {
                 Thread.sleep(5000); // Keep splash screen visible for 5 seconds
             } catch (InterruptedException e) {
