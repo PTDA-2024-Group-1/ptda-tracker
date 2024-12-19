@@ -7,6 +7,8 @@ import com.ptda.tracker.ui.user.screens.NavigationScreen;
 import com.ptda.tracker.util.LocaleManager;
 import com.ptda.tracker.util.ScreenNames;
 import com.ptda.tracker.util.UserSession;
+import com.ptda.tracker.util.ThemeManager;
+import com.ptda.tracker.util.ImageResourceManager;
 
 import javax.swing.*;
 import java.awt.*;
@@ -16,11 +18,16 @@ import static com.ptda.tracker.config.AppConfig.LOGO_PATH;
 public class RegisterForm extends JPanel {
     private final MainFrame mainFrame;
     private User newUser;
+    private JLabel logoLabel; 
 
     public RegisterForm(MainFrame mainFrame) {
         this.mainFrame = mainFrame;
         initComponents();
         setListeners();
+
+        updateFormLogo();
+
+        ThemeManager.getInstance().addThemeChangeListener(this::updateFormLogo);
     }
 
     private void setListeners() {
@@ -94,6 +101,13 @@ public class RegisterForm extends JPanel {
         mainFrame.removeScreen(ScreenNames.REGISTER_FORM);
     }
 
+    private void updateFormLogo() {
+        boolean isDark = ThemeManager.getInstance().isDark();
+        ImageIcon appLogo = ImageResourceManager.getThemeBasedIcon(isDark);
+        Image scaledImage = appLogo.getImage().getScaledInstance(250, 250, Image.SCALE_SMOOTH);
+        logoLabel.setIcon(new ImageIcon(scaledImage));
+    }
+
     private void initComponents() {
         setLayout(new BorderLayout());
         setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20)); // Margins around the form
@@ -110,11 +124,7 @@ public class RegisterForm extends JPanel {
         titleLabel.setAlignmentX(CENTER_ALIGNMENT);
         topPanel.add(titleLabel);
 
-        // Logo
-        ImageIcon originalIcon = new ImageIcon(LOGO_PATH);
-        Image scaledImage = originalIcon.getImage().getScaledInstance(250, 250, Image.SCALE_SMOOTH); // Resize
-        ImageIcon scaledIcon = new ImageIcon(scaledImage);
-        JLabel logoLabel = new JLabel(scaledIcon);
+        logoLabel = new JLabel();
         logoLabel.setAlignmentX(CENTER_ALIGNMENT);
         topPanel.add(Box.createRigidArea(new Dimension(0, 10))); // Space between title and logo
         topPanel.add(logoLabel);

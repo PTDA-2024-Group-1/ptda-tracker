@@ -25,7 +25,6 @@ public class MainFrame extends JFrame {
     private final JPanel mainPanel;
     private JCheckBoxMenuItem lightTheme, darkTheme;
     private final ThemeManager themeManager;
-    private JLabel logoLabel;
 
     private final Map<String, JPanel> screens;
     @Getter
@@ -58,10 +57,6 @@ public class MainFrame extends JFrame {
         themeManager = new ThemeManager(this);
         themeManager.setTheme(getThemePreference());
 
-        LOGGER.debug("Setting up logo label...");
-        logoLabel = new JLabel();
-        updateLogoImage();
-
         LOGGER.debug("Setting up menu bar...");
         setJMenuBar(createMenuBar());
 
@@ -77,45 +72,12 @@ public class MainFrame extends JFrame {
         setLocationRelativeTo(null);
 
         // Add components to the frame
-        add(logoLabel, BorderLayout.NORTH);
         add(mainPanel, BorderLayout.CENTER);
 
         LOGGER.debug("MainFrame initialized successfully.");
     }
 
     // ... rest of the MainFrame class ...
-
-
-
-    /**
-     * Updates the logo image based on the current theme.
-     */
-    public void updateLogoImage() {
-        LOGGER.debug("Updating logo image...");
-        SwingWorker<ImageIcon, Void> worker = new SwingWorker<>() {
-            @Override
-            protected ImageIcon doInBackground() {
-                LOGGER.debug("Fetching theme-based logo...");
-                return ImageResourceManager.getThemeBasedIcon(themeManager.isDark());
-            }
-
-            @Override
-            protected void done() {
-                try {
-                    ImageIcon logoIcon = get();
-                    if (logoIcon != null) {
-                        logoLabel.setIcon(logoIcon);
-                        LOGGER.debug("Logo updated successfully.");
-                    } else {
-                        LOGGER.error("Failed to load logo icon.");
-                    }
-                } catch (Exception e) {
-                    LOGGER.error("Error updating logo image", e);
-                }
-            }
-        };
-        worker.execute();
-    }
 
     public void registerScreen(String name, JPanel screen) {
         screens.put(name, screen);
@@ -191,7 +153,6 @@ public class MainFrame extends JFrame {
         darkTheme.setSelected(false);
         themeManager.setTheme(AppConfig.DEFAULT_LIGHT_THEME);
         setThemePreference(AppConfig.DEFAULT_LIGHT_THEME);
-        updateLogoImage();
     }
 
     private void darkThemeClicked(ActionEvent e) {
@@ -200,7 +161,6 @@ public class MainFrame extends JFrame {
         darkTheme.setSelected(true);
         themeManager.setTheme(AppConfig.DEFAULT_DARK_THEME);
         setThemePreference(AppConfig.DEFAULT_DARK_THEME);
-        updateLogoImage();
     }
 
     private void setThemePreference(String theme) {

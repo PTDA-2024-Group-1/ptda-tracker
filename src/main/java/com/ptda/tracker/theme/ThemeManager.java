@@ -91,8 +91,6 @@ public class ThemeManager {
     private void notifyThemeChange() {
         LOGGER.debug("Notifying theme change...");
         if (window instanceof MainFrame) {
-            LOGGER.debug("Calling updateLogoImage() on MainFrame.");
-            ((MainFrame) window).updateLogoImage();
             SwingUtilities.updateComponentTreeUI(window);
         } else {
             LOGGER.warn("Window is not an instance of MainFrame. Cannot update logo.");

@@ -50,14 +50,8 @@ public class ImageResourceManager {
      * @return the ImageIcon corresponding to the theme
      */
     public static ImageIcon getThemeBasedIcon(boolean isDark) {
-        System.out.println("Fetching theme-based icon: " + (isDark ? "Dark" : "Light"));
-        if (isDark && darkIcon != null) {
-            return darkIcon;
-        } else if (!isDark && lightIcon != null) {
-            return lightIcon;
-        }
-        System.err.println("Theme-based icon not available. Loading fallback icon.");
-        return getDefaultFallbackIcon();
+        String iconPath = isDark ? "/path/to/dark/logo.png" : "/path/to/light/logo.png";
+        return new ImageIcon(ImageResourceManager.class.getResource(iconPath));
     }
 
     /**
