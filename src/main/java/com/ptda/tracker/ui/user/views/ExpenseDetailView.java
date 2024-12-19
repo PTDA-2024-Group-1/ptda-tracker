@@ -79,11 +79,11 @@ public class ExpenseDetailView extends JPanel {
         if (confirm == JOptionPane.YES_OPTION) {
             try {
                 expenseService.delete(expense.getId());
-                JOptionPane.showMessageDialog(this, EXPENSE_DELETED_SUCCESS, SUCCESS, JOptionPane.INFORMATION_MESSAGE);
                 if (onBack != null) {
                     onBack.run();
                 }
                 mainFrame.showScreen(returnScreen);
+                JOptionPane.showMessageDialog(this, EXPENSE_DELETED_SUCCESS, SUCCESS, JOptionPane.INFORMATION_MESSAGE);
             } catch (Exception ex) {
                 ex.printStackTrace();
                 JOptionPane.showMessageDialog(this, DELETE_ERROR_MESSAGE + ": " + ex.getMessage(),

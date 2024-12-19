@@ -1,4 +1,4 @@
-package com.ptda.tracker.dto;
+package com.ptda.tracker.dtos;
 
 import com.ptda.tracker.models.tracker.Expense;
 import com.ptda.tracker.models.tracker.ExpenseCategory;

@@ -10,6 +10,7 @@ import com.ptda.tracker.services.tracker.ExpenseService;
 import com.ptda.tracker.ui.MainFrame;
 import com.ptda.tracker.ui.user.dialogs.ParticipantsDialog;
 import com.ptda.tracker.ui.user.forms.*;
+import com.ptda.tracker.ui.user.screens.ExpensesImportScreen;
 import com.ptda.tracker.util.ScreenNames;
 import com.ptda.tracker.util.UserSession;
 
@@ -54,11 +55,21 @@ public class BudgetDetailView extends JPanel {
         if (addExpenseButton != null) {
             addExpenseButton.addActionListener(e -> mainFrame.registerAndShowScreen(
                     ScreenNames.EXPENSE_FORM,
-                    new ExpenseForm(mainFrame, null, budget, mainFrame.getCurrentScreen(), this::refreshExpenses)));
+                    new ExpenseForm(mainFrame, null, budget,
+                            mainFrame.getCurrentScreen(),
+                            this::refreshExpenses
+                    )
+            ));
         }
         importButton.addActionListener(e -> {
-            mainFrame.registerAndShowScreen(ScreenNames.EXPENSES_IMPORT_FORM,
-                    new ExpensesImportForm(mainFrame, budget, mainFrame.getCurrentScreen(), this::refreshExpenses));
+            if (mainFrame.getScreen(ScreenNames.EXPENSES_IMPORT_SCREEN) == null) {
+                mainFrame.registerAndShowScreen(ScreenNames.EXPENSES_IMPORT_SCREEN,
+                        new ExpensesImportScreen(mainFrame, budget,
+                                ScreenNames.BUDGET_DETAIL_VIEW,
+                                this::refreshExpenses));
+            } else {
+                mainFrame.showScreen(ScreenNames.EXPENSES_IMPORT_SCREEN);
+            }
         });
         expensesTable.getSelectionModel().addListSelectionListener(e -> {
             if (!e.getValueIsAdjusting()) {
@@ -66,7 +77,10 @@ public class BudgetDetailView extends JPanel {
                 if (selectedRow != -1) {
                     Expense selectedExpense = expenses.get(selectedRow);
                     mainFrame.registerAndShowScreen(ScreenNames.EXPENSE_DETAIL_VIEW,
-                            new ExpenseDetailView(mainFrame, selectedExpense, mainFrame.getCurrentScreen(), null));
+                            new ExpenseDetailView(mainFrame, selectedExpense,
+                                    mainFrame.getCurrentScreen(), this::refreshExpenses
+                            )
+                    );
                     expensesTable.clearSelection();
                 }
             }
@@ -77,10 +91,7 @@ public class BudgetDetailView extends JPanel {
         int offset = currentPage * PAGE_SIZE;
         expenses.clear();
         expenses.addAll(mainFrame.getContext().getBean(ExpenseService.class).getExpensesByBudgetIdWithPagination(budget.getId(), offset, PAGE_SIZE));
-        updateExpenseTable();
-    }
 
-    private void updateExpenseTable() {
         expensesTable.setModel(createExpensesTableModel(expenses));
         updatePaginationPanel();
     }

@@ -1,4 +1,4 @@
-package com.ptda.tracker.ui.user.forms;
+package com.ptda.tracker.ui.user.screens;
 
 import com.ptda.tracker.models.tracker.Budget;
 import com.ptda.tracker.ui.MainFrame;
@@ -14,14 +14,14 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
 import java.awt.*;
 
-public class ExpensesImportForm extends JPanel {
+public class ExpensesImportScreen extends JPanel {
     private final MainFrame mainFrame;
     private final Budget budget;
     private final String returnScreen;
     private final Runnable onImportSuccess;
     private final ImportSharedData sharedData;
 
-    public ExpensesImportForm(MainFrame mainFrame, Budget budget, String returnScreen, Runnable onImportSuccess) {
+    public ExpensesImportScreen(MainFrame mainFrame, Budget budget, String returnScreen, Runnable onImportSuccess) {
         this.mainFrame = mainFrame;
         this.budget = budget;
         this.returnScreen = returnScreen;
@@ -42,18 +42,32 @@ public class ExpensesImportForm extends JPanel {
     }
 
     private void cancelImport() {
-        // TODO ask if wants to keep reset the form
-        //  if yes just return to previous screen
-        //  if no reset the form and return to previous screen
-        mainFrame.showScreen(returnScreen);
+        int response = JOptionPane.showConfirmDialog(
+                this,
+                "Do you want to reset the form?",
+                "Cancel Import",
+                JOptionPane.YES_NO_CANCEL_OPTION,
+                JOptionPane.QUESTION_MESSAGE
+        );
+
+        if (response == JOptionPane.YES_OPTION) {
+            // Reset the shared data and navigate back to the previous screen
+            ImportSharedData.resetInstance();
+            mainFrame.removeScreen(ScreenNames.EXPENSES_IMPORT_SCREEN);
+            mainFrame.showScreen(returnScreen);
+        } else if (response == JOptionPane.NO_OPTION) {
+            // Navigate back without resetting the form
+            mainFrame.showScreen(returnScreen);
+        }
+        // If CANCEL_OPTION or CLOSED_OPTION, do nothing
     }
 
     private void restartImport() {
-        mainFrame.removeScreen(ScreenNames.EXPENSES_IMPORT_FORM);
+        mainFrame.removeScreen(ScreenNames.EXPENSES_IMPORT_SCREEN);
         ImportSharedData.resetInstance();
         mainFrame.registerAndShowScreen(
-                ScreenNames.EXPENSES_IMPORT_FORM,
-                new ExpensesImportForm(
+                ScreenNames.EXPENSES_IMPORT_SCREEN,
+                new ExpensesImportScreen(
                         mainFrame,
                         budget,
                         returnScreen,
@@ -97,18 +111,34 @@ public class ExpensesImportForm extends JPanel {
         }
     }
 
+    private void verifyNextButton() {
+        boolean hasData = sharedData.getRawData() != null && !sharedData.getRawData().isEmpty();
+        boolean hasColumnsMapping = sharedData.getColumnMapping() != null && !sharedData.getColumnMapping().isEmpty();
+        boolean hasCategoryColumn = hasColumnsMapping && sharedData.getColumnMapping().containsKey(ImportColumnsDialog.ExpenseFieldOptions.CATEGORY.toString());
+        boolean hasCategoryMapping = sharedData.getCategoryMapping() != null && !sharedData.getCategoryMapping().isEmpty();
+        boolean hasDateFormat = sharedData.getDateFormat() != null && !sharedData.getDateFormat().isEmpty();
+
+        // Enable 'Next' button if all essential conditions are met
+        boolean enableNext = hasData && hasColumnsMapping && hasDateFormat;
+        if (hasCategoryColumn) {
+            enableNext = enableNext && hasCategoryMapping;
+        }
+
+        nextButton.setEnabled(enableNext);
+    }
+
     private void openColumnMappingDialog() {
-        ImportColumnsDialog dialog = new ImportColumnsDialog(mainFrame);
+        ImportColumnsDialog dialog = new ImportColumnsDialog(mainFrame, this::verifyNextButton);
         dialog.setVisible(true);
     }
 
     private void openCategoryMappingDialog() {
-        ImportCategoriesDialog dialog = new ImportCategoriesDialog(mainFrame);
+        ImportCategoriesDialog dialog = new ImportCategoriesDialog(mainFrame, this::verifyNextButton);
         dialog.setVisible(true);
     }
 
     private void openDateFormatDialog() {
-        ImportDateFormatDialog dialog = new ImportDateFormatDialog(mainFrame);
+        ImportDateFormatDialog dialog = new ImportDateFormatDialog(mainFrame, this::verifyNextButton);
         dialog.setVisible(true);
     }
 

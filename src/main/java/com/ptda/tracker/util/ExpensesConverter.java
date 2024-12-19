@@ -1,6 +1,6 @@
 package com.ptda.tracker.util;
 
-import com.ptda.tracker.dto.ExpenseImportDto;
+import com.ptda.tracker.dtos.ExpenseImportDto;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

@@ -7,7 +7,7 @@ import java.util.List;
 
 public class ExpensesTableModel extends AbstractTableModel {
     private final List<Expense> expenses;
-    private final String[] columns = {"Title", "Amount", "Date", "Category", "Budget", "Description"};
+    private final String[] columns = {TITLE, AMOUNT, DATE, CATEGORY, BUDGET, DESCRIPTION};
 
     public ExpensesTableModel(List<Expense> expenses) {
         this.expenses = expenses;
@@ -38,4 +38,12 @@ public class ExpensesTableModel extends AbstractTableModel {
         Expense expense = expenses.get(rowIndex);
         // Update expense based on columnIndex and aValue
     }
+
+    private static final String
+            TITLE = "Title",
+            AMOUNT = "Amount",
+            DATE = "Date",
+            CATEGORY = "Category",
+            BUDGET = "Budget",
+            DESCRIPTION = "Description";
 }

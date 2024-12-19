@@ -14,5 +14,4 @@ public class AppConfig {
     public final static String HOME_URL = "https://divi.pt";
     public final static String DEFAULT_DARK_THEME = "Dark";
     public final static String DEFAULT_LIGHT_THEME = "Light";
-
 }
