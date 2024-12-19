@@ -8,8 +8,9 @@ import com.ptda.tracker.ui.user.screens.NavigationScreen;
 import com.ptda.tracker.util.LocaleManager;
 import com.ptda.tracker.util.ScreenNames;
 import com.ptda.tracker.util.UserSession;
-import com.ptda.tracker.util.ThemeManager;
+import com.ptda.tracker.theme.ThemeManager; 
 import com.ptda.tracker.util.ImageResourceManager;
+
 
 import javax.swing.*;
 import java.awt.*;

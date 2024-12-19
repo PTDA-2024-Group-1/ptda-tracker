@@ -16,6 +16,8 @@ import java.awt.*;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 import java.util.NoSuchElementException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ThemeManager {
     private static final Logger LOGGER = LoggerFactory.getLogger(ThemeManager.class);
@@ -23,10 +25,17 @@ public class ThemeManager {
     @Getter
     private boolean isDark;
     private final Component window;
+    private static ThemeManager instance;
+    private final List<Runnable> themeChangeListeners = new ArrayList<>();
+
+    public static ThemeManager getInstance() {
+        return instance;
+    }
 
     public ThemeManager(Component window) {
         LOGGER.debug("Initializing ThemeManager...");
         this.window = window;
+        instance = this;
 
         // Register custom themes
         Light.installLafInfo();
@@ -95,6 +104,9 @@ public class ThemeManager {
         } else {
             LOGGER.warn("Window is not an instance of MainFrame. Cannot update logo.");
         }
+        for (Runnable listener : themeChangeListeners) {
+            listener.run();
+        }
     }
 
     /**
@@ -111,5 +123,9 @@ public class ThemeManager {
         } catch (Exception e) {
             LOGGER.error("Failed to apply system look and feel.", e);
         }
+    }
+
+    public void addThemeChangeListener(Runnable listener) {
+        themeChangeListeners.add(listener);
     }
 }

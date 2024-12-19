@@ -50,8 +50,12 @@ public class ImageResourceManager {
      * @return the ImageIcon corresponding to the theme
      */
     public static ImageIcon getThemeBasedIcon(boolean isDark) {
-        String iconPath = isDark ? "/path/to/dark/logo.png" : "/path/to/light/logo.png";
-        return new ImageIcon(ImageResourceManager.class.getResource(iconPath));
+        String iconPath = isDark ? "/images/divi_dark.png" : "/images/divi.png";
+        java.net.URL resource = ImageResourceManager.class.getResource(iconPath);
+        if (resource == null) {
+            throw new IllegalArgumentException("Resource not found: " + iconPath);
+        }
+        return new ImageIcon(resource);
     }
 
     /**
