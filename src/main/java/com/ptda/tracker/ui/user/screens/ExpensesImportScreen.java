@@ -1,11 +1,11 @@
 package com.ptda.tracker.ui.user.screens;
 
 import com.ptda.tracker.models.tracker.Budget;
+import com.ptda.tracker.models.tracker.Expense;
 import com.ptda.tracker.ui.MainFrame;
-import com.ptda.tracker.ui.user.dialogs.expenses.ImportCategoriesDialog;
-import com.ptda.tracker.ui.user.dialogs.expenses.ImportColumnsDialog;
-import com.ptda.tracker.ui.user.dialogs.expenses.ImportDateFormatDialog;
-import com.ptda.tracker.ui.user.dialogs.expenses.ImportSourceDialog;
+import com.ptda.tracker.ui.user.dialogs.expenses.*;
+import com.ptda.tracker.ui.user.forms.ExpensesEditForm;
+import com.ptda.tracker.util.ExpensesConverter;
 import com.ptda.tracker.util.ImportSharedData;
 import com.ptda.tracker.util.ScreenNames;
 
@@ -13,6 +13,8 @@ import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
 import java.awt.*;
+import java.text.ParseException;
+import java.util.List;
 
 public class ExpensesImportScreen extends JPanel {
     private final MainFrame mainFrame;
@@ -38,6 +40,7 @@ public class ExpensesImportScreen extends JPanel {
         columnMappingButton.addActionListener(e -> openColumnMappingDialog());
         categoryMappingButton.addActionListener(e -> openCategoryMappingDialog());
         dateFormatButton.addActionListener(e -> openDateFormatDialog());
+        valueTreatmentButton.addActionListener(e -> openValueTreatmentDialog());
         nextButton.addActionListener(e -> openExpensesEditForm());
     }
 
@@ -142,19 +145,30 @@ public class ExpensesImportScreen extends JPanel {
         dialog.setVisible(true);
     }
 
-    private void openExpensesEditForm() {
-        // TODO convert raw data to expenses
-        //  and open edit form
-//        List<Expense> expenses =
-//        mainFrame.registerAndShowScreen(
-//                new ExpensesEditForm(
-//                        mainFrame,
-//                        budget,
-//                        returnScreen,
-//                        onImportSuccess
-//                )
-//        );
+    private void openValueTreatmentDialog() {
+        ImportValueTreatmentDialog dialog = new ImportValueTreatmentDialog(mainFrame);
+        dialog.setVisible(true);
     }
+
+
+    private void openExpensesEditForm() {
+        try {
+            List<Expense> expenses = ExpensesConverter.transformImportData(sharedData);
+
+            mainFrame.registerAndShowScreen(
+                    ScreenNames.EXPENSES_EDIT_FORM,
+                    new ExpensesEditForm(mainFrame, expenses, budget, returnScreen, onImportSuccess)
+            );
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Error processing the imported data. Please check the mappings and formats.",
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE
+            );
+        }
+    }
+
 
     private void initComponents() {
         setLayout(new BorderLayout());
@@ -164,10 +178,12 @@ public class ExpensesImportScreen extends JPanel {
         columnMappingButton = new JButton(COLUMN_MAPPING);
         categoryMappingButton = new JButton(CATEGORY_MAPPING);
         dateFormatButton = new JButton(DATE_FORMAT);
+        valueTreatmentButton = new JButton(VALUE_TREATMENT);
 
         stepsPanel.add(columnMappingButton);
         stepsPanel.add(categoryMappingButton);
         stepsPanel.add(dateFormatButton);
+        stepsPanel.add(valueTreatmentButton);
         stepsPanel.setVisible(false);
 
         add(stepsPanel, BorderLayout.NORTH);
@@ -195,13 +211,15 @@ public class ExpensesImportScreen extends JPanel {
 
     private JPanel stepsPanel;
     private JTable expensesTable;
-    private JButton cancelButton, restartImportButton, columnMappingButton, categoryMappingButton, dateFormatButton, nextButton;
+    private JButton cancelButton, restartImportButton, nextButton,
+            columnMappingButton, categoryMappingButton, dateFormatButton, valueTreatmentButton;
     private static final String
             CANCEL = "Cancel",
             RESTART_IMPORT = "Restart Import",
             COLUMN_MAPPING = "Map Columns",
             CATEGORY_MAPPING = "Map Categories",
             DATE_FORMAT = "Set Date Format",
+            VALUE_TREATMENT = "Set Value Treatment",
             NEXT = "Next",
             COLUMN = "Column";
 }

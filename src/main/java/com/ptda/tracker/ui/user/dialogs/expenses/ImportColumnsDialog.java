@@ -13,7 +13,7 @@ public class ImportColumnsDialog extends JDialog {
     private final Runnable onDone;
 
     public ImportColumnsDialog(JFrame parent, Runnable onDone) {
-        super(parent, "Import Columns", true);
+        super(parent, IMPORT_COLUMNS_MAPPING, true);
         this.sharedData = ImportSharedData.getInstance();
         this.onDone = onDone;
 
@@ -36,11 +36,11 @@ public class ImportColumnsDialog extends JDialog {
         Map<String, Integer> columnMapping = new HashMap<>();
 
         for (int i = 0; i < model.getRowCount(); i++) {
-            String columnName = (String) model.getValueAt(i, 0);
             ExpenseFieldOptions selectedField = (ExpenseFieldOptions) model.getValueAt(i, 1);
 
+            // Use selectedField's name as the key and the row index as the value
             if (selectedField != ExpenseFieldOptions.IGNORE) {
-                columnMapping.put(columnName, selectedField.ordinal());
+                columnMapping.put(selectedField.name(), i);
             }
         }
 
@@ -75,8 +75,8 @@ public class ImportColumnsDialog extends JDialog {
 
         // Buttons
         JPanel buttonPanel = new JPanel();
-        cancelButton = new JButton("Cancel");
-        confirmButton = new JButton("Confirm");
+        cancelButton = new JButton(CANCEL);
+        confirmButton = new JButton(CONFIRM);
         confirmButton.setEnabled(false);
         buttonPanel.add(cancelButton);
         buttonPanel.add(confirmButton);
@@ -90,11 +90,24 @@ public class ImportColumnsDialog extends JDialog {
     private JButton cancelButton, confirmButton;
 
     private static class ColumnsTableModel extends AbstractTableModel {
-        private final String[] columnNames = {"Column Name", "Mapped Field"};
+        private final String[] columnNames = {COLUMN_NAME, MAPPED_FIELD};
         private final Object[][] data;
 
         public ColumnsTableModel(Map<String, Integer> existingMapping) {
-            String[] rawColumnNames = ImportSharedData.getInstance().getRawData().getFirst();
+            ImportSharedData sharedData = ImportSharedData.getInstance();
+            String[] rawColumnNames;
+
+            // Check if the data has a header; generate generic names if not
+            if (sharedData.isHasHeader()) {
+                rawColumnNames = sharedData.getRawData().getFirst();
+            } else {
+                int columnCount = sharedData.getRawData().getFirst().length;
+                rawColumnNames = new String[columnCount];
+                for (int i = 0; i < columnCount; i++) {
+                    rawColumnNames[i] = COLUMN + " " + (i + 1);
+                }
+            }
+
             data = new Object[rawColumnNames.length][2];
 
             for (int i = 0; i < rawColumnNames.length; i++) {
@@ -183,7 +196,12 @@ public class ImportColumnsDialog extends JDialog {
     }
 
     private static final String
+            IMPORT_COLUMNS_MAPPING = "Import Columns Mapping",
             COLUMN = "Column",
+            COLUMN_NAME = "Column Name",
+            MAPPED_FIELD = "Mapped Field",
+            CANCEL = "Cancel",
+            CONFIRM = "Confirm",
 
             IGNORE = ExpenseFieldOptions.IGNORE.toString(),
             AMOUNT = ExpenseFieldOptions.AMOUNT.toString(),

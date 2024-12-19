@@ -16,6 +16,7 @@ public class ImportSharedData {
     private Map<String, ExpenseCategory> categoryMapping;
     private String dateFormat;
     private boolean hasHeader;
+    private String valueTreatment;
 
     public static ImportSharedData getInstance() {
         if (instance == null) {

@@ -98,7 +98,7 @@ public class BudgetDetailView extends JPanel {
 
     private void updatePaginationPanel() {
         paginationPanel.removeAll();
-        long totalExpenses = mainFrame.getContext().getBean(ExpenseService.class).countByBudgetId(budget.getId());
+        long totalExpenses = mainFrame.getContext().getBean(ExpenseService.class).getCountByBudgetId(budget.getId());
         int totalPages = (int) Math.ceil((double) totalExpenses / PAGE_SIZE);
         if (totalPages > 1) {
             for (int i = 0; i < totalPages; i++) {

@@ -59,4 +59,10 @@ public class ExpenseServiceTest {
         assertThat(result.get().getTitle()).isEqualTo("Test Expense");
     }
 
+    // a test without database operations
+    @Test
+    void testGetAll() {
+
+    }
+
 }

@@ -29,6 +29,12 @@ public class ExpenseServiceHibernateImpl implements ExpenseService {
     }
 
     @Override
+    @Transactional
+    public List<Expense> createAll(List<Expense> expenses) {
+        return expenseRepository.saveAll(expenses);
+    }
+
+    @Override
     public Optional<Expense> getById(Long id) {
         return expenseRepository.findById(id);
     }
@@ -83,12 +89,23 @@ public class ExpenseServiceHibernateImpl implements ExpenseService {
     }
 
     @Override
+    public long getCountByBudgetId(Long id) {
+        return expenseRepository.countByBudgetId(id);
+    }
+
+    @Override
     @Transactional
     public Expense update(Expense expense) {
         return expenseRepository.save(expense);
     }
 
     @Override
+    public List<Expense> updateAll(List<Expense> expenses) {
+        return expenseRepository.saveAll(expenses);
+    }
+
+    @Override
+    @Transactional
     public Expense assignBudget(Long expenseId, Long budgetId) {
         Optional<Expense> optionalExpense = expenseRepository.findById(expenseId);
         if (optionalExpense.isPresent()) {
@@ -117,19 +134,10 @@ public class ExpenseServiceHibernateImpl implements ExpenseService {
     }
 
     @Override
+    @Transactional
     public boolean deleteAllPersonalExpensesByUserId(Long userId) {
         List<Expense> personalExpenses = expenseRepository.findAllByCreatedByIdAndBudgetNull(userId);
         expenseRepository.deleteAll(personalExpenses);
         return true;
-    }
-
-    @Override
-    public void saveAll(List<Expense> importedExpenses) {
-        expenseRepository.saveAll(importedExpenses);
-    }
-
-    @Override
-    public long countByBudgetId(Long id) {
-        return expenseRepository.countByBudgetId(id);
     }
 }
