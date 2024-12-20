@@ -38,24 +38,21 @@ public class LocaleManager {
     // Method to get the translation for a given key
     public String getTranslation(String key) {
         try {
-            String languageKey = key + "." + currentLocale.getLanguage();
-            return translations.getString(languageKey);
+            return translations.getString(key);
         } catch (Exception e) {
             return key;
         }
     }
 
-
     public Map<String, Locale> getSupportedLocales() {
         Map<String, Locale> locales = new HashMap<>();
         locales.put("English", new Locale("en", "US"));
         locales.put("Português", new Locale("pt", "PT"));
-   //     locales.put("Español", new Locale("es", "ES"));
-   //     locales.put("Français", new Locale("fr", "FR"));
-   //     locales.put("Deutsch", new Locale("de", "DE"));
-   //     locales.put("Русский", new Locale("ru", "RU"));
-   //     locales.put("Italiano", new Locale("it", "IT"));
+//        locales.put("Español", new Locale("es", "ES"));
+//        locales.put("Français", new Locale("fr", "FR"));
+//        locales.put("Deutsch", new Locale("de", "DE"));
+//        locales.put("Русский", new Locale("ru", "RU"));
+//        locales.put("Italiano", new Locale("it", "IT"));
         return locales;
     }
-
 }

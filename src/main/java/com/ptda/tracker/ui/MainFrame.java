@@ -19,8 +19,6 @@ import java.util.Map;
 import java.util.prefs.Preferences;
 
 public class MainFrame extends JFrame {
-    private static final Logger LOGGER = LoggerFactory.getLogger(MainFrame.class);
-
     private final CardLayout cardLayout;
     private final JPanel mainPanel;
     private JCheckBoxMenuItem lightTheme, darkTheme;
@@ -28,7 +26,7 @@ public class MainFrame extends JFrame {
 
     private final Map<String, JPanel> screens;
     @Getter
-    private final ApplicationContext context; // Now resolvable due to the import
+    private final ApplicationContext context;
     @Getter
     private String currentScreen;
 
@@ -47,17 +45,14 @@ public class MainFrame extends JFrame {
             ABOUT = localeManager.getTranslation("about");
 
     public MainFrame(ApplicationContext context) {
-        LOGGER.debug("Initializing MainFrame...");
         this.context = context;
         this.screens = new HashMap<>();
         this.cardLayout = new CardLayout();
         this.mainPanel = new JPanel(cardLayout);
 
-        LOGGER.debug("Initializing ThemeManager...");
         themeManager = new ThemeManager(this);
         themeManager.setTheme(getThemePreference());
 
-        LOGGER.debug("Setting up menu bar...");
         setJMenuBar(createMenuBar());
 
         if (themeManager.isDark()) {
@@ -73,8 +68,6 @@ public class MainFrame extends JFrame {
 
         // Add components to the frame
         add(mainPanel, BorderLayout.CENTER);
-
-        LOGGER.debug("MainFrame initialized successfully.");
     }
 
     // ... rest of the MainFrame class ...
@@ -89,14 +82,11 @@ public class MainFrame extends JFrame {
     }
 
     public void showScreen(String name) {
-        LOGGER.debug("Attempting to show screen: {}", name);
         if (screens.containsKey(name)) {
             cardLayout.show(mainPanel, name);
             this.currentScreen = name;
-            LOGGER.debug("Screen {} displayed successfully.", name);
         } else {
             JOptionPane.showMessageDialog(this, SCREEN_NOT_FOUND + ": " + name, ERROR, JOptionPane.ERROR_MESSAGE);
-            LOGGER.error("Screen not found: {}", name);
         }
     }
 
@@ -106,12 +96,10 @@ public class MainFrame extends JFrame {
     }
 
     public void removeScreen(String screenName) {
-        LOGGER.debug("Removing screen: {}", screenName);
         screens.remove(screenName);
     }
 
     private JMenuBar createMenuBar() {
-        LOGGER.debug("Creating menu bar...");
         JMenuBar menuBar = new JMenuBar();
 
         // File Menu
@@ -143,12 +131,10 @@ public class MainFrame extends JFrame {
         menuBar.add(themeMenu);
         menuBar.add(helpMenu);
 
-        LOGGER.debug("Menu bar created successfully.");
         return menuBar;
     }
 
     private void lightThemeClicked(ActionEvent e) {
-        LOGGER.debug("Light theme selected.");
         lightTheme.setSelected(true);
         darkTheme.setSelected(false);
         themeManager.setTheme(AppConfig.DEFAULT_LIGHT_THEME);
@@ -156,7 +142,6 @@ public class MainFrame extends JFrame {
     }
 
     private void darkThemeClicked(ActionEvent e) {
-        LOGGER.debug("Dark theme selected.");
         lightTheme.setSelected(false);
         darkTheme.setSelected(true);
         themeManager.setTheme(AppConfig.DEFAULT_DARK_THEME);
@@ -164,15 +149,12 @@ public class MainFrame extends JFrame {
     }
 
     private void setThemePreference(String theme) {
-        LOGGER.debug("Saving theme preference: {}", theme);
         Preferences preferences = Preferences.userNodeForPackage(MainFrame.class);
         preferences.put("theme", theme);
     }
 
     private String getThemePreference() {
         Preferences preferences = Preferences.userNodeForPackage(MainFrame.class);
-        String theme = preferences.get("theme", AppConfig.DEFAULT_LIGHT_THEME);
-        LOGGER.debug("Retrieved theme preference: {}", theme);
-        return theme;
+        return preferences.get("theme", AppConfig.DEFAULT_LIGHT_THEME);
     }
 }

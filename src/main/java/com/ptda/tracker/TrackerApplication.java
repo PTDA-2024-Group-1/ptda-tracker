@@ -38,16 +38,6 @@ public class TrackerApplication {
         // Initialize Spring Application Context
         ApplicationContext context = SpringApplication.run(TrackerApplication.class, args);
 
-        // Step 1: Load Locale Preferences and Set LocaleManager
-        Preferences preferences = Preferences.userNodeForPackage(TrackerApplication.class);
-        String language = preferences.get("language", "en");
-        String country = preferences.get("country", "US");
-        Locale startupLocale = new Locale(language, country);
-
-        LocaleManager localeManager = LocaleManager.getInstance();
-        localeManager.setLocale(startupLocale);
-
-        // Step 2: Show Splash Screen
         CustomSplashScreen splashScreen = new CustomSplashScreen();
         splashScreen.showSplashScreen();
 
@@ -58,6 +48,12 @@ public class TrackerApplication {
         }
 
         SwingUtilities.invokeLater(() -> {
+            Preferences preferences = Preferences.userNodeForPackage(TrackerApplication.class);
+            String language = preferences.get("language", "en");
+            String country = preferences.get("country", "US");
+            Locale locale = new Locale(language, country);
+            LocaleManager.getInstance().setLocale(locale);
+
             String username = preferences.get("email", null);
             String encryptedPassword = preferences.get("password", null);
 

@@ -23,15 +23,6 @@ public class DataInit {
     @PostConstruct
     public void init() {
         System.out.println("Initializing data...");
-
-        // Optional<User> user = userService.getByEmail("ratmir.m2004@gmail.com");
-        // roleManagementService.promoteUserToAssistant(user.get());
-
-        /* if (tierLimitService.getAll().isEmpty()) {
-            System.out.println("No daily limits found, creating default daily limits...");
-            createDefaultDailyLimits();
-        }
-         */
     }
 
     private void createUsers() {
