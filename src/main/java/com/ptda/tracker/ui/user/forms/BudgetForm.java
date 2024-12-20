@@ -141,7 +141,8 @@ public class BudgetForm extends JPanel {
 
     private JTextField nameField;
     private JTextArea descriptionArea;
-    private JButton saveButton, cancelButton;
+    private JButton saveButton;
+    private JButton cancelButton;
     private static final LocaleManager localeManager = LocaleManager.getInstance();
     private static final String
             CREATE_NEW_BUDGET = localeManager.getTranslation("create_new_budget"),

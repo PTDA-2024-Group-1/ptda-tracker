@@ -3,30 +3,20 @@ package com.ptda.tracker.ui.user.views;
 import com.ptda.tracker.models.tracker.Budget;
 import com.ptda.tracker.models.tracker.BudgetAccessLevel;
 import com.ptda.tracker.models.tracker.Expense;
-import com.ptda.tracker.models.tracker.ExpenseCategory;
 import com.ptda.tracker.models.user.User;
 import com.ptda.tracker.services.tracker.BudgetAccessService;
 import com.ptda.tracker.services.tracker.BudgetService;
 import com.ptda.tracker.services.tracker.ExpenseService;
 import com.ptda.tracker.ui.MainFrame;
 import com.ptda.tracker.ui.user.dialogs.ParticipantsDialog;
-import com.ptda.tracker.ui.user.forms.BudgetForm;
-import com.ptda.tracker.ui.user.forms.ExpenseForm;
-import com.ptda.tracker.ui.user.forms.ShareBudgetForm;
+import com.ptda.tracker.ui.user.forms.*;
+import com.ptda.tracker.ui.user.screens.ExpensesImportScreen;
 import com.ptda.tracker.util.ScreenNames;
 import com.ptda.tracker.util.UserSession;
-import org.apache.commons.csv.CSVFormat;
-import org.apache.commons.csv.CSVParser;
-import org.apache.commons.csv.CSVRecord;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -55,20 +45,30 @@ public class BudgetDetailView extends JPanel {
             participantsDialog.setVisible(true);
         });
         if (editButton != null) {
-            editButton.addActionListener(e -> mainFrame.registerAndShowScreen(ScreenNames.BUDGET_FORM, new BudgetForm(mainFrame, null, budget)));
+            editButton.addActionListener(e -> mainFrame.registerAndShowScreen(ScreenNames.BUDGET_FORM,
+                    new BudgetForm(mainFrame, null, budget)));
         }
         if (shareButton != null) {
-            shareButton.addActionListener(e -> mainFrame.registerAndShowScreen(ScreenNames.BUDGET_SHARE_FORM, new ShareBudgetForm(mainFrame, budget)));
+            shareButton.addActionListener(e -> mainFrame.registerAndShowScreen(
+                    ScreenNames.BUDGET_SHARE_FORM, new ShareBudgetForm(mainFrame, budget)));
         }
         if (addExpenseButton != null) {
-            addExpenseButton.addActionListener(e -> mainFrame.registerAndShowScreen(ScreenNames.EXPENSE_FORM, new ExpenseForm(mainFrame, null, budget, mainFrame.getCurrentScreen(), this::refreshExpenses)));
+            addExpenseButton.addActionListener(e -> mainFrame.registerAndShowScreen(
+                    ScreenNames.EXPENSE_FORM,
+                    new ExpenseForm(mainFrame, null, budget,
+                            mainFrame.getCurrentScreen(),
+                            this::refreshExpenses
+                    )
+            ));
         }
         importButton.addActionListener(e -> {
-            JFileChooser fileChooser = new JFileChooser();
-            int result = fileChooser.showOpenDialog(this);
-            if (result == JFileChooser.APPROVE_OPTION) {
-                File selectedFile = fileChooser.getSelectedFile();
-                importExpensesFromCSV(selectedFile);
+            if (mainFrame.getScreen(ScreenNames.EXPENSES_IMPORT_SCREEN) == null) {
+                mainFrame.registerAndShowScreen(ScreenNames.EXPENSES_IMPORT_SCREEN,
+                        new ExpensesImportScreen(mainFrame, budget,
+                                ScreenNames.BUDGET_DETAIL_VIEW,
+                                this::refreshExpenses));
+            } else {
+                mainFrame.showScreen(ScreenNames.EXPENSES_IMPORT_SCREEN);
             }
         });
         expensesTable.getSelectionModel().addListSelectionListener(e -> {
@@ -76,70 +76,29 @@ public class BudgetDetailView extends JPanel {
                 int selectedRow = expensesTable.getSelectedRow();
                 if (selectedRow != -1) {
                     Expense selectedExpense = expenses.get(selectedRow);
-                    mainFrame.registerAndShowScreen(ScreenNames.EXPENSE_DETAIL_VIEW, new ExpenseDetailView(mainFrame, selectedExpense, mainFrame.getCurrentScreen(), null));
+                    mainFrame.registerAndShowScreen(ScreenNames.EXPENSE_DETAIL_VIEW,
+                            new ExpenseDetailView(mainFrame, selectedExpense,
+                                    mainFrame.getCurrentScreen(), this::refreshExpenses
+                            )
+                    );
                     expensesTable.clearSelection();
                 }
             }
         });
     }
 
-    private void importExpensesFromCSV(File file) {
-        List<Expense> importedExpenses = new ArrayList<>();
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-
-        try (FileReader reader = new FileReader(file);
-             CSVParser csvParser = new CSVParser(reader, CSVFormat.DEFAULT.withHeader())) {
-
-            for (CSVRecord csvRecord : csvParser) {
-                Expense expense = new Expense();
-                expense.setTitle(csvRecord.get("title"));
-                expense.setAmount(Double.parseDouble(csvRecord.get("amount")));
-                LocalDate localDate = LocalDate.parse(csvRecord.get("date"), formatter);
-                expense.setDate(java.sql.Date.valueOf(localDate));
-                expense.setCategory(convertToExpenseCategory(csvRecord.get("category")));
-                expense.setDescription(csvRecord.get("description"));
-                expense.setCreatedBy(UserSession.getInstance().getUser());
-                expense.setBudget(budget);
-                importedExpenses.add(expense);
-            }
-
-            mainFrame.getContext().getBean(ExpenseService.class).saveAll(importedExpenses);
-            JOptionPane.showMessageDialog(this, "Expenses imported successfully!");
-        } catch (IOException e) {
-            JOptionPane.showMessageDialog(this, "Error reading CSV file: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(this, "Error importing expenses: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-        }
-
-        // After importing, refresh the expense list
-        refreshExpenses();
-    }
-
-    private ExpenseCategory convertToExpenseCategory(String category) {
-        try {
-            return ExpenseCategory.valueOf(category.toUpperCase());
-        } catch (IllegalArgumentException e) {
-            // Handle the case where the category does not match any enum constant
-            JOptionPane.showMessageDialog(this, "Unknown category: " + category, "Error", JOptionPane.ERROR_MESSAGE);
-            return null; // or handle it in another way
-        }
-    }
-
     private void refreshExpenses() {
         int offset = currentPage * PAGE_SIZE;
         expenses.clear();
         expenses.addAll(mainFrame.getContext().getBean(ExpenseService.class).getExpensesByBudgetIdWithPagination(budget.getId(), offset, PAGE_SIZE));
-        updateExpenseTable();
-    }
 
-    private void updateExpenseTable() {
         expensesTable.setModel(createExpensesTableModel(expenses));
         updatePaginationPanel();
     }
 
     private void updatePaginationPanel() {
         paginationPanel.removeAll();
-        long totalExpenses = mainFrame.getContext().getBean(ExpenseService.class).countByBudgetId(budget.getId());
+        long totalExpenses = mainFrame.getContext().getBean(ExpenseService.class).getCountByBudgetId(budget.getId());
         int totalPages = (int) Math.ceil((double) totalExpenses / PAGE_SIZE);
         if (totalPages > 1) {
             for (int i = 0; i < totalPages; i++) {
@@ -266,8 +225,16 @@ public class BudgetDetailView extends JPanel {
         leftButtonPanel.add(backButton);
         bottomPanel.add(leftButtonPanel, BorderLayout.WEST);
 
-        // Painel do botão "Simulate Budget" (alinhado à direita)
+        // Painel do botão "Simulate Budget" e "Statistics" (alinhado à direita)
         JPanel rightButtonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+
+        if (!expenses.isEmpty()) {
+            // Adicionar botão de estatísticas
+            JButton statisticsButton = new JButton(STATISTICS);
+            statisticsButton.addActionListener(e -> mainFrame.registerAndShowScreen(ScreenNames.BUDGET_STATISTICS_VIEW, new BudgetStatisticsView(mainFrame, budget)));
+            rightButtonPanel.add(statisticsButton);
+        }
+
         if (!expenses.isEmpty()) {
             JButton splitSimulation = new JButton(SPLIT_SIMULATION);
             splitSimulation.addActionListener(e -> mainFrame.registerAndShowScreen(ScreenNames.SIMULATE_VIEW, new SimulationView(mainFrame, budget)));
@@ -277,6 +244,7 @@ public class BudgetDetailView extends JPanel {
             addExpenseButton = new JButton(ADD_EXPENSE);
             rightButtonPanel.add(addExpenseButton);
         }
+
         bottomPanel.add(rightButtonPanel, BorderLayout.EAST);
 
         // Adicionar painel de paginação
@@ -301,6 +269,7 @@ public class BudgetDetailView extends JPanel {
             BACK = "Back",
             PARTICIPANTS = "Participants",
             EDIT_BUDGET = "Edit Budget",
+            STATISTICS = "Statistics",
             ADD_EXPENSE = "Add Expense",
             SHARE_BUDGET = "Share Budget",
             SPLIT_SIMULATION = "Split Simulation",

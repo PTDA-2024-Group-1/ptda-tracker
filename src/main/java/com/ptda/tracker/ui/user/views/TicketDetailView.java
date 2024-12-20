@@ -6,8 +6,10 @@ import com.ptda.tracker.models.assistance.TicketReply;
 import com.ptda.tracker.services.assistance.TicketService;
 import com.ptda.tracker.services.assistance.TicketReplyService;
 import com.ptda.tracker.ui.MainFrame;
+import com.ptda.tracker.ui.admin.dialogs.ChangeAssignmentDialog;
+import com.ptda.tracker.ui.admin.views.ManageTicketView;
 import com.ptda.tracker.ui.user.forms.TicketReplyForm;
-import com.ptda.tracker.ui.user.renderers.TicketReplyRenderer;
+import com.ptda.tracker.ui.user.components.renderers.TicketReplyRenderer;
 import com.ptda.tracker.util.ScreenNames;
 import com.ptda.tracker.util.UserSession;
 import org.jdesktop.swingx.JXList;
@@ -41,7 +43,13 @@ public class TicketDetailView extends JPanel {
 
     private void addButtons(JPanel buttonPanel) {
         JButton backButton = new JButton(BACK);
-        backButton.addActionListener(e -> mainFrame.showScreen(ScreenNames.NAVIGATION_SCREEN));
+        backButton.addActionListener(e -> {
+            if (UserSession.getInstance().getUser().getUserType().equals("ADMIN")) {
+                mainFrame.registerAndShowScreen(ScreenNames.MANAGE_TICKET_VIEW, new ManageTicketView(mainFrame));
+            } else {
+                mainFrame.showScreen(ScreenNames.NAVIGATION_SCREEN);
+            }
+        });
         buttonPanel.add(backButton);
 
         if (UserSession.getInstance().getUser().getUserType().equals("USER")) {
@@ -124,6 +132,18 @@ public class TicketDetailView extends JPanel {
         repliesScroll.setPreferredSize(new Dimension(300, 200));
         mainPanel.add(repliesScroll, BorderLayout.CENTER);
 
+        // Change Assignment Button
+        if (UserSession.getInstance().getUser().getUserType().equals("ADMIN")) {
+            JPanel topRightPanel = new JPanel(new BorderLayout());
+            JButton changeAssignmentButton = new JButton(CHANGE_ASSIGNMENT);
+            changeAssignmentButton.addActionListener(e -> {
+                ChangeAssignmentDialog dialog = new ChangeAssignmentDialog(mainFrame, ticket);
+                dialog.setVisible(true);
+            });
+            topRightPanel.add(changeAssignmentButton, BorderLayout.EAST);
+            mainPanel.add(topRightPanel, BorderLayout.NORTH);
+        }
+
         add(mainPanel, BorderLayout.CENTER);
 
         // Action Buttons
@@ -131,6 +151,7 @@ public class TicketDetailView extends JPanel {
         addButtons(buttonPanel);
         add(buttonPanel, BorderLayout.SOUTH);
     }
+
     JButton replyButton = new JButton(REPLY);
     JButton closeButton = new JButton(CLOSE_TICKET);
     JButton reopenButton = new JButton(REOPEN_TICKET);
@@ -142,6 +163,7 @@ public class TicketDetailView extends JPanel {
             REOPEN_TICKET = "Reopen Ticket",
             REPLY = "Reply",
             CLOSE_TICKET = "Close Ticket",
+            CHANGE_ASSIGNMENT = "Change Assignment",
             TICKET_REOPENED_SUCCESS = "Ticket reopened successfully.",
             TICKET_CLOSED_SUCCESS = "Ticket closed successfully.";
 }

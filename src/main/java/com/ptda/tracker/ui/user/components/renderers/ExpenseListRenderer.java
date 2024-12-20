@@ -1,4 +1,4 @@
-package com.ptda.tracker.ui.user.renderers;
+package com.ptda.tracker.ui.user.components.renderers;
 
 import com.ptda.tracker.models.tracker.Expense;
 import com.ptda.tracker.util.LocaleManager;

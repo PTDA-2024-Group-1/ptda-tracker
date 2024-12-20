@@ -5,6 +5,7 @@ import com.ptda.tracker.repositories.AdminRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -40,5 +41,10 @@ public class AdminServiceHibernateImpl implements AdminService {
             return true;
         }
         return false;
+    }
+
+    @Override
+    public List<Admin> getAll() {
+        return adminRepository.findAll();
     }
 }

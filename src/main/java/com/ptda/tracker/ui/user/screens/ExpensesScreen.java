@@ -5,7 +5,7 @@ import com.ptda.tracker.models.tracker.ExpenseCategory;
 import com.ptda.tracker.services.tracker.ExpenseService;
 import com.ptda.tracker.ui.MainFrame;
 import com.ptda.tracker.ui.user.forms.ExpenseForm;
-import com.ptda.tracker.ui.user.renderers.ExpenseListRenderer;
+import com.ptda.tracker.ui.user.components.renderers.ExpenseListRenderer;
 import com.ptda.tracker.ui.user.views.ExpenseDetailView;
 import com.ptda.tracker.util.ScreenNames;
 import com.ptda.tracker.util.UserSession;
@@ -88,7 +88,7 @@ public class ExpensesScreen extends JPanel {
                 importedExpenses.add(expense);
             }
 
-            expenseService.saveAll(importedExpenses);
+            expenseService.createAll(importedExpenses);
             JOptionPane.showMessageDialog(this, "Expenses imported successfully!");
         } catch (IOException e) {
             JOptionPane.showMessageDialog(this, "Error reading CSV file: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
@@ -116,7 +116,7 @@ public class ExpensesScreen extends JPanel {
 
     private void updatePaginationPanel() {
         paginationPanel.removeAll();
-        long totalExpenses = expenseService.countByBudgetId(UserSession.getInstance().getUser().getId());
+        long totalExpenses = expenseService.getCountByBudgetId(UserSession.getInstance().getUser().getId());
         int totalPages = (int) Math.ceil((double) totalExpenses / PAGE_SIZE);
         if (totalExpenses > PAGE_SIZE) {
             for (int i = 0; i < totalPages; i++) {

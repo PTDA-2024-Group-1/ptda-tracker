@@ -29,7 +29,7 @@ public class Expense {
 
     private String description;
 
-    @Enumerated
+    @Enumerated(EnumType.STRING)
     private ExpenseCategory category;
 
     @ManyToOne

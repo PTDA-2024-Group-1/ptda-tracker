@@ -16,6 +16,8 @@ public class ScreenNames {
     public static final String EXPENSES_SCREEN = "expensesScreen";
     public static final String EXPENSE_FORM = "expenseForm";
     public static final String EXPENSE_DETAIL_VIEW = "expenseDetailView";
+    public static final String EXPENSES_EDIT_FORM = "expensesEditForm";
+    public static final String EXPENSES_IMPORT_SCREEN = "expensesImportScreen";
     public static final String USER_TICKETS_SCREEN = "userTicketsScreen";
     public static final String TICKET_FORM = "ticketForm";
     public static final String TICKET_DETAIL_VIEW = "ticketDetailView";
@@ -29,5 +31,5 @@ public class ScreenNames {
     public static final String EXPENSE_AUDIT_DETAIL_VIEW = "expenseAuditDetailView";
     public static final String ASSISTANCE_SCREEN = "assistanceScreen";
     public static final String MANAGE_TICKET_VIEW = "manageTicketView";
-
+    public static final String BUDGET_STATISTICS_VIEW = "budgetStatisticsView";
 }

@@ -3,6 +3,7 @@ package com.ptda.tracker.services.user;
 import com.ptda.tracker.models.user.User;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 public interface UserService {
@@ -25,4 +26,5 @@ public interface UserService {
 
     boolean deleteById(Long id);
 
+    int countByUserType(String userType);
 }
