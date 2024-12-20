@@ -11,7 +11,6 @@ import java.util.prefs.Preferences;
 public class CustomSplashScreen extends JFrame {
 
     public CustomSplashScreen() {
-        // Set the LocaleManager before building the UI
         setCurrentLocaleFromPreferences();
 
         // Set up the main frame properties
@@ -37,12 +36,12 @@ public class CustomSplashScreen extends JFrame {
         foregroundLabel.setBounds(50, 100, 700, 600); 
         layeredPane.add(foregroundLabel, Integer.valueOf(1));
 
-        JLabel greetingLabel = new JLabel(LocaleManager.getInstance().getTranslation("greeting"));
+        JLabel greetingLabel = new JLabel(LocaleManager.getInstance().getTranslation("Divi is loading..."));
         greetingLabel.setHorizontalAlignment(SwingConstants.RIGHT);
         greetingLabel.setVerticalAlignment(SwingConstants.TOP);
         greetingLabel.setForeground(Color.BLACK);
         greetingLabel.setFont(new Font("SansSerif", Font.BOLD, 20));
-        greetingLabel.setBounds(300, 20, 100, 50);
+        greetingLabel.setBounds(250, 570, 200, 100);
         foregroundLabel.add(greetingLabel);
 
         setContentPane(layeredPane);
