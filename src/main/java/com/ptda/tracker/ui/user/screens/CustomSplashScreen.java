@@ -40,8 +40,8 @@ public class CustomSplashScreen extends JFrame {
         greetingLabel.setHorizontalAlignment(SwingConstants.RIGHT);
         greetingLabel.setVerticalAlignment(SwingConstants.TOP);
         greetingLabel.setForeground(Color.BLACK);
-        greetingLabel.setFont(new Font("SansSerif", Font.BOLD, 20));
-        greetingLabel.setBounds(250, 570, 200, 100);
+        greetingLabel.setFont(new Font("SansSerif", Font.PLAIN, 16));
+        greetingLabel.setBounds(220, 570, 200, 100);
         foregroundLabel.add(greetingLabel);
 
         setContentPane(layeredPane);
