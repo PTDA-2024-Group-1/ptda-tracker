@@ -8,6 +8,9 @@ import com.ptda.tracker.ui.user.screens.NavigationScreen;
 import com.ptda.tracker.util.LocaleManager;
 import com.ptda.tracker.util.ScreenNames;
 import com.ptda.tracker.util.UserSession;
+import com.ptda.tracker.theme.ThemeManager; 
+import com.ptda.tracker.util.ImageResourceManager;
+
 
 import javax.swing.*;
 import java.awt.*;
@@ -20,6 +23,7 @@ public class LoginForm extends JPanel {
     private final MainFrame mainFrame;
     private final UserService userService;
     private User user;
+    private JLabel logoLabel; 
 
     public LoginForm(MainFrame mainFrame) {
         this.mainFrame = mainFrame;
@@ -27,6 +31,10 @@ public class LoginForm extends JPanel {
 
         initComponents();
         setListeners();
+
+        updateFormLogo();
+
+        ThemeManager.getInstance().addThemeChangeListener(this::updateFormLogo);
     }
 
     private void setListeners() {
@@ -82,6 +90,13 @@ public class LoginForm extends JPanel {
         preferences.put("password", user.getPassword());
     }
 
+    private void updateFormLogo() {
+        boolean isDark = ThemeManager.getInstance().isDark();
+        ImageIcon appLogo = ImageResourceManager.getThemeBasedIcon(isDark);
+        Image scaledImage = appLogo.getImage().getScaledInstance(250, 250, Image.SCALE_SMOOTH);
+        logoLabel.setIcon(new ImageIcon(scaledImage));
+    }
+
     private void initComponents() {
         setLayout(new BorderLayout());
         setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
@@ -96,13 +111,9 @@ public class LoginForm extends JPanel {
         titleLabel.setAlignmentX(CENTER_ALIGNMENT);
         topPanel.add(titleLabel);
 
-        // Logotype
-        ImageIcon appLogo = new ImageIcon(LOGO_PATH);
-        Image scaledImage = appLogo.getImage().getScaledInstance(250, 250, Image.SCALE_SMOOTH); // Resize to 100x100 pixels
-        ImageIcon scaledIcon = new ImageIcon(scaledImage);
-        JLabel logoLabel = new JLabel(scaledIcon);
+        logoLabel = new JLabel();
         logoLabel.setAlignmentX(CENTER_ALIGNMENT);
-        topPanel.add(Box.createRigidArea(new Dimension(0, 10))); // Espaço entre o título e o logotipo
+        topPanel.add(Box.createRigidArea(new Dimension(0, 10))); // Space between title and logo
         topPanel.add(logoLabel);
 
         add(topPanel, BorderLayout.NORTH);
