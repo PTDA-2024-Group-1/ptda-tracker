@@ -11,6 +11,7 @@ import com.ptda.tracker.ui.MainFrame;
 import com.ptda.tracker.ui.user.dialogs.ParticipantsDialog;
 import com.ptda.tracker.ui.user.forms.*;
 import com.ptda.tracker.ui.user.screens.ExpensesImportScreen;
+import com.ptda.tracker.util.ExpensesImportSharedData;
 import com.ptda.tracker.util.ScreenNames;
 import com.ptda.tracker.util.UserSession;
 
@@ -61,16 +62,7 @@ public class BudgetDetailView extends JPanel {
                     )
             ));
         }
-        importButton.addActionListener(e -> {
-            if (mainFrame.getScreen(ScreenNames.EXPENSES_IMPORT_SCREEN) == null) {
-                mainFrame.registerAndShowScreen(ScreenNames.EXPENSES_IMPORT_SCREEN,
-                        new ExpensesImportScreen(mainFrame, budget,
-                                ScreenNames.BUDGET_DETAIL_VIEW,
-                                this::refreshExpenses));
-            } else {
-                mainFrame.showScreen(ScreenNames.EXPENSES_IMPORT_SCREEN);
-            }
-        });
+        importButton.addActionListener(e -> openImport(mainFrame, budget, this::refreshExpenses));
         expensesTable.getSelectionModel().addListSelectionListener(e -> {
             if (!e.getValueIsAdjusting()) {
                 int selectedRow = expensesTable.getSelectedRow();
@@ -85,6 +77,31 @@ public class BudgetDetailView extends JPanel {
                 }
             }
         });
+    }
+
+    public static void openImport(MainFrame mainFrame, Budget budget, Runnable onImportSuccess) {
+        if (mainFrame.getScreen(ScreenNames.EXPENSES_IMPORT) == null) {
+            ExpensesImportScreen importScreen = new ExpensesImportScreen(mainFrame, budget, mainFrame.getCurrentScreen(), onImportSuccess);
+            mainFrame.registerAndShowScreen(ScreenNames.EXPENSES_IMPORT, importScreen);
+        } else {
+            int option = JOptionPane.showConfirmDialog(
+                    mainFrame,
+                    "There is an ongoing import process." + "\n" +
+                            "Do you want to continue with the current import?",
+                    "Import Expenses",
+                    JOptionPane.YES_NO_OPTION
+            );
+            if (option == JOptionPane.NO_OPTION) {
+                ExpensesImportSharedData.resetInstance();
+                mainFrame.removeScreen(ScreenNames.EXPENSES_IMPORT);
+                mainFrame.registerAndShowScreen(
+                        ScreenNames.EXPENSES_IMPORT,
+                        new ExpensesImportScreen(mainFrame, budget, mainFrame.getCurrentScreen(), onImportSuccess)
+                );
+            } else {
+                mainFrame.showScreen(ScreenNames.EXPENSES_IMPORT);
+            }
+        }
     }
 
     private void refreshExpenses() {

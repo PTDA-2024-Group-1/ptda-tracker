@@ -1,6 +1,6 @@
 package com.ptda.tracker.ui.user.dialogs.expenses;
 
-import com.ptda.tracker.util.ImportSharedData;
+import com.ptda.tracker.util.ExpensesImportSharedData;
 
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
@@ -13,17 +13,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ImportSourceDialog extends JDialog {
-    private final ImportSharedData sharedData;
+    private final ExpensesImportSharedData sharedData;
     private List<String[]> rawData;
     private boolean hasHeader;
     private final Runnable onDone;
-    private boolean removeFirstRow;
     private String[] originalFirstRow;
 
     public ImportSourceDialog(JFrame parent, Runnable onDone) {
         super(parent, IMPORT_SOURCE, true);
         this.onDone = onDone;
-        this.sharedData = ImportSharedData.getInstance();
+        this.sharedData = ExpensesImportSharedData.getInstance();
         hasHeader = true;
 
         initComponents();
@@ -31,14 +30,14 @@ public class ImportSourceDialog extends JDialog {
     }
 
     private void setListeners() {
-        cancelButton.addActionListener(e -> dispose());
+        skipButton.addActionListener(e -> dispose());
         fileButton.addActionListener(e -> importFromFile());
         clipboardButton.addActionListener(e -> importFromClipboard());
         confirmButton.addActionListener(e -> {
             sharedData.setRawData(rawData);
             sharedData.setHasHeader(hasHeader);
-            onDone.run();
             dispose();
+            onDone.run();
         });
     }
 
@@ -62,7 +61,7 @@ public class ImportSourceDialog extends JDialog {
             } catch (Exception e) {
                 JOptionPane.showMessageDialog(
                         this,
-                        "Failed to import data from file",
+                        FAILED_TO_IMPORT_DATA,
                         "Error",
                         JOptionPane.ERROR_MESSAGE
                 );
@@ -88,7 +87,7 @@ public class ImportSourceDialog extends JDialog {
         } catch (Exception e) {
             JOptionPane.showMessageDialog(
                     this,
-                    "Failed to import data from clipboard",
+                    FAILED_TO_IMPORT_DATA,
                     "Error",
                     JOptionPane.ERROR_MESSAGE
             );
@@ -133,7 +132,7 @@ public class ImportSourceDialog extends JDialog {
 
     private void createTablePreview(String[][] data, String[] columnNames) {
         // Create a checkbox to toggle the header
-        JCheckBox hasHeaderCheckBox = new JCheckBox("First row contains column names");
+        JCheckBox hasHeaderCheckBox = new JCheckBox(FIRST_ROW_CONTAINS_COLUMN_NAMES);
         hasHeaderCheckBox.setSelected(hasHeader);
         hasHeaderCheckBox.addActionListener(e -> {
             hasHeader = hasHeaderCheckBox.isSelected();
@@ -154,7 +153,7 @@ public class ImportSourceDialog extends JDialog {
     private void initComponents() {
         // Initialize components
         previewTablePanel = new JPanel(new BorderLayout());
-        cancelButton = new JButton(CANCEL);
+        skipButton = new JButton(SKIP);
         fileButton = new JButton(IMPORT_FROM_FILE);
         clipboardButton = new JButton(IMPORT_FROM_CLIPBOARD);
         confirmButton = new JButton(CONFIRM);
@@ -162,7 +161,7 @@ public class ImportSourceDialog extends JDialog {
 
         // Create a panel for buttons
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
-        buttonPanel.add(cancelButton);
+        buttonPanel.add(skipButton);
         buttonPanel.add(fileButton);
         buttonPanel.add(clipboardButton);
         buttonPanel.add(confirmButton);
@@ -175,17 +174,19 @@ public class ImportSourceDialog extends JDialog {
 
         // Set dialog properties
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
-        setLocationRelativeTo(null);
         pack();
+        setLocationRelativeTo(null);
     }
 
     private JPanel previewTablePanel;
-    private JButton cancelButton, fileButton, clipboardButton, confirmButton;
+    private JButton skipButton, fileButton, clipboardButton, confirmButton;
     private static final String
             IMPORT_SOURCE = "Import Source",
-            CANCEL = "Cancel",
+            SKIP = "Skip",
             IMPORT_FROM_FILE = "Import from File",
             IMPORT_FROM_CLIPBOARD = "Import from Clipboard",
             CONFIRM = "Confirm",
-            COLUMN = "Column";
+            COLUMN = "Column",
+            FIRST_ROW_CONTAINS_COLUMN_NAMES = "First row contains column names",
+            FAILED_TO_IMPORT_DATA = "Failed to import data";
 }

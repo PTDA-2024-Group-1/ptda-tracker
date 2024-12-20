@@ -10,10 +10,10 @@ import java.util.List;
 import java.util.Map;
 
 public class ExpensesConverter {
-    public static List<Expense> transformImportData(ImportSharedData sharedData) {
+    public static List<Expense> transformImportData(ExpensesImportSharedData sharedData) {
         List<Expense> expenses = new ArrayList<>();
 
-        // Retrieve all relevant data from ImportSharedData
+        // Retrieve all relevant data from ExpensesImportSharedData
         List<String[]> rawData = sharedData.getRawData();
         Map<String, Integer> columnMapping = sharedData.getColumnMapping();
         Map<String, ExpenseCategory> categoryMapping = sharedData.getCategoryMapping();

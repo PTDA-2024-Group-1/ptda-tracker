@@ -1,59 +1,22 @@
 package com.ptda.tracker.ui.user.dialogs.expenses;
 
-import com.ptda.tracker.util.ImportSharedData;
+import com.ptda.tracker.util.ExpensesImportSharedData;
 
 import javax.swing.*;
 import java.awt.*;
 
 public class ImportValueTreatmentDialog extends JDialog {
-    private final ImportSharedData sharedData;
-    private JRadioButton negativeAsExpenseButton, positiveAsExpenseButton, absoluteValueButton;
-    private JButton confirmButton, cancelButton;
+    private final ExpensesImportSharedData sharedData;
+    private final Runnable onDone;
 
-    public ImportValueTreatmentDialog(JFrame parent) {
-        super(parent, "Import Value Treatment", true);
-        this.sharedData = ImportSharedData.getInstance();
+    public ImportValueTreatmentDialog(JFrame parent, Runnable onDone) {
+        super(parent, IMPORT_VALUE_TREATMENT, true);
+        this.sharedData = ExpensesImportSharedData.getInstance();
+        this.onDone = onDone;
 
         initComponents();
         prefillSelection();
         setListeners();
-    }
-
-    private void initComponents() {
-        setLayout(new BorderLayout());
-
-        // Radio buttons for options
-        negativeAsExpenseButton = new JRadioButton("Import negative values as expenses");
-        positiveAsExpenseButton = new JRadioButton("Import positive values as expenses");
-        absoluteValueButton = new JRadioButton("Treat all values as absolute expenses");
-
-        // Group the radio buttons
-        ButtonGroup group = new ButtonGroup();
-        group.add(negativeAsExpenseButton);
-        group.add(positiveAsExpenseButton);
-        group.add(absoluteValueButton);
-
-        // Add buttons to panel
-        JPanel optionsPanel = new JPanel(new GridLayout(3, 1));
-        optionsPanel.setBorder(BorderFactory.createTitledBorder("How should values be treated?"));
-        optionsPanel.add(negativeAsExpenseButton);
-        optionsPanel.add(positiveAsExpenseButton);
-        optionsPanel.add(absoluteValueButton);
-
-        // Confirm and cancel buttons
-        confirmButton = new JButton("Confirm");
-        cancelButton = new JButton("Cancel");
-
-        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-        buttonPanel.add(cancelButton);
-        buttonPanel.add(confirmButton);
-
-        // Add panels to dialog
-        add(optionsPanel, BorderLayout.CENTER);
-        add(buttonPanel, BorderLayout.SOUTH);
-
-        pack();
-        setLocationRelativeTo(null); // Center the dialog
     }
 
     private void prefillSelection() {
@@ -79,7 +42,7 @@ public class ImportValueTreatmentDialog extends JDialog {
     }
 
     private void setListeners() {
-        cancelButton.addActionListener(e -> dispose());
+        skipButton.addActionListener(e -> dispose());
 
         confirmButton.addActionListener(e -> {
             String selectedOption;
@@ -91,10 +54,56 @@ public class ImportValueTreatmentDialog extends JDialog {
                 selectedOption = "ABSOLUTE_VALUE";
             }
 
-            // Save the selection to shared data
             sharedData.setValueTreatment(selectedOption);
-
+            onDone.run();
             dispose();
         });
     }
+
+    private void initComponents() {
+        setLayout(new BorderLayout());
+
+        // Radio buttons for options
+        negativeAsExpenseButton = new JRadioButton(IMPORT_NEGATIVE_VALUES_AS_EXPENSES);
+        positiveAsExpenseButton = new JRadioButton(IMPORT_POSITIVE_VALUES_AS_EXPENSES);
+        absoluteValueButton = new JRadioButton(TREAT_ALL_VALUES_AS_ABSOLUTE_EXPENSES);
+
+        // Group the radio buttons
+        ButtonGroup group = new ButtonGroup();
+        group.add(negativeAsExpenseButton);
+        group.add(positiveAsExpenseButton);
+        group.add(absoluteValueButton);
+
+        // Add buttons to panel
+        JPanel optionsPanel = new JPanel(new GridLayout(3, 1));
+        optionsPanel.setBorder(BorderFactory.createTitledBorder(HOW_SHOULD_VALUES_BE_TREATED));
+        optionsPanel.add(negativeAsExpenseButton);
+        optionsPanel.add(positiveAsExpenseButton);
+        optionsPanel.add(absoluteValueButton);
+
+        // Confirm and cancel buttons
+        confirmButton = new JButton(CONFIRM);
+        skipButton = new JButton(SKIP);
+
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        buttonPanel.add(skipButton);
+        buttonPanel.add(confirmButton);
+
+        // Add panels to dialog
+        add(optionsPanel, BorderLayout.CENTER);
+        add(buttonPanel, BorderLayout.SOUTH);
+
+        pack();
+    }
+
+    private JRadioButton negativeAsExpenseButton, positiveAsExpenseButton, absoluteValueButton;
+    private JButton confirmButton, skipButton;
+    private static final String
+            IMPORT_VALUE_TREATMENT = "Import Value Treatment",
+            HOW_SHOULD_VALUES_BE_TREATED = "How should values be treated?",
+            IMPORT_NEGATIVE_VALUES_AS_EXPENSES = "Import negative values as expenses",
+            IMPORT_POSITIVE_VALUES_AS_EXPENSES = "Import positive values as expenses",
+            TREAT_ALL_VALUES_AS_ABSOLUTE_EXPENSES = "Treat all values as absolute expenses",
+            SKIP = "Skip",
+            CONFIRM = "Confirm";
 }

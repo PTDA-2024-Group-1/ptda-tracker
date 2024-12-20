@@ -1,23 +1,18 @@
 package com.ptda.tracker.ui.user.dialogs.expenses;
 
-import com.ptda.tracker.util.ImportSharedData;
+import com.ptda.tracker.util.ExpensesImportSharedData;
 
 import javax.swing.*;
 import java.awt.*;
 import java.text.SimpleDateFormat;
-import java.util.Map;
 
 public class ImportDateFormatDialog extends JDialog {
-    private final ImportSharedData sharedData;
-
-    private JComboBox<String> dateFormatComboBox;
-    private JTextField customDateFormatField;
-    private JButton confirmButton, cancelButton;
-    private Runnable onDone;
+    private final ExpensesImportSharedData sharedData;
+    private final Runnable onDone;
 
     public ImportDateFormatDialog(JFrame parent, Runnable onDone) {
         super(parent, SET_DATE_FORMAT, true);
-        this.sharedData = ImportSharedData.getInstance();
+        this.sharedData = ExpensesImportSharedData.getInstance();
         this.onDone = onDone;
 
         initComponents();
@@ -46,12 +41,18 @@ public class ImportDateFormatDialog extends JDialog {
                 // Select "Other" and prefill custom format field
                 dateFormatComboBox.setSelectedItem(OTHER);
                 customDateFormatField.setText(storedDateFormat);
-                customDateFormatField.setEnabled(true);
+                customDateFormatPanel.setVisible(true);
             }
         }
     }
 
     private void setListeners() {
+        dateFormatComboBox.addActionListener(e -> {
+            boolean isOther = OTHER.equals(dateFormatComboBox.getSelectedItem());
+            customDateFormatPanel.setVisible(isOther);
+            pack();
+        });
+
         cancelButton.addActionListener(e -> dispose());
 
         confirmButton.addActionListener(e -> {
@@ -97,26 +98,24 @@ public class ImportDateFormatDialog extends JDialog {
                 "dd/MM/yyyy", "dd-MM-yyyy", "MM/dd/yyyy", "MM-dd-yyyy", "yyyy/MM/dd", "yyyy-MM-dd", OTHER
         });
 
-        customDateFormatField = new JTextField(10);
-        customDateFormatField.setEnabled(false);
-
-        dateFormatComboBox.addActionListener(e -> {
-            boolean isOther = OTHER.equals(dateFormatComboBox.getSelectedItem());
-            customDateFormatField.setEnabled(isOther);
-        });
-
         datePanel.add(new JLabel(SELECT_DATE_FORMAT + ":"));
         datePanel.add(dateFormatComboBox);
-        datePanel.add(new JLabel(CUSTOM + ":"));
-        datePanel.add(customDateFormatField);
+
+        customDateFormatPanel = new JPanel(new FlowLayout());
+        customDateFormatPanel.add(new JLabel(CUSTOM + ":"));
+        customDateFormatField = new JTextField(10);
+        customDateFormatPanel.add(customDateFormatField);
+        customDateFormatPanel.setVisible(false);
+        pack();
+        datePanel.add(customDateFormatPanel);
 
         // Buttons Panel
         JPanel buttonPanel = new JPanel(new FlowLayout());
         confirmButton = new JButton(CONFIRM);
         cancelButton = new JButton(CANCEL);
 
-        buttonPanel.add(confirmButton);
         buttonPanel.add(cancelButton);
+        buttonPanel.add(confirmButton);
 
         // Add components to the dialog
         add(datePanel, BorderLayout.CENTER);
@@ -125,6 +124,10 @@ public class ImportDateFormatDialog extends JDialog {
         pack();
     }
 
+    private JComboBox<String> dateFormatComboBox;
+    private JPanel customDateFormatPanel;
+    private JTextField customDateFormatField;
+    private JButton confirmButton, cancelButton;
     private static final String
             SET_DATE_FORMAT = "Set Date Format",
             SELECT_DATE_FORMAT = "Select Date Format",

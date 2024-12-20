@@ -1,7 +1,7 @@
 package com.ptda.tracker.ui.user.dialogs.expenses;
 
 import com.ptda.tracker.ui.user.components.tables.ColumnsTableModel;
-import com.ptda.tracker.util.ImportSharedData;
+import com.ptda.tracker.util.ExpensesImportSharedData;
 
 import javax.swing.*;
 import java.awt.*;
@@ -9,12 +9,12 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class ImportColumnsDialog extends JDialog {
-    private final ImportSharedData sharedData;
+    private final ExpensesImportSharedData sharedData;
     private final Runnable onDone;
 
     public ImportColumnsDialog(JFrame parent, Runnable onDone) {
         super(parent, IMPORT_COLUMNS_MAPPING, true);
-        this.sharedData = ImportSharedData.getInstance();
+        this.sharedData = ExpensesImportSharedData.getInstance();
         this.onDone = onDone;
 
         initComponents();
@@ -22,11 +22,11 @@ public class ImportColumnsDialog extends JDialog {
     }
 
     private void setListeners() {
-        cancelButton.addActionListener(e -> dispose());
+        skipButton.addActionListener(e -> dispose());
         confirmButton.addActionListener(e -> {
             mapColumns();
-            onDone.run();
             dispose();
+            onDone.run();
         });
         columnsTable.getModel().addTableModelListener(e -> updateConfirmButtonState());
     }
@@ -36,15 +36,13 @@ public class ImportColumnsDialog extends JDialog {
         Map<String, Integer> columnMapping = new HashMap<>();
 
         for (int i = 0; i < model.getRowCount(); i++) {
-            String columnName = (String) model.getValueAt(i, 0);
             ExpenseFieldOptions selectedField = (ExpenseFieldOptions) model.getValueAt(i, 1);
-
             if (selectedField != ExpenseFieldOptions.IGNORE) {
-                columnMapping.put(columnName, selectedField.ordinal());
+                columnMapping.put(selectedField.name(), i); // Map field name to column index
             }
         }
 
-        // Save updated mappings to sharedData
+        System.out.println("Mapped Columns: " + columnMapping); // Debug mapping
         sharedData.setColumnMapping(columnMapping);
     }
 
@@ -76,10 +74,10 @@ public class ImportColumnsDialog extends JDialog {
 
         // Buttons
         JPanel buttonPanel = new JPanel();
-        cancelButton = new JButton(CANCEL);
+        skipButton = new JButton(SKIP);
         confirmButton = new JButton(CONFIRM);
         confirmButton.setEnabled(false);
-        buttonPanel.add(cancelButton);
+        buttonPanel.add(skipButton);
         buttonPanel.add(confirmButton);
 
         add(buttonPanel, BorderLayout.SOUTH);
@@ -88,13 +86,13 @@ public class ImportColumnsDialog extends JDialog {
     }
 
     private JTable columnsTable;
-    private JButton cancelButton, confirmButton;
+    private JButton skipButton, confirmButton;
     private static final String
             IMPORT_COLUMNS_MAPPING = "Import Columns Mapping",
-            CANCEL = "Cancel",
+            SKIP = "Skip",
             CONFIRM = "Confirm",
 
-    IGNORE = ExpenseFieldOptions.IGNORE.toString(),
+            IGNORE = ExpenseFieldOptions.IGNORE.toString(),
             AMOUNT = ExpenseFieldOptions.AMOUNT.toString(),
             DATE = ExpenseFieldOptions.DATE.toString(),
             CATEGORY = ExpenseFieldOptions.CATEGORY.toString(),

@@ -9,6 +9,7 @@ import com.ptda.tracker.ui.MainFrame;
 import com.ptda.tracker.ui.user.components.cellEditors.BudgetDropdownCellEditor;
 import com.ptda.tracker.ui.user.components.cellEditors.DatePickerCellEditor;
 import com.ptda.tracker.ui.user.components.tables.ExpensesTableModel;
+import com.ptda.tracker.util.ScreenNames;
 import com.ptda.tracker.util.UserSession;
 import org.jdesktop.swingx.JXTable;
 
@@ -37,27 +38,71 @@ public class ExpensesEditForm extends JPanel {
         this.defaultBudget = defaultBudget;
         this.onImportSuccess = onImportSuccess;
 
+        if (defaultBudget != null) {
+            expenses.forEach(expense -> expense.setBudget(defaultBudget));
+        }
+
         initComponents();
         setListeners();
     }
 
     private void setListeners() {
-        backButton.addActionListener(e -> mainFrame.showScreen(returnScreen));
+        cancelButton.addActionListener(e -> cancelImport());
         applyBudgetButton.addActionListener(e -> applyBudget());
         submitButton.addActionListener(e -> submitExpenses());
     }
 
+    private void cancelImport() {
+        int response = JOptionPane.showConfirmDialog(
+                this,
+                WANT_TO_KEEP_CHANGES,
+                EXIT_EDITING,
+                JOptionPane.YES_NO_CANCEL_OPTION,
+                JOptionPane.QUESTION_MESSAGE
+        );
+
+        if (response == JOptionPane.NO_OPTION) {
+            // Reset the shared data and navigate back to the previous screen
+            mainFrame.removeScreen(ScreenNames.EXPENSES_IMPORT);
+            mainFrame.showScreen(returnScreen);
+        } else if (response == JOptionPane.YES_OPTION) {
+            // Navigate back without resetting the form
+            mainFrame.showScreen(returnScreen);
+        }
+        // If CANCEL_OPTION or CLOSED_OPTION, do nothing
+    }
+
     private void applyBudget() {
         String selectedBudgetName = (String) budgetsDropdown.getSelectedItem();
+
+        if (selectedBudgetName == null || selectedBudgetName.isEmpty()) {
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Please select a budget to apply.",
+                    "No Budget Selected",
+                    JOptionPane.WARNING_MESSAGE
+            );
+            return;
+        }
+
         Budget selectedBudget = budgets.stream()
                 .filter(b -> b.getName().equals(selectedBudgetName))
                 .findFirst()
-                .orElse(defaultBudget);
+                .orElse(null);
 
-        for (Expense expense : expenses) {
-            expense.setBudget(selectedBudget);
+        if (selectedBudget == null) {
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Invalid budget selected.",
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE
+            );
+            return;
         }
-        expensesTable.repaint();
+
+        // Update budget for all expenses
+        expenses.forEach(expense -> expense.setBudget(selectedBudget));
+        ((ExpensesTableModel) expensesTable.getModel()).fireTableDataChanged();
     }
 
     private void submitExpenses() {
@@ -123,20 +168,20 @@ public class ExpensesEditForm extends JPanel {
         Map<String, Budget> budgetMap = createBudgetMap(budgets);
 
         // Apply budget button and dropdown
-        applyBudgetButton = new JButton(APPLY_BUDGET);
+        applyBudgetButton = new JButton(APPLY_TO_ALL);
         budgetsDropdown = new JComboBox<>(budgetMap.keySet().toArray(new String[0]));
 
         JPanel topPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        topPanel.add(new JLabel(DEFAULT_BUDGET + ":"));
+        topPanel.add(new JLabel(SELECT_BUDGET + ":"));
         topPanel.add(budgetsDropdown);
         topPanel.add(applyBudgetButton);
 
         // Submit and back buttons
         submitButton = new JButton(SUBMIT);
-        backButton = new JButton(CANCEL);
+        cancelButton = new JButton(CANCEL);
 
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-        buttonPanel.add(backButton);
+        buttonPanel.add(cancelButton);
         buttonPanel.add(submitButton);
 
         // Add components to the panel
@@ -146,11 +191,13 @@ public class ExpensesEditForm extends JPanel {
     }
 
     private JXTable expensesTable;
-    private JButton submitButton, backButton, applyBudgetButton;
+    private JButton submitButton, cancelButton, applyBudgetButton;
     private JComboBox<String> budgetsDropdown;
     private static final String
-            APPLY_BUDGET = "Apply Budget to All",
-            DEFAULT_BUDGET = "Default Budget",
+            APPLY_TO_ALL = "Apply to All",
+            SELECT_BUDGET = "Select a budget",
             CANCEL = "Cancel",
-            SUBMIT = "Submit";
+            SUBMIT = "Submit",
+            WANT_TO_KEEP_CHANGES = "Do you want to keep the changes?",
+            EXIT_EDITING = "Exit Editing";
 }

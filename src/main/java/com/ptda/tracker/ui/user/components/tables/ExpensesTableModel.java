@@ -54,16 +54,14 @@ public class ExpensesTableModel extends AbstractTableModel {
             case 0: expense.setTitle((String) aValue); break;
             case 1: expense.setAmount(((Number) aValue).doubleValue()); break;
             case 2: expense.setDate((Date) aValue); break;
-            case 3:
-                if (aValue instanceof ExpenseCategory) {
-                    expense.setCategory((ExpenseCategory) aValue);
-                }
-                break;
+            case 3: expense.setCategory((ExpenseCategory) aValue); break;
             case 4: expense.setDescription((String) aValue); break;
             case 5:
-                if (aValue instanceof String) {
-                    expense.setBudget(findBudgetByName((String) aValue));
+                if (aValue instanceof Budget) {
+                    expense.setBudget((Budget) aValue);
                 }
+                break;
+            default:
                 break;
         }
         fireTableCellUpdated(rowIndex, columnIndex);

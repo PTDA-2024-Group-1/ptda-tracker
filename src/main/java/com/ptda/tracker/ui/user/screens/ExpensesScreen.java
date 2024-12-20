@@ -1,34 +1,29 @@
 package com.ptda.tracker.ui.user.screens;
 
 import com.ptda.tracker.models.tracker.Expense;
-import com.ptda.tracker.models.tracker.ExpenseCategory;
 import com.ptda.tracker.services.tracker.ExpenseService;
 import com.ptda.tracker.ui.MainFrame;
 import com.ptda.tracker.ui.user.forms.ExpenseForm;
 import com.ptda.tracker.ui.user.components.renderers.ExpenseListRenderer;
 import com.ptda.tracker.ui.user.views.ExpenseDetailView;
+import com.ptda.tracker.util.ExpensesImportSharedData;
 import com.ptda.tracker.util.ScreenNames;
 import com.ptda.tracker.util.UserSession;
-import org.apache.commons.csv.CSVFormat;
-import org.apache.commons.csv.CSVParser;
-import org.apache.commons.csv.CSVRecord;
 
 import javax.swing.*;
 import java.awt.*;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.List;
+
+import static com.ptda.tracker.ui.user.views.BudgetDetailView.openImport;
 
 public class ExpensesScreen extends JPanel {
     private final MainFrame mainFrame;
     private ExpenseService expenseService;
+    private final ExpensesImportSharedData sharedData;
 
     public ExpensesScreen(MainFrame mainFrame) {
         this.mainFrame = mainFrame;
+        sharedData = ExpensesImportSharedData.getInstance();
         initUI();
         setListeners();
     }
@@ -44,17 +39,13 @@ public class ExpensesScreen extends JPanel {
             }
         });
         createButton.addActionListener(e -> {
-            mainFrame.registerScreen(ScreenNames.EXPENSE_FORM, new ExpenseForm(mainFrame, null, null, mainFrame.getCurrentScreen(), this::refreshExpenseList));
-            mainFrame.showScreen(ScreenNames.EXPENSE_FORM);
+            mainFrame.registerAndShowScreen(
+                    ScreenNames.EXPENSE_FORM,
+                    new ExpenseForm(mainFrame, null, null,
+                            mainFrame.getCurrentScreen(), this::refreshExpenseList)
+            );
         });
-        importButton.addActionListener(e -> {
-            JFileChooser fileChooser = new JFileChooser();
-            int result = fileChooser.showOpenDialog(this);
-            if (result == JFileChooser.APPROVE_OPTION) {
-                File selectedFile = fileChooser.getSelectedFile();
-                importExpensesFromCSV(selectedFile);
-            }
-        });
+        importButton.addActionListener(e -> openImport(mainFrame, null, this::refreshExpenseList));
         nextPageButton.addActionListener(e -> {
             if ((currentPage + 1) * PAGE_SIZE < expenses.size()) {
                 currentPage++;
@@ -67,45 +58,6 @@ public class ExpensesScreen extends JPanel {
                 updatePagination();
             }
         });
-    }
-
-    private void importExpensesFromCSV(File file) {
-        List<Expense> importedExpenses = new ArrayList<>();
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-
-        try (FileReader reader = new FileReader(file);
-             CSVParser csvParser = new CSVParser(reader, CSVFormat.DEFAULT.withHeader())) {
-
-            for (CSVRecord csvRecord : csvParser) {
-                Expense expense = new Expense();
-                expense.setTitle(csvRecord.get("title"));
-                expense.setAmount(Double.parseDouble(csvRecord.get("amount")));
-                LocalDate localDate = LocalDate.parse(csvRecord.get("date"), formatter);
-                expense.setDate(java.sql.Date.valueOf(localDate));
-                expense.setCategory(convertToExpenseCategory(csvRecord.get("category")));
-                expense.setDescription(csvRecord.get("description"));
-                expense.setCreatedBy(UserSession.getInstance().getUser());
-                importedExpenses.add(expense);
-            }
-
-            expenseService.createAll(importedExpenses);
-            JOptionPane.showMessageDialog(this, "Expenses imported successfully!");
-        } catch (IOException e) {
-            JOptionPane.showMessageDialog(this, "Error reading CSV file: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(this, "Error importing expenses: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-        }
-
-        refreshExpenseList();
-    }
-
-    private ExpenseCategory convertToExpenseCategory(String category) {
-        try {
-            return ExpenseCategory.valueOf(category.toUpperCase());
-        } catch (IllegalArgumentException e) {
-            JOptionPane.showMessageDialog(this, "Unknown category: " + category, "Error", JOptionPane.ERROR_MESSAGE);
-            return null;
-        }
     }
 
     private void refreshExpenseList() {

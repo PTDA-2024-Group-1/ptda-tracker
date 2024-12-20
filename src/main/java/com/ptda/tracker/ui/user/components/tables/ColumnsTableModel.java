@@ -1,7 +1,7 @@
 package com.ptda.tracker.ui.user.components.tables;
 
 import com.ptda.tracker.ui.user.dialogs.expenses.ImportColumnsDialog.ExpenseFieldOptions;
-import com.ptda.tracker.util.ImportSharedData;
+import com.ptda.tracker.util.ExpensesImportSharedData;
 
 import javax.swing.table.AbstractTableModel;
 import java.util.Map;
@@ -15,7 +15,7 @@ public class ColumnsTableModel extends AbstractTableModel {
             MAPPED_FIELD = "Mapped Field";
 
     public ColumnsTableModel(Map<String, Integer> existingMapping) {
-        ImportSharedData sharedData = ImportSharedData.getInstance();
+        ExpensesImportSharedData sharedData = ExpensesImportSharedData.getInstance();
         String[] rawColumnNames;
 
         // Determine raw column names based on header presence

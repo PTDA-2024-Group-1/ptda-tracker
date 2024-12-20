@@ -11,24 +11,38 @@ import java.util.Map;
 import static com.ptda.tracker.ui.user.forms.ExpensesEditForm.createBudgetMap;
 
 public class BudgetDropdownCellEditor extends AbstractCellEditor implements TableCellEditor {
-    private final JComboBox<String> comboBox;
     private final Map<String, Budget> budgetMap;
+    private JComboBox<String> comboBox;
 
     public BudgetDropdownCellEditor(List<Budget> budgets) {
         this.budgetMap = createBudgetMap(budgets);
-        this.comboBox = new JComboBox<>(budgetMap.keySet().toArray(new String[0]));
     }
 
     @Override
     public Object getCellEditorValue() {
-        return budgetMap.get(comboBox.getSelectedItem());
+        // Retrieve the selected budget object
+        String selectedName = (String) comboBox.getSelectedItem();
+        return budgetMap.get(selectedName);
     }
 
     @Override
     public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {
-        if (value instanceof Budget budget) {
-            comboBox.setSelectedItem(budget.getName());
+        // Create a new combo box for this cell
+        comboBox = new JComboBox<>(budgetMap.keySet().toArray(new String[0]));
+
+        // Set the current value in the combo box
+        if (value instanceof Budget) {
+            Budget currentBudget = (Budget) value;
+            comboBox.setSelectedItem(currentBudget.getName());
         }
+
         return comboBox;
+    }
+
+    @Override
+    public boolean stopCellEditing() {
+        // Commit the value to the table's data model
+        fireEditingStopped();
+        return true;
     }
 }
