@@ -13,6 +13,7 @@ public class LocaleManager {
     private Locale currentLocale;
     private ResourceBundle translations;
 
+    // Private constructor to prevent instantiation
     private LocaleManager() {
     }
 
@@ -37,21 +38,23 @@ public class LocaleManager {
     // Method to get the translation for a given key
     public String getTranslation(String key) {
         try {
-            return translations.getString(key);
+            String languageKey = key + "." + currentLocale.getLanguage();
+            return translations.getString(languageKey);
         } catch (Exception e) {
-            return key; // Fallback to key if no translation is found
+            return key;
         }
     }
 
-    // Method to get the supported locales
+
     public Map<String, Locale> getSupportedLocales() {
         Map<String, Locale> locales = new HashMap<>();
         locales.put("English", new Locale("en", "US"));
         locales.put("Português", new Locale("pt", "PT"));
-//        locales.put("Español", new Locale("es", "ES"));
-//        locales.put("Français", new Locale("fr", "FR"));
-//        locales.put("Deutsch", new Locale("de", "DE"));
-//        locales.put("Italiano", new Locale("it", "IT"));
+   //     locales.put("Español", new Locale("es", "ES"));
+   //     locales.put("Français", new Locale("fr", "FR"));
+   //     locales.put("Deutsch", new Locale("de", "DE"));
+   //     locales.put("Русский", new Locale("ru", "RU"));
+   //     locales.put("Italiano", new Locale("it", "IT"));
         return locales;
     }
 
