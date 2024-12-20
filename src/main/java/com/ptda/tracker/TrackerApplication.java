@@ -28,105 +28,99 @@ import java.util.prefs.Preferences;
 @SpringBootApplication
 public class TrackerApplication {
 
-	public static void main(String[] args) {
+    public static void main(String[] args) {
         try {
             setLookAndFeel();
         } catch (UnsupportedLookAndFeelException e) {
             throw new RuntimeException(e);
         }
 
+        // Initialize Spring Application Context
         ApplicationContext context = SpringApplication.run(TrackerApplication.class, args);
 
-		CustomSplashScreen splashScreen = new CustomSplashScreen();
-		splashScreen.showSplashScreen();
+        // Step 1: Load Locale Preferences and Set LocaleManager
+        Preferences preferences = Preferences.userNodeForPackage(TrackerApplication.class);
+        String language = preferences.get("language", "en");
+        String country = preferences.get("country", "US");
+        Locale startupLocale = new Locale(language, country);
 
-		try {
-			Thread.sleep(2000);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
+        LocaleManager localeManager = LocaleManager.getInstance();
+        localeManager.setLocale(startupLocale);
 
-		SwingUtilities.invokeLater(() -> {
-			Preferences preferences = Preferences.userNodeForPackage(TrackerApplication.class);
-			String username = preferences.get("email", null);
-			String encryptedPassword = preferences.get("password", null);
+        // Step 2: Show Splash Screen
+        CustomSplashScreen splashScreen = new CustomSplashScreen();
+        splashScreen.showSplashScreen();
 
-			Locale locale = new Locale(preferences.get("language", "en"), preferences.get("country", "US"));
-			LocaleManager.getInstance().setLocale(locale);
+        try {
+            Thread.sleep(2000); // Simulate loading time
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
 
-			UserService userService = context.getBean(UserService.class);
-			Optional<User> user = userService.getByEmail(username);
+        SwingUtilities.invokeLater(() -> {
+            String username = preferences.get("email", null);
+            String encryptedPassword = preferences.get("password", null);
 
-			MainFrame mainFrame = new MainFrame(context);
-			if (user.isPresent() && Objects.equals(encryptedPassword, user.get().getPassword())) {
-				UserSession.getInstance().setUser(user.get());
-				mainFrame.registerAndShowScreen(ScreenNames.NAVIGATION_SCREEN, new NavigationScreen(mainFrame));
-			} else {
-				mainFrame.registerAndShowScreen(ScreenNames.LOGIN_FORM, new LoginForm(mainFrame));
-			}
+            UserService userService = context.getBean(UserService.class);
+            Optional<User> user = userService.getByEmail(username);
 
-			splashScreen.hideSplashScreen();
-			mainFrame.setVisible(true);
-		});
-	}
+            MainFrame mainFrame = new MainFrame(context);
+            if (user.isPresent() && Objects.equals(encryptedPassword, user.get().getPassword())) {
+                UserSession.getInstance().setUser(user.get());
+                mainFrame.registerAndShowScreen(ScreenNames.NAVIGATION_SCREEN, new NavigationScreen(mainFrame));
+            } else {
+                mainFrame.registerAndShowScreen(ScreenNames.LOGIN_FORM, new LoginForm(mainFrame));
+            }
 
-	private static void setLookAndFeel() throws UnsupportedLookAndFeelException {
-		if (SystemInfo.isMacOS) {
-			// enable screen menu bar
-			// (moves menu bar from JFrame window to top of screen)
-			System.setProperty("apple.laf.useScreenMenuBar", "true");
+            splashScreen.hideSplashScreen();
+            mainFrame.setVisible(true);
+        });
+    }
 
-			// application name used in screen menu bar
-			// (in first menu after the "apple" menu)
-			System.setProperty("apple.awt.application.name", AppConfig.APP_NAME);
+    private static void setLookAndFeel() throws UnsupportedLookAndFeelException {
+        if (SystemInfo.isMacOS) {
+            System.setProperty("apple.laf.useScreenMenuBar", "true");
+            System.setProperty("apple.awt.application.name", AppConfig.APP_NAME);
+            System.setProperty("apple.awt.application.appearance", "system");
+        } else if (SystemInfo.isLinux) {
+            JFrame.setDefaultLookAndFeelDecorated(true);
+            JDialog.setDefaultLookAndFeelDecorated(true);
 
-			// appearance of window title bars
-			// possible values:
-			//   - "system": use current macOS appearance (light or dark)
-			//   - "NSAppearanceNameAqua": use light appearance
-			//   - "NSAppearanceNameDarkAqua": use dark appearance
-			// (needs to be set on main thread; setting it on AWT thread does not work)
-			System.setProperty("apple.awt.application.appearance", "system");
-		} else if (SystemInfo.isLinux) {
-			// enable custom window decorations
-			JFrame.setDefaultLookAndFeelDecorated(true);
-			JDialog.setDefaultLookAndFeelDecorated(true);
+            try {
+                var toolkit = Toolkit.getDefaultToolkit();
+                var awtAppClassNameField = toolkit.getClass().getDeclaredField("awtAppClassName");
+                awtAppClassNameField.setAccessible(true);
+                awtAppClassNameField.set(toolkit, AppConfig.APP_NAME);
+            } catch (NoSuchFieldException | InaccessibleObjectException | IllegalAccessException e) {
+                // LOGGER.debug("Failed to set proper app name");
+            }
+        }
 
-			try {
-				var toolkit = Toolkit.getDefaultToolkit();
-				var awtAppClassNameField = toolkit.getClass().getDeclaredField("awtAppClassName");
-				awtAppClassNameField.setAccessible(true);
-				awtAppClassNameField.set(toolkit, AppConfig.APP_NAME);
-			} catch (NoSuchFieldException | InaccessibleObjectException | IllegalAccessException e) {
-				//LOGGER.debug("Failed to set proper app name");
-			}
-		}
+        UIManager.setLookAndFeel(new FlatLightLaf());
 
-		UIManager.setLookAndFeel(new FlatLightLaf());
+        FlatLaf.registerCustomDefaultsSource("com.ptda.tracker.theme.custom");
 
-		FlatLaf.registerCustomDefaultsSource("com.ptda.tracker.theme.custom");
+        final int rounding = 8;
+        final int insets = 2;
 
-		final int rounding = 8;
-		final int insets = 2;
+        UIManager.put("CheckBox.icon.style", "filled");
+        UIManager.put("Component.arrowType", "chevron");
 
-		UIManager.put("CheckBox.icon.style", "filled");
-		UIManager.put("Component.arrowType", "chevron");
+        UIManager.put("Component.focusWidth", 1);
+        UIManager.put("Component.innerFocusWidth", 1);
 
-		UIManager.put("Component.focusWidth", 1);
-		UIManager.put("Component.innerFocusWidth", 1);
+        UIManager.put("Button.arc", rounding);
+        UIManager.put("Component.arc", rounding);
+        UIManager.put("ProgressBar.arc", rounding);
+        UIManager.put("TextComponent.arc", rounding);
 
-		UIManager.put("Button.arc", rounding);
-		UIManager.put("Component.arc", rounding);
-		UIManager.put("ProgressBar.arc", rounding);
-		UIManager.put("TextComponent.arc", rounding);
+        UIManager.put("ScrollBar.thumbArc", rounding);
+        UIManager.put("ScrollBar.thumbInsets", new Insets(insets, insets, insets, insets));
 
-		UIManager.put("ScrollBar.thumbArc", rounding);
-		UIManager.put("ScrollBar.thumbInsets", new Insets(insets, insets, insets, insets));
+        // Set default font
+        Font defaultFont = new Font("Arial", Font.PLAIN, 14);
+        UIManager.put("defaultFont", defaultFont);
 
-		// Set default font
-		Font defaultFont = new Font("Arial", Font.PLAIN, 14);
-		UIManager.put("defaultFont", defaultFont);
-
-		System.setProperty("java.awt.headless", "false");
-	}
+        System.setProperty("java.awt.headless", "false");
+    }
 }
