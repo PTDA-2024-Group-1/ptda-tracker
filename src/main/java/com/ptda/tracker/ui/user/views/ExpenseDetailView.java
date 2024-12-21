@@ -43,7 +43,14 @@ public class ExpenseDetailView extends JPanel {
     }
 
     private void setListeners() {
-        backButton.addActionListener(e -> mainFrame.showScreen(returnScreen));
+        backButton.addActionListener(e -> {
+            if (onBack != null) onBack.run();
+            if (expense != null && expense.getBudget() != null) {
+                mainFrame.registerAndShowScreen(ScreenNames.BUDGET_DETAIL_VIEW, new BudgetDetailView(mainFrame, expense.getBudget()));
+            } else {
+                mainFrame.showScreen(ScreenNames.NAVIGATION_SCREEN);
+            }
+        });
         if (editButton != null) {
             editButton.addActionListener(e -> {
                 ExpenseForm expenseForm = new ExpenseForm(mainFrame, expense, null, mainFrame.getCurrentScreen(), onBack);
@@ -134,21 +141,21 @@ public class ExpenseDetailView extends JPanel {
         // End Subdivisions Panel
 
         // Buttons Panel
-        JPanel buttonsPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        JPanel buttonsPanel = new JPanel(new BorderLayout());
 
+        JPanel leftButtonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         backButton = new JButton(BACK);
-        buttonsPanel.add(backButton);
+        leftButtonPanel.add(backButton);
 
+        JPanel rightButtonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         editButton = new JButton(EDIT_EXPENSE);
-        buttonsPanel.add(editButton);
-
         deleteButton = new JButton(DELETE_EXPENSE);
-        buttonsPanel.add(deleteButton);
-
-        // Add the audit button
-        JButton auditButton = new JButton("Audit Expense");
+        auditButton = new JButton(AUDIT_EXPENSE);
         auditButton.addActionListener(e -> mainFrame.registerAndShowScreen(ScreenNames.EXPENSE_AUDIT_DETAIL_VIEW, new ExpenseAuditDetailView(mainFrame, expense)));
-        buttonsPanel.add(auditButton);
+
+        rightButtonPanel.add(editButton);
+        rightButtonPanel.add(deleteButton);
+        rightButtonPanel.add(auditButton);
 
         if (expense.getBudget() != null) {
             User currentUser = UserSession.getInstance().getUser();
@@ -160,9 +167,16 @@ public class ExpenseDetailView extends JPanel {
 
             if (currentUserAccess == null || currentUserAccess.getAccessLevel() != BudgetAccessLevel.VIEWER) {
                 distributeDivisionExpenseButton = new JButton(DISTRIBUTE_SUBDIVISIONS);
-                buttonsPanel.add(distributeDivisionExpenseButton);
+                distributeDivisionExpenseButton.addActionListener(e -> {
+                    SubdivisionForm subdivisionForm = new SubdivisionForm(mainFrame, expense, expense.getBudget(), () -> mainFrame.registerAndShowScreen(ScreenNames.EXPENSE_DETAIL_VIEW, new ExpenseDetailView(mainFrame, expense, returnScreen, onBack)));
+                    mainFrame.registerAndShowScreen(ScreenNames.SUBDIVISION_FORM, subdivisionForm);
+                });
+                rightButtonPanel.add(distributeDivisionExpenseButton);
             }
         }
+
+        buttonsPanel.add(leftButtonPanel, BorderLayout.WEST);
+        buttonsPanel.add(rightButtonPanel, BorderLayout.EAST);
 
         add(buttonsPanel, BorderLayout.SOUTH);
         // End Buttons Panel
@@ -174,7 +188,7 @@ public class ExpenseDetailView extends JPanel {
 
     private JLabel nameLabel, amountLabel, categoryLabel, dateLabel, createdByLabel;
     private JTable subdivisionsTable;
-    private JButton backButton, editButton, deleteButton, distributeDivisionExpenseButton;
+    private JButton backButton, editButton, auditButton, deleteButton, distributeDivisionExpenseButton;
 
     private static final String
             EXPENSE_DETAILS = "Expense Details",
@@ -186,6 +200,7 @@ public class ExpenseDetailView extends JPanel {
             SUBDIVISIONS = "Subdivisions",
             BACK = "Back",
             EDIT_EXPENSE = "Edit Expense",
+            AUDIT_EXPENSE = "Audit Expense",
             DELETE_EXPENSE = "Delete Expense",
             DISTRIBUTE_SUBDIVISIONS = "Distribute Subdivisions",
             ERROR = "Error",

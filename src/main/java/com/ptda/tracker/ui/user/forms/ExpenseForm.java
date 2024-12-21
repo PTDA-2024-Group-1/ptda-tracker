@@ -6,7 +6,9 @@ import com.ptda.tracker.models.tracker.Budget;
 import com.ptda.tracker.services.tracker.ExpenseService;
 import com.ptda.tracker.services.tracker.BudgetService;
 import com.ptda.tracker.ui.MainFrame;
+import com.ptda.tracker.ui.user.views.ExpenseDetailView;
 import com.ptda.tracker.util.LocaleManager;
+import com.ptda.tracker.util.ScreenNames;
 import com.ptda.tracker.util.UserSession;
 import org.jdesktop.swingx.JXDatePicker;
 
@@ -96,7 +98,7 @@ public class ExpenseForm extends JPanel {
         } else {
             System.err.println("onFormSubmit is not initialized.");
         }
-        mainFrame.showScreen(returnScreen);
+        mainFrame.registerAndShowScreen(ScreenNames.EXPENSE_DETAIL_VIEW, new ExpenseDetailView(mainFrame, expense, returnScreen, onFormSubmit));
     }
 
     private void initComponents() {
@@ -196,14 +198,18 @@ public class ExpenseForm extends JPanel {
         add(formPanel, BorderLayout.CENTER);
 
         // Button Panel
-        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 10));
-
+        JPanel buttonsPanel = new JPanel(new BorderLayout());
+        JPanel leftButtonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        JPanel rightButtonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         backButton = new JButton(BACK);
-        buttonPanel.add(backButton);
+        leftButtonPanel.add(backButton);
         saveButton = new JButton(SAVE);
-        buttonPanel.add(saveButton);
+        rightButtonPanel.add(saveButton);
 
-        add(buttonPanel, BorderLayout.SOUTH);
+        buttonsPanel.add(leftButtonPanel, BorderLayout.WEST);
+        buttonsPanel.add(rightButtonPanel, BorderLayout.EAST);
+
+        add(buttonsPanel, BorderLayout.SOUTH);
     }
 
     private void clearFields() {

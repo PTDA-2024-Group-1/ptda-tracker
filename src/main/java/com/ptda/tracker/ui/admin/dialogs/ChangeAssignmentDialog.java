@@ -5,21 +5,20 @@ import com.ptda.tracker.models.assistance.Ticket;
 import com.ptda.tracker.services.assistance.AssistantService;
 import com.ptda.tracker.services.assistance.TicketService;
 import com.ptda.tracker.ui.MainFrame;
-import com.ptda.tracker.ui.admin.renderers.AssistantRenderer;
 import com.ptda.tracker.util.LocaleManager;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 public class ChangeAssignmentDialog extends JDialog {
-    private final Ticket ticket;
-    private final TicketService ticketService;
-    private final AssistantService assistantService;
-    private JComboBox<Assistant> assistantComboBox;
 
     public ChangeAssignmentDialog(MainFrame mainFrame, Ticket ticket) {
-        super(mainFrame, CHANGE_ASSIGNMENT, true);
+        super(mainFrame, CHANGE_ASSIGNMENT, true); // Mantém o título na barra da janela
         this.ticket = ticket;
         this.ticketService = mainFrame.getContext().getBean(TicketService.class);
         this.assistantService = mainFrame.getContext().getBean(AssistantService.class);
@@ -27,53 +26,83 @@ public class ChangeAssignmentDialog extends JDialog {
     }
 
     private void initComponents() {
-        setLayout(new BorderLayout(10, 10)); // Add spacing between components
+        // Configurações do Dialog
+        setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+        setResizable(false);
 
-        // Main Panel to hold the form
-        JPanel formPanel = new JPanel(new GridLayout(1, 2, 5, 5)); // 1 row, 2 columns, with gaps
+        // Layout principal com margens
+        JPanel mainPanel = new JPanel(new BorderLayout(15, 15));
+        mainPanel.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
+        mainPanel.setBackground(Color.WHITE);
 
-        // Select Assistant Label
+        // Painel do formulário (mantido como antes, sem o título)
+        JPanel formPanel = new JPanel(new GridBagLayout());
+        formPanel.setBackground(Color.WHITE);
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(5, 5, 5, 5);
+        gbc.anchor = GridBagConstraints.WEST;
+
+        // Label "Selecionar Assistente"
         JLabel selectAssistantLabel = new JLabel(SELECT_ASSISTANT);
-        formPanel.add(selectAssistantLabel);
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        formPanel.add(selectAssistantLabel, gbc);
 
-        // Assistant ComboBox
+        // ComboBox de Assistentes
         assistantComboBox = new JComboBox<>();
-        assistantComboBox.setRenderer(new AssistantRenderer());
         List<Assistant> assistants = assistantService.getAll();
-        assistants.forEach(assistantComboBox::addItem);
+        Map<Long, Long> assistantTicketCounts = ticketService.getAll().stream()
+                .filter(t -> t.getAssistant() != null && !t.isClosed())
+                .collect(Collectors.groupingBy(t -> t.getAssistant().getId(), Collectors.counting()));
 
-        // Set the currently assigned assistant as selected
-        if (ticket.getAssistant() != null) {
-            assistantComboBox.setSelectedItem(ticket.getAssistant());
+        for (Assistant assistant : assistants) {
+            long ticketCount = assistantTicketCounts.getOrDefault(assistant.getId(), 0L);
+            assistantComboBox.addItem(assistant.getName() + " (" + ticketCount + " tickets ativos)");
         }
-        formPanel.add(assistantComboBox);
+        if (ticket.getAssistant() != null) {
+            long ticketCount = assistantTicketCounts.getOrDefault(ticket.getAssistant().getId(), 0L);
+            assistantComboBox.setSelectedItem(ticket.getAssistant().getName() + " (" + ticketCount + " tickets ativos)");
+        }
+        gbc.gridx = 1;
+        gbc.gridy = 0;
+        gbc.weightx = 1;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        formPanel.add(assistantComboBox, gbc);
+        mainPanel.add(formPanel, BorderLayout.CENTER);
 
-        add(formPanel, BorderLayout.CENTER);
-
-        // Save Button Panel
+        // Painel de botões (botão com estilo padrão)
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-        JButton saveButton = new JButton(SAVE);
-        saveButton.addActionListener(e -> {
-            Assistant selectedAssistant = (Assistant) assistantComboBox.getSelectedItem();
-            ticket.setAssistant(selectedAssistant);
-            ticketService.update(ticket);
-            JOptionPane.showMessageDialog(this, ASSIGNMENT_UPDATING_ASSIGNMENT);
-            dispose();
+        buttonPanel.setBackground(Color.WHITE);
+        JButton saveButton = new JButton(SAVE); // Estilo padrão do botão
+        saveButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String selectedAssistantName = (String) assistantComboBox.getSelectedItem();
+                Assistant selectedAssistant = assistants.stream()
+                        .filter(a -> selectedAssistantName.startsWith(a.getName()))
+                        .findFirst()
+                        .orElse(null);
+                ticket.setAssistant(selectedAssistant);
+                ticketService.update(ticket);
+                JOptionPane.showMessageDialog(ChangeAssignmentDialog.this, ASSIGNMENT_UPDATING_ASSIGNMENT);
+                dispose();
+            }
         });
         buttonPanel.add(saveButton);
+        mainPanel.add(buttonPanel, BorderLayout.SOUTH);
 
-        add(buttonPanel, BorderLayout.SOUTH);
-
-        // Dialog settings
-        setSize(300, 150);
+        setContentPane(mainPanel);
+        pack();
         setLocationRelativeTo(getParent());
     }
-
+    private final Ticket ticket;
+    private final TicketService ticketService;
+    private final AssistantService assistantService;
+    private JComboBox<String> assistantComboBox;
     private static final LocaleManager localeManager = LocaleManager.getInstance();
     private static final String
             ASSIGNMENT_UPDATING_ASSIGNMENT = localeManager.getTranslation("updating.assignment"),
             CHANGE_ASSIGNMENT = localeManager.getTranslation("change.assignment"),
             SELECT_ASSISTANT = localeManager.getTranslation("select.assistant"),
             SAVE = localeManager.getTranslation("save");
-
 }

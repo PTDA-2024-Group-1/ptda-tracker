@@ -28,7 +28,7 @@ public class BudgetForm extends JPanel {
     }
 
     private void setListeners() {
-        cancelButton.addActionListener(e -> {
+        backButton.addActionListener(e -> {
             if (budget == null) {
                 // Se o orçamento for null, estamos em criação, então volta para a tela de navegação
                 mainFrame.showScreen(ScreenNames.NAVIGATION_SCREEN);
@@ -128,28 +128,31 @@ public class BudgetForm extends JPanel {
         add(formPanel, BorderLayout.CENTER);
 
         // Button Panel
-        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 10));
-//        buttonPanel.setBackground(BACKGROUND_COLOR);
-
-        cancelButton = new JButton(CANCEL);
-        buttonPanel.add(cancelButton);
+        JPanel buttonsPanel = new JPanel(new BorderLayout());
+        JPanel leftButtonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        JPanel rightButtonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        backButton = new JButton(BACK);
+        leftButtonPanel.add(backButton);
         saveButton = new JButton(SAVE);
-        buttonPanel.add(saveButton);
+        rightButtonPanel.add(saveButton);
 
-        add(buttonPanel, BorderLayout.SOUTH);
+        buttonsPanel.add(leftButtonPanel, BorderLayout.WEST);
+        buttonsPanel.add(rightButtonPanel, BorderLayout.EAST);
+
+        add(buttonsPanel, BorderLayout.SOUTH);
     }
 
     private JTextField nameField;
     private JTextArea descriptionArea;
     private JButton saveButton;
-    private JButton cancelButton;
+    private JButton backButton;
     private static final LocaleManager localeManager = LocaleManager.getInstance();
     private static final String
             CREATE_NEW_BUDGET = localeManager.getTranslation("create_new_budget"),
             EDIT_BUDGET = localeManager.getTranslation("edit_budget"),
             NAME = localeManager.getTranslation("name"),
             DESCRIPTION = localeManager.getTranslation("description"),
-            CANCEL = localeManager.getTranslation("cancel"),
+            BACK = localeManager.getTranslation("back"),
             SAVE = localeManager.getTranslation("save"),
             VALIDATION_ERROR = localeManager.getTranslation("validation_error"),
             NAME_AND_DESCRIPTION_REQUIRED = localeManager.getTranslation("name_and_description_required"),

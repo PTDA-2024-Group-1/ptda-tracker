@@ -31,10 +31,7 @@ public class TicketForm extends JPanel {
     }
 
     private void setListeners() {
-        JButton backButton = new JButton(BACK);
         backButton.addActionListener(e -> mainFrame.showScreen(ScreenNames.NAVIGATION_SCREEN));
-
-        JButton saveButton = new JButton(SAVE);
         saveButton.addActionListener(e -> saveTicket());
     }
 
@@ -98,27 +95,27 @@ public class TicketForm extends JPanel {
         formPanel.add(descriptionScroll, gbc);
 
         add(formPanel, BorderLayout.CENTER);
-
         // Button Panel
-        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 10));
+        JPanel buttonsPanel = new JPanel(new BorderLayout());
+        JPanel leftButtonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        JPanel rightButtonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        backButton = new JButton(BACK);
+        leftButtonPanel.add(backButton);
+        saveButton = new JButton(SAVE);
+        rightButtonPanel.add(saveButton);
 
-        JButton backButton = new JButton(BACK);
-        backButton.addActionListener(e -> mainFrame.showScreen(ScreenNames.NAVIGATION_SCREEN));
+        buttonsPanel.add(leftButtonPanel, BorderLayout.WEST);
+        buttonsPanel.add(rightButtonPanel, BorderLayout.EAST);
 
-        JButton saveButton = new JButton(SAVE);
-        saveButton.addActionListener(e -> saveTicket());
-
-        buttonPanel.add(backButton);
-        buttonPanel.add(saveButton);
-
-        add(buttonPanel, BorderLayout.SOUTH);
+        add(buttonsPanel, BorderLayout.SOUTH);
     }
 
     private void clear() {
         titleField.setText("");
         descriptionArea.setText("");
     }
-
+    JButton backButton = new JButton(BACK);
+    JButton saveButton = new JButton(SAVE);
     private JTextField titleField;
     private JTextArea descriptionArea;
     private static final LocaleManager localeManager = LocaleManager.getInstance();

@@ -8,7 +8,7 @@ import com.ptda.tracker.services.assistance.TicketReplyService;
 import com.ptda.tracker.ui.MainFrame;
 import com.ptda.tracker.ui.admin.dialogs.ChangeAssignmentDialog;
 import com.ptda.tracker.ui.admin.views.ManageTicketView;
-import com.ptda.tracker.ui.user.forms.TicketReplyForm;
+import com.ptda.tracker.ui.assistant.screens.AssistanceScreen;
 import com.ptda.tracker.ui.user.components.renderers.TicketReplyRenderer;
 import com.ptda.tracker.util.ScreenNames;
 import com.ptda.tracker.util.UserSession;
@@ -23,7 +23,6 @@ public class TicketDetailView extends JPanel {
     private final Ticket ticket;
     private final TicketService ticketService;
     private final TicketReplyService ticketReplyService;
-    private List<TicketReply> replies;
 
     public TicketDetailView(MainFrame mainFrame, Ticket ticket) {
         this.mainFrame = mainFrame;
@@ -41,77 +40,19 @@ public class TicketDetailView extends JPanel {
         replies.forEach(model::addElement);
     }
 
-    private void addButtons(JPanel buttonPanel) {
-        JButton backButton = new JButton(BACK);
-        backButton.addActionListener(e -> {
-            if (UserSession.getInstance().getUser().getUserType().equals("ADMIN")) {
-                mainFrame.registerAndShowScreen(ScreenNames.MANAGE_TICKET_VIEW, new ManageTicketView(mainFrame));
-            } else {
-                mainFrame.showScreen(ScreenNames.NAVIGATION_SCREEN);
-            }
-        });
-        buttonPanel.add(backButton);
-
-        if (UserSession.getInstance().getUser().getUserType().equals("USER")) {
-            if (ticket.isClosed()) {
-                reopenButton.addActionListener(e -> {
-                    TicketReply reply = TicketReply.builder()
-                            .ticket(ticket)
-                            .createdBy(UserSession.getInstance().getUser())
-                            .body("Reopened the ticket.")
-                            .build();
-                    ticketReplyService.create(reply);
-                    ticket.setClosed(false);
-                    ticketService.update(ticket);
-                    JOptionPane.showMessageDialog(this, TICKET_REOPENED_SUCCESS);
-                    refreshRepliesList();
-                    updateButtons(buttonPanel);
-                });
-                buttonPanel.add(reopenButton);
-            } else {
-                closeButton.addActionListener(e -> {
-                    ticket.setClosed(true);
-                    ticketService.update(ticket);
-                    JOptionPane.showMessageDialog(this, TICKET_CLOSED_SUCCESS);
-                    refreshRepliesList();
-                    updateButtons(buttonPanel);
-                });
-                buttonPanel.add(closeButton);
-            }
-        }
-
-        if(!UserSession.getInstance().getUser().getUserType().equals("ADMIN")) {
-            if (!ticket.isClosed()) {
-                replyButton.addActionListener(e -> {
-                    if (ticket.getAssistant() == null && UserSession.getInstance().getUser() instanceof Assistant) {
-                        ticket.setAssistant((Assistant) UserSession.getInstance().getUser());
-                        ticketService.update(ticket);
-                    }
-                    mainFrame.registerAndShowScreen(ScreenNames.TICKET_REPLY_FORM, new TicketReplyForm(mainFrame, null, ticket));
-                });
-                buttonPanel.add(replyButton);
-            }
-        }
-    }
-
-    private void updateButtons(JPanel buttonPanel) {
-        buttonPanel.removeAll();
-        addButtons(buttonPanel);
-        buttonPanel.revalidate();
-        buttonPanel.repaint();
-    }
-
     private void initComponents() {
         setLayout(new BorderLayout());
+        setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
         // Title
         JLabel titleLabel = new JLabel(ticket.getTitle(), SwingConstants.CENTER);
         titleLabel.setFont(new Font("Arial", Font.BOLD, 24));
+        titleLabel.setBorder(BorderFactory.createEmptyBorder(0, 0, 10, 0));
         add(titleLabel, BorderLayout.NORTH);
 
         // Main Panel
         JPanel mainPanel = new JPanel(new BorderLayout());
-        mainPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        mainPanel.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 10));
 
         // Description
         JTextArea descriptionArea = new JTextArea(ticket.getBody());
@@ -132,38 +73,130 @@ public class TicketDetailView extends JPanel {
         repliesScroll.setPreferredSize(new Dimension(300, 200));
         mainPanel.add(repliesScroll, BorderLayout.CENTER);
 
-        // Change Assignment Button
+        // Chat Panel
+        if (UserSession.getInstance().getUser().getUserType().equals("USER") || UserSession.getInstance().getUser().getUserType().equals("ASSISTANT")) {
+            JPanel chatPanel = new JPanel(new BorderLayout());
+            chatPanel.setBorder(BorderFactory.createTitledBorder(REPLY));
+
+            // Text area for message input
+            JTextArea chatArea = new JTextArea();
+            chatArea.setLineWrap(true);
+            chatArea.setWrapStyleWord(true);
+            chatArea.setFont(new Font("Arial", Font.PLAIN, 14));
+            chatArea.setBorder(BorderFactory.createLineBorder(Color.GRAY));
+
+            // Send button
+            JButton sendButton = new JButton("Send");
+            sendButton.addActionListener(e -> {
+                String replyBody = chatArea.getText().trim();
+                if (!replyBody.isEmpty()) {
+                    TicketReply reply = TicketReply.builder()
+                            .ticket(ticket)
+                            .createdBy(UserSession.getInstance().getUser())
+                            .body(replyBody)
+                            .build();
+                    ticketReplyService.create(reply);
+                    chatArea.setText("");
+                    refreshRepliesList();
+                    if (ticket.getAssistant() != null) {
+                        AssistanceScreen.refreshTicketLists();
+                    }
+                }
+            });
+
+            // Layout for input and button
+            JPanel inputPanel = new JPanel(new BorderLayout(10, 0));
+            inputPanel.add(chatArea, BorderLayout.CENTER);
+            inputPanel.add(sendButton, BorderLayout.EAST);
+
+            chatPanel.add(inputPanel, BorderLayout.CENTER);
+            mainPanel.add(chatPanel, BorderLayout.SOUTH);
+        }
+
+        add(mainPanel, BorderLayout.CENTER);
+
+        // Buttons Panel
+        JPanel buttonPanel = new JPanel(new BorderLayout());
+        addButtons(buttonPanel);
+        add(buttonPanel, BorderLayout.SOUTH);
+    }
+
+    private void addButtons(JPanel buttonPanel) {
+        buttonPanel.setLayout(new BorderLayout());
+
+        JPanel leftPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        JButton backButton = new JButton(BACK);
+        backButton.addActionListener(e -> {
+            if (UserSession.getInstance().getUser().getUserType().equals("ADMIN")) {
+                mainFrame.registerAndShowScreen(ScreenNames.MANAGE_TICKET_VIEW, new ManageTicketView(mainFrame));
+            } else {
+                mainFrame.showScreen(ScreenNames.NAVIGATION_SCREEN);
+            }
+        });
+        leftPanel.add(backButton);
+
+        buttonPanel.add(leftPanel, BorderLayout.WEST);
+
+        JPanel rightPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+
+        if (UserSession.getInstance().getUser().getUserType().equals("USER")) {
+            if (ticket.isClosed()) {
+                reopenButton.addActionListener(e -> {
+                    TicketReply reply = TicketReply.builder()
+                            .ticket(ticket)
+                            .createdBy(UserSession.getInstance().getUser())
+                            .body("Reopened the ticket.")
+                            .build();
+                    ticketReplyService.create(reply);
+                    ticket.setClosed(false);
+                    ticketService.update(ticket);
+                    JOptionPane.showMessageDialog(this, TICKET_REOPENED_SUCCESS);
+                    refreshRepliesList();
+                    updateButtons(buttonPanel);
+                });
+                rightPanel.add(reopenButton);
+            } else {
+                closeButton.addActionListener(e -> {
+                    ticket.setClosed(true);
+                    ticketService.update(ticket);
+                    JOptionPane.showMessageDialog(this, TICKET_CLOSED_SUCCESS);
+                    refreshRepliesList();
+                    updateButtons(buttonPanel);
+                });
+                rightPanel.add(closeButton);
+            }
+        }
         if (UserSession.getInstance().getUser().getUserType().equals("ADMIN")) {
-            JPanel topRightPanel = new JPanel(new BorderLayout());
             JButton changeAssignmentButton = new JButton(CHANGE_ASSIGNMENT);
             changeAssignmentButton.addActionListener(e -> {
                 ChangeAssignmentDialog dialog = new ChangeAssignmentDialog(mainFrame, ticket);
                 dialog.setVisible(true);
             });
-            topRightPanel.add(changeAssignmentButton, BorderLayout.EAST);
-            mainPanel.add(topRightPanel, BorderLayout.NORTH);
+            rightPanel.add(changeAssignmentButton);
         }
-
-        add(mainPanel, BorderLayout.CENTER);
-
-        // Action Buttons
-        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
-        addButtons(buttonPanel);
-        add(buttonPanel, BorderLayout.SOUTH);
+        buttonPanel.add(rightPanel, BorderLayout.EAST);
     }
 
-    JButton replyButton = new JButton(REPLY);
-    JButton closeButton = new JButton(CLOSE_TICKET);
-    JButton reopenButton = new JButton(REOPEN_TICKET);
+    private void updateButtons(JPanel buttonPanel) {
+        buttonPanel.removeAll();
+        addButtons(buttonPanel);
+        buttonPanel.revalidate();
+        buttonPanel.repaint();
+    }
+
+    private List<TicketReply> replies;
     private JXList repliesList;
+    private JButton closeButton = new JButton(CLOSE_TICKET);
+    private JButton reopenButton = new JButton(REOPEN_TICKET);
+
     private static final String
             TICKET_DESCRIPTION = "Ticket Description",
             REPLIES = "Replies",
-            BACK = "Back",
-            REOPEN_TICKET = "Reopen Ticket",
             REPLY = "Reply",
-            CLOSE_TICKET = "Close Ticket",
+            BACK = "Back",
             CHANGE_ASSIGNMENT = "Change Assignment",
+            REOPEN_TICKET = "Reopen Ticket",
+            CLOSE_TICKET = "Close Ticket",
             TICKET_REOPENED_SUCCESS = "Ticket reopened successfully.",
             TICKET_CLOSED_SUCCESS = "Ticket closed successfully.";
 }

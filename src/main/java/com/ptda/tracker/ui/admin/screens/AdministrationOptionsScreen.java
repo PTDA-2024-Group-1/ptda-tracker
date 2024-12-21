@@ -21,8 +21,6 @@ public class AdministrationOptionsScreen extends JPanel {
     private final BudgetService budgetService;
     private final ExpenseService expenseService;
     private final UserService userService;
-    private final AssistantService assistantService;
-    private final AdminService adminService;
     private final TicketService ticketService;
 
     public AdministrationOptionsScreen(MainFrame mainFrame) {
@@ -30,8 +28,6 @@ public class AdministrationOptionsScreen extends JPanel {
         this.budgetService = mainFrame.getContext().getBean(BudgetService.class);
         this.expenseService = mainFrame.getContext().getBean(ExpenseService.class);
         this.userService = mainFrame.getContext().getBean(UserService.class);
-        this.assistantService = mainFrame.getContext().getBean(AssistantService.class);
-        this.adminService = mainFrame.getContext().getBean(AdminService.class);
         this.ticketService = mainFrame.getContext().getBean(TicketService.class);
         initComponents();
     }
@@ -99,13 +95,17 @@ public class AdministrationOptionsScreen extends JPanel {
 
         JButton manageUsersButton = new JButton("Manage Users");
         manageUsersButton.setFont(new Font("Arial", Font.BOLD, 14));
-        manageUsersButton.addActionListener(e ->
-                mainFrame.registerAndShowScreen(ScreenNames.MANAGE_USER_VIEW, new ManageUserView(mainFrame)));
+        manageUsersButton.addActionListener(e -> {
+            AdministrationOptionsScreen adminOptionsScreen = this;
+            mainFrame.registerAndShowScreen(ScreenNames.MANAGE_USER_VIEW, new ManageUserView(mainFrame, adminOptionsScreen));
+        });
 
         JButton manageTicketsButton = new JButton("Manage Tickets");
         manageTicketsButton.setFont(new Font("Arial", Font.BOLD, 14));
-        manageTicketsButton.addActionListener(e ->
-                mainFrame.registerAndShowScreen(ScreenNames.MANAGE_TICKET_VIEW, new ManageTicketView(mainFrame)));
+        manageTicketsButton.addActionListener(e -> {
+            AdministrationOptionsScreen adminOptionsScreen = this;
+            mainFrame.registerAndShowScreen(ScreenNames.MANAGE_TICKET_VIEW, new ManageTicketView(mainFrame));
+        });
 
         buttons.add(manageUsersButton);
         buttons.add(manageTicketsButton);
@@ -123,11 +123,11 @@ public class AdministrationOptionsScreen extends JPanel {
         return label;
     }
 
-    private void refreshData() {
+    public void refreshData() {
         updateStatistics();
     }
 
-    private void updateStatistics() {
+    public void updateStatistics() {
         budgetsLabel.setText("Total Budgets: " + budgetService.getAll().size());
         expensesLabel.setText("Total Expenses: " + expenseService.getAll().size());
         usersLabel.setText("Users: " + userService.countByUserType("USER"));

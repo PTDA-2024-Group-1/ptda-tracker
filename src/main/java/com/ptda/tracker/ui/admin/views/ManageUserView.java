@@ -3,8 +3,9 @@ package com.ptda.tracker.ui.admin.views;
 import com.ptda.tracker.models.user.User;
 import com.ptda.tracker.services.user.UserService;
 import com.ptda.tracker.ui.MainFrame;
-import com.ptda.tracker.ui.admin.renderers.UserRenderer;
 import com.ptda.tracker.ui.admin.dialogs.ManageUserDialog;
+import com.ptda.tracker.ui.admin.screens.AdministrationOptionsScreen;
+import com.ptda.tracker.ui.admin.renderers.UserRenderer;
 import com.ptda.tracker.util.ScreenNames;
 
 import javax.swing.*;
@@ -20,9 +21,11 @@ public class ManageUserView extends JPanel {
     private JTable userTable;
     private DefaultTableModel userTableModel;
     private MainFrame mainFrame;
+    private AdministrationOptionsScreen adminOptionsScreen;
 
-    public ManageUserView(MainFrame mainFrame) {
+    public ManageUserView(MainFrame mainFrame, AdministrationOptionsScreen adminOptionsScreen) {
         this.mainFrame = mainFrame;
+        this.adminOptionsScreen = adminOptionsScreen;
         userService = mainFrame.getContext().getBean(UserService.class);
         initComponents();
         setListeners();
@@ -33,12 +36,15 @@ public class ManageUserView extends JPanel {
         userTable.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                if (e.getClickCount() == 2) {
+                if (e.getClickCount() == 2) { // Double-click
                     int selectedRow = userTable.getSelectedRow();
                     if (selectedRow != -1) {
                         Long userId = (Long) userTableModel.getValueAt(selectedRow, 0);
                         Optional<User> user = userService.getById(userId);
-                        new ManageUserDialog(mainFrame, null, user.orElse(null)).setVisible(true);
+                        new ManageUserDialog(mainFrame, () -> {
+                            loadUserData();
+                            adminOptionsScreen.refreshData();
+                        }, user.orElse(null), adminOptionsScreen).setVisible(true);
                     }
                 }
             }
@@ -47,7 +53,7 @@ public class ManageUserView extends JPanel {
 
     private void loadUserData() {
         List<User> users = userService.getAllUsers();
-        userTableModel.setRowCount(0); // Clear existing data
+        userTableModel.setRowCount(0);
 
         for (User user : users) {
             userTableModel.addRow(new Object[]{
@@ -62,32 +68,51 @@ public class ManageUserView extends JPanel {
     }
 
     private void initComponents() {
-        setLayout(new BorderLayout());
+        setLayout(new GridBagLayout());
         setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
-        JLabel titleLabel = new JLabel("Manage Users", SwingConstants.CENTER);
-        titleLabel.setFont(new Font("Arial", Font.BOLD, 16));
-        add(titleLabel, BorderLayout.NORTH);
+        GridBagConstraints c = new GridBagConstraints();
 
+        // Title
+        JLabel titleLabel = new JLabel("Manage Users");
+        titleLabel.setFont(new Font("Arial", Font.BOLD, 16));
+        c.gridx = 0;
+        c.gridy = 0;
+        c.weightx = 1.0;
+        c.fill = GridBagConstraints.HORIZONTAL;
+        c.anchor = GridBagConstraints.WEST; // Align to the left
+        c.insets = new Insets(0, 0, 10, 0); // Add some bottom padding
+        add(titleLabel, c);
+
+        // Table
         userTableModel = new DefaultTableModel(new String[]{"ID", "Name", "Email", "Role", "Email Verified", "Active"}, 0);
         userTable = new JTable(userTableModel);
         userTable.setFillsViewportHeight(true);
         userTable.setDefaultEditor(Object.class, null);
-
-        // Set the custom renderer for the table
         UserRenderer renderer = new UserRenderer();
         for (int i = 0; i < userTable.getColumnCount(); i++) {
             userTable.getColumnModel().getColumn(i).setCellRenderer(renderer);
         }
-
         JScrollPane scrollPane = new JScrollPane(userTable);
-        add(scrollPane, BorderLayout.CENTER);
+        c.gridx = 0;
+        c.gridy = 1;
+        c.weighty = 1.0;
+        c.fill = GridBagConstraints.BOTH;
+        c.insets = new Insets(0, 0, 10, 0); // Add some bottom padding
+        add(scrollPane, c);
 
-        // Add Back button
-        JPanel leftButtonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        // Back Button
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT)); // Use a JPanel for better layout
         JButton backButton = new JButton("Back");
-        backButton.addActionListener(e -> mainFrame.showScreen(ScreenNames.NAVIGATION_SCREEN));
-        leftButtonPanel.add(backButton);
-        add(leftButtonPanel, BorderLayout.SOUTH);
+        backButton.addActionListener(e -> {
+            adminOptionsScreen.refreshData();
+            mainFrame.showScreen(ScreenNames.NAVIGATION_SCREEN);
+        });
+        buttonPanel.add(backButton);
+        c.gridx = 0;
+        c.gridy = 2;
+        c.weighty = 0;
+        c.fill = GridBagConstraints.HORIZONTAL; // Make the button panel fill the width
+        add(buttonPanel, c);
     }
 }

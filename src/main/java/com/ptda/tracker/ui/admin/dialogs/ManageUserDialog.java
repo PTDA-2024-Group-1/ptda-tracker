@@ -5,6 +5,7 @@ import com.ptda.tracker.models.assistance.Assistant;
 import com.ptda.tracker.models.user.User;
 import com.ptda.tracker.services.administration.RoleManagementService;
 import com.ptda.tracker.ui.MainFrame;
+import com.ptda.tracker.ui.admin.screens.AdministrationOptionsScreen;
 import com.ptda.tracker.ui.admin.views.ManageUserView;
 import com.ptda.tracker.util.LocaleManager;
 import com.ptda.tracker.util.ScreenNames;
@@ -17,13 +18,15 @@ public class ManageUserDialog extends JDialog {
     private final RoleManagementService roleManagementService;
     private final User user;
     private final Runnable onFormSubmit;
+    private final AdministrationOptionsScreen adminOptionsScreen;
     private JComboBox<String> roleComboBox;
 
-    public ManageUserDialog(MainFrame mainFrame, Runnable onFormSubmit, User user) {
+    public ManageUserDialog(MainFrame mainFrame, Runnable onFormSubmit, User user, AdministrationOptionsScreen adminOptionsScreen) {
         this.mainFrame = mainFrame;
         this.roleManagementService = mainFrame.getContext().getBean(RoleManagementService.class);
         this.user = user;
         this.onFormSubmit = onFormSubmit;
+        this.adminOptionsScreen = adminOptionsScreen;
         initComponents();
         loadUserData();
         setLocationRelativeTo(mainFrame);
@@ -59,7 +62,7 @@ public class ManageUserDialog extends JDialog {
 
             JOptionPane.showMessageDialog(this, USER_ROLE_UPDATED_SUCCESSFULLY);
             if (onFormSubmit != null) onFormSubmit.run();
-            mainFrame.registerAndShowScreen(ScreenNames.MANAGE_USER_VIEW, new ManageUserView(mainFrame));
+            mainFrame.registerAndShowScreen(ScreenNames.MANAGE_USER_VIEW, new ManageUserView(mainFrame, adminOptionsScreen));
             dispose();
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this, ERROR_UPDATING_USER_ROLE + e.getMessage(), ERROR, JOptionPane.ERROR_MESSAGE);

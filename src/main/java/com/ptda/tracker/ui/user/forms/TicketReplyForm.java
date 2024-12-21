@@ -1,4 +1,4 @@
-package com.ptda.tracker.ui.user.forms;
+/* package com.ptda.tracker.ui.user.forms;
 
 import com.ptda.tracker.models.assistance.Ticket;
 import com.ptda.tracker.models.assistance.TicketReply;
@@ -92,4 +92,4 @@ public class TicketReplyForm extends JPanel {
             REPLY_BODY_CANNOT_BE_EMPTY = localeManager.getTranslation("reply_body_cannot_be_empty"),
             ERROR = localeManager.getTranslation("error"),
             REPLY_SAVED_SUCCESSFULLY = localeManager.getTranslation("reply_saved_successfully");
-}
+}*/
