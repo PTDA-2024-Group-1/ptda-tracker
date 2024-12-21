@@ -77,10 +77,10 @@ public class HomeScreen extends JPanel {
             pieDataset.setValue(entry.getKey(), entry.getValue());
         }
 
-        JFreeChart pieChart = ChartFactory.createPieChart("", pieDataset, true, true, false);
+        JFreeChart pieChart = ChartFactory.createPieChart("", pieDataset, false, true, false);
         ChartUtilities.applyCurrentTheme(pieChart);
 
-        // Ajuste do fundo do plot do gráfico de pizza
+        // Adjust the background of the pie chart plot
         PiePlot piePlot = (PiePlot) pieChart.getPlot();
         piePlot.setBackgroundPaint(UIManager.getColor("Panel.background"));
         pieChart.setBackgroundPaint(UIManager.getColor("Panel.background"));
@@ -92,10 +92,11 @@ public class HomeScreen extends JPanel {
         }
 
         JFreeChart barChart = ChartFactory.createBarChart(
-                "", BUDGET, TOTAL_AMOUNT, barDataset, PlotOrientation.VERTICAL, true, true, false);
+                "", BUDGET, TOTAL_AMOUNT, barDataset, PlotOrientation.VERTICAL, false, true, false);
         ChartUtilities.applyCurrentTheme(barChart);
+        applyThemeSettings(barChart);
 
-        // Ajuste do fundo do plot do gráfico de barras
+        // Adjust the background of the bar chart plot
         CategoryPlot barPlot = barChart.getCategoryPlot();
         barPlot.setBackgroundPaint(UIManager.getColor("Panel.background"));
         barChart.setBackgroundPaint(UIManager.getColor("Panel.background"));
@@ -106,7 +107,6 @@ public class HomeScreen extends JPanel {
         pieChartPanel.repaint();
         barChartPanel.repaint();
     }
-
 
     private void initUI() {
         setLayout(new BorderLayout());
@@ -185,6 +185,30 @@ public class HomeScreen extends JPanel {
             pieChartPanel.getChart().setBackgroundPaint(newColor);
             barChartPanel.getChart().setBackgroundPaint(newColor);
         });
+    }
+
+    private void applyThemeSettings(JFreeChart chart) {
+        Color backgroundColor = UIManager.getColor("Panel.background");
+        chart.setBackgroundPaint(backgroundColor);
+        chart.getPlot().setBackgroundPaint(backgroundColor);
+
+        if (isDarkTheme(backgroundColor)) {
+            chart.getTitle().setPaint(Color.WHITE);
+            if (chart.getPlot() instanceof CategoryPlot) {
+                CategoryPlot plot = (CategoryPlot) chart.getPlot();
+                plot.getDomainAxis().setLabelPaint(Color.WHITE);
+                plot.getRangeAxis().setLabelPaint(Color.WHITE);
+                plot.getRenderer().setSeriesPaint(0, Color.WHITE);
+            }
+        }
+    }
+
+    private boolean isDarkTheme(Color backgroundColor) {
+        int brightness = (int) Math.sqrt(
+                backgroundColor.getRed() * backgroundColor.getRed() * 0.241 +
+                        backgroundColor.getGreen() * backgroundColor.getGreen() * 0.691 +
+                        backgroundColor.getBlue() * backgroundColor.getBlue() * 0.068);
+        return brightness < 130;
     }
 
 

@@ -2,8 +2,10 @@ package com.ptda.tracker.ui.admin.dialogs;
 
 import com.ptda.tracker.models.assistance.Assistant;
 import com.ptda.tracker.models.assistance.Ticket;
+import com.ptda.tracker.models.user.User;
 import com.ptda.tracker.services.assistance.AssistantService;
 import com.ptda.tracker.services.assistance.TicketService;
+import com.ptda.tracker.services.user.UserService;
 import com.ptda.tracker.ui.MainFrame;
 import com.ptda.tracker.util.LocaleManager;
 
@@ -21,7 +23,7 @@ public class ChangeAssignmentDialog extends JDialog {
         super(mainFrame, CHANGE_ASSIGNMENT, true); // Mantém o título na barra da janela
         this.ticket = ticket;
         this.ticketService = mainFrame.getContext().getBean(TicketService.class);
-        this.assistantService = mainFrame.getContext().getBean(AssistantService.class);
+        this.userService = mainFrame.getContext().getBean(UserService.class);
         initComponents();
     }
 
@@ -50,12 +52,14 @@ public class ChangeAssignmentDialog extends JDialog {
 
         // ComboBox de Assistentes
         assistantComboBox = new JComboBox<>();
-        List<Assistant> assistants = assistantService.getAll();
+        List<User> assistants = userService.getAllUsers().stream()
+                .filter(user -> user.getUserType().equals("ASSISTANT"))
+                .toList();
         Map<Long, Long> assistantTicketCounts = ticketService.getAll().stream()
                 .filter(t -> t.getAssistant() != null && !t.isClosed())
                 .collect(Collectors.groupingBy(t -> t.getAssistant().getId(), Collectors.counting()));
 
-        for (Assistant assistant : assistants) {
+        for (User assistant : assistants) {
             long ticketCount = assistantTicketCounts.getOrDefault(assistant.getId(), 0L);
             assistantComboBox.addItem(assistant.getName() + " (" + ticketCount + " tickets ativos)");
         }
@@ -78,11 +82,11 @@ public class ChangeAssignmentDialog extends JDialog {
             @Override
             public void actionPerformed(ActionEvent e) {
                 String selectedAssistantName = (String) assistantComboBox.getSelectedItem();
-                Assistant selectedAssistant = assistants.stream()
+                User selectedAssistant = assistants.stream()
                         .filter(a -> selectedAssistantName.startsWith(a.getName()))
                         .findFirst()
                         .orElse(null);
-                ticket.setAssistant(selectedAssistant);
+                ticket.setAssistant((Assistant) selectedAssistant);
                 ticketService.update(ticket);
                 JOptionPane.showMessageDialog(ChangeAssignmentDialog.this, ASSIGNMENT_UPDATING_ASSIGNMENT);
                 dispose();
@@ -97,7 +101,7 @@ public class ChangeAssignmentDialog extends JDialog {
     }
     private final Ticket ticket;
     private final TicketService ticketService;
-    private final AssistantService assistantService;
+    private final UserService userService;
     private JComboBox<String> assistantComboBox;
     private static final LocaleManager localeManager = LocaleManager.getInstance();
     private static final String
