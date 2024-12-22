@@ -27,6 +27,8 @@ public class ExpenseDivision {
 
     private double percentage;
 
+    private double paidAmount;
+
     @ManyToOne
     private Expense expense;
 

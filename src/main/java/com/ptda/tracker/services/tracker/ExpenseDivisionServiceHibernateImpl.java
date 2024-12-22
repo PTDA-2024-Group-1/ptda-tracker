@@ -16,13 +16,24 @@ public class ExpenseDivisionServiceHibernateImpl implements ExpenseDivisionServi
     private final ExpenseDivisionRepository expenseDivisionRepository;
 
     @Override
+    public List<ExpenseDivision> getAllByExpenseId(Long expenseId) {
+        return expenseDivisionRepository.findAllByExpenseId(expenseId);
+    }
+
+    @Override
+    public ExpenseDivision getById(Long id) {
+        Optional<ExpenseDivision> optionalSubdivision = expenseDivisionRepository.findById(id);
+        return optionalSubdivision.orElse(null);
+    }
+
+    @Override
     @Transactional
     public ExpenseDivision create(ExpenseDivision expenseDivision) {
         return expenseDivisionRepository.save(expenseDivision);
     }
 
     @Override
-    public List<ExpenseDivision> create(List<ExpenseDivision> expenseDivisions) {
+    public List<ExpenseDivision> createAll(List<ExpenseDivision> expenseDivisions) {
         return expenseDivisionRepository.saveAll(expenseDivisions);
     }
 
@@ -40,17 +51,6 @@ public class ExpenseDivisionServiceHibernateImpl implements ExpenseDivisionServi
             return true;
         }
         return false;
-    }
-
-    @Override
-    public ExpenseDivision getById(Long id) {
-        Optional<ExpenseDivision> optionalSubdivision = expenseDivisionRepository.findById(id);
-        return optionalSubdivision.orElse(null);
-    }
-
-    @Override
-    public List<ExpenseDivision> getAllByExpenseId(Long expenseId) {
-        return expenseDivisionRepository.findAllByExpenseId(expenseId);
     }
 
 }

@@ -32,7 +32,7 @@ public class CustomSplashScreen extends JFrame {
         };
         layeredPane.setPreferredSize(new Dimension(800, 800));
 
-        JLabel foregroundLabel = createTransparentImageLabel("src/main/resources/images/divi_1.png", 700, 600);
+        JLabel foregroundLabel = createTransparentImageLabel("src/main/resources/images/divi_splash.png", 700, 600);
         foregroundLabel.setBounds(50, 100, 700, 600); 
         layeredPane.add(foregroundLabel, Integer.valueOf(1));
 

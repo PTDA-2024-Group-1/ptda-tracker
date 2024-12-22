@@ -26,7 +26,6 @@ public class ExpenseForm extends JPanel {
     private Budget budget;
     private final String returnScreen;
 
-
     public ExpenseForm(MainFrame mainFrame, Expense expense, Budget budget, String returnScreen, Runnable onFormSubmit) {
         this.mainFrame = mainFrame;
         this.onFormSubmit = onFormSubmit;
@@ -43,10 +42,10 @@ public class ExpenseForm extends JPanel {
             if (onFormSubmit != null) onFormSubmit.run();
             mainFrame.showScreen(returnScreen);
         });
-        saveButton.addActionListener(this::saveExpense);
+        saveButton.addActionListener(e -> saveExpense());
     }
 
-    private void saveExpense(ActionEvent e) {
+    private void saveExpense() {
         // get form values
         String title = titleField.getText().trim();
         String description = descriptionArea.getText().trim();
@@ -54,13 +53,8 @@ public class ExpenseForm extends JPanel {
         double amount = amountText.isEmpty() ? 0 : Double.parseDouble(amountText);
         Date date = dateChooser.getDate();
         ExpenseCategory category = (ExpenseCategory) categoryComboBox.getSelectedItem();
-        Budget selectedBudget = budget;
-
-        // Only get the selected budget from budgetComboBox if budget is null
-        if (selectedBudget == null) {
-            String budgetName = (String) budgetComboBox.getSelectedItem();
-            selectedBudget = budgetMap.get(budgetName);
-        }
+        String budgetName = (String) budgetComboBox.getSelectedItem();
+        Budget selectedBudget = budgetMap.get(budgetName);
 
         // verifications
         if (title.isEmpty() || amount <= 0) {
@@ -93,12 +87,17 @@ public class ExpenseForm extends JPanel {
             }
         }
         clearFields();
-        if (onFormSubmit != null) {
-            onFormSubmit.run();
-        } else {
-            System.err.println("onFormSubmit is not initialized.");
-        }
+        onFormSubmit.run();
         mainFrame.registerAndShowScreen(ScreenNames.EXPENSE_DETAIL_VIEW, new ExpenseDetailView(mainFrame, expense, returnScreen, onFormSubmit));
+    }
+
+    private void clearFields() {
+        titleField.setText("");
+        amountField.setText("");
+        dateChooser.setDate(new Date());
+        categoryComboBox.setSelectedIndex(0);
+        budgetComboBox.setSelectedIndex(0);
+        descriptionArea.setText("");
     }
 
     private void initComponents() {
@@ -210,15 +209,6 @@ public class ExpenseForm extends JPanel {
         buttonsPanel.add(rightButtonPanel, BorderLayout.EAST);
 
         add(buttonsPanel, BorderLayout.SOUTH);
-    }
-
-    private void clearFields() {
-        titleField.setText("");
-        amountField.setText("");
-        dateChooser.setDate(new Date());
-        categoryComboBox.setSelectedIndex(0);
-        budgetComboBox.setSelectedIndex(0);
-        descriptionArea.setText("");
     }
 
     private JTextField titleField, amountField;

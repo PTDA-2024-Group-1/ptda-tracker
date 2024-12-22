@@ -127,6 +127,7 @@ public class ExpensesEditForm extends JPanel {
         // Notify success and navigate back
         onImportSuccess.run();
         mainFrame.showScreen(returnScreen);
+        mainFrame.removeScreen(ScreenNames.EXPENSES_IMPORT);
     }
 
     public static Map<String, Budget> createBudgetMap(List<Budget> budgets) {

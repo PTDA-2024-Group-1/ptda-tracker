@@ -1,5 +1,5 @@
 package com.ptda.tracker.models.tracker;
 
 public enum ExpenseDivisionState {
-    PENDING, ACCEPTED, REJECTED
+    PENDING, ACCEPTED, REJECTED, CANCELLED
 }

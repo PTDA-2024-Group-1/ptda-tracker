@@ -38,8 +38,8 @@ public class TrackerApplication {
         // Initialize Spring Application Context
         ApplicationContext context = SpringApplication.run(TrackerApplication.class, args);
 
-        CustomSplashScreen splashScreen = new CustomSplashScreen();
-        splashScreen.showSplashScreen();
+        //CustomSplashScreen splashScreen = new CustomSplashScreen();
+        //splashScreen.showSplashScreen();
 
         try {
             Thread.sleep(2000); // Simulate loading time
@@ -64,12 +64,24 @@ public class TrackerApplication {
             if (user.isPresent() && Objects.equals(encryptedPassword, user.get().getPassword())) {
                 UserSession.getInstance().setUser(user.get());
                 mainFrame.registerAndShowScreen(ScreenNames.NAVIGATION_SCREEN, new NavigationScreen(mainFrame));
+            } else if (user.isPresent() && !Objects.equals(encryptedPassword, user.get().getPassword())) {
+                mainFrame.registerAndShowScreen(ScreenNames.LOGIN_FORM, new LoginForm(mainFrame));
+                // say stat saved credentials are incorrect
+                JOptionPane.showMessageDialog(
+                        mainFrame,
+                        LocaleManager.getInstance().getTranslation("saved_credentials_incorrect"),
+                        LocaleManager.getInstance().getTranslation("error"),
+                        JOptionPane.ERROR_MESSAGE
+                );
             } else {
                 mainFrame.registerAndShowScreen(ScreenNames.LOGIN_FORM, new LoginForm(mainFrame));
             }
 
-            splashScreen.hideSplashScreen();
+            //splashScreen.hideSplashScreen();
+            mainFrame.setAlwaysOnTop(true);
             mainFrame.setVisible(true);
+            mainFrame.toFront();
+            mainFrame.setAlwaysOnTop(false);
         });
     }
 

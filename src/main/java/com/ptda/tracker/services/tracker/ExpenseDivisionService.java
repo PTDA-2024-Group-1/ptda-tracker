@@ -6,16 +6,16 @@ import java.util.List;
 
 public interface ExpenseDivisionService {
 
+    List<ExpenseDivision> getAllByExpenseId(Long expenseId);
+
+    ExpenseDivision getById(Long id);
+
     ExpenseDivision create(ExpenseDivision expenseDivision);
 
-    List<ExpenseDivision> create(List<ExpenseDivision> expenseDivisions);
+    List<ExpenseDivision> createAll(List<ExpenseDivision> expenseDivisions);
 
     ExpenseDivision update(ExpenseDivision expenseDivision);
 
     boolean delete(Long id);
-
-    ExpenseDivision getById(Long id);
-
-    List<ExpenseDivision> getAllByExpenseId(Long expenseId);
 
 }
