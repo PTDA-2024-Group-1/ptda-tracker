@@ -24,18 +24,45 @@ public class BudgetDetailView extends JPanel {
     private final MainFrame mainFrame;
     private final BudgetAccessService budgetAccessService;
     private final User user = UserSession.getInstance().getUser();
+    private final BudgetService budgetService;
     private final Budget budget;
     private final List<Expense> expenses;
 
+    private int currentPage = 0;
+    private static final int PAGE_SIZE = 20;
+    private JPanel paginationPanel;
+    private JTable expensesTable;
+    JLabel nameLabel, descriptionLabel, createdByLabel;
+    private JButton auditButton, backButton, participantsButton, editButton, shareButton, addExpenseButton, importButton;
+    private static final String
+            BUDGET_DETAILS = "Budget Details",
+            NAME = "Name",
+            DESCRIPTION = "Description",
+            CREATED_BY = "Created By",
+            EXPENSES = "Expenses",
+            BACK = "Back",
+            PARTICIPANTS = "Participants",
+            EDIT_BUDGET = "Edit Budget",
+            STATISTICS = "Statistics",
+            ADD_EXPENSE = "Add Expense",
+            SHARE_BUDGET = "Share Budget",
+            SPLIT_SIMULATION = "Split Simulation",
+            TITLE = "Title",
+            AMOUNT = "Amount",
+            CATEGORY = "Category",
+            DATE = "Date",
+            CREATED_BY_COLUMN = "Created By";
+
     public BudgetDetailView(MainFrame mainFrame, Budget budget) {
         this.mainFrame = mainFrame;
-        budgetAccessService = mainFrame.getContext().getBean(BudgetAccessService.class);
-        this.budget = budget;
-        expenses = mainFrame.getContext().getBean(ExpenseService.class).getAllByBudgetId(budget.getId());
+        this.budgetAccessService = mainFrame.getContext().getBean(BudgetAccessService.class);
+        this.budgetService = mainFrame.getContext().getBean(BudgetService.class);
+        this.budget = budgetService.getById(budget.getId()).orElseThrow(() -> new IllegalArgumentException("Budget not found")); // Fetch the latest budget from DB
+        this.expenses = new ArrayList<>(); // Initialize as empty list
 
-        initComponents();
-        setListeners();
-        refreshExpenses();
+        initComponents();    // Initialize UI components first
+        setListeners();      // Set up event listeners
+        refreshExpenses();   // Now safely refresh expenses
     }
 
     private void setListeners() {
@@ -45,8 +72,10 @@ public class BudgetDetailView extends JPanel {
             participantsDialog.setVisible(true);
         });
         if (editButton != null) {
-            editButton.addActionListener(e -> mainFrame.registerAndShowScreen(ScreenNames.BUDGET_FORM,
-                    new BudgetForm(mainFrame, null, budget)));
+            editButton.addActionListener(e -> mainFrame.registerAndShowScreen(
+                    ScreenNames.BUDGET_FORM,
+                    new BudgetForm(mainFrame, null, budget)
+            ));
         }
         if (shareButton != null) {
             shareButton.addActionListener(e -> mainFrame.registerAndShowScreen(
@@ -55,7 +84,10 @@ public class BudgetDetailView extends JPanel {
         if (addExpenseButton != null) {
             addExpenseButton.addActionListener(e -> mainFrame.registerAndShowScreen(
                     ScreenNames.EXPENSE_FORM,
-                    new ExpenseForm(mainFrame, null, budget,
+                    new ExpenseForm(
+                            mainFrame,
+                            null,
+                            budget,
                             mainFrame.getCurrentScreen(),
                             this::refreshExpenses
                     )
@@ -87,13 +119,36 @@ public class BudgetDetailView extends JPanel {
         });
     }
 
+    /**
+     * Re-fetches expenses and updates the table.
+     */
     private void refreshExpenses() {
-        int offset = currentPage * PAGE_SIZE;
-        expenses.clear();
-        expenses.addAll(mainFrame.getContext().getBean(ExpenseService.class).getExpensesByBudgetIdWithPagination(budget.getId(), offset, PAGE_SIZE));
+        try {
+            int offset = currentPage * PAGE_SIZE;
+            expenses.clear();
+            expenses.addAll(mainFrame.getContext().getBean(ExpenseService.class).getExpensesByBudgetIdWithPagination(budget.getId(), offset, PAGE_SIZE));
 
-        expensesTable.setModel(createExpensesTableModel(expenses));
-        updatePaginationPanel();
+            if (expensesTable != null) { // Defensive check
+                expensesTable.setModel(createExpensesTableModel(expenses));
+                updatePaginationPanel();
+            } else {
+                // Log or handle the scenario where expensesTable is still null
+                JOptionPane.showMessageDialog(
+                        this,
+                        "Expenses table is not initialized.",
+                        "Error",
+                        JOptionPane.ERROR_MESSAGE
+                );
+            }
+        } catch (Exception ex) {
+            // Optionally log the exception
+            JOptionPane.showMessageDialog(
+                    this,
+                    "An unexpected error occurred while refreshing expenses: " + ex.getMessage(),
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE
+            );
+        }
     }
 
     private void updatePaginationPanel() {
@@ -138,7 +193,7 @@ public class BudgetDetailView extends JPanel {
         setLayout(new BorderLayout(15, 15));
         setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
-        // Painel de Detalhes do Orçamento
+        // Panel for Budget Details
         JPanel detailsPanel = new JPanel();
         detailsPanel.setLayout(new BoxLayout(detailsPanel, BoxLayout.Y_AXIS));
         detailsPanel.setBorder(BorderFactory.createTitledBorder(BUDGET_DETAILS));
@@ -164,11 +219,12 @@ public class BudgetDetailView extends JPanel {
         favoriteCheckBox.addActionListener(e -> {
             budget.setFavorite(favoriteCheckBox.isSelected());
             mainFrame.getContext().getBean(BudgetService.class).update(budget);
+            // Optionally, notify user of success
         });
         detailsPanel.add(Box.createRigidArea(new Dimension(0, 5)));
         detailsPanel.add(favoriteCheckBox);
 
-        // Painel para botões próximos aos detalhes (alinhados à direita)
+        // Top buttons panel
         JPanel topButtonsPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         participantsButton = new JButton(PARTICIPANTS);
         topButtonsPanel.add(participantsButton);
@@ -188,94 +244,71 @@ public class BudgetDetailView extends JPanel {
         importButton = new JButton("Import Expenses");
         topButtonsPanel.add(importButton);
 
-        // Add the audit button
+        // Audit button: Navigate to BudgetAuditDetailView
         auditButton = new JButton("Audit Changes");
-        auditButton.addActionListener(e -> mainFrame.registerAndShowScreen(ScreenNames.BUDGET_AUDIT_DETAIL_VIEW, new BudgetAuditDetailView(mainFrame, budget)));
+        auditButton.addActionListener(e ->
+                mainFrame.registerAndShowScreen(
+                        ScreenNames.BUDGET_AUDIT_DETAIL_VIEW,
+                        new BudgetAuditDetailView(mainFrame, budget)
+                )
+        );
         topButtonsPanel.add(auditButton);
 
-        // Adiciona os detalhes e os botões ao topo
-        JPanel topPanel = new JPanel();
-        topPanel.setLayout(new BorderLayout());
+        // Combine details and top buttons
+        JPanel topPanel = new JPanel(new BorderLayout());
         topPanel.add(detailsPanel, BorderLayout.CENTER);
         topPanel.add(topButtonsPanel, BorderLayout.SOUTH);
         add(topPanel, BorderLayout.NORTH);
 
-        // Painel Central (Tabela de Despesas)
+        // Center panel for Expenses table
         JPanel centerPanel = new JPanel(new BorderLayout());
         centerPanel.setBorder(BorderFactory.createTitledBorder(EXPENSES));
-
-        // Configurar o JScrollPane para a tabela
-        expensesTable = new JTable(createExpensesTableModel(new ArrayList<>()));
-        expensesTable.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS); // Certifica-se de ajustar as colunas corretamente
+        expensesTable = new JTable(createExpensesTableModel(expenses));
+        expensesTable.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
         JScrollPane scrollPane = new JScrollPane(expensesTable);
-
-        // Configurar políticas de barras de rolagem
         scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
-
         centerPanel.add(scrollPane, BorderLayout.CENTER);
         add(centerPanel, BorderLayout.CENTER);
 
-        // Painel Inferior dividido para Back e Simulate Budget
+        // Bottom panel for Back, pagination, and optional buttons
         JPanel bottomPanel = new JPanel(new BorderLayout());
 
-        // Painel do botão "Back" (alinhado à esquerda)
+        // Left button panel (Back)
         JPanel leftButtonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         backButton = new JButton(BACK);
         leftButtonPanel.add(backButton);
         bottomPanel.add(leftButtonPanel, BorderLayout.WEST);
 
-        // Painel do botão "Simulate Budget" e "Statistics" (alinhado à direita)
+        // Right button panel (Statistics, Simulation, Add Expense)
         JPanel rightButtonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-
         if (!expenses.isEmpty()) {
-            // Adicionar botão de estatísticas
+            // Add Statistics button
             JButton statisticsButton = new JButton(STATISTICS);
-            statisticsButton.addActionListener(e -> mainFrame.registerAndShowScreen(ScreenNames.BUDGET_STATISTICS_VIEW, new BudgetStatisticsView(mainFrame, budget)));
+            statisticsButton.addActionListener(e -> mainFrame.registerAndShowScreen(
+                    ScreenNames.BUDGET_STATISTICS_VIEW,
+                    new BudgetStatisticsView(mainFrame, budget)
+            ));
             rightButtonPanel.add(statisticsButton);
         }
-
         if (!expenses.isEmpty()) {
             JButton splitSimulation = new JButton(SPLIT_SIMULATION);
-            splitSimulation.addActionListener(e -> mainFrame.registerAndShowScreen(ScreenNames.SIMULATE_VIEW, new SimulationView(mainFrame, budget)));
+            splitSimulation.addActionListener(e -> mainFrame.registerAndShowScreen(
+                    ScreenNames.SIMULATE_VIEW,
+                    new SimulationView(mainFrame, budget)
+            ));
             rightButtonPanel.add(splitSimulation);
         }
         if (hasEditorAccess) {
             addExpenseButton = new JButton(ADD_EXPENSE);
             rightButtonPanel.add(addExpenseButton);
         }
-
         bottomPanel.add(rightButtonPanel, BorderLayout.EAST);
 
-        // Adicionar painel de paginação
+        // Pagination panel in the center
         paginationPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
         bottomPanel.add(paginationPanel, BorderLayout.CENTER);
 
         add(bottomPanel, BorderLayout.SOUTH);
     }
-
-    private int currentPage = 0;
-    private static final int PAGE_SIZE = 20;
-    private JPanel paginationPanel;
-    private JTable expensesTable;
-    JLabel nameLabel, descriptionLabel, createdByLabel;
-    private JButton auditButton, backButton, participantsButton, editButton, shareButton, addExpenseButton, importButton;
-    private static final String
-            BUDGET_DETAILS = "Budget Details",
-            NAME = "Name",
-            DESCRIPTION = "Description",
-            CREATED_BY = "Created By",
-            EXPENSES = "Expenses",
-            BACK = "Back",
-            PARTICIPANTS = "Participants",
-            EDIT_BUDGET = "Edit Budget",
-            STATISTICS = "Statistics",
-            ADD_EXPENSE = "Add Expense",
-            SHARE_BUDGET = "Share Budget",
-            SPLIT_SIMULATION = "Split Simulation",
-            TITLE = "Title",
-            AMOUNT = "Amount",
-            CATEGORY = "Category",
-            DATE = "Date",
-            CREATED_BY_COLUMN = "Created By";
 }
