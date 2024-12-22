@@ -35,10 +35,14 @@ public class ExpenseListRenderer extends JPanel implements ListCellRenderer<Expe
 
         // Right panel for category and date
         JPanel rightPanel = new JPanel();
-        rightPanel.setLayout(new BoxLayout(rightPanel, BoxLayout.Y_AXIS));
+        rightPanel.setLayout(new BoxLayout(rightPanel, BoxLayout.Y_AXIS)); // Layout vertical
         rightPanel.setOpaque(false);
+
+        categoryLabel.setAlignmentX(Component.RIGHT_ALIGNMENT); // Alinha a categoria à direita
+        dateLabel.setAlignmentX(Component.RIGHT_ALIGNMENT); // Alinha a data à direita
+
         rightPanel.add(categoryLabel);
-        rightPanel.add(Box.createVerticalStrut(5));
+        rightPanel.add(Box.createVerticalStrut(5)); // Espaçamento vertical entre categoria e data
         rightPanel.add(dateLabel);
 
         add(leftPanel, BorderLayout.CENTER);

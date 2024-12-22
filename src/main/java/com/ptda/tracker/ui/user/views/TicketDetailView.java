@@ -130,7 +130,7 @@ public class TicketDetailView extends JPanel {
                 rightPanel.add(closeButton);
             }
         }
-        if (UserSession.getInstance().getUser().getUserType().equals("ADMIN")) {
+        if (UserSession.getInstance().getUser().getUserType().equals("ADMIN") && !ticket.isClosed()) {
             JButton changeAssignmentButton = new JButton(CHANGE_ASSIGNMENT);
             changeAssignmentButton.addActionListener(e -> handleChangeAssignmentAction());
             rightPanel.add(changeAssignmentButton);
@@ -195,6 +195,12 @@ public class TicketDetailView extends JPanel {
     private void handleSendAction(JTextArea chatArea) {
         String replyBody = chatArea.getText().trim();
         if (!replyBody.isEmpty()) {
+            if (ticket.getAssistant() == null && UserSession.getInstance().getUser() instanceof Assistant) {
+                ticket.setAssistant((Assistant) UserSession.getInstance().getUser());
+                ticketService.update(ticket);
+                AssistanceScreen.refreshTicketLists();
+            }
+
             TicketReply reply = TicketReply.builder()
                     .ticket(ticket)
                     .createdBy(UserSession.getInstance().getUser())
@@ -203,9 +209,6 @@ public class TicketDetailView extends JPanel {
             ticketReplyService.create(reply);
             chatArea.setText("");
             refreshRepliesList();
-            if (ticket.getAssistant() != null) {
-                    System.err.println("Warning: ticketService is null. Skipping refreshTicketLists.");
-            }
         }
     }
 

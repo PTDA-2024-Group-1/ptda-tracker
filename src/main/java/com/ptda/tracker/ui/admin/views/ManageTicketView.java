@@ -25,7 +25,7 @@ public class ManageTicketView extends JPanel {
 
         // Title Panel
         JPanel titlePanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        JLabel titleLabel = new JLabel("Manage Tickets", SwingConstants.LEFT);
+        JLabel titleLabel = new JLabel(MANAGE_TICKETS, SwingConstants.LEFT);
         titleLabel.setFont(new Font("Arial", Font.BOLD, 16));
         titlePanel.add(titleLabel);
         add(titlePanel, BorderLayout.NORTH);
@@ -74,5 +74,5 @@ public class ManageTicketView extends JPanel {
 
     private static final String
             BACK = "Back",
-            SELECT_TICKET = "Select a ticket to view details";
+            MANAGE_TICKETS = "Manage Tickets";
 }
