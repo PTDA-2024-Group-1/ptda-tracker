@@ -26,6 +26,7 @@ public class BudgetAuditDetailView extends JPanel {
     private final BudgetAuditService budgetAuditService;
     private final ExpenseAuditService expenseAuditService;
     private final ExpenseService expenseService;
+    private final BudgetService budgetService; // Added BudgetService
 
     // UI components
     private JTextArea auditDetailsArea;
@@ -38,6 +39,7 @@ public class BudgetAuditDetailView extends JPanel {
         this.budgetAuditService = mainFrame.getContext().getBean(BudgetAuditService.class);
         this.expenseAuditService = mainFrame.getContext().getBean(ExpenseAuditService.class);
         this.expenseService = mainFrame.getContext().getBean(ExpenseService.class);
+        this.budgetService = mainFrame.getContext().getBean(BudgetService.class); // Initialize BudgetService
 
         initComponents();
         populateAuditDetails();
@@ -196,7 +198,7 @@ public class BudgetAuditDetailView extends JPanel {
 
     /**
      * Handles the revert action to a selected budget revision.
-     * Updates the view to display the selected revision without persisting changes.
+     * Updates the view to display the selected revision and persists the change.
      */
     private void revertSelectedRevision() {
         int selectedRow = revisionsTable.getSelectedRow();
@@ -229,22 +231,18 @@ public class BudgetAuditDetailView extends JPanel {
         try {
             // Fetch the budget at the selected revision
             revertedBudget = budgetAuditService.getBudgetAtRevision(budget.getId(), revisionLong);
-        } catch (Exception ex) {
-            logger.error("Error fetching Budget at Revision #" + revisionLong + " for Budget ID: " + budget.getId(), ex);
-            JOptionPane.showMessageDialog(
-                    this,
-                    "An error occurred while fetching the selected revision: " + ex.getMessage(),
-                    "Error",
-                    JOptionPane.ERROR_MESSAGE
-            );
-            return;
-        }
+            if (revertedBudget == null) {
+                throw new Exception("Reverted budget not found.");
+            }
 
-        if (revertedBudget == null) {
+            // Persist the reverted budget to the database
+            budgetService.updateWithoutAudit(revertedBudget);
+        } catch (Exception ex) {
+            logger.error("Error reverting Budget ID: " + budget.getId() + " to Revision #" + revisionLong, ex);
             JOptionPane.showMessageDialog(
                     this,
-                    "Failed to retrieve the selected revision.",
-                    "Revert Failed",
+                    "An error occurred while reverting the budget: " + ex.getMessage(),
+                    "Error",
                     JOptionPane.ERROR_MESSAGE
             );
             return;
@@ -253,7 +251,7 @@ public class BudgetAuditDetailView extends JPanel {
         // Confirm the revert action
         int confirm = JOptionPane.showConfirmDialog(
                 this,
-                "Are you sure you want to view revision #" + revisionLong + "? This action will not alter the current budget.",
+                "Budget has been reverted to revision #" + revisionLong + ". Would you like to view the updated details?",
                 "Confirm Revert",
                 JOptionPane.YES_NO_OPTION
         );
@@ -262,17 +260,20 @@ public class BudgetAuditDetailView extends JPanel {
             return;
         }
 
-        // Navigate to BudgetDetailView with the revertedBudget data without persisting
+        // Navigate to BudgetDetailView without read-only flag
         try {
+            // Fetch the latest budget from the database to ensure consistency
+            Budget updatedBudget = budgetService.getById(budget.getId())
+                    .orElseThrow(() -> new Exception("Budget not found after revert."));
             mainFrame.registerAndShowScreen(
                     ScreenNames.BUDGET_DETAIL_VIEW,
-                    new BudgetDetailView(mainFrame, revertedBudget, true) // Assuming a flag to indicate read-only
+                    new BudgetDetailView(mainFrame, updatedBudget) // Default isReadOnly=false
             );
         } catch (Exception ex) {
-            logger.error("Error navigating to BudgetDetailView for Budget ID: " + revertedBudget.getId(), ex);
+            logger.error("Error navigating to BudgetDetailView for Budget ID: " + budget.getId(), ex);
             JOptionPane.showMessageDialog(
                     this,
-                    "An error occurred while displaying the selected revision: " + ex.getMessage(),
+                    "An error occurred while displaying the reverted budget: " + ex.getMessage(),
                     "Error",
                     JOptionPane.ERROR_MESSAGE
             );

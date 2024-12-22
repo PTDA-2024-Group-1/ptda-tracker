@@ -1,7 +1,7 @@
 package com.ptda.tracker.ui.user.views;
 
 import com.ptda.tracker.models.tracker.Budget;
-import com.ptda.tracker.models.tracker.BudgetAccessLevel; // Ensure this import is correct
+import com.ptda.tracker.models.tracker.BudgetAccessLevel;
 import com.ptda.tracker.models.tracker.Expense;
 import com.ptda.tracker.models.user.User;
 import com.ptda.tracker.services.tracker.BudgetAccessService;
@@ -29,8 +29,8 @@ public class BudgetDetailView extends JPanel {
 
     private final MainFrame mainFrame;
     private final BudgetAccessService budgetAccessService;
-    private final User user = UserSession.getInstance().getUser();
     private final BudgetService budgetService;
+    private final ExpenseService expenseService;
     private final Budget budget;
     private final List<Expense> expenses;
 
@@ -38,83 +38,48 @@ public class BudgetDetailView extends JPanel {
     private static final int PAGE_SIZE = 20;
     private JPanel paginationPanel;
     private JTable expensesTable;
-    JLabel nameLabel, descriptionLabel, createdByLabel;
+    private JLabel nameLabel, descriptionLabel, createdByLabel;
     private JButton auditButton, backButton, participantsButton, editButton, shareButton, addExpenseButton, importButton;
-    private static final String
-            BUDGET_DETAILS = "Budget Details",
-            NAME = "Name",
-            DESCRIPTION = "Description",
-            CREATED_BY = "Created By",
-            EXPENSES = "Expenses",
-            BACK = "Back",
-            PARTICIPANTS = "Participants",
-            EDIT_BUDGET = "Edit Budget",
-            STATISTICS = "Statistics",
-            ADD_EXPENSE = "Add Expense",
-            SHARE_BUDGET = "Share Budget",
-            SPLIT_SIMULATION = "Split Simulation",
-            TITLE = "Title",
-            AMOUNT = "Amount",
-            CATEGORY = "Category",
-            DATE = "Date",
-            CREATED_BY_COLUMN = "Created By";
-
     private boolean isReadOnly;
 
-    /**
-     * Default constructor for normal (editable) view.
-     *
-     * @param mainFrame The main application frame.
-     * @param budget    The budget to display.
-     */
     public BudgetDetailView(MainFrame mainFrame, Budget budget) {
         this(mainFrame, budget, false); // Default is not read-only
     }
 
-    /**
-     * Overloaded constructor to support read-only mode.
-     *
-     * @param mainFrame  The main application frame.
-     * @param budget     The budget to display.
-     * @param isReadOnly Flag indicating if the view should be read-only.
-     */
     public BudgetDetailView(MainFrame mainFrame, Budget budget, boolean isReadOnly) {
         this.mainFrame = mainFrame;
         this.budgetAccessService = mainFrame.getContext().getBean(BudgetAccessService.class);
         this.budgetService = mainFrame.getContext().getBean(BudgetService.class);
+        this.expenseService = mainFrame.getContext().getBean(ExpenseService.class);
         this.budget = budget;
         this.expenses = new ArrayList<>();
-
         this.isReadOnly = isReadOnly;
 
         initComponents();
         setListeners();
-        refreshExpenses(); // Fetch expenses if not in read-only mode
+        refreshExpenses();
+
         if (isReadOnly) {
             disableEditingFeatures();
         }
     }
 
-    /**
-     * Initializes UI components.
-     */
     private void initComponents() {
         setLayout(new BorderLayout(15, 15));
         setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
-        // Panel for Budget Details
+        // Details Panel
         JPanel detailsPanel = new JPanel();
         detailsPanel.setLayout(new BoxLayout(detailsPanel, BoxLayout.Y_AXIS));
-        detailsPanel.setBorder(BorderFactory.createTitledBorder(BUDGET_DETAILS));
+        detailsPanel.setBorder(BorderFactory.createTitledBorder("Budget Details"));
 
-        nameLabel = new JLabel(NAME + ": " + budget.getName());
-        descriptionLabel = new JLabel(DESCRIPTION + ": " + budget.getDescription());
-        createdByLabel = new JLabel(CREATED_BY + ": " + budget.getCreatedBy().getName());
+        nameLabel = new JLabel("Name: " + budget.getName());
+        descriptionLabel = new JLabel("Description: " + budget.getDescription());
+        createdByLabel = new JLabel("Created By: " + budget.getCreatedBy().getName());
 
-        Font font = new Font("Arial", Font.PLAIN, 14);
-        nameLabel.setFont(font);
-        descriptionLabel.setFont(font);
-        createdByLabel.setFont(font);
+        nameLabel.setFont(new Font("Arial", Font.PLAIN, 14));
+        descriptionLabel.setFont(new Font("Arial", Font.PLAIN, 14));
+        createdByLabel.setFont(new Font("Arial", Font.PLAIN, 14));
 
         detailsPanel.add(nameLabel);
         detailsPanel.add(Box.createRigidArea(new Dimension(0, 5)));
@@ -122,33 +87,31 @@ public class BudgetDetailView extends JPanel {
         detailsPanel.add(Box.createRigidArea(new Dimension(0, 5)));
         detailsPanel.add(createdByLabel);
 
-        // Checkbox for favorites
         JCheckBox favoriteCheckBox = new JCheckBox("Favorite");
         favoriteCheckBox.setSelected(budget.isFavorite());
         favoriteCheckBox.addActionListener(e -> {
             if (!isReadOnly) {
                 budget.setFavorite(favoriteCheckBox.isSelected());
                 budgetService.update(budget);
-                // Optionally, notify user of success
             }
         });
         detailsPanel.add(Box.createRigidArea(new Dimension(0, 5)));
         detailsPanel.add(favoriteCheckBox);
 
-        // Top buttons panel
+        // Top Buttons Panel
         JPanel topButtonsPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-        participantsButton = new JButton(PARTICIPANTS);
+        participantsButton = new JButton("Participants");
         topButtonsPanel.add(participantsButton);
 
-        boolean hasOwnerAccess = budgetAccessService.hasAccess(budget.getId(), user.getId(), BudgetAccessLevel.OWNER);
-        boolean hasEditorAccess = budgetAccessService.hasAccess(budget.getId(), user.getId(), BudgetAccessLevel.EDITOR);
+        boolean hasOwnerAccess = budgetAccessService.hasAccess(budget.getId(), UserSession.getInstance().getUser().getId(), BudgetAccessLevel.OWNER);
+        boolean hasEditorAccess = budgetAccessService.hasAccess(budget.getId(), UserSession.getInstance().getUser().getId(), BudgetAccessLevel.EDITOR);
 
         if (hasEditorAccess && !isReadOnly) {
-            editButton = new JButton(EDIT_BUDGET);
+            editButton = new JButton("Edit Budget");
             topButtonsPanel.add(editButton);
         }
         if (hasOwnerAccess && !isReadOnly) {
-            shareButton = new JButton(SHARE_BUDGET);
+            shareButton = new JButton("Share Budget");
             topButtonsPanel.add(shareButton);
         }
 
@@ -158,80 +121,68 @@ public class BudgetDetailView extends JPanel {
         }
 
         if (!isReadOnly) {
-            // Audit button: Navigate to BudgetAuditDetailView
             auditButton = new JButton("Audit Changes");
-            auditButton.addActionListener(e ->
-                    mainFrame.registerAndShowScreen(
-                            ScreenNames.BUDGET_AUDIT_DETAIL_VIEW,
-                            new BudgetAuditDetailView(mainFrame, budget)
-                    )
-            );
+            auditButton.addActionListener(e -> mainFrame.registerAndShowScreen(
+                    ScreenNames.BUDGET_AUDIT_DETAIL_VIEW,
+                    new BudgetAuditDetailView(mainFrame, budget)
+            ));
             topButtonsPanel.add(auditButton);
         }
 
-        // Combine details and top buttons
         JPanel topPanel = new JPanel(new BorderLayout());
         topPanel.add(detailsPanel, BorderLayout.CENTER);
         topPanel.add(topButtonsPanel, BorderLayout.SOUTH);
         add(topPanel, BorderLayout.NORTH);
 
-        // Center panel for Expenses table
+        // Expenses Table
         JPanel centerPanel = new JPanel(new BorderLayout());
-        centerPanel.setBorder(BorderFactory.createTitledBorder(EXPENSES));
+        centerPanel.setBorder(BorderFactory.createTitledBorder("Expenses"));
         expensesTable = new JTable(createExpensesTableModel(expenses));
-        expensesTable.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
         JScrollPane scrollPane = new JScrollPane(expensesTable);
-        scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-        scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
         centerPanel.add(scrollPane, BorderLayout.CENTER);
         add(centerPanel, BorderLayout.CENTER);
 
-        // Bottom panel for Back, pagination, and optional buttons
+        // Bottom Panel
         JPanel bottomPanel = new JPanel(new BorderLayout());
 
-        // Left button panel (Back)
         JPanel leftButtonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        backButton = new JButton(BACK);
+        backButton = new JButton("Back");
         leftButtonPanel.add(backButton);
         bottomPanel.add(leftButtonPanel, BorderLayout.WEST);
 
-        // Right button panel (Statistics, Simulation, Add Expense)
         JPanel rightButtonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         if (!expenses.isEmpty() && !isReadOnly) {
-            // Add Statistics button
-            JButton statisticsButton = new JButton(STATISTICS);
+            JButton statisticsButton = new JButton("Statistics");
             statisticsButton.addActionListener(e -> mainFrame.registerAndShowScreen(
                     ScreenNames.BUDGET_STATISTICS_VIEW,
                     new BudgetStatisticsView(mainFrame, budget)
             ));
             rightButtonPanel.add(statisticsButton);
         }
+
         if (!expenses.isEmpty() && !isReadOnly) {
-            JButton splitSimulation = new JButton(SPLIT_SIMULATION);
+            JButton splitSimulation = new JButton("Split Simulation");
             splitSimulation.addActionListener(e -> mainFrame.registerAndShowScreen(
                     ScreenNames.SIMULATE_VIEW,
                     new SimulationView(mainFrame, budget)
             ));
             rightButtonPanel.add(splitSimulation);
         }
+
         if (!isReadOnly && hasEditorAccess) {
-            addExpenseButton = new JButton(ADD_EXPENSE);
+            addExpenseButton = new JButton("Add Expense");
             rightButtonPanel.add(addExpenseButton);
         }
+
         bottomPanel.add(rightButtonPanel, BorderLayout.EAST);
 
-        // Pagination panel in the center
         paginationPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
         bottomPanel.add(paginationPanel, BorderLayout.CENTER);
 
         add(bottomPanel, BorderLayout.SOUTH);
     }
 
-    /**
-     * Disables or hides editing-related UI components when in read-only mode.
-     */
     private void disableEditingFeatures() {
-        // Disable or hide buttons that allow editing
         if (editButton != null) editButton.setEnabled(false);
         if (shareButton != null) shareButton.setEnabled(false);
         if (addExpenseButton != null) addExpenseButton.setEnabled(false);
@@ -239,15 +190,13 @@ public class BudgetDetailView extends JPanel {
         if (auditButton != null) auditButton.setEnabled(false);
     }
 
-    /**
-     * Sets up event listeners for UI components.
-     */
     private void setListeners() {
         backButton.addActionListener(e -> mainFrame.showScreen(ScreenNames.NAVIGATION_SCREEN));
         participantsButton.addActionListener(e -> {
             ParticipantsDialog participantsDialog = new ParticipantsDialog(mainFrame, budget);
             participantsDialog.setVisible(true);
         });
+
         if (!isReadOnly) {
             if (editButton != null) {
                 editButton.addActionListener(e -> mainFrame.registerAndShowScreen(
@@ -257,41 +206,29 @@ public class BudgetDetailView extends JPanel {
             }
             if (shareButton != null) {
                 shareButton.addActionListener(e -> mainFrame.registerAndShowScreen(
-                        ScreenNames.BUDGET_SHARE_FORM, new ShareBudgetForm(mainFrame, budget)));
+                        ScreenNames.BUDGET_SHARE_FORM,
+                        new ShareBudgetForm(mainFrame, budget)));
             }
             if (addExpenseButton != null) {
                 addExpenseButton.addActionListener(e -> mainFrame.registerAndShowScreen(
                         ScreenNames.EXPENSE_FORM,
-                        new ExpenseForm(
-                                mainFrame,
-                                null,
-                                budget,
-                                mainFrame.getCurrentScreen(),
-                                this::refreshExpenses
-                        )
+                        new ExpenseForm(mainFrame, null, budget, mainFrame.getCurrentScreen(), this::refreshExpenses)
                 ));
             }
             if (importButton != null) {
-                importButton.addActionListener(e -> {
-                    if (mainFrame.getScreen(ScreenNames.EXPENSES_IMPORT_SCREEN) == null) {
-                        mainFrame.registerAndShowScreen(ScreenNames.EXPENSES_IMPORT_SCREEN,
-                                new ExpensesImportScreen(mainFrame, budget,
-                                        ScreenNames.BUDGET_DETAIL_VIEW,
-                                        this::refreshExpenses));
-                    } else {
-                        mainFrame.showScreen(ScreenNames.EXPENSES_IMPORT_SCREEN);
-                    }
-                });
+                importButton.addActionListener(e -> mainFrame.registerAndShowScreen(
+                        ScreenNames.EXPENSES_IMPORT_SCREEN,
+                        new ExpensesImportScreen(mainFrame, budget, ScreenNames.BUDGET_DETAIL_VIEW, this::refreshExpenses)
+                ));
             }
             expensesTable.getSelectionModel().addListSelectionListener(e -> {
                 if (!e.getValueIsAdjusting()) {
                     int selectedRow = expensesTable.getSelectedRow();
                     if (selectedRow != -1) {
                         Expense selectedExpense = expenses.get(selectedRow);
-                        mainFrame.registerAndShowScreen(ScreenNames.EXPENSE_DETAIL_VIEW,
-                                new ExpenseDetailView(mainFrame, selectedExpense,
-                                        mainFrame.getCurrentScreen(), this::refreshExpenses
-                                )
+                        mainFrame.registerAndShowScreen(
+                                ScreenNames.EXPENSE_DETAIL_VIEW,
+                                new ExpenseDetailView(mainFrame, selectedExpense, mainFrame.getCurrentScreen(), this::refreshExpenses)
                         );
                         expensesTable.clearSelection();
                     }
@@ -300,51 +237,22 @@ public class BudgetDetailView extends JPanel {
         }
     }
 
-    /**
-     * Re-fetches expenses and updates the table.
-     */
     private void refreshExpenses() {
-        if (isReadOnly) {
-            // Do not fetch or display expenses in read-only mode if not necessary
-            return;
-        }
+        if (isReadOnly) return;
         try {
             int offset = currentPage * PAGE_SIZE;
             expenses.clear();
-            expenses.addAll(mainFrame.getContext().getBean(ExpenseService.class).getExpensesByBudgetIdWithPagination(budget.getId(), offset, PAGE_SIZE));
-
-            if (expensesTable != null) { // Defensive check
-                expensesTable.setModel(createExpensesTableModel(expenses));
-                updatePaginationPanel();
-            } else {
-                // Log or handle the scenario where expensesTable is still null
-                JOptionPane.showMessageDialog(
-                        this,
-                        "Expenses table is not initialized.",
-                        "Error",
-                        JOptionPane.ERROR_MESSAGE
-                );
-            }
+            expenses.addAll(expenseService.getExpensesByBudgetIdWithPagination(budget.getId(), offset, PAGE_SIZE));
+            expensesTable.setModel(createExpensesTableModel(expenses));
+            updatePaginationPanel();
         } catch (Exception ex) {
             logger.error("Error refreshing expenses for Budget ID: " + budget.getId(), ex);
-            // Optionally log the exception
-            JOptionPane.showMessageDialog(
-                    this,
-                    "An unexpected error occurred while refreshing expenses: " + ex.getMessage(),
-                    "Error",
-                    JOptionPane.ERROR_MESSAGE
-            );
+            JOptionPane.showMessageDialog(this, "An error occurred while refreshing expenses: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
 
-    /**
-     * Creates the table model for the expenses table.
-     *
-     * @param expenses List of expenses to display.
-     * @return A DefaultTableModel populated with expense data.
-     */
     private DefaultTableModel createExpensesTableModel(List<Expense> expenses) {
-        String[] columnNames = {TITLE, AMOUNT, CATEGORY, DATE, CREATED_BY_COLUMN};
+        String[] columnNames = {"Title", "Amount", "Category", "Date", "Created By"};
         DefaultTableModel model = new DefaultTableModel(columnNames, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
@@ -362,13 +270,10 @@ public class BudgetDetailView extends JPanel {
         return model;
     }
 
-    /**
-     * Updates the pagination panel based on the total number of expenses.
-     */
     private void updatePaginationPanel() {
         paginationPanel.removeAll();
         try {
-            long totalExpenses = mainFrame.getContext().getBean(ExpenseService.class).getCountByBudgetId(budget.getId());
+            long totalExpenses = expenseService.getCountByBudgetId(budget.getId());
             int totalPages = (int) Math.ceil((double) totalExpenses / PAGE_SIZE);
             if (totalPages > 1) {
                 for (int i = 0; i < totalPages; i++) {
@@ -383,12 +288,7 @@ public class BudgetDetailView extends JPanel {
             }
         } catch (Exception ex) {
             logger.error("Error updating pagination for Budget ID: " + budget.getId(), ex);
-            JOptionPane.showMessageDialog(
-                    this,
-                    "An error occurred while updating pagination: " + ex.getMessage(),
-                    "Error",
-                    JOptionPane.ERROR_MESSAGE
-            );
+            JOptionPane.showMessageDialog(this, "An error occurred while updating pagination: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
         paginationPanel.revalidate();
         paginationPanel.repaint();

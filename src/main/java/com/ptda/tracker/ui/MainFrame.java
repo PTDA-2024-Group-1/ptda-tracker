@@ -9,7 +9,7 @@ import com.ptda.tracker.util.LocaleManager;
 import lombok.Getter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.ApplicationContext; // <-- Added import
+import org.springframework.context.ApplicationContext;
 
 import javax.swing.*;
 import java.awt.*;
@@ -18,6 +18,11 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.prefs.Preferences;
 
+/**
+ * The MainFrame class serves as the primary window of the budget tracking application.
+ * It manages different screens using a CardLayout and provides a consistent user interface
+ * across the application.
+ */
 public class MainFrame extends JFrame {
     private static final Logger LOGGER = LoggerFactory.getLogger(MainFrame.class);
 
@@ -28,7 +33,7 @@ public class MainFrame extends JFrame {
 
     private final Map<String, JPanel> screens;
     @Getter
-    private final ApplicationContext context; // Now resolvable due to the import
+    private final ApplicationContext context;
     @Getter
     private String currentScreen;
 
@@ -46,6 +51,11 @@ public class MainFrame extends JFrame {
             HELP = localeManager.getTranslation("help"),
             ABOUT = localeManager.getTranslation("about");
 
+    /**
+     * Constructs the MainFrame with the provided ApplicationContext.
+     *
+     * @param context The Spring ApplicationContext for dependency injection.
+     */
     public MainFrame(ApplicationContext context) {
         LOGGER.debug("Initializing MainFrame...");
         this.context = context;
@@ -77,17 +87,49 @@ public class MainFrame extends JFrame {
         LOGGER.debug("MainFrame initialized successfully.");
     }
 
-    // ... rest of the MainFrame class ...
+    /**
+     * Registers and shows a screen. If the screen already exists, it is removed and re-registered
+     * to ensure fresh initialization.
+     *
+     * @param name   The name of the screen.
+     * @param screen The JPanel representing the screen.
+     */
+    public void registerAndShowScreen(String name, JPanel screen) {
+        // Remove existing screen if present to allow reinitialization
+        if (screens.containsKey(name)) {
+            removeScreen(name);
+        }
+        registerScreen(name, screen);
+        showScreen(name);
+    }
 
+    /**
+     * Registers a screen with the given name.
+     *
+     * @param name   The name of the screen.
+     * @param screen The JPanel representing the screen.
+     */
     public void registerScreen(String name, JPanel screen) {
         screens.put(name, screen);
         mainPanel.add(screen, name);
+        LOGGER.debug("Registered screen: {}", name);
     }
 
+    /**
+     * Retrieves a screen by its name.
+     *
+     * @param screenName The name of the screen.
+     * @return The JPanel representing the screen, or null if not found.
+     */
     public JPanel getScreen(String screenName) {
         return screens.get(screenName);
     }
 
+    /**
+     * Displays the screen with the given name.
+     *
+     * @param name The name of the screen to display.
+     */
     public void showScreen(String name) {
         LOGGER.debug("Attempting to show screen: {}", name);
         if (screens.containsKey(name)) {
@@ -100,16 +142,29 @@ public class MainFrame extends JFrame {
         }
     }
 
-    public void registerAndShowScreen(String name, JPanel screen) {
-        registerScreen(name, screen);
-        showScreen(name);
-    }
-
+    /**
+     * Removes a screen by its name from both the screens map and the main panel.
+     *
+     * @param screenName The name of the screen to remove.
+     */
     public void removeScreen(String screenName) {
         LOGGER.debug("Removing screen: {}", screenName);
-        screens.remove(screenName);
+        JPanel screen = screens.remove(screenName);
+        if (screen != null) {
+            mainPanel.remove(screen);
+            mainPanel.revalidate();
+            mainPanel.repaint();
+            LOGGER.debug("Screen {} removed successfully.", screenName);
+        } else {
+            LOGGER.warn("Attempted to remove non-existing screen: {}", screenName);
+        }
     }
 
+    /**
+     * Creates the menu bar with File, Theme, and Help menus.
+     *
+     * @return The configured JMenuBar.
+     */
     private JMenuBar createMenuBar() {
         LOGGER.debug("Creating menu bar...");
         JMenuBar menuBar = new JMenuBar();
@@ -147,6 +202,11 @@ public class MainFrame extends JFrame {
         return menuBar;
     }
 
+    /**
+     * Event handler for selecting the light theme.
+     *
+     * @param e The ActionEvent triggered by selecting the light theme.
+     */
     private void lightThemeClicked(ActionEvent e) {
         LOGGER.debug("Light theme selected.");
         lightTheme.setSelected(true);
@@ -155,6 +215,11 @@ public class MainFrame extends JFrame {
         setThemePreference(AppConfig.DEFAULT_LIGHT_THEME);
     }
 
+    /**
+     * Event handler for selecting the dark theme.
+     *
+     * @param e The ActionEvent triggered by selecting the dark theme.
+     */
     private void darkThemeClicked(ActionEvent e) {
         LOGGER.debug("Dark theme selected.");
         lightTheme.setSelected(false);
@@ -163,12 +228,22 @@ public class MainFrame extends JFrame {
         setThemePreference(AppConfig.DEFAULT_DARK_THEME);
     }
 
+    /**
+     * Saves the selected theme preference using Java Preferences API.
+     *
+     * @param theme The theme to save ("light" or "dark").
+     */
     private void setThemePreference(String theme) {
         LOGGER.debug("Saving theme preference: {}", theme);
         Preferences preferences = Preferences.userNodeForPackage(MainFrame.class);
         preferences.put("theme", theme);
     }
 
+    /**
+     * Retrieves the saved theme preference. Defaults to light theme if not set.
+     *
+     * @return The saved theme preference.
+     */
     private String getThemePreference() {
         Preferences preferences = Preferences.userNodeForPackage(MainFrame.class);
         String theme = preferences.get("theme", AppConfig.DEFAULT_LIGHT_THEME);

@@ -11,4 +11,5 @@ public interface BudgetRepository extends JpaRepository<Budget, Long> {
 
     List<Budget> findAllByCreatedById(Long userId);
 
+
 }
