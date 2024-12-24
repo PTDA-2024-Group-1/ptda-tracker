@@ -19,6 +19,8 @@ public interface BudgetService {
 
     Budget update(Budget budget);
 
+    Budget updateWithoutAudit(Budget budget); // Newly added method
+
     boolean delete(Long id);
 
     Budget[] findAll();

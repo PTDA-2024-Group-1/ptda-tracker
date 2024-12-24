@@ -9,7 +9,7 @@ import com.ptda.tracker.util.LocaleManager;
 import lombok.Getter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.ApplicationContext; // <-- Added import
+import org.springframework.context.ApplicationContext;
 
 import javax.swing.*;
 import java.awt.*;
@@ -17,6 +17,7 @@ import java.awt.event.ActionEvent;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.prefs.Preferences;
+
 
 public class MainFrame extends JFrame {
     private static final Logger LOGGER = LoggerFactory.getLogger(MainFrame.class);
@@ -28,7 +29,7 @@ public class MainFrame extends JFrame {
 
     private final Map<String, JPanel> screens;
     @Getter
-    private final ApplicationContext context; // Now resolvable due to the import
+    private final ApplicationContext context;
     @Getter
     private String currentScreen;
 
@@ -45,6 +46,7 @@ public class MainFrame extends JFrame {
             DARK = localeManager.getTranslation("dark"),
             HELP = localeManager.getTranslation("help"),
             ABOUT = localeManager.getTranslation("about");
+
 
     public MainFrame(ApplicationContext context) {
         LOGGER.debug("Initializing MainFrame...");
@@ -77,12 +79,23 @@ public class MainFrame extends JFrame {
         LOGGER.debug("MainFrame initialized successfully.");
     }
 
-    // ... rest of the MainFrame class ...
+
+    public void registerAndShowScreen(String name, JPanel screen) {
+        // Remove existing screen if present to allow reinitialization
+        if (screens.containsKey(name)) {
+            removeScreen(name);
+        }
+        registerScreen(name, screen);
+        showScreen(name);
+    }
+
 
     public void registerScreen(String name, JPanel screen) {
         screens.put(name, screen);
         mainPanel.add(screen, name);
+        LOGGER.debug("Registered screen: {}", name);
     }
+
 
     public JPanel getScreen(String screenName) {
         return screens.get(screenName);
@@ -100,15 +113,20 @@ public class MainFrame extends JFrame {
         }
     }
 
-    public void registerAndShowScreen(String name, JPanel screen) {
-        registerScreen(name, screen);
-        showScreen(name);
-    }
 
     public void removeScreen(String screenName) {
         LOGGER.debug("Removing screen: {}", screenName);
-        screens.remove(screenName);
+        JPanel screen = screens.remove(screenName);
+        if (screen != null) {
+            mainPanel.remove(screen);
+            mainPanel.revalidate();
+            mainPanel.repaint();
+            LOGGER.debug("Screen {} removed successfully.", screenName);
+        } else {
+            LOGGER.warn("Attempted to remove non-existing screen: {}", screenName);
+        }
     }
+
 
     private JMenuBar createMenuBar() {
         LOGGER.debug("Creating menu bar...");
@@ -147,6 +165,7 @@ public class MainFrame extends JFrame {
         return menuBar;
     }
 
+
     private void lightThemeClicked(ActionEvent e) {
         LOGGER.debug("Light theme selected.");
         lightTheme.setSelected(true);
@@ -154,6 +173,7 @@ public class MainFrame extends JFrame {
         themeManager.setTheme(AppConfig.DEFAULT_LIGHT_THEME);
         setThemePreference(AppConfig.DEFAULT_LIGHT_THEME);
     }
+
 
     private void darkThemeClicked(ActionEvent e) {
         LOGGER.debug("Dark theme selected.");
@@ -163,12 +183,12 @@ public class MainFrame extends JFrame {
         setThemePreference(AppConfig.DEFAULT_DARK_THEME);
     }
 
+
     private void setThemePreference(String theme) {
         LOGGER.debug("Saving theme preference: {}", theme);
         Preferences preferences = Preferences.userNodeForPackage(MainFrame.class);
         preferences.put("theme", theme);
     }
-
     private String getThemePreference() {
         Preferences preferences = Preferences.userNodeForPackage(MainFrame.class);
         String theme = preferences.get("theme", AppConfig.DEFAULT_LIGHT_THEME);

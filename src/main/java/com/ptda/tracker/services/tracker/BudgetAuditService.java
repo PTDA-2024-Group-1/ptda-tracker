@@ -12,16 +12,16 @@ import java.util.List;
  */
 public interface BudgetAuditService {
 
-    @Transactional
+    @Transactional(Transactional.TxType.SUPPORTS) // Read-only transaction
     List<Object[]> getBudgetRevisionsWithDetails(Long budgetId);
 
-    @Transactional
+    @Transactional(Transactional.TxType.SUPPORTS) // Read-only transaction
     List<Number> getBudgetRevisions(Long budgetId);
 
-    @Transactional
+    @Transactional(Transactional.TxType.SUPPORTS) // Read-only transaction
     Budget getBudgetAtRevision(Long budgetId, Number revision);
 
-    @Transactional
+    @Transactional(Transactional.TxType.SUPPORTS) // Read-only transaction
     boolean hasNameOrDescriptionChanged(Long budgetId, Number revision);
 
     /**

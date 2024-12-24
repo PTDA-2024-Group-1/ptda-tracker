@@ -1,16 +1,16 @@
 spring:
   application:
     name: tracker
- # datasource:
-  #  url: jdbc:mysql://estga-dev.ua.pt:3306/PTDA24_BD_01
-   # username: PTDA24_01
-   # password: Xdft#345
-   # driver-class-name: com.mysql.cj.jdbc.Driver
+    # datasource:
+    #  url: jdbc:mysql://estga-dev.ua.pt:3306/PTDA24_BD_01
+    # username: PTDA24_01
+    # password: Xdft#345
+    # driver-class-name: com.mysql.cj.jdbc.Driver
   datasource:
-     url: jdbc:mysql://localhost:3306/PTDA24_BD_01
-     username: root
-     password: qwerty
-     driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/PTDA24_BD_01
+    username: root
+    password: qwerty
+    driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
     hibernate:
       ddl-auto: update
@@ -30,6 +30,8 @@ spring:
     password: yler fzep doct zqoi
     properties:
       mail:
+
+
         smtp:
           auth: true
           starttls:
