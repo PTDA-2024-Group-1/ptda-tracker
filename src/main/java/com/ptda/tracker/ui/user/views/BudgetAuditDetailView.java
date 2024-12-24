@@ -18,8 +18,11 @@ import java.util.*;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+<<<<<<< HEAD
 
 import com.ptda.tracker.ui.user.screens.NavigationScreen;
+=======
+>>>>>>> a54db8f7f59dfc13f3e06079a37311993b9cce66
 
 public class BudgetAuditDetailView extends JPanel {
     private static final Logger logger = LoggerFactory.getLogger(BudgetAuditDetailView.class);
@@ -29,7 +32,11 @@ public class BudgetAuditDetailView extends JPanel {
     private final BudgetAuditService budgetAuditService;
     private final ExpenseAuditService expenseAuditService;
     private final ExpenseService expenseService;
+<<<<<<< HEAD
     private final BudgetService budgetService; 
+=======
+    private final BudgetService budgetService; // Added BudgetService
+>>>>>>> a54db8f7f59dfc13f3e06079a37311993b9cce66
 
     // UI components
     private JTable revisionsTable;
@@ -47,9 +54,12 @@ public class BudgetAuditDetailView extends JPanel {
         this.expenseAuditService = mainFrame.getContext().getBean(ExpenseAuditService.class);
         this.expenseService = mainFrame.getContext().getBean(ExpenseService.class);
         this.budgetService = mainFrame.getContext().getBean(BudgetService.class); // Initialize BudgetService
+<<<<<<< HEAD
 
         this.budget = budget;
         this.revisionNumbers.clear();
+=======
+>>>>>>> a54db8f7f59dfc13f3e06079a37311993b9cce66
 
         initComponents();
         populateRevisionsTable(); 
@@ -102,6 +112,7 @@ public class BudgetAuditDetailView extends JPanel {
     }
 
 
+<<<<<<< HEAD
     private void populateRevisionsTable() {
         DefaultTableModel model = (DefaultTableModel) revisionsTable.getModel();
         model.setRowCount(0); 
@@ -148,6 +159,60 @@ public class BudgetAuditDetailView extends JPanel {
             JOptionPane.showMessageDialog(
                     this,
                     "An error occurred while loading revisions: " + ex.getMessage(),
+=======
+        try {
+            // Fetch and append budget audit details
+            List<Object[]> budgetAuditDetails = budgetAuditService.getBudgetRevisionsWithDetails(budget.getId());
+            for (Object[] detail : budgetAuditDetails) {
+                // Assuming detail structure: [Budget, DefaultRevisionEntity, RevisionType]
+                Budget oldBudget = (Budget) detail[0];
+                DefaultRevisionEntity revisionEntity = (DefaultRevisionEntity) detail[1];
+                RevisionType revisionType = (RevisionType) detail[2];
+
+                auditInfo.append("Budget Revision #")
+                        .append(revisionEntity.getId())
+                        .append(" (")
+                        .append(revisionType)
+                        .append(") on ")
+                        .append(revisionEntity.getRevisionDate())
+                        .append(": Name = ")
+                        .append(oldBudget.getName())
+                        .append(", Description = ")
+                        .append(oldBudget.getDescription())
+                        .append("\n");
+            }
+
+            // Fetch and append expense audit details
+            List<Expense> expenses = expenseService.getAllByBudgetId(budget.getId());
+            for (Expense expense : expenses) {
+                List<Object[]> expenseAuditDetails = expenseAuditService.getExpenseRevisionsWithDetails(expense.getId());
+                for (Object[] detail : expenseAuditDetails) {
+                    // Assuming detail structure: [Expense, DefaultRevisionEntity, RevisionType]
+                    Expense oldExpense = (Expense) detail[0];
+                    DefaultRevisionEntity revisionEntity = (DefaultRevisionEntity) detail[1];
+                    RevisionType revisionType = (RevisionType) detail[2];
+
+                    auditInfo.append("Expense Revision #")
+                            .append(revisionEntity.getId())
+                            .append(" (")
+                            .append(revisionType)
+                            .append(") on ")
+                            .append(revisionEntity.getRevisionDate())
+                            .append(": Title = ")
+                            .append(oldExpense.getTitle())
+                            .append(", Amount = ")
+                            .append(oldExpense.getAmount())
+                            .append("\n");
+                }
+            }
+
+            auditDetailsArea.setText(auditInfo.toString());
+        } catch (Exception ex) {
+            logger.error("Error populating audit details for Budget ID: " + budget.getId(), ex);
+            JOptionPane.showMessageDialog(
+                    this,
+                    "An error occurred while loading audit details: " + ex.getMessage(),
+>>>>>>> a54db8f7f59dfc13f3e06079a37311993b9cce66
                     "Error",
                     JOptionPane.ERROR_MESSAGE
             );
@@ -158,6 +223,7 @@ public class BudgetAuditDetailView extends JPanel {
      * Handles the action to view full details of the selected revision.
      * Displays the details in a separate dialog window and updates the NavigationScreen.
      */
+<<<<<<< HEAD
     private void viewSelectedRevisionDetails() {
         int selectedRow = revisionsTable.getSelectedRow();
         if (selectedRow == -1) {
@@ -168,6 +234,37 @@ public class BudgetAuditDetailView extends JPanel {
                     JOptionPane.WARNING_MESSAGE
             );
             return;
+=======
+    private void populateRevisionsTable() {
+        DefaultTableModel model = (DefaultTableModel) revisionsTable.getModel();
+        model.setRowCount(0); // Clear existing rows
+
+        try {
+            List<Object[]> budgetAuditDetails = budgetAuditService.getBudgetRevisionsWithDetails(budget.getId());
+            for (Object[] detail : budgetAuditDetails) {
+                // Assuming detail structure: [Budget, DefaultRevisionEntity, RevisionType]
+                DefaultRevisionEntity revisionEntity = (DefaultRevisionEntity) detail[1];
+                RevisionType revisionType = (RevisionType) detail[2];
+
+                // Ensure that revisionEntity.getId() is treated as a Number
+                Number revisionId = revisionEntity.getId();
+
+                Object[] row = new Object[]{
+                        revisionId, // Could be Integer or Long
+                        revisionEntity.getRevisionDate(),
+                        revisionType
+                };
+                model.addRow(row);
+            }
+        } catch (Exception ex) {
+            logger.error("Error populating revisions table for Budget ID: " + budget.getId(), ex);
+            JOptionPane.showMessageDialog(
+                    this,
+                    "An error occurred while loading revisions: " + ex.getMessage(),
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE
+            );
+>>>>>>> a54db8f7f59dfc13f3e06079a37311993b9cce66
         }
 
         // Retrieve the revision number from the internal list
@@ -270,6 +367,17 @@ public class BudgetAuditDetailView extends JPanel {
                 throw new Exception("Reverted budget not found.");
             }
 
+<<<<<<< HEAD
+=======
+        Budget revertedBudget;
+        try {
+            // Fetch the budget at the selected revision
+            revertedBudget = budgetAuditService.getBudgetAtRevision(budget.getId(), revisionLong);
+            if (revertedBudget == null) {
+                throw new Exception("Reverted budget not found.");
+            }
+
+>>>>>>> a54db8f7f59dfc13f3e06079a37311993b9cce66
             // Persist the reverted budget to the database
             budgetService.updateWithoutAudit(revertedBudget);
         } catch (Exception ex) {
@@ -295,6 +403,7 @@ public class BudgetAuditDetailView extends JPanel {
             return;
         }
 
+<<<<<<< HEAD
         // Update the budget reference to the reverted budget
         this.budget = revertedBudget;
 
@@ -310,6 +419,9 @@ public class BudgetAuditDetailView extends JPanel {
         NavigationScreen.setSelectedRevision(revisionLong, selectedRevisionInfo);
 
         // Navigate to BudgetDetailView to display the reverted budget
+=======
+        // Navigate to BudgetDetailView without read-only flag
+>>>>>>> a54db8f7f59dfc13f3e06079a37311993b9cce66
         try {
             // Fetch the latest budget from the database to ensure consistency
             Budget updatedBudget = budgetService.getById(budget.getId())
