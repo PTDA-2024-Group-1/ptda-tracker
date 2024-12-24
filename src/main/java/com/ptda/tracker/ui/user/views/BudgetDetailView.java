@@ -31,12 +31,8 @@ public class BudgetDetailView extends JPanel {
     private final BudgetAccessService budgetAccessService;
     private final BudgetService budgetService;
     private final ExpenseService expenseService;
-<<<<<<< HEAD
 
     private Budget budget;
-=======
-    private final Budget budget;
->>>>>>> a54db8f7f59dfc13f3e06079a37311993b9cce66
     private final List<Expense> expenses;
 
     private int currentPage = 0;
@@ -48,11 +44,7 @@ public class BudgetDetailView extends JPanel {
     private boolean isReadOnly;
 
     public BudgetDetailView(MainFrame mainFrame, Budget budget) {
-<<<<<<< HEAD
-        this(mainFrame, budget, false); 
-=======
-        this(mainFrame, budget, false); // Default is not read-only
->>>>>>> a54db8f7f59dfc13f3e06079a37311993b9cce66
+        this(mainFrame, budget, false);
     }
 
     public BudgetDetailView(MainFrame mainFrame, Budget budget, boolean isReadOnly) {
@@ -60,20 +52,13 @@ public class BudgetDetailView extends JPanel {
         this.budgetAccessService = mainFrame.getContext().getBean(BudgetAccessService.class);
         this.budgetService = mainFrame.getContext().getBean(BudgetService.class);
         this.expenseService = mainFrame.getContext().getBean(ExpenseService.class);
-<<<<<<< HEAD
 
         this.budget = budgetService.getById(budget.getId())
-                .orElse(budget); 
+                .orElse(budget);
 
         this.expenses = new ArrayList<>();
         this.isReadOnly = isReadOnly;
 
-=======
-        this.budget = budget;
-        this.expenses = new ArrayList<>();
-        this.isReadOnly = isReadOnly;
-
->>>>>>> a54db8f7f59dfc13f3e06079a37311993b9cce66
         initComponents();
         setListeners();
         refreshExpenses();
@@ -111,25 +96,16 @@ public class BudgetDetailView extends JPanel {
         favoriteCheckBox.addActionListener(e -> {
             if (!isReadOnly) {
                 budget.setFavorite(favoriteCheckBox.isSelected());
-<<<<<<< HEAD
-                budgetService.update(budget); 
-=======
                 budgetService.update(budget);
->>>>>>> a54db8f7f59dfc13f3e06079a37311993b9cce66
             }
         });
         detailsPanel.add(Box.createRigidArea(new Dimension(0, 5)));
         detailsPanel.add(favoriteCheckBox);
 
-<<<<<<< HEAD
-=======
-        // Top Buttons Panel
->>>>>>> a54db8f7f59dfc13f3e06079a37311993b9cce66
         JPanel topButtonsPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         participantsButton = new JButton("Participants");
         topButtonsPanel.add(participantsButton);
 
-<<<<<<< HEAD
         boolean hasOwnerAccess = budgetAccessService.hasAccess(
                 budget.getId(),
                 UserSession.getInstance().getUser().getId(),
@@ -140,10 +116,6 @@ public class BudgetDetailView extends JPanel {
                 UserSession.getInstance().getUser().getId(),
                 BudgetAccessLevel.EDITOR
         );
-=======
-        boolean hasOwnerAccess = budgetAccessService.hasAccess(budget.getId(), UserSession.getInstance().getUser().getId(), BudgetAccessLevel.OWNER);
-        boolean hasEditorAccess = budgetAccessService.hasAccess(budget.getId(), UserSession.getInstance().getUser().getId(), BudgetAccessLevel.EDITOR);
->>>>>>> a54db8f7f59dfc13f3e06079a37311993b9cce66
 
         if (hasEditorAccess && !isReadOnly) {
             editButton = new JButton("Edit Budget");
@@ -173,10 +145,6 @@ public class BudgetDetailView extends JPanel {
         topPanel.add(topButtonsPanel, BorderLayout.SOUTH);
         add(topPanel, BorderLayout.NORTH);
 
-<<<<<<< HEAD
-=======
-        // Expenses Table
->>>>>>> a54db8f7f59dfc13f3e06079a37311993b9cce66
         JPanel centerPanel = new JPanel(new BorderLayout());
         centerPanel.setBorder(BorderFactory.createTitledBorder("Expenses"));
         expensesTable = new JTable(createExpensesTableModel(expenses));
@@ -184,10 +152,6 @@ public class BudgetDetailView extends JPanel {
         centerPanel.add(scrollPane, BorderLayout.CENTER);
         add(centerPanel, BorderLayout.CENTER);
 
-<<<<<<< HEAD
-=======
-        // Bottom Panel
->>>>>>> a54db8f7f59dfc13f3e06079a37311993b9cce66
         JPanel bottomPanel = new JPanel(new BorderLayout());
 
         JPanel leftButtonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
@@ -204,10 +168,6 @@ public class BudgetDetailView extends JPanel {
             ));
             rightButtonPanel.add(statisticsButton);
         }
-<<<<<<< HEAD
-=======
-
->>>>>>> a54db8f7f59dfc13f3e06079a37311993b9cce66
         if (!expenses.isEmpty() && !isReadOnly) {
             JButton splitSimulation = new JButton("Split Simulation");
             splitSimulation.addActionListener(e -> mainFrame.registerAndShowScreen(
@@ -216,18 +176,10 @@ public class BudgetDetailView extends JPanel {
             ));
             rightButtonPanel.add(splitSimulation);
         }
-<<<<<<< HEAD
-=======
-
->>>>>>> a54db8f7f59dfc13f3e06079a37311993b9cce66
         if (!isReadOnly && hasEditorAccess) {
             addExpenseButton = new JButton("Add Expense");
             rightButtonPanel.add(addExpenseButton);
         }
-<<<<<<< HEAD
-=======
-
->>>>>>> a54db8f7f59dfc13f3e06079a37311993b9cce66
         bottomPanel.add(rightButtonPanel, BorderLayout.EAST);
 
         paginationPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
@@ -276,10 +228,7 @@ public class BudgetDetailView extends JPanel {
                         new ExpensesImportScreen(mainFrame, budget, ScreenNames.BUDGET_DETAIL_VIEW, this::refreshExpenses)
                 ));
             }
-<<<<<<< HEAD
 
-=======
->>>>>>> a54db8f7f59dfc13f3e06079a37311993b9cce66
             expensesTable.getSelectionModel().addListSelectionListener(e -> {
                 if (!e.getValueIsAdjusting()) {
                     int selectedRow = expensesTable.getSelectedRow();
@@ -296,10 +245,7 @@ public class BudgetDetailView extends JPanel {
         }
     }
 
-<<<<<<< HEAD
- 
-=======
->>>>>>> a54db8f7f59dfc13f3e06079a37311993b9cce66
+
     private void refreshExpenses() {
         if (isReadOnly) return;
         try {
@@ -310,14 +256,10 @@ public class BudgetDetailView extends JPanel {
             updatePaginationPanel();
         } catch (Exception ex) {
             logger.error("Error refreshing expenses for Budget ID: " + budget.getId(), ex);
-<<<<<<< HEAD
             JOptionPane.showMessageDialog(this,
                     "An error occurred while refreshing expenses: " + ex.getMessage(),
                     "Error",
                     JOptionPane.ERROR_MESSAGE);
-=======
-            JOptionPane.showMessageDialog(this, "An error occurred while refreshing expenses: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
->>>>>>> a54db8f7f59dfc13f3e06079a37311993b9cce66
         }
     }
 
@@ -358,14 +300,10 @@ public class BudgetDetailView extends JPanel {
             }
         } catch (Exception ex) {
             logger.error("Error updating pagination for Budget ID: " + budget.getId(), ex);
-<<<<<<< HEAD
             JOptionPane.showMessageDialog(this,
                     "An error occurred while updating pagination: " + ex.getMessage(),
                     "Error",
                     JOptionPane.ERROR_MESSAGE);
-=======
-            JOptionPane.showMessageDialog(this, "An error occurred while updating pagination: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
->>>>>>> a54db8f7f59dfc13f3e06079a37311993b9cce66
         }
         paginationPanel.revalidate();
         paginationPanel.repaint();
