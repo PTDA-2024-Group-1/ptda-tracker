@@ -16,8 +16,6 @@ import java.util.prefs.Preferences;
 public class NavigationMenu extends JPanel {
     private final MainFrame mainFrame;
 
-    private static final Color BACKGROUND_COLOR = new Color(56, 56, 56); // Color #383838
-
     public NavigationMenu(MainFrame mainFrame) {
         this.mainFrame = mainFrame;
         this.currentScreen = "";

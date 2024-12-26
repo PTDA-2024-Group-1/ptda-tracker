@@ -1,6 +1,8 @@
 package com.ptda.tracker.ui.admin.screens;
 
+import com.ptda.tracker.models.admin.GlobalVariableName;
 import com.ptda.tracker.services.administration.AdminService;
+import com.ptda.tracker.services.administration.GlobalVariableService;
 import com.ptda.tracker.services.assistance.AssistantService;
 import com.ptda.tracker.services.assistance.TicketService;
 import com.ptda.tracker.services.tracker.BudgetService;
@@ -22,6 +24,7 @@ public class AdministrationOptionsScreen extends JPanel {
     private final ExpenseService expenseService;
     private final UserService userService;
     private final TicketService ticketService;
+    private final GlobalVariableService globalVariableService;
 
     public AdministrationOptionsScreen(MainFrame mainFrame) {
         this.mainFrame = mainFrame;
@@ -29,6 +32,7 @@ public class AdministrationOptionsScreen extends JPanel {
         this.expenseService = mainFrame.getContext().getBean(ExpenseService.class);
         this.userService = mainFrame.getContext().getBean(UserService.class);
         this.ticketService = mainFrame.getContext().getBean(TicketService.class);
+        this.globalVariableService = mainFrame.getContext().getBean(GlobalVariableService.class);
         initComponents();
     }
 
@@ -59,31 +63,8 @@ public class AdministrationOptionsScreen extends JPanel {
         add(titlePanel, BorderLayout.NORTH);
 
         // Statistics Panel
-        JPanel statsPanel = new JPanel(new GridLayout(2, 3, 10, 10));
+        statsPanel = new JPanel(new GridLayout(2, 3, 10, 10));
         statsPanel.setBorder(BorderFactory.createTitledBorder("Statistics"));
-
-        // Load and resize icons
-        ImageIcon budgetIcon = resizeIcon(new ImageIcon(BUDGET_ICON_PATH), 50, 50);
-        ImageIcon expenseIcon = resizeIcon(new ImageIcon(EXPENSE_ICON_PATH), 50, 50);
-        ImageIcon userIcon = resizeIcon(new ImageIcon(USERS_ICON_PATH), 50, 50);
-        ImageIcon assistantIcon = resizeIcon(new ImageIcon(ASSISTANT_ICON_PATH), 50, 50);
-        ImageIcon adminIcon = resizeIcon(new ImageIcon(ADMIN_ICON_PATH), 50, 50);
-        ImageIcon ticketIcon = resizeIcon(new ImageIcon(TICKETS_ICON_PATH), 50, 50);
-
-        // Create labels with resized icons
-        budgetsLabel = createStatLabel(budgetIcon, "Total Budgets: 0");
-        expensesLabel = createStatLabel(expenseIcon, "Total Expenses: 0");
-        usersLabel = createStatLabel(userIcon, "Users: 0");
-        assistantsLabel = createStatLabel(assistantIcon, "Assistants: 0");
-        adminsLabel = createStatLabel(adminIcon, "Admins: 0");
-        ticketsLabel = createStatLabel(ticketIcon, "Total Tickets: 0");
-
-        statsPanel.add(budgetsLabel);
-        statsPanel.add(expensesLabel);
-        statsPanel.add(ticketsLabel);
-        statsPanel.add(usersLabel);
-        statsPanel.add(assistantsLabel);
-        statsPanel.add(adminsLabel);
 
         add(statsPanel, BorderLayout.CENTER);
 
@@ -110,10 +91,49 @@ public class AdministrationOptionsScreen extends JPanel {
         buttons.add(manageUsersButton);
         buttons.add(manageTicketsButton);
 
+        // Email Verification Checkbox
+        emailVerificationCheckbox = new JCheckBox("Email Verification");
+        emailVerificationCheckbox.setFont(new Font("Arial", Font.PLAIN, 14));
+        String verifyEmail = globalVariableService.get(GlobalVariableName.VERIFY_EMAIL.toString()) != null ? globalVariableService.get(GlobalVariableName.VERIFY_EMAIL.toString()) : "false";
+        emailVerificationCheckbox.setSelected(Boolean.parseBoolean(verifyEmail));
+        emailVerificationCheckbox.addActionListener(e -> {
+            boolean isEmailVerified = emailVerificationCheckbox.isSelected();
+            globalVariableService.set(GlobalVariableName.VERIFY_EMAIL, String.valueOf(isEmailVerified));
+        });
+
+        buttons.add(emailVerificationCheckbox);
+
         buttonPanel.add(buttons, BorderLayout.CENTER);
         add(buttonPanel, BorderLayout.SOUTH);
 
         refreshData();
+    }
+
+    private void showStats() {
+        // Load and resize icons
+        ImageIcon budgetIcon = resizeIcon(new ImageIcon(BUDGET_ICON_PATH), 50, 50);
+        ImageIcon expenseIcon = resizeIcon(new ImageIcon(EXPENSE_ICON_PATH), 50, 50);
+        ImageIcon userIcon = resizeIcon(new ImageIcon(USERS_ICON_PATH), 50, 50);
+        ImageIcon assistantIcon = resizeIcon(new ImageIcon(ASSISTANT_ICON_PATH), 50, 50);
+        ImageIcon adminIcon = resizeIcon(new ImageIcon(ADMIN_ICON_PATH), 50, 50);
+        ImageIcon ticketIcon = resizeIcon(new ImageIcon(TICKETS_ICON_PATH), 50, 50);
+
+        // Create labels with resized icons
+        budgetsLabel = createStatLabel(budgetIcon, "Total Budgets: 0");
+        expensesLabel = createStatLabel(expenseIcon, "Total Expenses: 0");
+        usersLabel = createStatLabel(userIcon, "Users: 0");
+        assistantsLabel = createStatLabel(assistantIcon, "Assistants: 0");
+        adminsLabel = createStatLabel(adminIcon, "Admins: 0");
+        ticketsLabel = createStatLabel(ticketIcon, "Total Tickets: 0");
+
+        statsPanel.add(budgetsLabel);
+        statsPanel.add(expensesLabel);
+        statsPanel.add(ticketsLabel);
+        statsPanel.add(usersLabel);
+        statsPanel.add(assistantsLabel);
+        statsPanel.add(adminsLabel);
+
+        updateStatistics();
     }
 
     private JLabel createStatLabel(ImageIcon icon, String text) {
@@ -137,4 +157,6 @@ public class AdministrationOptionsScreen extends JPanel {
     }
 
     private JLabel budgetsLabel, expensesLabel, usersLabel, assistantsLabel, adminsLabel, ticketsLabel;
+    private JCheckBox emailVerificationCheckbox;
+    private JPanel statsPanel;
 }

@@ -32,7 +32,8 @@ public class BudgetsScreen extends JPanel {
             if (!e.getValueIsAdjusting()) {
                 Budget selectedBudget = budgetList.getSelectedValue();
                 if (selectedBudget != null) {
-                    mainFrame.registerAndShowScreen(ScreenNames.BUDGET_DETAIL_VIEW, new BudgetDetailView(mainFrame, selectedBudget));
+                    mainFrame.registerAndShowScreen(ScreenNames.BUDGET_DETAIL_VIEW,
+                            new BudgetDetailView(mainFrame, selectedBudget));
                     budgetList.clearSelection(); // Clear selection to allow new interaction
                 }
             }
@@ -47,7 +48,11 @@ public class BudgetsScreen extends JPanel {
         JButton favoritesButton = new JButton("Favorites");
 
         allButton.addActionListener(e -> setBudgetList(budgets));
-        favoritesButton.addActionListener(e -> setBudgetList(budgets.stream().filter(Budget::isFavorite).collect(Collectors.toList())));
+        favoritesButton.addActionListener(e ->
+                setBudgetList(budgets.stream()
+                        .filter(Budget::isFavorite)
+                        .collect(Collectors.toList())
+                ));
 
         buttonPanel.add(allButton);
         buttonPanel.add(favoritesButton);
@@ -59,7 +64,12 @@ public class BudgetsScreen extends JPanel {
         JButton createButton = new JButton(CREATE_NEW_BUDGET);
         createButton.addActionListener(e -> {
             // Open BudgetForm in creation mode
-            mainFrame.registerScreen(ScreenNames.BUDGET_FORM, new BudgetForm(mainFrame, this::refreshBudgetList, null));
+            mainFrame.registerScreen(
+                    ScreenNames.BUDGET_FORM,
+                    new BudgetForm(mainFrame, null,
+                            mainFrame.getCurrentScreen(),
+                            this::refreshBudgetList)
+            );
             mainFrame.showScreen(ScreenNames.BUDGET_FORM);
         });
         add(createButton, BorderLayout.SOUTH);

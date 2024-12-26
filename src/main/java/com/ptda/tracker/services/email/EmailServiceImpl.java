@@ -1,5 +1,7 @@
 package com.ptda.tracker.services.email;
 
+import com.ptda.tracker.models.admin.GlobalVariableName;
+import com.ptda.tracker.services.administration.GlobalVariableService;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.InternetAddress;
 import jakarta.mail.internet.MimeMessage;
@@ -12,6 +14,15 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class EmailServiceImpl implements EmailService {
     private final JavaMailSender mailSender;
+    private final GlobalVariableService globalVariableService;
+
+    @Override
+    public boolean isEmailVerificationEnabled() {
+        String verifyEmail = globalVariableService.get(GlobalVariableName.VERIFY_EMAIL.toString());
+        boolean enabled = verifyEmail != null && verifyEmail.equalsIgnoreCase("true");
+        System.out.println("Email verification enabled: " + enabled);
+        return enabled;
+    }
 
     @Override
     public void sendEmail(String to, String subject, String body) {

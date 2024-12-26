@@ -1,6 +1,8 @@
 package com.ptda.tracker.ui.user.forms;
 
+import com.ptda.tracker.config.AppConfig;
 import com.ptda.tracker.models.user.User;
+import com.ptda.tracker.services.email.EmailService;
 import com.ptda.tracker.services.user.UserService;
 import com.ptda.tracker.ui.MainFrame;
 import com.ptda.tracker.ui.user.screens.NavigationScreen;
@@ -12,8 +14,7 @@ import com.ptda.tracker.util.ImageResourceManager;
 
 import javax.swing.*;
 import java.awt.*;
-
-import static com.ptda.tracker.config.AppConfig.LOGO_PATH;
+import java.text.MessageFormat;
 
 public class RegisterForm extends JPanel {
     private final MainFrame mainFrame;
@@ -24,13 +25,10 @@ public class RegisterForm extends JPanel {
         this.mainFrame = mainFrame;
         initComponents();
         setListeners();
-
-        updateFormLogo();
-
-        ThemeManager.getInstance().addThemeChangeListener(this::updateFormLogo);
     }
 
     private void setListeners() {
+        ThemeManager.getInstance().addThemeChangeListener(this::updateFormLogo);
         showPasswordCheckbox.addActionListener(e -> {
             boolean showPassword = showPasswordCheckbox.isSelected();
             passwordField.setEchoChar(showPassword ? '\0' : '*');
@@ -41,24 +39,45 @@ public class RegisterForm extends JPanel {
     }
 
     private void register() {
-        JOptionPane.showMessageDialog(this,SURE_ALL_DATA_CORRECT, CONFIRMATION, JOptionPane.WARNING_MESSAGE);
-
         String name = nameField.getText().trim();
         String email = emailField.getText().trim();
         String password = new String(passwordField.getPassword());
         String confirmPassword = new String(confirmPasswordField.getPassword());
+        boolean verifyEmail = mainFrame.getContext().getBean(EmailService.class).isEmailVerificationEnabled();
 
         // Fields validation
         if (name.isEmpty() || email.isEmpty() || password.isEmpty() || confirmPassword.isEmpty()) {
-            JOptionPane.showMessageDialog(this, ALL_FIELDS_REQUIRED, ERROR, JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, ALL_FIELDS_REQUIRED,
+                    ERROR, JOptionPane.ERROR_MESSAGE
+            );
             return;
         }
-//        if (!email.matches("^[A-Za-z0-9+_.-]+@(.+)$")) {
-//            JOptionPane.showMessageDialog(this, INVALID_EMAIL_FORMAT, ERROR, JOptionPane.ERROR_MESSAGE);
-//            return;
-//        }
+        if (verifyEmail && !email.matches("^[A-Za-z0-9+_.-]+@(.+)$")) {
+            JOptionPane.showMessageDialog(this,
+                    INVALID_EMAIL_FORMAT, ERROR,
+                    JOptionPane.ERROR_MESSAGE
+            );
+            return;
+        }
         if (!password.equals(confirmPassword)) {
-            JOptionPane.showMessageDialog(this, PASSWORDS_DO_NOT_MATCH, ERROR, JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, PASSWORDS_DO_NOT_MATCH,
+                    ERROR, JOptionPane.ERROR_MESSAGE
+            );
+            return;
+        }
+        if (password.length() < AppConfig.MIN_PASSWORD_LENGTH) {
+            JOptionPane.showMessageDialog(this,
+                    MessageFormat.format(PASSWORD_MINIMAL_LENGHT, AppConfig.MIN_PASSWORD_LENGTH),
+                    ERROR, JOptionPane.ERROR_MESSAGE
+            );
+            return;
+        }
+
+        int confirm = JOptionPane.showConfirmDialog(this,
+                SURE_ALL_DATA_CORRECT, CONFIRMATION,
+                JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE
+        );
+        if (confirm != JOptionPane.YES_OPTION) {
             return;
         }
 
@@ -66,26 +85,37 @@ public class RegisterForm extends JPanel {
         try {
             UserService userService = mainFrame.getContext().getBean(UserService.class);
             if (userService.getByEmail(email).isPresent()) {
-                JOptionPane.showMessageDialog(this, EMAIL_ALREADY_REGISTERED, ERROR, JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(this,
+                        EMAIL_ALREADY_REGISTERED, ERROR,
+                        JOptionPane.ERROR_MESSAGE
+                );
                 return;
             }
             newUser = userService.register(name, email, password);
             if (newUser != null) {
-//                mainFrame.registerAndShowScreen(
-//                        ScreenNames.EMAIL_VERIFICATION_FORM,
-//                        new EmailVerificationForm(mainFrame, newUser, ScreenNames.LOGIN_FORM, this::onEmailVerificationSuccess)
-//                );
-                onEmailVerificationSuccess();
+                if (verifyEmail) {
+                    mainFrame.registerAndShowScreen(
+                            ScreenNames.EMAIL_VERIFICATION_FORM,
+                            new EmailVerificationForm(mainFrame, newUser, ScreenNames.LOGIN_FORM, this::onEmailVerificationSuccess)
+                    );
+                } else {
+                    onEmailVerificationSuccess();
+                }
                 // Clear fields
                 nameField.setText("");
                 emailField.setText("");
                 passwordField.setText("");
                 confirmPasswordField.setText("");
             } else {
-                JOptionPane.showMessageDialog(this, REGISTRATION_FAILED, ERROR, JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(this, REGISTRATION_FAILED,
+                        ERROR, JOptionPane.ERROR_MESSAGE
+                );
             }
         } catch (Exception ex) {
-            JOptionPane.showMessageDialog(this, AN_ERROR_OCCURRED + ": " + ex.getMessage(), ERROR, JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this,
+                    AN_ERROR_OCCURRED + ": " + ex.getMessage(), ERROR,
+                    JOptionPane.ERROR_MESSAGE
+            );
         }
     }
 
@@ -104,7 +134,7 @@ public class RegisterForm extends JPanel {
     private void updateFormLogo() {
         boolean isDark = ThemeManager.getInstance().isDark();
         ImageIcon appLogo = ImageResourceManager.getThemeBasedIcon(isDark);
-        Image scaledImage = appLogo.getImage().getScaledInstance(250, 250, Image.SCALE_SMOOTH);
+        Image scaledImage = appLogo.getImage().getScaledInstance(150, 150, Image.SCALE_SMOOTH);
         logoLabel.setIcon(new ImageIcon(scaledImage));
     }
 
@@ -120,7 +150,6 @@ public class RegisterForm extends JPanel {
         // Title
         JLabel titleLabel = new JLabel(REGISTER, SwingConstants.CENTER);
         titleLabel.setFont(new Font("Arial", Font.BOLD, 20)); // Font
-        titleLabel.setForeground(new Color(0, 0, 0)); // Black color
         titleLabel.setAlignmentX(CENTER_ALIGNMENT);
         topPanel.add(titleLabel);
 
@@ -128,96 +157,101 @@ public class RegisterForm extends JPanel {
         logoLabel.setAlignmentX(CENTER_ALIGNMENT);
         topPanel.add(Box.createRigidArea(new Dimension(0, 10))); // Space between title and logo
         topPanel.add(logoLabel);
+        updateFormLogo();
 
         add(topPanel, BorderLayout.NORTH);
 
-        // Main panel with fields and buttons
-        JPanel formPanel = new JPanel(new GridBagLayout()); // Use GridBagLayout
-        formPanel.setBorder(BorderFactory.createEmptyBorder(10, 20, 20, 20)); // Internal margins
-
+        // Center panel for horizontal alignment
+        JPanel centerPanel = new JPanel(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
+
+        // Adjust GridBagConstraints for horizontal centering
         gbc.insets = new Insets(5, 5, 5, 5); // Spacing between components
         gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.anchor = GridBagConstraints.WEST; // Align labels to the left of their cells
 
         // Name field with label
-        JLabel nameLabel = new JLabel(NAME + ":");
-        nameLabel.setFont(new Font("Arial", Font.PLAIN, 14));
+        JLabel nameLabel = new JLabel(NAME + ":", SwingConstants.RIGHT);
+        nameLabel.setHorizontalAlignment(SwingConstants.RIGHT); // Align label to the right
         gbc.gridx = 0;
         gbc.gridy = 0;
-        formPanel.add(nameLabel, gbc);
+        centerPanel.add(nameLabel, gbc);
 
         nameField = new JTextField();
-        nameField.setFont(new Font("Arial", Font.PLAIN, 14));
         nameField.setPreferredSize(new Dimension(200, 30)); // Field size
-        nameField.setToolTipText(ENTER_NAME);
-        gbc.gridx = 0;
-        gbc.gridy = 1;
-        formPanel.add(nameField, gbc);
+        gbc.gridx = 1;
+        gbc.gridy = 0;
+        gbc.anchor = GridBagConstraints.CENTER; // Align text field to center
+        centerPanel.add(nameField, gbc);
 
         // Email field with label
-        JLabel emailLabel = new JLabel(EMAIL + ":");
-        emailLabel.setFont(new Font("Arial", Font.PLAIN, 14));
+        JLabel emailLabel = new JLabel(EMAIL + ":", SwingConstants.RIGHT);
+        emailLabel.setHorizontalAlignment(SwingConstants.RIGHT);
         gbc.gridx = 0;
-        gbc.gridy = 2;
-        formPanel.add(emailLabel, gbc);
+        gbc.gridy = 1;
+        gbc.anchor = GridBagConstraints.WEST;
+        centerPanel.add(emailLabel, gbc);
 
         emailField = new JTextField();
-        emailField.setFont(new Font("Arial", Font.PLAIN, 14));
         emailField.setPreferredSize(new Dimension(200, 30));
-        emailField.setToolTipText(ENTER_EMAIL);
-        gbc.gridx = 0;
-        gbc.gridy = 3;
-        formPanel.add(emailField, gbc);
+        gbc.gridx = 1;
+        gbc.gridy = 1;
+        gbc.anchor = GridBagConstraints.CENTER;
+        centerPanel.add(emailField, gbc);
 
         // Password field with label
-        JLabel passwordLabel = new JLabel(PASSWORD + ":");
-        passwordLabel.setFont(new Font("Arial", Font.PLAIN, 14));
+        JLabel passwordLabel = new JLabel(PASSWORD + ":", SwingConstants.RIGHT);
+        passwordLabel.setHorizontalAlignment(SwingConstants.RIGHT);
         gbc.gridx = 0;
-        gbc.gridy = 4;
-        formPanel.add(passwordLabel, gbc);
+        gbc.gridy = 2;
+        gbc.anchor = GridBagConstraints.WEST;
+        centerPanel.add(passwordLabel, gbc);
 
         passwordField = new JPasswordField();
-        passwordField.setFont(new Font("Arial", Font.PLAIN, 14));
         passwordField.setPreferredSize(new Dimension(200, 30));
-        passwordField.setToolTipText(ENTER_PASSWORD);
-        gbc.gridx = 0;
-        gbc.gridy = 5;
-        formPanel.add(passwordField, gbc);
+        gbc.gridx = 1;
+        gbc.gridy = 2;
+        gbc.anchor = GridBagConstraints.CENTER;
+        centerPanel.add(passwordField, gbc);
 
         // Confirm password field with label
-        JLabel confirmPasswordLabel = new JLabel(CONFIRM_PASSWORD + ":");
-        confirmPasswordLabel.setFont(new Font("Arial", Font.PLAIN, 14));
+        JLabel confirmPasswordLabel = new JLabel(CONFIRM_PASSWORD + ":", SwingConstants.RIGHT);
+        confirmPasswordLabel.setHorizontalAlignment(SwingConstants.RIGHT);
         gbc.gridx = 0;
-        gbc.gridy = 6;
-        formPanel.add(confirmPasswordLabel, gbc);
+        gbc.gridy = 3;
+        gbc.anchor = GridBagConstraints.WEST;
+        centerPanel.add(confirmPasswordLabel, gbc);
 
         confirmPasswordField = new JPasswordField();
-        confirmPasswordField.setFont(new Font("Arial", Font.PLAIN, 14));
         confirmPasswordField.setPreferredSize(new Dimension(200, 30));
-        confirmPasswordField.setToolTipText(REPEAT_PASSWORD);
-        gbc.gridx = 0;
-        gbc.gridy = 7;
-        formPanel.add(confirmPasswordField, gbc);
+        gbc.gridx = 1;
+        gbc.gridy = 3;
+        gbc.anchor = GridBagConstraints.CENTER;
+        centerPanel.add(confirmPasswordField, gbc);
 
         // Show password checkbox
         showPasswordCheckbox = new JCheckBox(SHOW_PASSWORD);
-        gbc.gridx = 0;
-        gbc.gridy = 8;
-        formPanel.add(showPasswordCheckbox, gbc);
+        gbc.gridx = 1;
+        gbc.gridy = 4;
+        gbc.anchor = GridBagConstraints.CENTER;
+        centerPanel.add(showPasswordCheckbox, gbc);
 
         // Register button
         registerButton = new JButton(REGISTER);
-        gbc.gridx = 0;
-        gbc.gridy = 9;
-        formPanel.add(registerButton, gbc);
+        gbc.gridx = 1;
+        gbc.gridy = 5;
+        gbc.anchor = GridBagConstraints.CENTER;
+        centerPanel.add(registerButton, gbc);
 
         // Go to login button
         goToLoginButton = new JButton(GO_TO_LOGIN);
-        gbc.gridx = 0;
-        gbc.gridy = 10;
-        formPanel.add(goToLoginButton, gbc);
+        gbc.gridx = 1;
+        gbc.gridy = 6;
+        gbc.anchor = GridBagConstraints.CENTER;
+        centerPanel.add(goToLoginButton, gbc);
 
-        add(formPanel, BorderLayout.CENTER);
+        // Add the center panel to the form
+        add(centerPanel, BorderLayout.CENTER);
     }
 
     private JTextField nameField, emailField;
@@ -232,7 +266,7 @@ public class RegisterForm extends JPanel {
             EMAIL = localeManager.getTranslation("email"),
             ENTER_EMAIL = localeManager.getTranslation("enter_email"),
             PASSWORD = localeManager.getTranslation("password"),
-            ENTER_PASSWORD = localeManager.getTranslation("enter_password"),
+            ENTER_STRONG_PASSWORD = localeManager.getTranslation("enter_strong_password"),
             CONFIRM_PASSWORD = localeManager.getTranslation("confirm_password"),
             REPEAT_PASSWORD = localeManager.getTranslation("repeat_password"),
             SHOW_PASSWORD = localeManager.getTranslation("show_password"),
@@ -244,7 +278,7 @@ public class RegisterForm extends JPanel {
             EMAIL_ALREADY_REGISTERED = localeManager.getTranslation("email_already_registered"),
             REGISTRATION_FAILED = localeManager.getTranslation("registration_failed"),
             AN_ERROR_OCCURRED = localeManager.getTranslation("an_error_occurred"),
-            ARE_YOU_SURE_YOU_WANT_TO_REGISTER = localeManager.getTranslation("are_you_sure_you_want_to_register"),
             SURE_ALL_DATA_CORRECT = localeManager.getTranslation("sure_all_data_correct"),
-            CONFIRMATION = localeManager.getTranslation("confirmation");
+            CONFIRMATION = localeManager.getTranslation("confirmation"),
+            PASSWORD_MINIMAL_LENGHT = localeManager.getTranslation("password_minimal_length");
 }

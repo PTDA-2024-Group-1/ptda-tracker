@@ -15,6 +15,7 @@ import org.jdesktop.swingx.JXDatePicker;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -38,6 +39,15 @@ public class ExpenseForm extends JPanel {
     }
 
     private void setListeners() {
+        // lets user input only double values in amount field
+        amountField.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyTyped(java.awt.event.KeyEvent evt) {
+                char c = evt.getKeyChar();
+                if (!((c >= '0' && c <= '9') || c == KeyEvent.VK_BACK_SPACE || c == KeyEvent.VK_DELETE || c == '.')) {
+                    evt.consume();
+                }
+            }
+        });
         backButton.addActionListener(e -> {
             if (onFormSubmit != null) onFormSubmit.run();
             mainFrame.showScreen(returnScreen);
@@ -53,8 +63,6 @@ public class ExpenseForm extends JPanel {
         double amount = amountText.isEmpty() ? 0 : Double.parseDouble(amountText);
         Date date = dateChooser.getDate();
         ExpenseCategory category = (ExpenseCategory) categoryComboBox.getSelectedItem();
-        String budgetName = (String) budgetComboBox.getSelectedItem();
-        Budget selectedBudget = budgetMap.get(budgetName);
 
         // verifications
         if (title.isEmpty() || amount <= 0) {
@@ -65,12 +73,16 @@ public class ExpenseForm extends JPanel {
         // set values
         if (expense == null) {
             expense = new Expense();
+            expense.setBudget(budget);
+        } else {
+            String budgetName = (String) budgetComboBox.getSelectedItem();
+            Budget selectedBudget = budgetMap.get(budgetName);
+            expense.setBudget(selectedBudget);
         }
         expense.setTitle(title);
         expense.setAmount(amount);
         expense.setDate(date);
         expense.setCategory(category);
-        expense.setBudget(selectedBudget);
         expense.setDescription(description);
 
         // save expense

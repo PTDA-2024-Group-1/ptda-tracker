@@ -2,6 +2,7 @@ package com.ptda.tracker.ui.user.forms;
 
 import com.ptda.tracker.TrackerApplication;
 import com.ptda.tracker.models.user.User;
+import com.ptda.tracker.services.email.EmailService;
 import com.ptda.tracker.services.user.UserService;
 import com.ptda.tracker.ui.MainFrame;
 import com.ptda.tracker.ui.user.screens.NavigationScreen;
@@ -31,10 +32,6 @@ public class LoginForm extends JPanel {
 
         initComponents();
         setListeners();
-
-        updateFormLogo();
-
-        ThemeManager.getInstance().addThemeChangeListener(this::updateFormLogo);
     }
 
     private void setListeners() {
@@ -42,6 +39,7 @@ public class LoginForm extends JPanel {
         registerButton.addActionListener(e -> {
             mainFrame.registerAndShowScreen(ScreenNames.REGISTER_FORM, new RegisterForm(mainFrame));
         });
+        ThemeManager.getInstance().addThemeChangeListener(this::updateFormLogo);
     }
 
     private void login() {
@@ -68,8 +66,15 @@ public class LoginForm extends JPanel {
             mainFrame.registerAndShowScreen(ScreenNames.NAVIGATION_SCREEN, new NavigationScreen(mainFrame));
             JOptionPane.showMessageDialog(this, WELCOME_BACK, MESSAGE, JOptionPane.INFORMATION_MESSAGE);
         } else {
-            onEmailVerificationSuccess();
-            //mainFrame.registerAndShowScreen(ScreenNames.EMAIL_VERIFICATION_FORM, new EmailVerificationForm(mainFrame, user, mainFrame.getCurrentScreen(), this::onEmailVerificationSuccess));
+            boolean verifyEmail = mainFrame.getContext().getBean(EmailService.class).isEmailVerificationEnabled();
+            if (verifyEmail) {
+                mainFrame.registerAndShowScreen(
+                        ScreenNames.EMAIL_VERIFICATION_FORM,
+                        new EmailVerificationForm(mainFrame, user, mainFrame.getCurrentScreen(), this::onEmailVerificationSuccess)
+                );
+            } else {
+                onEmailVerificationSuccess();
+            }
         }
     }
 
@@ -93,7 +98,7 @@ public class LoginForm extends JPanel {
     private void updateFormLogo() {
         boolean isDark = ThemeManager.getInstance().isDark();
         ImageIcon appLogo = ImageResourceManager.getThemeBasedIcon(isDark);
-        Image scaledImage = appLogo.getImage().getScaledInstance(250, 250, Image.SCALE_SMOOTH);
+        Image scaledImage = appLogo.getImage().getScaledInstance(150, 150, Image.SCALE_SMOOTH);
         logoLabel.setIcon(new ImageIcon(scaledImage));
     }
 
@@ -115,6 +120,7 @@ public class LoginForm extends JPanel {
         logoLabel.setAlignmentX(CENTER_ALIGNMENT);
         topPanel.add(Box.createRigidArea(new Dimension(0, 10))); // Space between title and logo
         topPanel.add(logoLabel);
+        updateFormLogo();
 
         add(topPanel, BorderLayout.NORTH);
 
@@ -123,47 +129,44 @@ public class LoginForm extends JPanel {
         formPanel.setBorder(BorderFactory.createEmptyBorder(10, 20, 20, 20)); // Padding
 
         GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(5, 5, 5, 5); // Espaçamento entre os componentes
+        gbc.insets = new Insets(5, 5, 5, 5); // Spacing between components
         gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.anchor = GridBagConstraints.CENTER;
 
         // Email
-        JLabel usernameLabel = new JLabel(EMAIL + ":");
-        usernameLabel.setFont(new Font("Arial", Font.PLAIN, 14));
+        JLabel usernameLabel = new JLabel(EMAIL + ":", SwingConstants.RIGHT);
         gbc.gridx = 0;
         gbc.gridy = 0;
         formPanel.add(usernameLabel, gbc);
 
         usernameField = new JTextField();
-        usernameField.setFont(new Font("Arial", Font.PLAIN, 14));
-        usernameField.setPreferredSize(new Dimension(200, 30)); // Tamanho do campo
-        gbc.gridx = 0;
-        gbc.gridy = 1;
+        usernameField.setPreferredSize(new Dimension(200, 30)); // Field size
+        gbc.gridx = 1;
+        gbc.gridy = 0;
         formPanel.add(usernameField, gbc);
 
         // Password
-        JLabel passwordLabel = new JLabel(PASSWORD + ":");
-        passwordLabel.setFont(new Font("Arial", Font.PLAIN, 14));
+        JLabel passwordLabel = new JLabel(PASSWORD + ":", SwingConstants.RIGHT);
         gbc.gridx = 0;
-        gbc.gridy = 2;
+        gbc.gridy = 1;
         formPanel.add(passwordLabel, gbc);
 
         passwordField = new JPasswordField();
-        passwordField.setFont(new Font("Arial", Font.PLAIN, 14));
-        passwordField.setPreferredSize(new Dimension(200, 30)); // Tamanho do campo
-        gbc.gridx = 0;
-        gbc.gridy = 3;
+        passwordField.setPreferredSize(new Dimension(200, 30)); // Field size
+        gbc.gridx = 1;
+        gbc.gridy = 1;
         formPanel.add(passwordField, gbc);
 
-        // Login
+        // Login button
         loginButton = new JButton(LOGIN);
-        gbc.gridx = 0;
-        gbc.gridy = 4;
+        gbc.gridx = 1;
+        gbc.gridy = 2;
         formPanel.add(loginButton, gbc);
 
-        // Register
+        // Register button
         registerButton = new JButton(GO_TO_REGISTER);
-        gbc.gridx = 0;
-        gbc.gridy = 5;
+        gbc.gridx = 1;
+        gbc.gridy = 3;
         formPanel.add(registerButton, gbc);
 
         add(formPanel, BorderLayout.CENTER);
@@ -178,8 +181,6 @@ public class LoginForm extends JPanel {
             EMAIL = localeManager.getTranslation("email"),
             PASSWORD = localeManager.getTranslation("password"),
             GO_TO_REGISTER = localeManager.getTranslation("go_to_register"),
-            EMAIL_REQUIRED = localeManager.getTranslation("email_required"),
-            PASSWORD_REQUIRED = localeManager.getTranslation("password_required"),
             ALL_FIELDS_REQUIRED = localeManager.getTranslation("all_fields_required"),
             WELCOME_BACK = localeManager.getTranslation("welcome_back"),
             INVALID_CREDENTIALS = localeManager.getTranslation("invalid_credentials"),

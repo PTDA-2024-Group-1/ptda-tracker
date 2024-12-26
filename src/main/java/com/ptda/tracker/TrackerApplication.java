@@ -38,14 +38,8 @@ public class TrackerApplication {
         // Initialize Spring Application Context
         ApplicationContext context = SpringApplication.run(TrackerApplication.class, args);
 
-        //CustomSplashScreen splashScreen = new CustomSplashScreen();
-        //splashScreen.showSplashScreen();
-
-        try {
-            Thread.sleep(2000); // Simulate loading time
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+        CustomSplashScreen splashScreen = new CustomSplashScreen();
+        splashScreen.showSplashScreen();
 
         SwingUtilities.invokeLater(() -> {
             Preferences preferences = Preferences.userNodeForPackage(TrackerApplication.class);
@@ -77,11 +71,11 @@ public class TrackerApplication {
                 mainFrame.registerAndShowScreen(ScreenNames.LOGIN_FORM, new LoginForm(mainFrame));
             }
 
-            //splashScreen.hideSplashScreen();
             mainFrame.setAlwaysOnTop(true);
             mainFrame.setVisible(true);
             mainFrame.toFront();
             mainFrame.setAlwaysOnTop(false);
+            splashScreen.hideSplashScreen();
         });
     }
 

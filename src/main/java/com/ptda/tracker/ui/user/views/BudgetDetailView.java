@@ -47,7 +47,7 @@ public class BudgetDetailView extends JPanel {
         });
         if (editButton != null) {
             editButton.addActionListener(e -> mainFrame.registerAndShowScreen(ScreenNames.BUDGET_FORM,
-                    new BudgetForm(mainFrame, null, budget)));
+                    new BudgetForm(mainFrame, budget, mainFrame.getCurrentScreen(), this::refreshExpenses)));
         }
         if (shareButton != null) {
             shareButton.addActionListener(e -> mainFrame.registerAndShowScreen(
