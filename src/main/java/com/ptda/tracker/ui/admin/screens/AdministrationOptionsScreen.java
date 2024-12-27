@@ -1,10 +1,9 @@
 package com.ptda.tracker.ui.admin.screens;
 
 import com.ptda.tracker.models.admin.GlobalVariableName;
-import com.ptda.tracker.services.administration.AdminService;
 import com.ptda.tracker.services.administration.GlobalVariableService;
-import com.ptda.tracker.services.assistance.AssistantService;
 import com.ptda.tracker.services.assistance.TicketService;
+import com.ptda.tracker.services.email.EmailService;
 import com.ptda.tracker.services.tracker.BudgetService;
 import com.ptda.tracker.services.tracker.ExpenseService;
 import com.ptda.tracker.services.user.UserService;
@@ -34,14 +33,24 @@ public class AdministrationOptionsScreen extends JPanel {
         this.ticketService = mainFrame.getContext().getBean(TicketService.class);
         this.globalVariableService = mainFrame.getContext().getBean(GlobalVariableService.class);
         initComponents();
+        setListeners();
+        showStats();
     }
 
-    @Override
-    public void setVisible(boolean visible) {
-        super.setVisible(visible);
-        if (visible) {
-            refreshData();
-        }
+    private void setListeners() {
+        loadData.addActionListener(e -> refreshData());
+        manageTicketsButton.addActionListener(e -> {
+            mainFrame.registerAndShowScreen(
+                    ScreenNames.MANAGE_TICKET_VIEW,
+                    new ManageTicketView(mainFrame)
+            );
+        });
+        manageUsersButton.addActionListener(e -> {
+            mainFrame.registerAndShowScreen(
+                    ScreenNames.MANAGE_USER_VIEW,
+                    new ManageUserView(mainFrame, this::refreshData)
+            );
+        });
     }
 
     private ImageIcon resizeIcon(ImageIcon icon, int width, int height) {
@@ -74,57 +83,47 @@ public class AdministrationOptionsScreen extends JPanel {
 
         JPanel buttons = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 10));
 
-        JButton manageUsersButton = new JButton("Manage Users");
-        manageUsersButton.setFont(new Font("Arial", Font.BOLD, 14));
-        manageUsersButton.addActionListener(e -> {
-            AdministrationOptionsScreen adminOptionsScreen = this;
-            mainFrame.registerAndShowScreen(ScreenNames.MANAGE_USER_VIEW, new ManageUserView(mainFrame, adminOptionsScreen));
-        });
+        loadData = new JButton("Load Data");
+        manageUsersButton = new JButton("Manage Users");
+        manageTicketsButton = new JButton("Manage Tickets");
 
-        JButton manageTicketsButton = new JButton("Manage Tickets");
-        manageTicketsButton.setFont(new Font("Arial", Font.BOLD, 14));
-        manageTicketsButton.addActionListener(e -> {
-            AdministrationOptionsScreen adminOptionsScreen = this;
-            mainFrame.registerAndShowScreen(ScreenNames.MANAGE_TICKET_VIEW, new ManageTicketView(mainFrame));
-        });
-
+        buttons.add(loadData);
         buttons.add(manageUsersButton);
         buttons.add(manageTicketsButton);
 
         // Email Verification Checkbox
-        emailVerificationCheckbox = new JCheckBox("Email Verification");
-        emailVerificationCheckbox.setFont(new Font("Arial", Font.PLAIN, 14));
-        String verifyEmail = globalVariableService.get(GlobalVariableName.VERIFY_EMAIL.toString()) != null ? globalVariableService.get(GlobalVariableName.VERIFY_EMAIL.toString()) : "false";
-        emailVerificationCheckbox.setSelected(Boolean.parseBoolean(verifyEmail));
-        emailVerificationCheckbox.addActionListener(e -> {
-            boolean isEmailVerified = emailVerificationCheckbox.isSelected();
+        emailVerificationToggleButton = new JCheckBox("Email Verification");
+        emailVerificationToggleButton.setFont(new Font("Arial", Font.PLAIN, 14));
+        boolean verifyEmail = mainFrame.getContext().getBean(EmailService.class).isEmailVerificationEnabled();
+        emailVerificationToggleButton.setSelected(verifyEmail);
+        emailVerificationToggleButton.addActionListener(e -> {
+            boolean isEmailVerified = emailVerificationToggleButton.isSelected();
             globalVariableService.set(GlobalVariableName.VERIFY_EMAIL, String.valueOf(isEmailVerified));
         });
 
-        buttons.add(emailVerificationCheckbox);
+        buttons.add(emailVerificationToggleButton);
 
         buttonPanel.add(buttons, BorderLayout.CENTER);
         add(buttonPanel, BorderLayout.SOUTH);
-
-        refreshData();
     }
 
     private void showStats() {
         // Load and resize icons
-        ImageIcon budgetIcon = resizeIcon(new ImageIcon(BUDGET_ICON_PATH), 50, 50);
-        ImageIcon expenseIcon = resizeIcon(new ImageIcon(EXPENSE_ICON_PATH), 50, 50);
-        ImageIcon userIcon = resizeIcon(new ImageIcon(USERS_ICON_PATH), 50, 50);
-        ImageIcon assistantIcon = resizeIcon(new ImageIcon(ASSISTANT_ICON_PATH), 50, 50);
-        ImageIcon adminIcon = resizeIcon(new ImageIcon(ADMIN_ICON_PATH), 50, 50);
-        ImageIcon ticketIcon = resizeIcon(new ImageIcon(TICKETS_ICON_PATH), 50, 50);
+        int iconSize = 50;
+        ImageIcon budgetIcon = resizeIcon(new ImageIcon(BUDGET_ICON_PATH), iconSize, iconSize);
+        ImageIcon expenseIcon = resizeIcon(new ImageIcon(EXPENSE_ICON_PATH), iconSize, iconSize);
+        ImageIcon userIcon = resizeIcon(new ImageIcon(USERS_ICON_PATH), iconSize, iconSize);
+        ImageIcon assistantIcon = resizeIcon(new ImageIcon(ASSISTANT_ICON_PATH), iconSize, iconSize);
+        ImageIcon adminIcon = resizeIcon(new ImageIcon(ADMIN_ICON_PATH), iconSize, iconSize);
+        ImageIcon ticketIcon = resizeIcon(new ImageIcon(TICKETS_ICON_PATH), iconSize, iconSize);
 
         // Create labels with resized icons
-        budgetsLabel = createStatLabel(budgetIcon, "Total Budgets: 0");
-        expensesLabel = createStatLabel(expenseIcon, "Total Expenses: 0");
-        usersLabel = createStatLabel(userIcon, "Users: 0");
-        assistantsLabel = createStatLabel(assistantIcon, "Assistants: 0");
-        adminsLabel = createStatLabel(adminIcon, "Admins: 0");
-        ticketsLabel = createStatLabel(ticketIcon, "Total Tickets: 0");
+        budgetsLabel = createStatLabel(budgetIcon, "Total Budgets:");
+        expensesLabel = createStatLabel(expenseIcon, "Total Expenses:");
+        usersLabel = createStatLabel(userIcon, "Users:");
+        assistantsLabel = createStatLabel(assistantIcon, "Assistants:");
+        adminsLabel = createStatLabel(adminIcon, "Admins:");
+        ticketsLabel = createStatLabel(ticketIcon, "Total Tickets:");
 
         statsPanel.add(budgetsLabel);
         statsPanel.add(expensesLabel);
@@ -132,8 +131,6 @@ public class AdministrationOptionsScreen extends JPanel {
         statsPanel.add(usersLabel);
         statsPanel.add(assistantsLabel);
         statsPanel.add(adminsLabel);
-
-        updateStatistics();
     }
 
     private JLabel createStatLabel(ImageIcon icon, String text) {
@@ -157,6 +154,7 @@ public class AdministrationOptionsScreen extends JPanel {
     }
 
     private JLabel budgetsLabel, expensesLabel, usersLabel, assistantsLabel, adminsLabel, ticketsLabel;
-    private JCheckBox emailVerificationCheckbox;
+    private JButton loadData, manageUsersButton, manageTicketsButton;
+    private JToggleButton emailVerificationToggleButton;
     private JPanel statsPanel;
 }

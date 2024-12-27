@@ -21,11 +21,11 @@ public class ManageUserView extends JPanel {
     private JTable userTable;
     private DefaultTableModel userTableModel;
     private MainFrame mainFrame;
-    private AdministrationOptionsScreen adminOptionsScreen;
+    private Runnable refreshData;
 
-    public ManageUserView(MainFrame mainFrame, AdministrationOptionsScreen adminOptionsScreen) {
+    public ManageUserView(MainFrame mainFrame, Runnable refreshData) {
         this.mainFrame = mainFrame;
-        this.adminOptionsScreen = adminOptionsScreen;
+        this.refreshData = refreshData;
         userService = mainFrame.getContext().getBean(UserService.class);
         initComponents();
         setListeners();
@@ -43,8 +43,8 @@ public class ManageUserView extends JPanel {
                         Optional<User> user = userService.getById(userId);
                         new ManageUserDialog(mainFrame, () -> {
                             loadUserData();
-                            adminOptionsScreen.refreshData();
-                        }, user.orElse(null), adminOptionsScreen).setVisible(true);
+                            refreshData.run();
+                        }, user.orElse(null)).setVisible(true);
                     }
                 }
             }
@@ -105,7 +105,7 @@ public class ManageUserView extends JPanel {
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT)); // Use a JPanel for better layout
         JButton backButton = new JButton("Back");
         backButton.addActionListener(e -> {
-            adminOptionsScreen.refreshData();
+            refreshData.run();
             mainFrame.showScreen(ScreenNames.NAVIGATION_SCREEN);
         });
         buttonPanel.add(backButton);

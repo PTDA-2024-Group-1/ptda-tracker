@@ -29,38 +29,39 @@ import java.util.prefs.Preferences;
 public class TrackerApplication {
 
     public static void main(String[] args) {
+        Preferences preferences = Preferences.userNodeForPackage(TrackerApplication.class);
+        String language = preferences.get("language", "en");
+        String country = preferences.get("country", "US");
+        Locale locale = new Locale(language, country);
+        LocaleManager.getInstance().setLocale(locale);
+
         try {
             setLookAndFeel();
         } catch (UnsupportedLookAndFeelException e) {
             throw new RuntimeException(e);
         }
-
-        // Initialize Spring Application Context
-        ApplicationContext context = SpringApplication.run(TrackerApplication.class, args);
-
         CustomSplashScreen splashScreen = new CustomSplashScreen();
         splashScreen.showSplashScreen();
 
+        // Initialize Spring Application
+        ApplicationContext context = SpringApplication.run(TrackerApplication.class, args);
+
+        String username = preferences.get("email", null);
+        String encryptedPassword = preferences.get("password", null);
+        UserService userService = context.getBean(UserService.class);
+        Optional<User> user = userService.getByEmail(username);
+
         SwingUtilities.invokeLater(() -> {
-            Preferences preferences = Preferences.userNodeForPackage(TrackerApplication.class);
-            String language = preferences.get("language", "en");
-            String country = preferences.get("country", "US");
-            Locale locale = new Locale(language, country);
-            LocaleManager.getInstance().setLocale(locale);
-
-            String username = preferences.get("email", null);
-            String encryptedPassword = preferences.get("password", null);
-
-            UserService userService = context.getBean(UserService.class);
-            Optional<User> user = userService.getByEmail(username);
-
             MainFrame mainFrame = new MainFrame(context);
             if (user.isPresent() && Objects.equals(encryptedPassword, user.get().getPassword())) {
                 UserSession.getInstance().setUser(user.get());
+                splashScreen.hideSplashScreen();
                 mainFrame.registerAndShowScreen(ScreenNames.NAVIGATION_SCREEN, new NavigationScreen(mainFrame));
+                mainFrame.setVisible(true);
             } else if (user.isPresent() && !Objects.equals(encryptedPassword, user.get().getPassword())) {
+                splashScreen.hideSplashScreen();
                 mainFrame.registerAndShowScreen(ScreenNames.LOGIN_FORM, new LoginForm(mainFrame));
-                // say stat saved credentials are incorrect
+                mainFrame.setVisible(true);
                 JOptionPane.showMessageDialog(
                         mainFrame,
                         LocaleManager.getInstance().getTranslation("saved_credentials_incorrect"),
@@ -68,14 +69,10 @@ public class TrackerApplication {
                         JOptionPane.ERROR_MESSAGE
                 );
             } else {
+                splashScreen.hideSplashScreen();
                 mainFrame.registerAndShowScreen(ScreenNames.LOGIN_FORM, new LoginForm(mainFrame));
+                mainFrame.setVisible(true);
             }
-
-            mainFrame.setAlwaysOnTop(true);
-            mainFrame.setVisible(true);
-            mainFrame.toFront();
-            mainFrame.setAlwaysOnTop(false);
-            splashScreen.hideSplashScreen();
         });
     }
 

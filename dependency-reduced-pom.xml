@@ -12,13 +12,6 @@
   <name>tracker</name>
   <version>0.0.1-SNAPSHOT</version>
   <description>Expense Tracker</description>
-  <developers>
-    <developer />
-  </developers>
-  <licenses>
-    <license />
-  </licenses>
-  <scm />
   <build>
     <plugins>
       <plugin>
@@ -38,7 +31,7 @@
       </plugin>
       <plugin>
         <artifactId>maven-shade-plugin</artifactId>
-        <version>3.4.0</version>
+        <version>3.2.4</version>
         <executions>
           <execution>
             <phase>package</phase>
@@ -47,6 +40,13 @@
             </goals>
           </execution>
         </executions>
+      </plugin>
+      <plugin>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <configuration>
+          <source>11</source>
+          <target>11</target>
+        </configuration>
       </plugin>
     </plugins>
   </build>
@@ -226,12 +226,6 @@
       <version>7.2.4</version>
       <type>pom</type>
       <scope>compile</scope>
-    </dependency>
-    <dependency>
-      <groupId>com.toedter</groupId>
-      <artifactId>jcalendar</artifactId>
-      <version>1.4</version>
-      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.apache.commons</groupId>

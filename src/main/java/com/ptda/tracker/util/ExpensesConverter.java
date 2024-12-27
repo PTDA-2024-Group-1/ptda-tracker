@@ -49,7 +49,7 @@ public class ExpensesConverter {
                         case "AMOUNT":
                             String sanitizedValue = cellValue.replace(" ", "").replace(",", ".");
                             double amount = Double.parseDouble(sanitizedValue);
-                            expense.setAmount(makePositive(amount, valueTreatment)); // Apply absolute transformation if needed
+                            expense.setAmount(Math.abs(amount));
                             break;
                         case "DATE":
                             if (cellValue != null && !cellValue.trim().isEmpty()) {
@@ -111,14 +111,4 @@ public class ExpensesConverter {
             return false; // Exclude rows with invalid amounts
         }
     }
-
-    private static double makePositive(double amount, String valueTreatment) {
-        return switch (valueTreatment) {
-            case "NEGATIVE_AS_EXPENSE" -> Math.abs(amount); // Convert negative values to positive
-            case "POSITIVE_AS_EXPENSE" -> Math.abs(amount); // Convert positive values to positive
-            case "ABSOLUTE_VALUE" -> Math.abs(amount); // Convert all values to positive
-            default -> amount; // Return as-is if no specific treatment
-        };
-    }
-
 }

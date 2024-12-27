@@ -18,15 +18,13 @@ public class ManageUserDialog extends JDialog {
     private final RoleManagementService roleManagementService;
     private final User user;
     private final Runnable onFormSubmit;
-    private final AdministrationOptionsScreen adminOptionsScreen;
     private JComboBox<String> roleComboBox;
 
-    public ManageUserDialog(MainFrame mainFrame, Runnable onFormSubmit, User user, AdministrationOptionsScreen adminOptionsScreen) {
+    public ManageUserDialog(MainFrame mainFrame, Runnable onFormSubmit, User user) {
         this.mainFrame = mainFrame;
         this.roleManagementService = mainFrame.getContext().getBean(RoleManagementService.class);
         this.user = user;
         this.onFormSubmit = onFormSubmit;
-        this.adminOptionsScreen = adminOptionsScreen;
         initComponents();
         loadUserData();
         setLocationRelativeTo(mainFrame);
@@ -41,6 +39,7 @@ public class ManageUserDialog extends JDialog {
     private void saveUserDetails() {
         String selectedRole = (String) roleComboBox.getSelectedItem();
         try {
+            assert selectedRole != null;
             if (!selectedRole.equals(user.getUserType())) {
                 switch (selectedRole) {
                     case "ASSISTANT" -> roleManagementService.promoteUserToAssistant(user);
@@ -60,10 +59,9 @@ public class ManageUserDialog extends JDialog {
             reloadedUser.setActive(activeCheckBox.isSelected());
             roleManagementService.updateUser(reloadedUser);
 
-            JOptionPane.showMessageDialog(this, USER_ROLE_UPDATED_SUCCESSFULLY);
             if (onFormSubmit != null) onFormSubmit.run();
-            mainFrame.registerAndShowScreen(ScreenNames.MANAGE_USER_VIEW, new ManageUserView(mainFrame, adminOptionsScreen));
             dispose();
+            JOptionPane.showMessageDialog(this, USER_ROLE_UPDATED_SUCCESSFULLY);
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this, ERROR_UPDATING_USER_ROLE + e.getMessage(), ERROR, JOptionPane.ERROR_MESSAGE);
         }

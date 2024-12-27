@@ -14,7 +14,7 @@ import org.jdesktop.swingx.JXDatePicker;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
+import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.util.Date;
 import java.util.HashMap;
@@ -40,10 +40,10 @@ public class ExpenseForm extends JPanel {
 
     private void setListeners() {
         // lets user input only double values in amount field
-        amountField.addKeyListener(new java.awt.event.KeyAdapter() {
-            public void keyTyped(java.awt.event.KeyEvent evt) {
+        amountField.addKeyListener(new KeyAdapter() {
+            public void keyTyped(KeyEvent evt) {
                 char c = evt.getKeyChar();
-                if (!((c >= '0' && c <= '9') || c == KeyEvent.VK_BACK_SPACE || c == KeyEvent.VK_DELETE || c == '.')) {
+                if (!((c >= '0' && c <= '9') || c == KeyEvent.VK_BACK_SPACE || c == KeyEvent.VK_DELETE || c == '.' || c == ',')) {
                     evt.consume();
                 }
             }
