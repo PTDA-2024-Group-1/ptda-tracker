@@ -22,5 +22,12 @@ public interface ExpenseRepository extends JpaRepository<Expense, Long> {
 
     List<Expense> findByCreatedByIdAndBudgetNullOrderByDateDesc(Long userId, Pageable pageable);
 
-    long countByBudgetId(Long id);
+    int countByBudgetId(Long id);
+
+    int countByCreatedById(Long userId);
+
+    int countByCreatedByIdAndBudgetNull(Long userId);
+
+    List<Expense> findTopByCreatedByIdOrderByDateDesc(Long userId, Pageable pageable);
+
 }

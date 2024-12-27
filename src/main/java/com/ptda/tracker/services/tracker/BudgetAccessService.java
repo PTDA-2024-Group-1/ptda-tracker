@@ -12,6 +12,10 @@ public interface BudgetAccessService {
 
     List<BudgetAccess> getAllByUserId(Long userId);
 
+    List<BudgetAccess> getRecentByUserId(Long userId, int limit);
+
+    int getCountByUserId(Long userId);
+
     boolean hasAccess(Long budgetId, Long userId, BudgetAccessLevel accessLevel);
 
     boolean hasAccess(Long budgetId, String userEmail, BudgetAccessLevel accessLevel);

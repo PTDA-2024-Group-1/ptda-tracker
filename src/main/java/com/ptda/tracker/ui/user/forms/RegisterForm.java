@@ -26,13 +26,14 @@ import java.text.MessageFormat;
 public class RegisterForm extends JPanel {
     private final MainFrame mainFrame;
     private User newUser;
+    private final boolean verifyEmail;
     private JLabel logoLabel;
-    private final Color primaryColor = new Color(51, 153, 255);
     private int minLogoSize = 150;
     private int maxLogoSize = 300;
 
     public RegisterForm(MainFrame mainFrame) {
         this.mainFrame = mainFrame;
+        this.verifyEmail = mainFrame.getContext().getBean(EmailService.class).isEmailVerificationEnabled();
         initComponents();
         setListeners();
         styleComponents();
@@ -80,7 +81,6 @@ public class RegisterForm extends JPanel {
         String email = emailField.getText().trim();
         String password = new String(passwordField.getPassword());
         String confirmPassword = new String(confirmPasswordField.getPassword());
-        boolean verifyEmail = mainFrame.getContext().getBean(EmailService.class).isEmailVerificationEnabled();
 
         // Fields validation
         if (name.isEmpty() || email.isEmpty() || password.isEmpty() || confirmPassword.isEmpty()) {
@@ -138,11 +138,6 @@ public class RegisterForm extends JPanel {
                 } else {
                     onEmailVerificationSuccess();
                 }
-                // Clear fields
-                nameField.setText("");
-                emailField.setText("");
-                passwordField.setText("");
-                confirmPasswordField.setText("");
             } else {
                 JOptionPane.showMessageDialog(this, REGISTRATION_FAILED,
                         ERROR, JOptionPane.ERROR_MESSAGE
@@ -158,7 +153,7 @@ public class RegisterForm extends JPanel {
 
     private void onEmailVerificationSuccess() {
         UserService userService = mainFrame.getContext().getBean(UserService.class);
-        newUser.setEmailVerified(true);
+        newUser.setEmailVerified(verifyEmail);
         userService.update(newUser);
         LoginForm.saveCredentials(newUser);
         UserSession.getInstance().setUser(newUser);

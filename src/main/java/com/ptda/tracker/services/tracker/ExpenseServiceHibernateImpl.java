@@ -55,6 +55,12 @@ public class ExpenseServiceHibernateImpl implements ExpenseService {
     }
 
     @Override
+    public List<Expense> getRecentExpensesByUserId(Long userId, int limit) {
+        Pageable pageable = PageRequest.of(0, limit);
+        return expenseRepository.findTopByCreatedByIdOrderByDateDesc(userId, pageable);
+    }
+
+    @Override
     public List<Expense> getPersonalExpensesByUserId(Long userId) {
         return expenseRepository.findAllByCreatedByIdAndBudgetNull(userId);
     }
@@ -89,8 +95,13 @@ public class ExpenseServiceHibernateImpl implements ExpenseService {
     }
 
     @Override
-    public long getCountByBudgetId(Long id) {
+    public int getCountByBudgetId(Long id) {
         return expenseRepository.countByBudgetId(id);
+    }
+
+    @Override
+    public int getCountByUserId(Long userId) {
+        return expenseRepository.countByCreatedById(userId);
     }
 
     @Override
@@ -102,22 +113,6 @@ public class ExpenseServiceHibernateImpl implements ExpenseService {
     @Override
     public List<Expense> updateAll(List<Expense> expenses) {
         return expenseRepository.saveAll(expenses);
-    }
-
-    @Override
-    @Transactional
-    public Expense assignBudget(Long expenseId, Long budgetId) {
-        Optional<Expense> optionalExpense = expenseRepository.findById(expenseId);
-        if (optionalExpense.isPresent()) {
-            Expense expense = optionalExpense.get();
-            expense.setBudget(
-                    Budget.builder()
-                            .id(budgetId)
-                            .build()
-            );
-            return expenseRepository.save(expense);
-        }
-        return null;
     }
 
     @Override

@@ -73,6 +73,7 @@ public class TrackerApplication {
                 mainFrame.registerAndShowScreen(ScreenNames.LOGIN_FORM, new LoginForm(mainFrame));
                 mainFrame.setVisible(true);
             }
+            mainFrame.toFront();
         });
     }
 

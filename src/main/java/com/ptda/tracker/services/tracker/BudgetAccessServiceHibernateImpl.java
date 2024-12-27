@@ -8,6 +8,8 @@ import com.ptda.tracker.repositories.BudgetAccessRepository;
 import com.ptda.tracker.services.user.UserService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -23,6 +25,17 @@ public class BudgetAccessServiceHibernateImpl implements BudgetAccessService {
     @Override
     public List<BudgetAccess> getAllByUserId(Long userId) {
         return budgetAccessRepository.findAllByUserId(userId);
+    }
+
+    @Override
+    public List<BudgetAccess> getRecentByUserId(Long userId, int limit) {
+        Pageable pageable = PageRequest.of(0, limit);
+        return budgetAccessRepository.findAllByUserIdOrderByBudgetUpdatedAtDesc(userId, pageable);
+    }
+
+    @Override
+    public int getCountByUserId(Long userId) {
+        return budgetAccessRepository.countByUserId(userId);
     }
 
     @Override
@@ -63,6 +76,7 @@ public class BudgetAccessServiceHibernateImpl implements BudgetAccessService {
     }
 
     @Override
+    @Transactional
     public BudgetAccess create(Long budgetId, String userEmail, BudgetAccessLevel accessLevel) {
         if (budgetId == null || userEmail == null || accessLevel == null) {
             throw new IllegalArgumentException("Budget ID, User ID, and Access Level must not be null.");
@@ -81,6 +95,7 @@ public class BudgetAccessServiceHibernateImpl implements BudgetAccessService {
     }
 
     @Override
+    @Transactional
     public BudgetAccess update(BudgetAccess access) {
         return budgetAccessRepository.save(access);
     }

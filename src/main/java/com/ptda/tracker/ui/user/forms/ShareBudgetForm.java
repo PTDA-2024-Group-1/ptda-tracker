@@ -3,6 +3,7 @@ package com.ptda.tracker.ui.user.forms;
 import com.ptda.tracker.models.tracker.Budget;
 import com.ptda.tracker.models.tracker.BudgetAccessLevel;
 import com.ptda.tracker.services.tracker.BudgetAccessService;
+import com.ptda.tracker.services.tracker.BudgetService;
 import com.ptda.tracker.ui.MainFrame;
 import com.ptda.tracker.ui.user.views.BudgetDetailView;
 import com.ptda.tracker.util.LocaleManager;
@@ -34,8 +35,17 @@ public class ShareBudgetForm extends JPanel {
         BudgetAccessLevel accessLevel = (BudgetAccessLevel) accessLevelComboBox.getSelectedItem();
 
         if (email.isEmpty()) {
-            JOptionPane.showMessageDialog(this, EMAIL_REQUIRED, ERROR, JOptionPane.ERROR_MESSAGE);
-            return;
+            JOptionPane.showMessageDialog(
+                    this, EMAIL_REQUIRED,
+                    ERROR, JOptionPane.ERROR_MESSAGE
+            ); return;
+        }
+
+        if (!budgetAccessService.hasAccess(budget.getId(), email, BudgetAccessLevel.VIEWER)) {
+            JOptionPane.showMessageDialog(
+                    this, "This user already has access to the budget",
+                    ERROR, JOptionPane.ERROR_MESSAGE
+            ); return;
         }
 
         try {

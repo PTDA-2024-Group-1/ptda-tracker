@@ -27,8 +27,8 @@ public class LoginForm extends JPanel {
     private User user;
     private JLabel logoLabel;
     private final Color primaryColor = new Color(51, 153, 255);
-    private int minLogoSize = 150;
-    private int maxLogoSize = 300;
+    private final int minLogoSize = 150;
+    private final int maxLogoSize = 300;
 
     public LoginForm(MainFrame mainFrame) {
         this.mainFrame = mainFrame;
@@ -70,7 +70,7 @@ public class LoginForm extends JPanel {
         registerButton.addActionListener(e -> {
             mainFrame.registerAndShowScreen(ScreenNames.REGISTER_FORM, new RegisterForm(mainFrame));
         });
-        ThemeManager.getInstance().addThemeChangeListener(() -> updateLogoSize());
+        ThemeManager.getInstance().addThemeChangeListener(this::updateLogoSize);
     }
 
     private void login() {

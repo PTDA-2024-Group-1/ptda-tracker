@@ -68,7 +68,7 @@ public class ExpensesScreen extends JPanel {
 
     private void updatePaginationPanel() {
         paginationPanel.removeAll();
-        long totalExpenses = expenseService.getCountByBudgetId(UserSession.getInstance().getUser().getId());
+        int totalExpenses = expenseService.getCountByBudgetId(UserSession.getInstance().getUser().getId());
         int totalPages = (int) Math.ceil((double) totalExpenses / PAGE_SIZE);
         if (totalExpenses > PAGE_SIZE) {
             for (int i = 0; i < totalPages; i++) {

@@ -33,10 +33,21 @@ public class BudgetServiceHibernateImpl implements BudgetService {
     }
 
     @Override
+    public List<Budget> getRecentByUserId(Long userId, int limit) {
+        return budgetAccessService.getRecentByUserId(userId, limit).stream()
+                .map(BudgetAccess::getBudget)
+                .collect(Collectors.toList());
+    }
+
+    @Override
     public List<Budget> getAll() {
         return budgetRepository.findAll();
     }
 
+    @Override
+    public int getCountByUserId(Long userId) {
+        return budgetAccessService.getAllByUserId(userId).size();
+    }
 
 
     @Override

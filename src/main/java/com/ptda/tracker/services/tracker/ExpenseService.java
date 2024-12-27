@@ -8,17 +8,15 @@ import java.util.Optional;
 
 public interface ExpenseService {
 
-    Optional<Expense> getById(Long id);
-
     List<Expense> getAll();
 
     List<Expense> getAllByBudgetId(Long budgetId);
 
     List<Expense> getAllByUserId(Long userId);
 
-    List<Expense> getPersonalExpensesByUserId(Long userId);
+    List<Expense> getRecentExpensesByUserId(Long userId, int limit);
 
-    double getTotalExpenseAmountByBudgetId(Long budgetId);
+    List<Expense> getPersonalExpensesByUserId(Long userId);
 
     Map<String, Double> getExpensesByCategory(Long userId);
 
@@ -26,7 +24,13 @@ public interface ExpenseService {
 
     List<Expense> getPersonalExpensesByUserIdWithPagination(Long userId, int offset, int limit);
 
-    long getCountByBudgetId(Long id);
+    double getTotalExpenseAmountByBudgetId(Long budgetId);
+
+    int getCountByBudgetId(Long id);
+
+    int getCountByUserId(Long userId);
+
+    Optional<Expense> getById(Long id);
 
     Expense create(Expense expense);
 
@@ -35,8 +39,6 @@ public interface ExpenseService {
     Expense update(Expense expense);
 
     List<Expense> updateAll(List<Expense> expenses);
-
-    Expense assignBudget(Long expenseId, Long budgetId);
 
     boolean delete(Long id);
 

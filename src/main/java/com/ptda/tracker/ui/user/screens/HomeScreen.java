@@ -5,6 +5,7 @@ import com.ptda.tracker.models.tracker.Expense;
 import com.ptda.tracker.services.tracker.BudgetService;
 import com.ptda.tracker.services.tracker.ExpenseService;
 import com.ptda.tracker.services.assistance.TicketService;
+import com.ptda.tracker.theme.ThemeManager;
 import com.ptda.tracker.ui.MainFrame;
 import com.ptda.tracker.ui.user.components.renderers.BudgetListRenderer;
 import com.ptda.tracker.ui.user.components.renderers.ExpenseListRenderer;
@@ -29,46 +30,74 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.List;
 import java.util.Map;
+import java.util.prefs.Preferences;
 
 public class HomeScreen extends JPanel {
     private final MainFrame mainFrame;
     private final long userId;
-    private JList<Budget> budgetList;
-    private JList<Expense> expenseList;
-    private ChartPanel pieChartPanel;
-    private ChartPanel barChartPanel;
+    private final BudgetService budgetService;
+    private final ExpenseService expenseService;
+    private final TicketService ticketService;
 
     public HomeScreen(MainFrame mainFrame) {
         this.mainFrame = mainFrame;
+        this.budgetService = mainFrame.getContext().getBean(BudgetService.class);
+        this.expenseService = mainFrame.getContext().getBean(ExpenseService.class);
+        this.ticketService = mainFrame.getContext().getBean(TicketService.class);
         this.userId = UserSession.getInstance().getUser().getId();
 
         initUI();
         refreshData();
+        setListeners();
+    }
+
+    private void setListeners() {
+        budgetList.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                if (e.getClickCount() == 2) {
+                    Budget selectedBudget = budgetList.getSelectedValue();
+                    if (selectedBudget != null) {
+                        mainFrame.registerAndShowScreen(ScreenNames.BUDGET_DETAIL_VIEW, new BudgetDetailView(mainFrame, selectedBudget));
+                        budgetList.clearSelection();
+                    }
+                }
+            }
+        });
+        expenseList.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                if (e.getClickCount() == 2) {
+                    Expense selectedExpense = expenseList.getSelectedValue();
+                    if (selectedExpense != null) {
+                        mainFrame.registerAndShowScreen(
+                                ScreenNames.EXPENSE_DETAIL_VIEW,
+                                new ExpenseDetailView(mainFrame, selectedExpense, mainFrame.getCurrentScreen(), HomeScreen.this::refreshData)
+                        );
+                        expenseList.clearSelection();
+                    }
+                }
+            }
+        });
+        addPropertyChangeListener("background", evt -> {
+            applyThemeSettings(pieChartPanel.getChart());
+            applyThemeSettings(barChartPanel.getChart());
+        });
     }
 
     public void refreshData() {
-        BudgetService budgetService = mainFrame.getContext().getBean(BudgetService.class);
-        ExpenseService expenseService = mainFrame.getContext().getBean(ExpenseService.class);
-        TicketService ticketService = mainFrame.getContext().getBean(TicketService.class);
-
-        int budgetCount = budgetService.getAllByUserId(userId).size();
+        int budgetCount = budgetService.getCountByUserId(userId);
         int expenseCount = expenseService.getAllByUserId(userId).size();
         int pendingTicketCount = ticketService.getOpenTicketsByUser(UserSession.getInstance().getUser()).size();
 
-        budgetLabel.setText(BUDGETS + budgetCount);
-        expenseLabel.setText(EXPENSES + expenseCount);
-        ticketLabel.setText(PENDING_TICKETS + pendingTicketCount);
+        budgetLabel.setText(BUDGETS + ": " + budgetCount);
+        expenseLabel.setText(EXPENSES + ": " + expenseCount);
+        ticketLabel.setText(PENDING_TICKETS + ": " + pendingTicketCount);
 
-        List<Budget> recentBudgets = budgetService.getAllByUserId(userId).stream()
-                .sorted((b1, b2) -> Long.compare(b2.getCreatedAt(), b1.getCreatedAt()))
-                .limit(5)
-                .toList();
+        List<Budget> recentBudgets = budgetService.getRecentByUserId(userId, 5);
         budgetList.setListData(recentBudgets.toArray(new Budget[0]));
 
-        List<Expense> recentExpenses = expenseService.getAllByUserId(userId).stream()
-                .sorted((e1, e2) -> Long.compare(e2.getCreatedAt(), e1.getCreatedAt()))
-                .limit(5)
-                .toList();
+        List<Expense> recentExpenses = expenseService.getRecentExpensesByUserId(userId, 5);
         expenseList.setListData(recentExpenses.toArray(new Expense[0]));
 
         DefaultPieDataset pieDataset = new DefaultPieDataset();
@@ -77,13 +106,11 @@ public class HomeScreen extends JPanel {
             pieDataset.setValue(entry.getKey(), entry.getValue());
         }
 
-        JFreeChart pieChart = ChartFactory.createPieChart("", pieDataset, false, true, false);
+        JFreeChart pieChart = ChartFactory.createPieChart(
+                "", pieDataset, false, true, false
+        );
         ChartUtilities.applyCurrentTheme(pieChart);
-
-        // Adjust the background of the pie chart plot
-        PiePlot piePlot = (PiePlot) pieChart.getPlot();
-        piePlot.setBackgroundPaint(UIManager.getColor("Panel.background"));
-        pieChart.setBackgroundPaint(UIManager.getColor("Panel.background"));
+        applyThemeSettings(pieChart);
 
         DefaultCategoryDataset barDataset = new DefaultCategoryDataset();
         for (Budget budget : recentBudgets) {
@@ -95,11 +122,6 @@ public class HomeScreen extends JPanel {
                 "", BUDGET, TOTAL_AMOUNT, barDataset, PlotOrientation.VERTICAL, false, true, false);
         ChartUtilities.applyCurrentTheme(barChart);
         applyThemeSettings(barChart);
-
-        // Adjust the background of the bar chart plot
-        CategoryPlot barPlot = barChart.getCategoryPlot();
-        barPlot.setBackgroundPaint(UIManager.getColor("Panel.background"));
-        barChart.setBackgroundPaint(UIManager.getColor("Panel.background"));
 
         pieChartPanel.setChart(pieChart);
         barChartPanel.setChart(barChart);
@@ -116,13 +138,9 @@ public class HomeScreen extends JPanel {
         summaryPanel.setBorder(BorderFactory.createTitledBorder(SUMMARY));
         add(summaryPanel, BorderLayout.NORTH);
 
-        budgetLabel = new JLabel(BUDGETS + "0", SwingConstants.CENTER);
-        expenseLabel = new JLabel(EXPENSES + "0", SwingConstants.CENTER);
-        ticketLabel = new JLabel(PENDING_TICKETS + "0", SwingConstants.CENTER);
-
-        budgetLabel.setFont(new Font("Arial", Font.BOLD, 14));
-        expenseLabel.setFont(new Font("Arial", Font.BOLD, 14));
-        ticketLabel.setFont(new Font("Arial", Font.BOLD, 14));
+        budgetLabel = new JLabel(BUDGETS + ": 0", SwingConstants.CENTER);
+        expenseLabel = new JLabel(EXPENSES + ": 0", SwingConstants.CENTER);
+        ticketLabel = new JLabel(PENDING_TICKETS + ": 0", SwingConstants.CENTER);
 
         summaryPanel.add(budgetLabel);
         summaryPanel.add(expenseLabel);
@@ -134,39 +152,12 @@ public class HomeScreen extends JPanel {
 
         budgetList = new JList<>();
         budgetList.setCellRenderer(new BudgetListRenderer());
-        budgetList.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                if (e.getClickCount() == 2) {
-                    Budget selectedBudget = budgetList.getSelectedValue();
-                    if (selectedBudget != null) {
-                        mainFrame.registerAndShowScreen(ScreenNames.BUDGET_DETAIL_VIEW, new BudgetDetailView(mainFrame, selectedBudget));
-                        budgetList.clearSelection();
-                    }
-                }
-            }
-        });
         JScrollPane budgetScrollPane = new JScrollPane(budgetList);
         budgetScrollPane.setBorder(BorderFactory.createTitledBorder(RECENT_BUDGETS));
         listsPanel.add(budgetScrollPane);
 
         expenseList = new JList<>();
         expenseList.setCellRenderer(new ExpenseListRenderer());
-        expenseList.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                if (e.getClickCount() == 2) {
-                    Expense selectedExpense = expenseList.getSelectedValue();
-                    if (selectedExpense != null) {
-                        mainFrame.registerAndShowScreen(
-                                ScreenNames.EXPENSE_DETAIL_VIEW,
-                                new ExpenseDetailView(mainFrame, selectedExpense, mainFrame.getCurrentScreen(), HomeScreen.this::refreshData)
-                        );
-                        expenseList.clearSelection();
-                    }
-                }
-            }
-        });
         JScrollPane expenseScrollPane = new JScrollPane(expenseList);
         expenseScrollPane.setBorder(BorderFactory.createTitledBorder(RECENT_EXPENSES));
         listsPanel.add(expenseScrollPane);
@@ -179,12 +170,6 @@ public class HomeScreen extends JPanel {
         barChartPanel = new ChartPanel(null);
         chartPanel.add(pieChartPanel);
         chartPanel.add(barChartPanel);
-
-        addPropertyChangeListener("background", evt -> {
-            Color newColor = (Color) evt.getNewValue();
-            pieChartPanel.getChart().setBackgroundPaint(newColor);
-            barChartPanel.getChart().setBackgroundPaint(newColor);
-        });
     }
 
     private void applyThemeSettings(JFreeChart chart) {
@@ -192,10 +177,9 @@ public class HomeScreen extends JPanel {
         chart.setBackgroundPaint(backgroundColor);
         chart.getPlot().setBackgroundPaint(backgroundColor);
 
-        if (isDarkTheme(backgroundColor)) {
+        if (ThemeManager.getInstance().isDark()) {
             chart.getTitle().setPaint(Color.WHITE);
-            if (chart.getPlot() instanceof CategoryPlot) {
-                CategoryPlot plot = (CategoryPlot) chart.getPlot();
+            if (chart.getPlot() instanceof CategoryPlot plot) {
                 plot.getDomainAxis().setLabelPaint(Color.WHITE);
                 plot.getRangeAxis().setLabelPaint(Color.WHITE);
                 plot.getRenderer().setSeriesPaint(0, Color.WHITE);
@@ -203,21 +187,16 @@ public class HomeScreen extends JPanel {
         }
     }
 
-    private boolean isDarkTheme(Color backgroundColor) {
-        int brightness = (int) Math.sqrt(
-                backgroundColor.getRed() * backgroundColor.getRed() * 0.241 +
-                        backgroundColor.getGreen() * backgroundColor.getGreen() * 0.691 +
-                        backgroundColor.getBlue() * backgroundColor.getBlue() * 0.068);
-        return brightness < 130;
-    }
-
-
+    private JList<Budget> budgetList;
+    private JList<Expense> expenseList;
+    private ChartPanel pieChartPanel;
+    private ChartPanel barChartPanel;
     private JLabel budgetLabel, expenseLabel, ticketLabel;
     private static final String
             BUDGET = "Budget",
-            BUDGETS = "Budgets: ",
-            EXPENSES = "Expenses: ",
-            PENDING_TICKETS = "Pending Tickets: ",
+            BUDGETS = "Budgets",
+            EXPENSES = "Expenses",
+            PENDING_TICKETS = "Pending Tickets",
             SUMMARY = "Summary",
             RECENT_DATA = "Recent Data",
             RECENT_BUDGETS = "Recent Budgets",
