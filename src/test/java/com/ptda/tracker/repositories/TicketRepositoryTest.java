@@ -125,4 +125,67 @@ public class TicketRepositoryTest {
         assertThat(tickets).hasSize(2);
 
     }
+
+    @Test
+    void testGetOpenTicketsByUser(){
+        User user = User.builder()
+                .name("Test User")
+                .email("email@teste.com")
+                .password("password")
+                .build();
+        userRepository.save(user);
+
+        Ticket ticket1 = Ticket.builder()
+                .title("Open Ticket")
+                .body("Open Body")
+                .createdBy(user)
+                .isClosed(false)
+                .build();
+        ticketRepository.save(ticket1);
+
+        Ticket ticket2 = Ticket.builder()
+                .title("Closed Ticket")
+                .body("Closed Body")
+                .createdBy(user)
+                .isClosed(true)
+                .build();
+        ticketRepository.save(ticket2);
+
+        List<Ticket> openTickets = ticketRepository.findAllByIsClosedIsFalseAndCreatedById(user.getId());
+        assertThat(openTickets).hasSize(1);
+        assertThat(openTickets.get(0).getTitle()).isEqualTo("Open Ticket");
+    }
+
+    @Test
+    void testCountByCreatedByIdAndIsClosed() {
+        User user = User.builder()
+                .name("Test User")
+                .email("test@example.com")
+                .password("password")
+                .build();
+        userRepository.save(user);
+
+        Ticket openTicket = Ticket.builder()
+                .title("Open Ticket")
+                .body("Open Body")
+                .createdBy(user)
+                .isClosed(false)
+                .build();
+        ticketRepository.save(openTicket);
+
+        Ticket closedTicket = Ticket.builder()
+                .title("Closed Ticket")
+                .body("Closed Body")
+                .createdBy(user)
+                .isClosed(true)
+                .build();
+        ticketRepository.save(closedTicket);
+
+        int openCount = ticketRepository.countByCreatedByIdAndIsClosed(user.getId(), false);
+        int closedCount = ticketRepository.countByCreatedByIdAndIsClosed(user.getId(), true);
+
+        assertThat(openCount).isEqualTo(1);
+        assertThat(closedCount).isEqualTo(1);
+    }
+
 }

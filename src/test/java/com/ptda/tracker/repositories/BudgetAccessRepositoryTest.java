@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.test.context.ActiveProfiles;
 
 import java.util.List;
@@ -191,6 +192,77 @@ public class BudgetAccessRepositoryTest {
 
         boolean notExists = budgetAccessRepository.existsByBudgetIdAndUserId(999L, user.getId());
         assertThat(notExists).isFalse();
+    }
+
+    @Test
+    void testFindAllByUserIdOrderByBudgetUpdatedAtDesc() {
+        User user = User.builder()
+                .name("Test User")
+                .email("test@example.com")
+                .password("password")
+                .build();
+        userRepository.save(user);
+
+        UserSession.getInstance().setUser(user);
+
+        Budget budget1 = Budget.builder()
+                .name("Budget 1")
+                .description("Description 1")
+                .build();
+        budgetRepository.save(budget1);
+
+        Budget budget2 = Budget.builder()
+                .name("Budget 2")
+                .description("Description 2")
+                .build();
+        budgetRepository.save(budget2);
+
+        BudgetAccess access1 = BudgetAccess.builder()
+                .accessLevel(BudgetAccessLevel.OWNER)
+                .budget(budget1)
+                .user(user)
+                .build();
+        budgetAccessRepository.save(access1);
+
+        BudgetAccess access2 = BudgetAccess.builder()
+                .accessLevel(BudgetAccessLevel.EDITOR)
+                .budget(budget2)
+                .user(user)
+                .build();
+        budgetAccessRepository.save(access2);
+
+        List<BudgetAccess> accesses = budgetAccessRepository.findAllByUserIdOrderByBudgetUpdatedAtDesc(user.getId(), PageRequest.of(0, 10));
+        assertThat(accesses).hasSize(2);
+        assertThat(accesses.get(0).getBudget().getName()).isEqualTo("Budget 1");
+        assertThat(accesses.get(1).getBudget().getName()).isEqualTo("Budget 2");
+    }
+
+    @Test
+    void testCountByUserId() {
+        User user = User.builder()
+                .name("Test User")
+                .email("test@example.com")
+                .password("password")
+                .build();
+        userRepository.save(user);
+
+        UserSession.getInstance().setUser(user);
+
+        Budget budget = Budget.builder()
+                .name("Test Budget")
+                .description("Test Description")
+                .build();
+        budgetRepository.save(budget);
+
+        BudgetAccess access = BudgetAccess.builder()
+                .accessLevel(BudgetAccessLevel.OWNER)
+                .budget(budget)
+                .user(user)
+                .build();
+        budgetAccessRepository.save(access);
+
+        int count = budgetAccessRepository.countByUserId(user.getId());
+        assertThat(count).isEqualTo(1);
     }
 
 }

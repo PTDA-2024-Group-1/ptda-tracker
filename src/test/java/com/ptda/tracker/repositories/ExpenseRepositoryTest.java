@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.test.context.ActiveProfiles;
 
 import java.util.Date;
@@ -344,6 +345,132 @@ public class ExpenseRepositoryTest {
         List<Expense> expenses = expenseRepository.findAllByCreatedByIdAndBudgetNull(user.getId());
         assertThat(expenses).isNotEmpty();
 
+    }
+
+    @Test
+    void testFindByBudgetIdOrderByDateDesc() {
+        User user = User.builder()
+                .name("Test User")
+                .email("test@example.com")
+                .password("password")
+                .build();
+        userRepository.save(user);
+
+        UserSession.getInstance().setUser(user);
+
+        Budget budget = new Budget();
+        budget.setName("Test Budget");
+        budget.setDescription("Test Description");
+        budgetRepository.save(budget);
+
+        Expense expense1 = new Expense();
+        expense1.setTitle("Expense 1");
+        expense1.setAmount(100.0);
+        expense1.setDate(new Date(System.currentTimeMillis() - 100000));
+        expense1.setCategory(ExpenseCategory.OTHER);
+        expense1.setBudget(budget);
+        expenseRepository.save(expense1);
+
+        Expense expense2 = new Expense();
+        expense2.setTitle("Expense 2");
+        expense2.setAmount(200.0);
+        expense2.setDate(new Date(System.currentTimeMillis() - 50000));
+        expense2.setCategory(ExpenseCategory.OTHER);
+        expense2.setBudget(budget);
+        expenseRepository.save(expense2);
+
+        List<Expense> expenses = expenseRepository.findByBudgetIdOrderByDateDesc(budget.getId(), Pageable.unpaged());
+        assertThat(expenses).hasSize(2);
+        assertThat(expenses.get(0).getTitle()).isEqualTo("Expense 1");
+        assertThat(expenses.get(1).getTitle()).isEqualTo("Expense 2");
+    }
+
+    @Test
+    void testFindByCreatedByIdAndBudgetNullOrderByDateDesc() {
+        User user = User.builder()
+                .name("Test User")
+                .email("test@example.com")
+                .password("password")
+                .build();
+        userRepository.save(user);
+
+        UserSession.getInstance().setUser(user);
+
+        Expense expense1 = new Expense();
+        expense1.setTitle("Expense 1");
+        expense1.setAmount(100.0);
+        expense1.setDate(new Date(System.currentTimeMillis() - 100000));
+        expense1.setCategory(ExpenseCategory.OTHER);
+        expense1.setCreatedBy(user);
+        expenseRepository.save(expense1);
+
+        Expense expense2 = new Expense();
+        expense2.setTitle("Expense 2");
+        expense2.setAmount(200.0);
+        expense2.setDate(new Date(System.currentTimeMillis() - 50000));
+        expense2.setCategory(ExpenseCategory.OTHER);
+        expense2.setCreatedBy(user);
+        expenseRepository.save(expense2);
+
+        List<Expense> expenses = expenseRepository.findByCreatedByIdAndBudgetNullOrderByDateDesc(user.getId(), Pageable.unpaged());
+        assertThat(expenses).hasSize(2);
+        assertThat(expenses.get(0).getTitle()).isEqualTo("Expense 1");
+        assertThat(expenses.get(1).getTitle()).isEqualTo("Expense 2");
+    }
+
+    @Test
+    void testCountByCreatedByIdAndBudgetNull() {
+        User user = User.builder()
+                .name("Test User")
+                .email("test@example.com")
+                .password("password")
+                .build();
+        userRepository.save(user);
+
+        UserSession.getInstance().setUser(user);
+
+        Expense expense = new Expense();
+        expense.setTitle("Test Expense");
+        expense.setAmount(100.0);
+        expense.setDate(new Date());
+        expense.setCategory(ExpenseCategory.OTHER);
+        expense.setCreatedBy(user);
+        expenseRepository.save(expense);
+
+        int count = expenseRepository.countByCreatedByIdAndBudgetNull(user.getId());
+        assertThat(count).isEqualTo(1);
+    }
+
+    @Test
+    void testFindTopByCreatedByIdOrderByDateDesc() {
+        User user = User.builder()
+                .name("Test User")
+                .email("test@example.com")
+                .password("password")
+                .build();
+        userRepository.save(user);
+
+        UserSession.getInstance().setUser(user);
+
+        Expense expense1 = new Expense();
+        expense1.setTitle("Expense 1");
+        expense1.setAmount(100.0);
+        expense1.setDate(new Date(System.currentTimeMillis() - 100000));
+        expense1.setCategory(ExpenseCategory.OTHER);
+        expense1.setCreatedBy(user);
+        expenseRepository.save(expense1);
+
+        Expense expense2 = new Expense();
+        expense2.setTitle("Expense 2");
+        expense2.setAmount(200.0);
+        expense2.setDate(new Date(System.currentTimeMillis() - 50000));
+        expense2.setCategory(ExpenseCategory.OTHER);
+        expense2.setCreatedBy(user);
+        expenseRepository.save(expense2);
+
+        List<Expense> expenses = expenseRepository.findTopByCreatedByIdOrderByDateDesc(user.getId(), Pageable.ofSize(1));
+        assertThat(expenses).hasSize(1);
+        assertThat(expenses.get(0).getTitle()).isEqualTo("Expense 1");
     }
 
 }
