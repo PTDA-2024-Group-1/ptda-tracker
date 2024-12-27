@@ -9,22 +9,26 @@ import com.ptda.tracker.ui.user.screens.NavigationScreen;
 import com.ptda.tracker.util.LocaleManager;
 import com.ptda.tracker.util.ScreenNames;
 import com.ptda.tracker.util.UserSession;
-import com.ptda.tracker.theme.ThemeManager; 
+import com.ptda.tracker.theme.ThemeManager;
 import com.ptda.tracker.util.ImageResourceManager;
 
-
 import javax.swing.*;
+import javax.swing.border.CompoundBorder;
+import javax.swing.border.EmptyBorder;
+import javax.swing.border.LineBorder;
 import java.awt.*;
+import java.awt.event.*;
 import java.util.Optional;
 import java.util.prefs.Preferences;
-
-import static com.ptda.tracker.config.AppConfig.LOGO_PATH;
 
 public class LoginForm extends JPanel {
     private final MainFrame mainFrame;
     private final UserService userService;
     private User user;
-    private JLabel logoLabel; 
+    private JLabel logoLabel;
+    private final Color primaryColor = new Color(51, 153, 255);
+    private int minLogoSize = 150;
+    private int maxLogoSize = 300;
 
     public LoginForm(MainFrame mainFrame) {
         this.mainFrame = mainFrame;
@@ -32,6 +36,33 @@ public class LoginForm extends JPanel {
 
         initComponents();
         setListeners();
+        styleComponents();
+
+        // Adicionar listener para redimensionamento
+        addComponentListener(new ComponentAdapter() {
+            @Override
+            public void componentResized(ComponentEvent e) {
+                updateLogoSize();
+            }
+        });
+    }
+
+    private void updateLogoSize() {
+        int panelWidth = getWidth();
+        int panelHeight = getHeight();
+        int size = Math.min(Math.min(panelWidth / 3, panelHeight - 100), maxLogoSize);
+        size = Math.max(size, minLogoSize);
+        updateFormLogo(size);
+    }
+
+    private void styleComponents() {
+        styleButton(loginButton);
+        styleButton(registerButton);
+    }
+
+    private void styleButton(JButton button) {
+        button.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        button.setFocusPainted(false);
     }
 
     private void setListeners() {
@@ -39,26 +70,24 @@ public class LoginForm extends JPanel {
         registerButton.addActionListener(e -> {
             mainFrame.registerAndShowScreen(ScreenNames.REGISTER_FORM, new RegisterForm(mainFrame));
         });
-        ThemeManager.getInstance().addThemeChangeListener(this::updateFormLogo);
+        ThemeManager.getInstance().addThemeChangeListener(() -> updateLogoSize());
     }
 
     private void login() {
         String email = usernameField.getText().trim();
         String password = new String(passwordField.getPassword()).trim();
 
-        // Validation
         if (email.isEmpty() || password.isEmpty()) {
             JOptionPane.showMessageDialog(this, ALL_FIELDS_REQUIRED, ERROR, JOptionPane.ERROR_MESSAGE);
             return;
         }
 
-        // Login
         Optional<User> userOptional = userService.login(email, password);
-        System.out.println(userOptional);
         if (userOptional.isEmpty()) {
             JOptionPane.showMessageDialog(this, INVALID_CREDENTIALS, ERROR, JOptionPane.ERROR_MESSAGE);
             return;
         }
+
         this.user = userOptional.get();
         if (user.isEmailVerified()) {
             saveCredentials(user);
@@ -95,81 +124,99 @@ public class LoginForm extends JPanel {
         preferences.put("password", user.getPassword());
     }
 
-    private void updateFormLogo() {
+    private void updateFormLogo(int size) {
         boolean isDark = ThemeManager.getInstance().isDark();
         ImageIcon appLogo = ImageResourceManager.getThemeBasedIcon(isDark);
-        Image scaledImage = appLogo.getImage().getScaledInstance(150, 150, Image.SCALE_SMOOTH);
+        Image scaledImage = appLogo.getImage().getScaledInstance(size, size, Image.SCALE_SMOOTH);
         logoLabel.setIcon(new ImageIcon(scaledImage));
     }
 
     private void initComponents() {
-        setLayout(new BorderLayout());
+        setLayout(new GridBagLayout());
         setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
-        // Top panel with title and logotype
-        JPanel topPanel = new JPanel();
-        topPanel.setLayout(new BoxLayout(topPanel, BoxLayout.Y_AXIS));
-        topPanel.setAlignmentX(CENTER_ALIGNMENT);
-
-        JLabel titleLabel = new JLabel(LOGIN, SwingConstants.CENTER);
-        titleLabel.setFont(new Font("Arial", Font.BOLD, 20));
-        titleLabel.setAlignmentX(CENTER_ALIGNMENT);
-        topPanel.add(titleLabel);
-
-        logoLabel = new JLabel();
-        logoLabel.setAlignmentX(CENTER_ALIGNMENT);
-        topPanel.add(Box.createRigidArea(new Dimension(0, 10))); // Space between title and logo
-        topPanel.add(logoLabel);
-        updateFormLogo();
-
-        add(topPanel, BorderLayout.NORTH);
-
-        // Form panel
-        JPanel formPanel = new JPanel(new GridBagLayout());
-        formPanel.setBorder(BorderFactory.createEmptyBorder(10, 20, 20, 20)); // Padding
-
         GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(5, 5, 5, 5); // Spacing between components
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-        gbc.anchor = GridBagConstraints.CENTER;
+        gbc.insets = new Insets(5, 5, 5, 5);
 
-        // Email
-        JLabel usernameLabel = new JLabel(EMAIL + ":", SwingConstants.RIGHT);
+        // Painel esquerdo com logo
+        JPanel leftPanel = new JPanel(new GridBagLayout());
+        logoLabel = new JLabel();
+        logoLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        leftPanel.add(logoLabel);
+
         gbc.gridx = 0;
         gbc.gridy = 0;
-        formPanel.add(usernameLabel, gbc);
+        gbc.weightx = 0.4;
+        gbc.weighty = 1.0;
+        gbc.fill = GridBagConstraints.BOTH;
+        add(leftPanel, gbc);
+
+        // Separador vertical
+        JSeparator separator = new JSeparator(JSeparator.VERTICAL);
+        gbc.gridx = 1;
+        gbc.weightx = 0.0;
+        gbc.fill = GridBagConstraints.VERTICAL;
+        add(separator, gbc);
+
+        // Painel direito com form
+        JPanel rightPanel = new JPanel(new GridBagLayout());
+        rightPanel.setBorder(BorderFactory.createEmptyBorder(0, 20, 0, 0));
+        GridBagConstraints formGbc = new GridBagConstraints();
+        formGbc.insets = new Insets(5, 5, 5, 5);
+
+        // Título
+        JLabel titleLabel = new JLabel(LOGIN, SwingConstants.LEFT);
+        titleLabel.setFont(new Font("Arial", Font.BOLD, 24));
+        formGbc.gridx = 1;
+        formGbc.gridy = 0;
+        formGbc.gridwidth = 1;
+        formGbc.fill = GridBagConstraints.HORIZONTAL;
+        formGbc.insets = new Insets(0, 0, 20, 0);
+        rightPanel.add(titleLabel, formGbc);
+
+        // Campo de email
+        JLabel emailLabel = new JLabel(EMAIL + ":", SwingConstants.RIGHT);
+        formGbc.gridx = 0;
+        formGbc.gridy = 1;
+        formGbc.gridwidth = 1;
+        formGbc.insets = new Insets(5, 5, 5, 5);
+        rightPanel.add(emailLabel, formGbc);
 
         usernameField = new JTextField();
-        usernameField.setPreferredSize(new Dimension(200, 30)); // Field size
-        gbc.gridx = 1;
-        gbc.gridy = 0;
-        formPanel.add(usernameField, gbc);
+        usernameField.setPreferredSize(new Dimension(200, 30)); // Aumenta o tamanho do campo de texto
+        formGbc.gridx = 1;
+        rightPanel.add(usernameField, formGbc);
 
-        // Password
+        // Campo de senha
         JLabel passwordLabel = new JLabel(PASSWORD + ":", SwingConstants.RIGHT);
-        gbc.gridx = 0;
-        gbc.gridy = 1;
-        formPanel.add(passwordLabel, gbc);
+        formGbc.gridx = 0;
+        formGbc.gridy = 2;
+        rightPanel.add(passwordLabel, formGbc);
 
         passwordField = new JPasswordField();
-        passwordField.setPreferredSize(new Dimension(200, 30)); // Field size
-        gbc.gridx = 1;
-        gbc.gridy = 1;
-        formPanel.add(passwordField, gbc);
+        passwordField.setPreferredSize(new Dimension(200, 30)); // Aumenta o tamanho do campo de texto
+        formGbc.gridx = 1;
+        rightPanel.add(passwordField, formGbc);
 
-        // Login button
+        // Botão de login
         loginButton = new JButton(LOGIN);
-        gbc.gridx = 1;
-        gbc.gridy = 2;
-        formPanel.add(loginButton, gbc);
+        formGbc.gridx = 1;
+        formGbc.gridy = 3;
+        formGbc.insets = new Insets(15, 5, 5, 5);
+        rightPanel.add(loginButton, formGbc);
 
-        // Register button
+        // Botão de registro
         registerButton = new JButton(GO_TO_REGISTER);
-        gbc.gridx = 1;
-        gbc.gridy = 3;
-        formPanel.add(registerButton, gbc);
+        formGbc.gridy = 4;
+        formGbc.insets = new Insets(5, 5, 5, 5);
+        rightPanel.add(registerButton, formGbc);
 
-        add(formPanel, BorderLayout.CENTER);
+        gbc.gridx = 2;
+        gbc.weightx = 0.6;
+        gbc.fill = GridBagConstraints.BOTH;
+        add(rightPanel, gbc);
+
+        updateLogoSize();
     }
 
     public JTextField usernameField;

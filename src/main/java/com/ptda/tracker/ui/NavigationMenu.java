@@ -33,12 +33,7 @@ public class NavigationMenu extends JPanel {
         addButtonToPanel(topPanel, HOME, HOME_SCREEN, gbc, 0);
         addButtonToPanel(topPanel, BUDGETS, BUDGETS_SCREEN, gbc, 1);
         addButtonToPanel(topPanel, EXPENSES, EXPENSES_SCREEN, gbc, 2);
-
-        // Only add the "Support" button for common users
-        if (UserSession.getInstance().getUser().getUserType().equals("USER")) {
-            addButtonToPanel(topPanel, SUPPORT, USER_TICKETS_SCREEN, gbc, 3);
-        }
-
+        addButtonToPanel(topPanel, SUPPORT, USER_TICKETS_SCREEN, gbc, 3);
         addButtonToPanel(topPanel, ASSISTANCE, ASSISTANCE_SCREEN, gbc, 4);
         addButtonToPanel(topPanel, ADMINISTRATION, ADMINISTRATION_OPTIONS_SCREEN, gbc, 5);
 
@@ -68,11 +63,6 @@ public class NavigationMenu extends JPanel {
             return; // Do not add the administration button if the user is of type "ASSISTANT"
         }
 
-        // Check if the user is of type "ADMIN" before adding the assistance button
-        if (userType.equals("ADMIN") && label.equals(ASSISTANCE)) {
-            return; // Do not add the assistance button if the user is of type "ADMIN"
-        }
-
         JButton button = new JButton(label);
         button.setFont(new Font("Arial", Font.BOLD, 14));
         button.setActionCommand(screenName); // Button action command to check if it's the active button
@@ -85,7 +75,6 @@ public class NavigationMenu extends JPanel {
         });
 
         // Desativar o foco automático e remover o estilo de foco
-        // button.setFocusable(false);
         button.setFocusPainted(false);
 
         // Layout settings

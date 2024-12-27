@@ -35,11 +35,9 @@ public class ChangeAssignmentDialog extends JDialog {
         // Layout principal com margens
         JPanel mainPanel = new JPanel(new BorderLayout(15, 15));
         mainPanel.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
-        mainPanel.setBackground(Color.WHITE);
 
         // Painel do formulário (mantido como antes, sem o título)
         JPanel formPanel = new JPanel(new GridBagLayout());
-        formPanel.setBackground(Color.WHITE);
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(5, 5, 5, 5);
         gbc.anchor = GridBagConstraints.WEST;
@@ -76,7 +74,6 @@ public class ChangeAssignmentDialog extends JDialog {
 
         // Painel de botões (botão com estilo padrão)
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-        buttonPanel.setBackground(Color.WHITE);
         JButton saveButton = new JButton(SAVE); // Estilo padrão do botão
         saveButton.addActionListener(new ActionListener() {
             @Override

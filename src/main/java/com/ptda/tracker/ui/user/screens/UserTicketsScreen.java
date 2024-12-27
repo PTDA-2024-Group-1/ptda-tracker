@@ -31,7 +31,7 @@ public class UserTicketsScreen extends JPanel {
             if (!e.getValueIsAdjusting()) {
                 Ticket selectedTicket = ticketList.getSelectedValue();
                 if (selectedTicket != null) {
-                    mainFrame.registerAndShowScreen(ScreenNames.TICKET_DETAIL_VIEW, new TicketDetailView(mainFrame, selectedTicket));
+                    mainFrame.registerAndShowScreen(ScreenNames.TICKET_DETAIL_VIEW, new TicketDetailView(mainFrame, selectedTicket, ScreenNames.USER_TICKETS_SCREEN));
                     ticketList.clearSelection(); // Clear selection to allow new interaction
                 }
             }

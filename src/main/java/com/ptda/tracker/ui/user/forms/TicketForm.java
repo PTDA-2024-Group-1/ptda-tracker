@@ -56,7 +56,7 @@ public class TicketForm extends JPanel {
         if (onSaveCallback != null) {
             onSaveCallback.run();
         }
-        mainFrame.registerAndShowScreen(ScreenNames.TICKET_DETAIL_VIEW, new TicketDetailView(mainFrame, ticket));
+        mainFrame.registerAndShowScreen(ScreenNames.TICKET_DETAIL_VIEW, new TicketDetailView(mainFrame, ticket, ScreenNames.TICKET_FORM));
     }
 
     private void initComponents() {

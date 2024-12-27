@@ -23,12 +23,14 @@ public class TicketDetailView extends JPanel {
     private final Ticket ticket;
     private final TicketService ticketService;
     private final TicketReplyService ticketReplyService;
+    private final String returnScreen;
 
-    public TicketDetailView(MainFrame mainFrame, Ticket ticket) {
+    public TicketDetailView(MainFrame mainFrame, Ticket ticket, String returnScreen) {
         this.mainFrame = mainFrame;
         this.ticket = ticket;
         this.ticketService = mainFrame.getContext().getBean(TicketService.class);
         this.ticketReplyService = mainFrame.getContext().getBean(TicketReplyService.class);
+        this.returnScreen = returnScreen;
 
         this.mainPanel = new JPanel(new BorderLayout());
         this.closeButton = new JButton(CLOSE_TICKET);
@@ -113,7 +115,7 @@ public class TicketDetailView extends JPanel {
     }
 
     private void handleBackAction() {
-        if (UserSession.getInstance().getUser().getUserType().equals("ADMIN")) {
+        if (UserSession.getInstance().getUser().getUserType().equals("ADMIN") && returnScreen.equals(ScreenNames.MANAGE_TICKET_VIEW)) {
             mainFrame.registerAndShowScreen(ScreenNames.MANAGE_TICKET_VIEW, new ManageTicketView(mainFrame));
         } else {
             mainFrame.showScreen(ScreenNames.NAVIGATION_SCREEN);
@@ -121,16 +123,22 @@ public class TicketDetailView extends JPanel {
     }
 
     private void addRightPanelButtons(JPanel rightPanel) {
-        if (UserSession.getInstance().getUser().getUserType().equals("USER")) {
-            if (ticket.isClosed()) {
-                reopenButton.addActionListener(e -> handleReopenAction());
-                rightPanel.add(reopenButton);
-            } else {
-                closeButton.addActionListener(e -> handleCloseAction());
-                rightPanel.add(closeButton);
-            }
+        String userType = UserSession.getInstance().getUser().getUserType();
+        boolean isFromAssistanceScreen = returnScreen.equals(ScreenNames.ASSISTANCE_SCREEN);
+
+        if (!isFromAssistanceScreen && (userType.equals("USER") || userType.equals("ASSISTANT") || (userType.equals("ADMIN") && !returnScreen.equals(ScreenNames.MANAGE_TICKET_VIEW))) && !ticket.isClosed()) {
+            // Show the close button
+            closeButton.addActionListener(e -> handleCloseAction());
+            rightPanel.add(closeButton);
         }
-        if (UserSession.getInstance().getUser().getUserType().equals("ADMIN") && !ticket.isClosed()) {
+
+        if (!isFromAssistanceScreen && ticket.isClosed() && (userType.equals("ADMIN") || userType.equals("ASSISTANT") || userType.equals("USER"))) {
+            // Show the reopen button
+            reopenButton.addActionListener(e -> handleReopenAction());
+            rightPanel.add(reopenButton);
+        }
+
+        if (userType.equals("ADMIN") && returnScreen.equals(ScreenNames.MANAGE_TICKET_VIEW) && !ticket.isClosed()) {
             JButton changeAssignmentButton = new JButton(CHANGE_ASSIGNMENT);
             changeAssignmentButton.addActionListener(e -> handleChangeAssignmentAction());
             rightPanel.add(changeAssignmentButton);
@@ -172,7 +180,10 @@ public class TicketDetailView extends JPanel {
     private void initChatPanel() {
         chatPanel = new JPanel(new BorderLayout());
 
-        if ((UserSession.getInstance().getUser().getUserType().equals("USER") || UserSession.getInstance().getUser().getUserType().equals("ASSISTANT")) && !ticket.isClosed()) {
+        String userType = UserSession.getInstance().getUser().getUserType();
+        boolean isAdminInManageView = userType.equals("ADMIN") && returnScreen.equals(ScreenNames.MANAGE_TICKET_VIEW);
+
+        if ((userType.equals("USER") || userType.equals("ASSISTANT") || (userType.equals("ADMIN") && !isAdminInManageView)) && !ticket.isClosed()) {
             chatPanel.setBorder(BorderFactory.createTitledBorder(REPLY));
 
             JTextArea chatArea = new JTextArea();
@@ -196,9 +207,12 @@ public class TicketDetailView extends JPanel {
         String replyBody = chatArea.getText().trim();
         if (!replyBody.isEmpty()) {
             if (ticket.getAssistant() == null && UserSession.getInstance().getUser() instanceof Assistant) {
-                ticket.setAssistant((Assistant) UserSession.getInstance().getUser());
-                ticketService.update(ticket);
-                AssistanceScreen.refreshTicketLists();
+                Assistant currentUser = (Assistant) UserSession.getInstance().getUser();
+                if (!currentUser.equals(ticket.getCreatedBy())) {
+                    ticket.setAssistant(currentUser);
+                    ticketService.update(ticket);
+                    AssistanceScreen.refreshTicketLists();
+                }
             }
 
             TicketReply reply = TicketReply.builder()

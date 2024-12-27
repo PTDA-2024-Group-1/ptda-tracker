@@ -17,12 +17,11 @@ public class TicketReplyRenderer extends DefaultListCellRenderer {
             String formattedDate = DATE_FORMAT.format(reply.getCreatedAt());
             String wrappedBody = wrapText(reply.getBody(), 30); // Limite de 30 caracteres por linha
 
-            boolean isAdmin = UserSession.getInstance().getUser().getUserType().equals("ADMIN");
-            boolean isAssistant = reply.getCreatedBy().getUserType().equals("ASSISTANT");
             boolean isCurrentUser = reply.getCreatedBy().getId().equals(UserSession.getInstance().getUser().getId());
+            boolean isAssistant = reply.getCreatedBy().getUserType().equals("ASSISTANT");
 
             // Define alinhamento do cabeçalho e corpo
-            String alignment = isCurrentUser || (isAdmin && isAssistant) ? "right" : "left";
+            String alignment = isCurrentUser ? "right" : "left";
 
             // Formata o texto com nome, data e mensagem
             String replyText = String.format(
@@ -39,7 +38,7 @@ public class TicketReplyRenderer extends DefaultListCellRenderer {
             setText(replyText);
 
             // Ajusta alinhamento do componente Swing
-            setHorizontalAlignment(isCurrentUser || (isAdmin && isAssistant) ? SwingConstants.RIGHT : SwingConstants.LEFT);
+            setHorizontalAlignment(isCurrentUser ? SwingConstants.RIGHT : SwingConstants.LEFT);
 
             // Adiciona padding para melhorar visualmente
             setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));

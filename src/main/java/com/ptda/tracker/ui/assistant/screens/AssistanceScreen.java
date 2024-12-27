@@ -38,7 +38,7 @@ public class AssistanceScreen extends JPanel {
             if (!e.getValueIsAdjusting()) {
                 Ticket selectedTicket = assignedTicketList.getSelectedValue();
                 if (selectedTicket != null) {
-                    mainFrame.registerAndShowScreen(ScreenNames.TICKET_DETAIL_VIEW, new TicketDetailView(mainFrame, selectedTicket));
+                    mainFrame.registerAndShowScreen(ScreenNames.TICKET_DETAIL_VIEW, new TicketDetailView(mainFrame, selectedTicket, ScreenNames.ASSISTANCE_SCREEN));
                     assignedTicketList.clearSelection(); // Clear selection to allow new interaction
                 }
             }
@@ -50,7 +50,7 @@ public class AssistanceScreen extends JPanel {
             if (!e.getValueIsAdjusting()) {
                 Ticket selectedTicket = unassignedTicketList.getSelectedValue();
                 if (selectedTicket != null) {
-                    mainFrame.registerAndShowScreen(ScreenNames.TICKET_DETAIL_VIEW, new TicketDetailView(mainFrame, selectedTicket));
+                    mainFrame.registerAndShowScreen(ScreenNames.TICKET_DETAIL_VIEW, new TicketDetailView(mainFrame, selectedTicket, ScreenNames.ASSISTANCE_SCREEN));
                     unassignedTicketList.clearSelection(); // Clear selection to allow new interaction
                 }
             }
@@ -72,7 +72,7 @@ public class AssistanceScreen extends JPanel {
                 .filter(ticket -> ticket.getAssistant() != null && ticket.getAssistant().getId().equals(currentUser.getId()) && !ticket.isClosed())
                 .collect(Collectors.toList());
         unassignedTickets = allTickets.stream()
-                .filter(ticket -> ticket.getAssistant() == null && !ticket.isClosed())
+                .filter(ticket -> ticket.getAssistant() == null && !ticket.isClosed() && !ticket.getCreatedBy().getId().equals(currentUser.getId()))
                 .collect(Collectors.toList());
         setTicketList(assignedTicketList, assignedTickets);
         setTicketList(unassignedTicketList, unassignedTickets);

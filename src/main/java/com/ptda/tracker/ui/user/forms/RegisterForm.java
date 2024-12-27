@@ -9,26 +9,62 @@ import com.ptda.tracker.ui.user.screens.NavigationScreen;
 import com.ptda.tracker.util.LocaleManager;
 import com.ptda.tracker.util.ScreenNames;
 import com.ptda.tracker.util.UserSession;
-import com.ptda.tracker.theme.ThemeManager; 
+import com.ptda.tracker.theme.ThemeManager;
 import com.ptda.tracker.util.ImageResourceManager;
 
 import javax.swing.*;
+import javax.swing.border.CompoundBorder;
+import javax.swing.border.EmptyBorder;
+import javax.swing.border.LineBorder;
 import java.awt.*;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
+import java.awt.event.FocusAdapter;
+import java.awt.event.FocusEvent;
 import java.text.MessageFormat;
 
 public class RegisterForm extends JPanel {
     private final MainFrame mainFrame;
     private User newUser;
-    private JLabel logoLabel; 
+    private JLabel logoLabel;
+    private final Color primaryColor = new Color(51, 153, 255);
+    private int minLogoSize = 150;
+    private int maxLogoSize = 300;
 
     public RegisterForm(MainFrame mainFrame) {
         this.mainFrame = mainFrame;
         initComponents();
         setListeners();
+        styleComponents();
+
+        // Adicionar listener para redimensionamento
+        addComponentListener(new ComponentAdapter() {
+            @Override
+            public void componentResized(ComponentEvent e) {
+                updateLogoSize();
+            }
+        });
+    }
+
+    private void updateLogoSize() {
+        int panelWidth = getWidth();
+        int panelHeight = getHeight();
+        int size = Math.min(Math.min(panelWidth / 3, panelHeight - 100), maxLogoSize);
+        size = Math.max(size, minLogoSize);
+        updateFormLogo(size);
+    }
+
+    private void styleComponents() {
+        styleButton(goToLoginButton);
+        styleButton(registerButton);
+    }
+
+    private void styleButton(JButton button) {
+        button.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        button.setFocusPainted(false);
     }
 
     private void setListeners() {
-        ThemeManager.getInstance().addThemeChangeListener(this::updateFormLogo);
         showPasswordCheckbox.addActionListener(e -> {
             boolean showPassword = showPasswordCheckbox.isSelected();
             passwordField.setEchoChar(showPassword ? '\0' : '*');
@@ -36,6 +72,7 @@ public class RegisterForm extends JPanel {
         });
         registerButton.addActionListener(e -> register());
         goToLoginButton.addActionListener(e -> mainFrame.showScreen(ScreenNames.LOGIN_FORM));
+        ThemeManager.getInstance().addThemeChangeListener(() -> updateLogoSize());
     }
 
     private void register() {
@@ -131,7 +168,7 @@ public class RegisterForm extends JPanel {
         mainFrame.removeScreen(ScreenNames.REGISTER_FORM);
     }
 
-    private void updateFormLogo() {
+    private void updateFormLogo(int size) {
         boolean isDark = ThemeManager.getInstance().isDark();
         ImageIcon appLogo = ImageResourceManager.getThemeBasedIcon(isDark);
         Image scaledImage = appLogo.getImage().getScaledInstance(150, 150, Image.SCALE_SMOOTH);
@@ -139,119 +176,119 @@ public class RegisterForm extends JPanel {
     }
 
     private void initComponents() {
-        setLayout(new BorderLayout());
-        setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20)); // Margins around the form
+        setLayout(new GridBagLayout());
+        setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
-        // Top panel with title and logo
-        JPanel topPanel = new JPanel();
-        topPanel.setLayout(new BoxLayout(topPanel, BoxLayout.Y_AXIS));
-        topPanel.setAlignmentX(CENTER_ALIGNMENT);
-
-        // Title
-        JLabel titleLabel = new JLabel(REGISTER, SwingConstants.CENTER);
-        titleLabel.setFont(new Font("Arial", Font.BOLD, 20)); // Font
-        titleLabel.setAlignmentX(CENTER_ALIGNMENT);
-        topPanel.add(titleLabel);
-
-        logoLabel = new JLabel();
-        logoLabel.setAlignmentX(CENTER_ALIGNMENT);
-        topPanel.add(Box.createRigidArea(new Dimension(0, 10))); // Space between title and logo
-        topPanel.add(logoLabel);
-        updateFormLogo();
-
-        add(topPanel, BorderLayout.NORTH);
-
-        // Center panel for horizontal alignment
-        JPanel centerPanel = new JPanel(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(5, 5, 5, 5);
 
-        // Adjust GridBagConstraints for horizontal centering
-        gbc.insets = new Insets(5, 5, 5, 5); // Spacing between components
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-        gbc.anchor = GridBagConstraints.WEST; // Align labels to the left of their cells
+        // Painel esquerdo com logo
+        JPanel leftPanel = new JPanel(new GridBagLayout());
+        logoLabel = new JLabel();
+        logoLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        leftPanel.add(logoLabel);
 
-        // Name field with label
-        JLabel nameLabel = new JLabel(NAME + ":", SwingConstants.RIGHT);
-        nameLabel.setHorizontalAlignment(SwingConstants.RIGHT); // Align label to the right
         gbc.gridx = 0;
         gbc.gridy = 0;
-        centerPanel.add(nameLabel, gbc);
+        gbc.weightx = 0.4;
+        gbc.weighty = 1.0;
+        gbc.fill = GridBagConstraints.BOTH;
+        add(leftPanel, gbc);
+
+        // Separador vertical
+        JSeparator separator = new JSeparator(JSeparator.VERTICAL);
+        gbc.gridx = 1;
+        gbc.weightx = 0.0;
+        gbc.fill = GridBagConstraints.VERTICAL;
+        add(separator, gbc);
+
+        // Painel direito com form
+        JPanel rightPanel = new JPanel(new GridBagLayout());
+        rightPanel.setBorder(BorderFactory.createEmptyBorder(0, 20, 0, 0));
+        GridBagConstraints formGbc = new GridBagConstraints();
+        formGbc.insets = new Insets(5, 5, 5, 5);
+
+        // Título
+        JLabel titleLabel = new JLabel(REGISTER, SwingConstants.LEFT);
+        titleLabel.setFont(new Font("Arial", Font.BOLD, 24));
+        formGbc.gridx = 1;
+        formGbc.gridy = 0;
+        formGbc.gridwidth = 1;
+        formGbc.fill = GridBagConstraints.HORIZONTAL;
+        formGbc.insets = new Insets(0, 0, 20, 0);
+        rightPanel.add(titleLabel, formGbc);
+
+        // Campo de nome
+        JLabel nameLabel = new JLabel(NAME + ":", SwingConstants.RIGHT);
+        formGbc.gridx = 0;
+        formGbc.gridy = 1;
+        formGbc.gridwidth = 1;
+        formGbc.insets = new Insets(5, 5, 5, 5);
+        rightPanel.add(nameLabel, formGbc);
 
         nameField = new JTextField();
-        nameField.setPreferredSize(new Dimension(200, 30)); // Field size
-        gbc.gridx = 1;
-        gbc.gridy = 0;
-        gbc.anchor = GridBagConstraints.CENTER; // Align text field to center
-        centerPanel.add(nameField, gbc);
+        nameField.setPreferredSize(new Dimension(200, 30)); // Aumenta o tamanho do campo de texto
+        formGbc.gridx = 1;
+        rightPanel.add(nameField, formGbc);
 
-        // Email field with label
+        // Campo de email
         JLabel emailLabel = new JLabel(EMAIL + ":", SwingConstants.RIGHT);
-        emailLabel.setHorizontalAlignment(SwingConstants.RIGHT);
-        gbc.gridx = 0;
-        gbc.gridy = 1;
-        gbc.anchor = GridBagConstraints.WEST;
-        centerPanel.add(emailLabel, gbc);
+        formGbc.gridx = 0;
+        formGbc.gridy = 2;
+        rightPanel.add(emailLabel, formGbc);
 
         emailField = new JTextField();
-        emailField.setPreferredSize(new Dimension(200, 30));
-        gbc.gridx = 1;
-        gbc.gridy = 1;
-        gbc.anchor = GridBagConstraints.CENTER;
-        centerPanel.add(emailField, gbc);
+        emailField.setPreferredSize(new Dimension(200, 30)); // Aumenta o tamanho do campo de texto
+        formGbc.gridx = 1;
+        rightPanel.add(emailField, formGbc);
 
-        // Password field with label
+        // Campo de senha
         JLabel passwordLabel = new JLabel(PASSWORD + ":", SwingConstants.RIGHT);
-        passwordLabel.setHorizontalAlignment(SwingConstants.RIGHT);
-        gbc.gridx = 0;
-        gbc.gridy = 2;
-        gbc.anchor = GridBagConstraints.WEST;
-        centerPanel.add(passwordLabel, gbc);
+        formGbc.gridx = 0;
+        formGbc.gridy = 3;
+        rightPanel.add(passwordLabel, formGbc);
 
         passwordField = new JPasswordField();
-        passwordField.setPreferredSize(new Dimension(200, 30));
-        gbc.gridx = 1;
-        gbc.gridy = 2;
-        gbc.anchor = GridBagConstraints.CENTER;
-        centerPanel.add(passwordField, gbc);
+        passwordField.setPreferredSize(new Dimension(200, 30)); // Aumenta o tamanho do campo de texto
+        formGbc.gridx = 1;
+        rightPanel.add(passwordField, formGbc);
 
-        // Confirm password field with label
+        // Campo de confirmação de senha
         JLabel confirmPasswordLabel = new JLabel(CONFIRM_PASSWORD + ":", SwingConstants.RIGHT);
-        confirmPasswordLabel.setHorizontalAlignment(SwingConstants.RIGHT);
-        gbc.gridx = 0;
-        gbc.gridy = 3;
-        gbc.anchor = GridBagConstraints.WEST;
-        centerPanel.add(confirmPasswordLabel, gbc);
+        formGbc.gridx = 0;
+        formGbc.gridy = 4;
+        rightPanel.add(confirmPasswordLabel, formGbc);
 
         confirmPasswordField = new JPasswordField();
-        confirmPasswordField.setPreferredSize(new Dimension(200, 30));
-        gbc.gridx = 1;
-        gbc.gridy = 3;
-        gbc.anchor = GridBagConstraints.CENTER;
-        centerPanel.add(confirmPasswordField, gbc);
+        confirmPasswordField.setPreferredSize(new Dimension(200, 30)); // Aumenta o tamanho do campo de texto
+        formGbc.gridx = 1;
+        rightPanel.add(confirmPasswordField, formGbc);
 
-        // Show password checkbox
+        // Checkbox para mostrar senha
         showPasswordCheckbox = new JCheckBox(SHOW_PASSWORD);
-        gbc.gridx = 1;
-        gbc.gridy = 4;
-        gbc.anchor = GridBagConstraints.CENTER;
-        centerPanel.add(showPasswordCheckbox, gbc);
+        formGbc.gridx = 1;
+        formGbc.gridy = 5;
+        rightPanel.add(showPasswordCheckbox, formGbc);
 
-        // Register button
+        // Botão de registro
         registerButton = new JButton(REGISTER);
-        gbc.gridx = 1;
-        gbc.gridy = 5;
-        gbc.anchor = GridBagConstraints.CENTER;
-        centerPanel.add(registerButton, gbc);
+        formGbc.gridx = 1;
+        formGbc.gridy = 6;
+        formGbc.insets = new Insets(15, 5, 5, 5);
+        rightPanel.add(registerButton, formGbc);
 
-        // Go to login button
+        // Botão para ir ao login
         goToLoginButton = new JButton(GO_TO_LOGIN);
-        gbc.gridx = 1;
-        gbc.gridy = 6;
-        gbc.anchor = GridBagConstraints.CENTER;
-        centerPanel.add(goToLoginButton, gbc);
+        formGbc.gridy = 7;
+        formGbc.insets = new Insets(5, 5, 5, 5);
+        rightPanel.add(goToLoginButton, formGbc);
 
-        // Add the center panel to the form
-        add(centerPanel, BorderLayout.CENTER);
+        gbc.gridx = 2;
+        gbc.weightx = 0.6;
+        gbc.fill = GridBagConstraints.BOTH;
+        add(rightPanel, gbc);
+
+        updateLogoSize();
     }
 
     private JTextField nameField, emailField;
@@ -262,13 +299,9 @@ public class RegisterForm extends JPanel {
     private static final String
             REGISTER = localeManager.getTranslation("register"),
             NAME = localeManager.getTranslation("name"),
-            ENTER_NAME = localeManager.getTranslation("enter_name"),
             EMAIL = localeManager.getTranslation("email"),
-            ENTER_EMAIL = localeManager.getTranslation("enter_email"),
             PASSWORD = localeManager.getTranslation("password"),
-            ENTER_STRONG_PASSWORD = localeManager.getTranslation("enter_strong_password"),
             CONFIRM_PASSWORD = localeManager.getTranslation("confirm_password"),
-            REPEAT_PASSWORD = localeManager.getTranslation("repeat_password"),
             SHOW_PASSWORD = localeManager.getTranslation("show_password"),
             GO_TO_LOGIN = localeManager.getTranslation("go_to_login"),
             ALL_FIELDS_REQUIRED = localeManager.getTranslation("all_fields_required"),

@@ -1,5 +1,8 @@
 package com.ptda.tracker.ui.user.dialogs;
 
+import com.ptda.tracker.theme.ThemeManager;
+import com.ptda.tracker.util.ImageResourceManager;
+
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
@@ -12,6 +15,8 @@ import static com.ptda.tracker.config.AppConfig.*;
 
 public class AboutDialog extends JDialog {
 
+    private JLabel logoLabel;
+
     public AboutDialog(Window owner) {
         super(owner);
         setTitle("About");
@@ -20,6 +25,7 @@ public class AboutDialog extends JDialog {
         setResizable(false);
 
         initComponents();
+        setListeners();
         pack();
         setLocationRelativeTo(owner);
     }
@@ -39,6 +45,17 @@ public class AboutDialog extends JDialog {
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(this, "Failed to open URL: " + url, "Error", JOptionPane.ERROR_MESSAGE);
         }
+    }
+
+    private void updateLogo() {
+        boolean isDark = ThemeManager.getInstance().isDark();
+        ImageIcon appLogo = ImageResourceManager.getThemeBasedIcon(isDark);
+        Image scaledImage = appLogo.getImage().getScaledInstance(100, 100, Image.SCALE_SMOOTH);
+        logoLabel.setIcon(new ImageIcon(scaledImage));
+    }
+
+    private void setListeners() {
+        ThemeManager.getInstance().addThemeChangeListener(this::updateLogo);
     }
 
     private void initComponents() {
@@ -61,9 +78,7 @@ public class AboutDialog extends JDialog {
         gbc.gridx = 0;
         gbc.gridy = 0;
         gbc.gridheight = 3;
-        ImageIcon appLogo = new ImageIcon(LOGO_PATH);
-        Image scaledImage = appLogo.getImage().getScaledInstance(100, 100, Image.SCALE_SMOOTH);
-        JLabel logoLabel = new JLabel(new ImageIcon(scaledImage));
+        logoLabel = new JLabel();
         contentPanel.add(logoLabel, gbc);
 
         // Application Name
@@ -116,5 +131,7 @@ public class AboutDialog extends JDialog {
         okButton.setFont(new Font("Arial", Font.PLAIN, 14));
         okButton.addActionListener(this::okClicked);
         buttonPanel.add(okButton);
+
+        updateLogo();
     }
 }

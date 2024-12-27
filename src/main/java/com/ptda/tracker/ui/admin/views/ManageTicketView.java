@@ -47,7 +47,7 @@ public class ManageTicketView extends JPanel {
                 if (e.getClickCount() == 2) {
                     Ticket selectedTicket = ticketList.getSelectedValue();
                     if (selectedTicket != null) {
-                        mainFrame.registerAndShowScreen(ScreenNames.TICKET_DETAIL_VIEW, new TicketDetailView(mainFrame, selectedTicket));
+                        mainFrame.registerAndShowScreen(ScreenNames.TICKET_DETAIL_VIEW, new TicketDetailView(mainFrame, selectedTicket, ScreenNames.MANAGE_TICKET_VIEW));
                         ticketList.clearSelection(); // Clear selection after click
                     }
                 }
