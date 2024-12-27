@@ -15,11 +15,25 @@ import java.awt.event.MouseEvent;
 import java.util.List;
 
 public class ManageTicketView extends JPanel {
-    private final TicketService ticketService;
-    private final JList<Ticket> ticketList;
-    private List<Ticket> tickets;
+    private final MainFrame mainFrame;
+    private final String returnScreen;
+    private TicketService ticketService;
 
-    public ManageTicketView(MainFrame mainFrame) {
+    public ManageTicketView(MainFrame mainFrame, String returnScreen) {
+        this.mainFrame = mainFrame;
+        this.returnScreen = returnScreen;
+
+
+        initComponents();
+    }
+
+    public void setTicketList(List<Ticket> tickets) {
+        DefaultListModel<Ticket> model = (DefaultListModel<Ticket>) ticketList.getModel();
+        model.clear(); // Clear old data
+        tickets.forEach(model::addElement); // Add new data
+    }
+
+    private void initComponents() {
         setLayout(new BorderLayout());
         setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
@@ -58,20 +72,14 @@ public class ManageTicketView extends JPanel {
         JPanel leftButtonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         JButton backButton = new JButton(BACK);
         backButton.addActionListener(e -> {
-            AdministrationOptionsScreen administrationOptionsScreen = new AdministrationOptionsScreen(mainFrame);
-            administrationOptionsScreen.refreshData();
-            mainFrame.showScreen(ScreenNames.NAVIGATION_SCREEN);
+            mainFrame.showScreen(returnScreen);
         });
         leftButtonPanel.add(backButton);
         add(leftButtonPanel, BorderLayout.SOUTH);
     }
 
-    public void setTicketList(List<Ticket> tickets) {
-        DefaultListModel<Ticket> model = (DefaultListModel<Ticket>) ticketList.getModel();
-        model.clear(); // Clear old data
-        tickets.forEach(model::addElement); // Add new data
-    }
-
+    private JList<Ticket> ticketList;
+    private List<Ticket> tickets;
     private static final String
             BACK = "Back",
             MANAGE_TICKETS = "Manage Tickets";

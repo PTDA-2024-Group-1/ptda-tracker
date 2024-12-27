@@ -204,7 +204,7 @@ public class RegisterForm extends JPanel {
         formGbc.insets = new Insets(5, 5, 5, 5);
 
         // Título
-        JLabel titleLabel = new JLabel(REGISTER, SwingConstants.LEFT);
+        JLabel titleLabel = new JLabel(REGISTER, SwingConstants.CENTER);
         titleLabel.setFont(new Font("Arial", Font.BOLD, 24));
         formGbc.gridx = 1;
         formGbc.gridy = 0;

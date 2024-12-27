@@ -45,6 +45,11 @@ public class BudgetServiceHibernateImpl implements BudgetService {
     }
 
     @Override
+    public int getCount() {
+        return (int) budgetRepository.count();
+    }
+
+    @Override
     public int getCountByUserId(Long userId) {
         return budgetAccessService.getAllByUserId(userId).size();
     }

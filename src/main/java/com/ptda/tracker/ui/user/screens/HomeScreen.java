@@ -37,13 +37,11 @@ public class HomeScreen extends JPanel {
     private final long userId;
     private final BudgetService budgetService;
     private final ExpenseService expenseService;
-    private final TicketService ticketService;
 
     public HomeScreen(MainFrame mainFrame) {
         this.mainFrame = mainFrame;
         this.budgetService = mainFrame.getContext().getBean(BudgetService.class);
         this.expenseService = mainFrame.getContext().getBean(ExpenseService.class);
-        this.ticketService = mainFrame.getContext().getBean(TicketService.class);
         this.userId = UserSession.getInstance().getUser().getId();
 
         initUI();
@@ -86,14 +84,6 @@ public class HomeScreen extends JPanel {
     }
 
     public void refreshData() {
-        int budgetCount = budgetService.getCountByUserId(userId);
-        int expenseCount = expenseService.getAllByUserId(userId).size();
-        int pendingTicketCount = ticketService.getOpenTicketsByUser(UserSession.getInstance().getUser()).size();
-
-        budgetLabel.setText(BUDGETS + ": " + budgetCount);
-        expenseLabel.setText(EXPENSES + ": " + expenseCount);
-        ticketLabel.setText(PENDING_TICKETS + ": " + pendingTicketCount);
-
         List<Budget> recentBudgets = budgetService.getRecentByUserId(userId, 5);
         budgetList.setListData(recentBudgets.toArray(new Budget[0]));
 
@@ -119,7 +109,10 @@ public class HomeScreen extends JPanel {
         }
 
         JFreeChart barChart = ChartFactory.createBarChart(
-                "", BUDGET, TOTAL_AMOUNT, barDataset, PlotOrientation.VERTICAL, false, true, false);
+                "", BUDGET, TOTAL_AMOUNT,
+                barDataset, PlotOrientation.VERTICAL,
+                false, true, false
+        );
         ChartUtilities.applyCurrentTheme(barChart);
         applyThemeSettings(barChart);
 
@@ -134,20 +127,7 @@ public class HomeScreen extends JPanel {
         setLayout(new BorderLayout());
         setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
-        JPanel summaryPanel = new JPanel(new GridLayout(1, 3, 10, 10));
-        summaryPanel.setBorder(BorderFactory.createTitledBorder(SUMMARY));
-        add(summaryPanel, BorderLayout.NORTH);
-
-        budgetLabel = new JLabel(BUDGETS + ": 0", SwingConstants.CENTER);
-        expenseLabel = new JLabel(EXPENSES + ": 0", SwingConstants.CENTER);
-        ticketLabel = new JLabel(PENDING_TICKETS + ": 0", SwingConstants.CENTER);
-
-        summaryPanel.add(budgetLabel);
-        summaryPanel.add(expenseLabel);
-        summaryPanel.add(ticketLabel);
-
         JPanel listsPanel = new JPanel(new GridLayout(1, 2, 10, 10));
-        listsPanel.setBorder(BorderFactory.createTitledBorder(RECENT_DATA));
         add(listsPanel, BorderLayout.CENTER);
 
         budgetList = new JList<>();
@@ -163,26 +143,33 @@ public class HomeScreen extends JPanel {
         listsPanel.add(expenseScrollPane);
 
         JPanel chartPanel = new JPanel(new GridLayout(1, 2, 10, 10));
-        chartPanel.setBorder(BorderFactory.createTitledBorder(EXPENSES_BY_CATEGORY));
         add(chartPanel, BorderLayout.SOUTH);
 
         pieChartPanel = new ChartPanel(null);
+        pieChartPanel.setBorder(BorderFactory.createTitledBorder(EXPENSES_BY_CATEGORY));
         barChartPanel = new ChartPanel(null);
+        barChartPanel.setBorder(BorderFactory.createTitledBorder(EXPENSES_BY_BUDGET));
         chartPanel.add(pieChartPanel);
         chartPanel.add(barChartPanel);
     }
 
     private void applyThemeSettings(JFreeChart chart) {
-        Color backgroundColor = UIManager.getColor("Panel.background");
+        Color backgroundColor = getBackground();
         chart.setBackgroundPaint(backgroundColor);
         chart.getPlot().setBackgroundPaint(backgroundColor);
+        chart.getPlot().setOutlinePaint(null);
 
         if (ThemeManager.getInstance().isDark()) {
             chart.getTitle().setPaint(Color.WHITE);
             if (chart.getPlot() instanceof CategoryPlot plot) {
                 plot.getDomainAxis().setLabelPaint(Color.WHITE);
                 plot.getRangeAxis().setLabelPaint(Color.WHITE);
-                plot.getRenderer().setSeriesPaint(0, Color.WHITE);
+            }
+        } else {
+            chart.getTitle().setPaint(Color.BLACK);
+            if (chart.getPlot() instanceof CategoryPlot plot) {
+                plot.getDomainAxis().setLabelPaint(Color.BLACK);
+                plot.getRangeAxis().setLabelPaint(Color.BLACK);
             }
         }
     }
@@ -191,16 +178,12 @@ public class HomeScreen extends JPanel {
     private JList<Expense> expenseList;
     private ChartPanel pieChartPanel;
     private ChartPanel barChartPanel;
-    private JLabel budgetLabel, expenseLabel, ticketLabel;
     private static final String
             BUDGET = "Budget",
-            BUDGETS = "Budgets",
-            EXPENSES = "Expenses",
-            PENDING_TICKETS = "Pending Tickets",
-            SUMMARY = "Summary",
             RECENT_DATA = "Recent Data",
             RECENT_BUDGETS = "Recent Budgets",
             RECENT_EXPENSES = "Recent Expenses",
             EXPENSES_BY_CATEGORY = "Expenses by Category",
+            EXPENSES_BY_BUDGET = "Expenses by Budget",
             TOTAL_AMOUNT = "Total Amount";
 }

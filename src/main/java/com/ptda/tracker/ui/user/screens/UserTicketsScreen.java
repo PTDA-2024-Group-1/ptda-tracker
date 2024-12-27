@@ -24,7 +24,7 @@ public class UserTicketsScreen extends JPanel {
         ticketList = new JList<>(new DefaultListModel<>());
         ticketList.setCellRenderer(new TicketListRenderer());
         ticketService = mainFrame.getContext().getBean(TicketService.class);
-        tickets = ticketService.getAllByUser(UserSession.getInstance().getUser());
+        tickets = ticketService.getAllByUserId(UserSession.getInstance().getUser().getId());
         setTicketList(tickets);
 
         ticketList.addListSelectionListener(e -> {
@@ -53,7 +53,7 @@ public class UserTicketsScreen extends JPanel {
 
     private void refreshTicketList() {
         ticketList.clearSelection();
-        tickets = ticketService.getAllByUser(UserSession.getInstance().getUser());
+        tickets = ticketService.getAllByUserId(UserSession.getInstance().getUser().getId());
         setTicketList(tickets);
     }
 

@@ -1,7 +1,6 @@
 package com.ptda.tracker.services.assistance;
 
 import com.ptda.tracker.models.assistance.Ticket;
-import com.ptda.tracker.models.user.User;
 import com.ptda.tracker.repositories.TicketRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -15,8 +14,8 @@ public class TicketServiceHibernateImpl implements TicketService {
     private final TicketRepository ticketRepository;
 
     @Override
-    public List<Ticket> getAllByUser(User user) {
-        return ticketRepository.findAllByCreatedBy(user);
+    public List<Ticket> getAllByUserId(Long userId) {
+        return ticketRepository.findAllByCreatedById(userId);
     }
 
     @Override
@@ -25,8 +24,13 @@ public class TicketServiceHibernateImpl implements TicketService {
     }
 
     @Override
-    public List<Ticket> getOpenTicketsByUser(User createdBy) {
-        return ticketRepository.findAllByIsClosedIsFalseAndCreatedBy(createdBy);
+    public List<Ticket> getOpenTicketsByUserId(Long createdById) {
+        return ticketRepository.findAllByIsClosedIsFalseAndCreatedById(createdById);
+    }
+
+    @Override
+    public int getCountByUserIdAndStatus(Long userId, boolean isClosed) {
+        return ticketRepository.countByCreatedByIdAndIsClosed(userId, isClosed);
     }
 
     @Override

@@ -102,7 +102,7 @@ public class TicketDetailView extends JPanel {
 
         JPanel leftPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         JButton backButton = new JButton(BACK);
-        backButton.addActionListener(e -> handleBackAction());
+        backButton.addActionListener(e -> mainFrame.showScreen(returnScreen));
         leftPanel.add(backButton);
         buttonPanel.add(leftPanel, BorderLayout.WEST);
 
@@ -112,14 +112,6 @@ public class TicketDetailView extends JPanel {
 
         buttonPanel.revalidate();
         buttonPanel.repaint();
-    }
-
-    private void handleBackAction() {
-        if (UserSession.getInstance().getUser().getUserType().equals("ADMIN") && returnScreen.equals(ScreenNames.MANAGE_TICKET_VIEW)) {
-            mainFrame.registerAndShowScreen(ScreenNames.MANAGE_TICKET_VIEW, new ManageTicketView(mainFrame));
-        } else {
-            mainFrame.showScreen(ScreenNames.NAVIGATION_SCREEN);
-        }
     }
 
     private void addRightPanelButtons(JPanel rightPanel) {

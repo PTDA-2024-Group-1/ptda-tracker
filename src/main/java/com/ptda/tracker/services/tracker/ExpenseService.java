@@ -10,6 +10,8 @@ public interface ExpenseService {
 
     List<Expense> getAll();
 
+    int getCount();
+
     List<Expense> getAllByBudgetId(Long budgetId);
 
     List<Expense> getAllByUserId(Long userId);
@@ -29,6 +31,8 @@ public interface ExpenseService {
     int getCountByBudgetId(Long id);
 
     int getCountByUserId(Long userId);
+
+    int getCountByUserIdPersonal(Long userId);
 
     Optional<Expense> getById(Long id);
 

@@ -165,7 +165,7 @@ public class LoginForm extends JPanel {
         formGbc.insets = new Insets(5, 5, 5, 5);
 
         // Título
-        JLabel titleLabel = new JLabel(LOGIN, SwingConstants.LEFT);
+        JLabel titleLabel = new JLabel(LOGIN, SwingConstants.CENTER);
         titleLabel.setFont(new Font("Arial", Font.BOLD, 24));
         formGbc.gridx = 1;
         formGbc.gridy = 0;

@@ -45,6 +45,11 @@ public class ExpenseServiceHibernateImpl implements ExpenseService {
     }
 
     @Override
+    public int getCount() {
+        return (int) expenseRepository.count();
+    }
+
+    @Override
     public List<Expense> getAllByBudgetId(Long budgetId) {
         return expenseRepository.findAllByBudgetId(budgetId);
     }
@@ -102,6 +107,11 @@ public class ExpenseServiceHibernateImpl implements ExpenseService {
     @Override
     public int getCountByUserId(Long userId) {
         return expenseRepository.countByCreatedById(userId);
+    }
+
+    @Override
+    public int getCountByUserIdPersonal(Long userId) {
+        return expenseRepository.countByCreatedByIdAndBudgetNull(userId);
     }
 
     @Override

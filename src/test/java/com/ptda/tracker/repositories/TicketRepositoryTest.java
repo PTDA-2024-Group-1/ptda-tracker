@@ -38,13 +38,13 @@ public class TicketRepositoryTest {
         ticketRepository.save(ticket);
         assertThat(ticket.getId()).isNotNull();
 
-        List<Ticket> tickets = ticketRepository.findAllByCreatedBy(user);
+        List<Ticket> tickets = ticketRepository.findAllByCreatedById(user.getId());
         assertThat(tickets).isNotEmpty();
         assertThat(tickets.get(0).getTitle()).isEqualTo("Test Ticket");
     }
 
     @Test
-    void testFindAllByIsClosedIsFalseAndCreatedBy() {
+    void testFindAllByIsClosedIsFalseAndCreatedById() {
         User user = User.builder()
                 .name("Test User")
                 .email("test@example.com")
@@ -68,7 +68,7 @@ public class TicketRepositoryTest {
                 .build();
         ticketRepository.save(ticket2);
 
-        List<Ticket> openTickets = ticketRepository.findAllByIsClosedIsFalseAndCreatedBy(user);
+        List<Ticket> openTickets = ticketRepository.findAllByIsClosedIsFalseAndCreatedById(user.getId());
         assertThat(openTickets).hasSize(1);
         assertThat(openTickets.get(0).getTitle()).isEqualTo("Open Ticket");
     }

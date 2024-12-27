@@ -66,6 +66,8 @@ public class MainFrame extends JFrame {
         setSize(1000, 800);
         setLocationRelativeTo(null);
 
+        setMinimumSize(new Dimension(800, 600));
+
         // Add components to the frame
         add(mainPanel, BorderLayout.CENTER);
     }

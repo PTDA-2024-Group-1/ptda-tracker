@@ -2,6 +2,7 @@ package com.ptda.tracker.ui.user.views;
 
 import com.ptda.tracker.models.user.User;
 import com.ptda.tracker.ui.MainFrame;
+import com.ptda.tracker.ui.user.dialogs.SummaryDialog;
 import com.ptda.tracker.ui.user.forms.ChangePasswordForm;
 import com.ptda.tracker.ui.user.forms.ProfileForm;
 import com.ptda.tracker.util.ScreenNames;
@@ -19,6 +20,7 @@ public class ProfileView extends JPanel {
         this.mainFrame = mainFrame;
         initComponents();
         refreshUserData();
+        setListeners();
     }
 
     private void refreshUserData() {
@@ -29,6 +31,13 @@ public class ProfileView extends JPanel {
             createdDateLabel.setText(new SimpleDateFormat("dd/MM/yyyy").format(new Date(user.getCreatedAt())));
             accountAgeLabel.setText(calculateAccountAge(user.getCreatedAt()));
         }
+    }
+
+    private void setListeners() {
+        summaryButton.addActionListener(e -> new SummaryDialog(mainFrame).setVisible(true));
+        editButton.addActionListener(e -> mainFrame.registerAndShowScreen(ScreenNames.PROFILE_FORM, new ProfileForm(mainFrame, this::refreshUserData)));
+        changePasswordButton.addActionListener(e -> mainFrame.registerAndShowScreen(ScreenNames.CHANGE_PASSWORD_FORM, new ChangePasswordForm(mainFrame)));
+        deleteProfileButton.addActionListener(e -> deleteProfile());
     }
 
     private void initComponents() {
@@ -53,22 +62,19 @@ public class ProfileView extends JPanel {
         infoPanel.add(createInfoBox(" Joined: ", createdDateLabel = new JLabel()));
         infoPanel.add(createInfoBox(" Account Age: ", accountAgeLabel = new JLabel()));
 
-        // Painel de Botões dentro do infoPanel
+        // Buttons Panel
         JPanel buttonsPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 10));
-        infoPanel.add(buttonsPanel);
 
-        // Adicionando botões
-        JButton editButton = new JButton("Edit Profile");
-        editButton.addActionListener(e -> mainFrame.registerAndShowScreen(ScreenNames.PROFILE_FORM, new ProfileForm(mainFrame, this::refreshUserData)));
+        summaryButton = new JButton("Summary");
+        editButton = new JButton("Edit Profile");
+        changePasswordButton = new JButton("Change Password");
+        deleteProfileButton = new JButton("Delete Profile");
+
+        buttonsPanel.add(summaryButton);
         buttonsPanel.add(editButton);
-
-        JButton changePasswordButton = new JButton("Change Password");
-        changePasswordButton.addActionListener(e -> mainFrame.registerAndShowScreen(ScreenNames.CHANGE_PASSWORD_FORM, new ChangePasswordForm(mainFrame)));
         buttonsPanel.add(changePasswordButton);
-
-        JButton deleteProfileButton = new JButton("Delete Profile");
-        deleteProfileButton.addActionListener(e -> deleteProfile());
         buttonsPanel.add(deleteProfileButton);
+        infoPanel.add(buttonsPanel);
     }
 
     // Métod.o auxiliar para criar uma linha de informação simples
@@ -110,4 +116,5 @@ public class ProfileView extends JPanel {
     }
 
     private JLabel nameLabel, emailLabel, createdDateLabel, accountAgeLabel;
+    private JButton summaryButton, editButton, changePasswordButton, deleteProfileButton;
 }

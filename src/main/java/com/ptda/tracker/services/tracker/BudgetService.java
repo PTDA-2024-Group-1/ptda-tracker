@@ -15,6 +15,8 @@ public interface BudgetService {
 
     List<Budget> getAll();
 
+    int getCount();
+
     int getCountByUserId(Long userId);
 
     double getTotalBudgetAmount(Long userId);

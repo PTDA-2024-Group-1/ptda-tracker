@@ -7,11 +7,13 @@ import java.util.List;
 
 public interface TicketService {
 
-    List<Ticket> getAllByUser(User user);
+    List<Ticket> getAllByUserId(Long userId);
 
     List<Ticket> getAll();
 
-    List<Ticket> getOpenTicketsByUser(User createdBy);
+    List<Ticket> getOpenTicketsByUserId(Long createdById);
+
+    int getCountByUserIdAndStatus(Long userId, boolean isClosed);
 
     Ticket create(Ticket ticket);
 
