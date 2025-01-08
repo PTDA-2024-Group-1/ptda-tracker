@@ -16,7 +16,14 @@ public class NavigationScreen extends JPanel {
     private final NavigationMenu navigationMenu;
     private final Map<String, JPanel> activeCards = new HashMap<>(); // Cache of added screens
 
+    private static Long selectedRevisionId = null;
+    private static String selectedRevisionDetails = "";
+
+    private static NavigationScreen instance;
+
     public NavigationScreen(MainFrame mainFrame) {
+        instance = this;
+
         setLayout(new BorderLayout());
 
         // Navigation menu
@@ -46,5 +53,10 @@ public class NavigationScreen extends JPanel {
             activeCards.put(screenName, screen);
             ((CardLayout) contentPanel.getLayout()).show(contentPanel, screenName);
         }
+    }
+
+    public static void setSelectedRevision(Long revisionId, String revisionDetails) {
+        selectedRevisionId = revisionId;
+        selectedRevisionDetails = revisionDetails;
     }
 }

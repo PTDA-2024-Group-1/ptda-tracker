@@ -88,4 +88,9 @@ public class BudgetServiceHibernateImpl implements BudgetService {
     public Budget[] findAll() {
         return budgetRepository.findAll().toArray(new Budget[0]);
     }
+
+    @Override
+    public Budget updateWithoutAudit(Budget budget) {
+        return budgetRepository.save(budget);
+    }
 }
