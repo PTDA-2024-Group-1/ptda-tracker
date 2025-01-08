@@ -1,6 +1,7 @@
 package com.ptda.tracker.ui.user.components.renderers;
 
 import com.ptda.tracker.models.tracker.Expense;
+import com.ptda.tracker.util.DateFormatManager;
 import com.ptda.tracker.util.LocaleManager;
 
 import javax.swing.*;
@@ -72,7 +73,7 @@ public class ExpenseListRenderer extends JPanel implements ListCellRenderer<Expe
     private JLabel titleLabel;
     private JLabel categoryLabel;
     private JLabel dateLabel;
-    private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("dd-MM-yyyy");
+    private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat(DateFormatManager.getInstance().getDateFormat());
     private static final LocaleManager localeManager = LocaleManager.getInstance();
     private static final String
             NO_TITLE = localeManager.getTranslation("no_title"),

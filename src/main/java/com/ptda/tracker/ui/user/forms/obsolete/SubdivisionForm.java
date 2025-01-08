@@ -1,4 +1,4 @@
-package com.ptda.tracker.ui.user.forms;
+/*package com.ptda.tracker.ui.user.forms;
 
 import com.ptda.tracker.models.tracker.ExpenseDivision;
 import com.ptda.tracker.models.tracker.Budget;
@@ -28,16 +28,18 @@ public class SubdivisionForm extends JPanel {
     private final BudgetAccessService budgetAccessService;
     private final ExpenseDivisionService expenseDivisionService;
     private final List<ExpenseDivision> expenseDivisions;
+    private final String returnScreen;
     private final Runnable onBack;
 
-    public SubdivisionForm(MainFrame mainFrame, Expense expense, Budget budget, Runnable onBack) {
+    public SubdivisionForm(MainFrame mainFrame, Expense expense, String returnScreen, Runnable onSuccess) {
         this.mainFrame = mainFrame;
         this.expense = expense;
-        this.budget = budget;
+        this.budget = expense.getBudget();
         this.budgetAccessService = mainFrame.getContext().getBean(BudgetAccessService.class);
         this.expenseDivisionService = mainFrame.getContext().getBean(ExpenseDivisionService.class);
         this.expenseDivisions = expenseDivisionService.getAllByExpenseId(expense.getId());
-        this.onBack = onBack;
+        this.returnScreen = returnScreen;
+        this.onBack = onSuccess;
 
         initComponents();
         setListeners();
@@ -131,11 +133,8 @@ public class SubdivisionForm extends JPanel {
 
         JOptionPane.showMessageDialog(this, REMAINING_PERCENTAGE_DISTRIBUTED + roundedPercentage + "%.");
 
-        if (onBack != null) {
-            onBack.run();
-        } else {
-            mainFrame.registerAndShowScreen(ScreenNames.EXPENSE_DETAIL_VIEW, new ExpenseDetailView(mainFrame, expense, ScreenNames.EXPENSE_DETAIL_VIEW, () -> {}));
-        }
+        onBack.run();
+        mainFrame.showScreen(returnScreen);
     }
 
     private List<BudgetAccess> showUserChecklistDialog(List<BudgetAccess> usersToDistribute) {
@@ -397,4 +396,4 @@ public class SubdivisionForm extends JPanel {
             DISTRIBUTION_ALREADY_COMPLETE = localeManager.getTranslation("distribution_already_complete"),
             PERCENTAGE = localeManager.getTranslation("percentage"),
             TOTAL_PERCENTAGE = localeManager.getTranslation("total_percentage");
-}
+}*/

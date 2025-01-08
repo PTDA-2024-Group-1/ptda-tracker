@@ -7,6 +7,7 @@ import com.ptda.tracker.ui.user.forms.ExpenseForm;
 import com.ptda.tracker.ui.user.components.renderers.ExpenseListRenderer;
 import com.ptda.tracker.ui.user.views.ExpenseDetailView;
 import com.ptda.tracker.util.ExpensesImportSharedData;
+import com.ptda.tracker.util.Refreshable;
 import com.ptda.tracker.util.ScreenNames;
 import com.ptda.tracker.util.UserSession;
 
@@ -16,7 +17,7 @@ import java.util.List;
 
 import static com.ptda.tracker.ui.user.views.BudgetDetailView.openImport;
 
-public class ExpensesScreen extends JPanel {
+public class ExpensesScreen extends JPanel implements Refreshable {
     private final MainFrame mainFrame;
     private ExpenseService expenseService;
     private final ExpensesImportSharedData sharedData;
@@ -149,4 +150,9 @@ public class ExpensesScreen extends JPanel {
             SELECT_EXPENSE = "Select an expense to view details",
             CREATE_NEW_EXPENSE = "Create New Expense",
             IMPORT_EXPENSES = "Import Expenses";
+
+    @Override
+    public void refresh() {
+        refreshExpenseList();
+    }
 }

@@ -176,7 +176,7 @@ public class BudgetDetailView extends JPanel {
         detailsPanel.add(createdByLabel);
 
         // Checkbox for favorites
-        JCheckBox favoriteCheckBox = new JCheckBox("Favorite");
+        JCheckBox favoriteCheckBox = new JCheckBox(FAVORITE);
         favoriteCheckBox.setSelected(budget.isFavorite());
         favoriteCheckBox.addActionListener(e -> {
             budget.setFavorite(favoriteCheckBox.isSelected());
@@ -202,12 +202,15 @@ public class BudgetDetailView extends JPanel {
             topButtonsPanel.add(shareButton);
         }
 
-        importButton = new JButton("Import Expenses");
+        importButton = new JButton(IMPORT_EXPENSES);
         topButtonsPanel.add(importButton);
 
         // Add the audit button
-        auditButton = new JButton("Audit Changes");
-        auditButton.addActionListener(e -> mainFrame.registerAndShowScreen(ScreenNames.BUDGET_AUDIT_DETAIL_VIEW, new BudgetAuditDetailView(mainFrame, budget)));
+        auditButton = new JButton(AUDIT_CHANGES);
+        auditButton.addActionListener(e -> mainFrame.registerAndShowScreen(
+                ScreenNames.BUDGET_AUDIT_DETAIL_VIEW,
+                new BudgetAuditDetailView(mainFrame, budget)
+        ));
         topButtonsPanel.add(auditButton);
 
         // Adiciona os detalhes e os botões ao topo
@@ -294,5 +297,12 @@ public class BudgetDetailView extends JPanel {
             AMOUNT = "Amount",
             CATEGORY = "Category",
             DATE = "Date",
-            CREATED_BY_COLUMN = "Created By";
+            CREATED_BY_COLUMN = "Created By",
+            IMPORT_EXPENSES = "Import Expenses",
+            AUDIT_CHANGES = "Audit Changes",
+            SIMULATE_BUDGET = "Simulate Budget",
+            FAVORITE = "Favorite",
+            EDIT = "Edit",
+            DELETE = "Delete",
+            HISTORY = "History";
 }

@@ -9,8 +9,8 @@ import com.ptda.tracker.services.tracker.BudgetAccessService;
 import com.ptda.tracker.services.tracker.ExpenseService;
 import com.ptda.tracker.services.tracker.ExpenseDivisionService;
 import com.ptda.tracker.ui.MainFrame;
+import com.ptda.tracker.ui.user.forms.DivisionsForm;
 import com.ptda.tracker.ui.user.forms.ExpenseForm;
-import com.ptda.tracker.ui.user.forms.SubdivisionForm;
 import com.ptda.tracker.util.ScreenNames;
 import com.ptda.tracker.util.UserSession;
 
@@ -63,10 +63,16 @@ public class ExpenseDetailView extends JPanel {
         }
         if (distributeDivisionExpenseButton != null) {
             distributeDivisionExpenseButton.addActionListener(e -> {
-                SubdivisionForm expenseDivisionsOldFormRefactored = new SubdivisionForm(mainFrame, expense, expense.getBudget(), () -> mainFrame.registerAndShowScreen(ScreenNames.EXPENSE_DETAIL_VIEW, new ExpenseDetailView(mainFrame, expense, returnScreen, onBack)));
-                mainFrame.registerAndShowScreen(ScreenNames.SUBDIVISION_FORM, expenseDivisionsOldFormRefactored);
+//                SubdivisionForm expenseDivisionsForm = new SubdivisionForm(mainFrame, expense, mainFrame.getCurrentScreen(), onBack);
+//                mainFrame.registerAndShowScreen(ScreenNames.SUBDIVISION_FORM, expenseDivisionsForm);
+                DivisionsForm divisionsForm = new DivisionsForm(mainFrame, expense, mainFrame.getCurrentScreen(), onBack);
+                mainFrame.registerAndShowScreen(ScreenNames.DIVISIONS_FORM, divisionsForm);
             });
         }
+        auditButton.addActionListener(e -> mainFrame.registerAndShowScreen(
+                ScreenNames.EXPENSE_AUDIT_DETAIL_VIEW,
+                new ExpenseAuditDetailView(mainFrame, expense)
+        ));
     }
 
     private void delete() {
@@ -110,61 +116,51 @@ public class ExpenseDetailView extends JPanel {
 
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(5, 10, 5, 10); // Padding between elements
-        gbc.anchor = GridBagConstraints.EAST; // Align labels to the right
+        gbc.anchor = GridBagConstraints.WEST;
 
         // Name Row
         gbc.gridx = 0;
         gbc.gridy = 0;
         gbc.weightx = 0.1; // Allow labels to shrink/expand
-        gbc.fill = GridBagConstraints.NONE;
         detailsPanel.add(new JLabel(NAME + ":"), gbc);
 
         gbc.gridx = 1;
-        gbc.anchor = GridBagConstraints.WEST; // Align values to the left
         nameValue = new JLabel();
         detailsPanel.add(nameValue, gbc);
 
         // Amount Row
         gbc.gridx = 0;
         gbc.gridy = 1;
-        gbc.anchor = GridBagConstraints.EAST;
         detailsPanel.add(new JLabel(AMOUNT + ":"), gbc);
 
         gbc.gridx = 1;
-        gbc.anchor = GridBagConstraints.WEST;
         amountValue = new JLabel();
         detailsPanel.add(amountValue, gbc);
 
         // Category Row
         gbc.gridx = 0;
         gbc.gridy = 2;
-        gbc.anchor = GridBagConstraints.EAST;
         detailsPanel.add(new JLabel(CATEGORY + ":"), gbc);
 
         gbc.gridx = 1;
-        gbc.anchor = GridBagConstraints.WEST;
         categoryValue = new JLabel();
         detailsPanel.add(categoryValue, gbc);
 
         // Date Row
         gbc.gridx = 0;
         gbc.gridy = 3;
-        gbc.anchor = GridBagConstraints.EAST;
         detailsPanel.add(new JLabel(DATE + ":"), gbc);
 
         gbc.gridx = 1;
-        gbc.anchor = GridBagConstraints.WEST;
         dateValue = new JLabel();
         detailsPanel.add(dateValue, gbc);
 
         // Created By Row
         gbc.gridx = 0;
         gbc.gridy = 4;
-        gbc.anchor = GridBagConstraints.EAST;
         detailsPanel.add(new JLabel(CREATED_BY + ":"), gbc);
 
         gbc.gridx = 1;
-        gbc.anchor = GridBagConstraints.WEST;
         createdByValue = new JLabel();
         detailsPanel.add(createdByValue, gbc);
 
@@ -179,8 +175,8 @@ public class ExpenseDetailView extends JPanel {
             JPanel subdivisionsPanel = new JPanel();
             subdivisionsPanel.setLayout(new BoxLayout(subdivisionsPanel, BoxLayout.Y_AXIS));
             subdivisionsPanel.setBorder(BorderFactory.createTitledBorder(SUBDIVISIONS));
-            subdivisionsTable = createSubdivisionsTable(expenseDivisions);
-            subdivisionsPanel.add(new JScrollPane(subdivisionsTable));
+            divisionsTable = createSubdivisionsTable(expenseDivisions);
+            subdivisionsPanel.add(new JScrollPane(divisionsTable));
             add(subdivisionsPanel, BorderLayout.EAST);
         }
         // End Subdivisions Panel
@@ -196,7 +192,6 @@ public class ExpenseDetailView extends JPanel {
         editButton = new JButton(EDIT_EXPENSE);
         deleteButton = new JButton(DELETE_EXPENSE);
         auditButton = new JButton(AUDIT_EXPENSE);
-        auditButton.addActionListener(e -> mainFrame.registerAndShowScreen(ScreenNames.EXPENSE_AUDIT_DETAIL_VIEW, new ExpenseAuditDetailView(mainFrame, expense)));
 
         rightButtonPanel.add(editButton);
         rightButtonPanel.add(deleteButton);
@@ -210,12 +205,8 @@ public class ExpenseDetailView extends JPanel {
                     .findFirst()
                     .orElse(null);
 
-            if (currentUserAccess == null || currentUserAccess.getAccessLevel() != BudgetAccessLevel.VIEWER) {
+            if (currentUserAccess != null && currentUserAccess.getAccessLevel() != BudgetAccessLevel.VIEWER) {
                 distributeDivisionExpenseButton = new JButton(DISTRIBUTE_SUBDIVISIONS);
-                distributeDivisionExpenseButton.addActionListener(e -> {
-                    SubdivisionForm expenseDivisionsOldFormRefactored = new SubdivisionForm(mainFrame, expense, expense.getBudget(), () -> mainFrame.registerAndShowScreen(ScreenNames.EXPENSE_DETAIL_VIEW, new ExpenseDetailView(mainFrame, expense, returnScreen, onBack)));
-                    mainFrame.registerAndShowScreen(ScreenNames.SUBDIVISION_FORM, expenseDivisionsOldFormRefactored);
-                });
                 rightButtonPanel.add(distributeDivisionExpenseButton);
             }
         }
@@ -231,9 +222,8 @@ public class ExpenseDetailView extends JPanel {
         return createDivisionsJTable(expenseDivisions);
     }
 
-    private JLabel nameLabel, amountLabel, categoryLabel, dateLabel, createdByLabel;
     private JLabel nameValue, amountValue, categoryValue, dateValue, createdByValue;
-    private JTable subdivisionsTable;
+    private JTable divisionsTable;
     private JButton backButton, editButton, auditButton, deleteButton, distributeDivisionExpenseButton;
 
     private static final String

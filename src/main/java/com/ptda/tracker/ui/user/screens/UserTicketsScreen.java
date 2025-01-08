@@ -6,6 +6,7 @@ import com.ptda.tracker.ui.MainFrame;
 import com.ptda.tracker.ui.user.forms.TicketForm;
 import com.ptda.tracker.ui.user.components.renderers.TicketListRenderer;
 import com.ptda.tracker.ui.user.views.TicketDetailView;
+import com.ptda.tracker.util.Refreshable;
 import com.ptda.tracker.util.ScreenNames;
 import com.ptda.tracker.util.UserSession;
 
@@ -13,7 +14,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.util.List;
 
-public class UserTicketsScreen extends JPanel {
+public class UserTicketsScreen extends JPanel implements Refreshable {
     private final TicketService ticketService;
     private final JList<Ticket> ticketList;
     private List<Ticket> tickets;
@@ -66,4 +67,9 @@ public class UserTicketsScreen extends JPanel {
     private static final String
             SELECT_TICKET = "Select a ticket to view details",
             CREATE_NEW_TICKET = "Create New Ticket";
+
+    @Override
+    public void refresh() {
+        refreshTicketList();
+    }
 }

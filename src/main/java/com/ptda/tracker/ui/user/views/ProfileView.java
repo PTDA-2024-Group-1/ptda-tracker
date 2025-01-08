@@ -5,6 +5,7 @@ import com.ptda.tracker.ui.MainFrame;
 import com.ptda.tracker.ui.user.dialogs.SummaryDialog;
 import com.ptda.tracker.ui.user.forms.ChangePasswordForm;
 import com.ptda.tracker.ui.user.forms.ProfileForm;
+import com.ptda.tracker.util.Refreshable;
 import com.ptda.tracker.util.ScreenNames;
 import com.ptda.tracker.util.UserSession;
 
@@ -13,7 +14,7 @@ import java.awt.*;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-public class ProfileView extends JPanel {
+public class ProfileView extends JPanel implements Refreshable {
     private final MainFrame mainFrame;
 
     public ProfileView(MainFrame mainFrame) {
@@ -117,4 +118,9 @@ public class ProfileView extends JPanel {
 
     private JLabel nameLabel, emailLabel, createdDateLabel, accountAgeLabel;
     private JButton summaryButton, editButton, changePasswordButton, deleteProfileButton;
+
+    @Override
+    public void refresh() {
+        refreshUserData();
+    }
 }

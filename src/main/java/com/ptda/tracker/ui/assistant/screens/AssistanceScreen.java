@@ -6,6 +6,7 @@ import com.ptda.tracker.services.assistance.TicketService;
 import com.ptda.tracker.ui.MainFrame;
 import com.ptda.tracker.ui.user.components.renderers.TicketListRenderer;
 import com.ptda.tracker.ui.user.views.TicketDetailView;
+import com.ptda.tracker.util.Refreshable;
 import com.ptda.tracker.util.ScreenNames;
 import com.ptda.tracker.util.UserSession;
 
@@ -14,7 +15,7 @@ import java.awt.*;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class AssistanceScreen extends JPanel {
+public class AssistanceScreen extends JPanel implements Refreshable {
     private static TicketService ticketService;
     private static JList<Ticket> assignedTicketList;
     private static JList<Ticket> unassignedTicketList;
@@ -88,5 +89,10 @@ public class AssistanceScreen extends JPanel {
         CardLayout cl = (CardLayout) (listPanel.getLayout());
         String selectedOption = (String) ticketSelector.getSelectedItem();
         cl.show(listPanel, selectedOption);
+    }
+
+    @Override
+    public void refresh() {
+        refreshTicketLists();
     }
 }

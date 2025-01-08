@@ -1,7 +1,6 @@
 package com.ptda.tracker.ui;
 
 import com.ptda.tracker.TrackerApplication;
-import com.ptda.tracker.theme.ThemeManager;
 import com.ptda.tracker.ui.admin.screens.AdministrationOptionsScreen;
 import com.ptda.tracker.ui.assistant.screens.AssistanceScreen;
 import com.ptda.tracker.ui.user.forms.LoginForm;
@@ -12,6 +11,10 @@ import com.ptda.tracker.util.UserSession;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.prefs.Preferences;
 
 public class NavigationMenu extends JPanel {
@@ -47,18 +50,33 @@ public class NavigationMenu extends JPanel {
     private JButton getButton(String label, String screenName) {
         JButton button = new JButton(label);
         button.setFont(new Font("Arial", Font.BOLD, 14));
-        button.setActionCommand(screenName); // Button action command to check if it's the active button
+        button.setActionCommand(screenName);
+
+        // Register the button in the centralized map
+        if (screenName != null) {
+            buttonMap.computeIfAbsent(screenName, k -> new ArrayList<>()).add(button);
+        }
+
         button.addActionListener(e -> {
             if (screenName != null) {
                 navigateToScreen(screenName);
+                updateButtonState(screenName);
             } else {
                 logout();
             }
         });
 
-        // Desativar o foco automático e remover o estilo de foco
         button.setFocusPainted(false);
         return button;
+    }
+
+    private void updateButtonState(String activeScreen) {
+        buttonMap.forEach((screen, buttons) -> {
+            boolean isActive = screen.equals(activeScreen);
+            for (JButton button : buttons) {
+                button.setEnabled(!isActive);
+            }
+        });
     }
 
     private JPanel getScreenInstance(String screenName) {
@@ -112,6 +130,7 @@ public class NavigationMenu extends JPanel {
 
         // Adds top buttons
         addButtonToPanel(topPanel, HOME, HOME_SCREEN, gbc, 0);
+        updateButtonState(HOME_SCREEN);
         addButtonToPanel(topPanel, BUDGETS, BUDGETS_SCREEN, gbc, 1);
         addButtonToPanel(topPanel, EXPENSES, EXPENSES_SCREEN, gbc, 2);
         addButtonToPanel(topPanel, SUPPORT, USER_TICKETS_SCREEN, gbc, 3);
@@ -131,6 +150,7 @@ public class NavigationMenu extends JPanel {
         add(bottomPanel, BorderLayout.SOUTH); // Bottom buttons at the bottom
     }
 
+    private final Map<String, List<JButton>> buttonMap = new HashMap<>();
     private static final String
             HOME_SCREEN = ScreenNames.HOME_SCREEN,
             BUDGETS_SCREEN = ScreenNames.BUDGETS_SCREEN,

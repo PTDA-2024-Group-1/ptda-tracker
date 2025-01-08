@@ -1,6 +1,7 @@
 package com.ptda.tracker.services.tracker;
 
 import com.ptda.tracker.models.tracker.ExpenseDivision;
+import com.ptda.tracker.models.tracker.ExpenseDivisionState;
 import com.ptda.tracker.repositories.ExpenseDivisionRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +19,11 @@ public class ExpenseDivisionServiceHibernateImpl implements ExpenseDivisionServi
     @Override
     public List<ExpenseDivision> getAllByExpenseId(Long expenseId) {
         return expenseDivisionRepository.findAllByExpenseId(expenseId);
+    }
+
+    @Override
+    public List<ExpenseDivision> getAllByExpenseIdAndState(Long expenseId, ExpenseDivisionState state) {
+        return expenseDivisionRepository.findAllByExpenseIdAndState(expenseId, state);
     }
 
     @Override

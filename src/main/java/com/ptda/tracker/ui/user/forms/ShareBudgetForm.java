@@ -41,7 +41,7 @@ public class ShareBudgetForm extends JPanel {
             ); return;
         }
 
-        if (!budgetAccessService.hasAccess(budget.getId(), email, BudgetAccessLevel.VIEWER)) {
+        if (budgetAccessService.hasAccess(budget.getId(), email, BudgetAccessLevel.VIEWER)) {
             JOptionPane.showMessageDialog(
                     this, "This user already has access to the budget",
                     ERROR, JOptionPane.ERROR_MESSAGE

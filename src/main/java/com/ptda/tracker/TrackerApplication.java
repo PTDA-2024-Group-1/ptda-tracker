@@ -10,6 +10,7 @@ import com.ptda.tracker.ui.MainFrame;
 import com.ptda.tracker.ui.user.forms.LoginForm;
 import com.ptda.tracker.ui.user.screens.CustomSplashScreen;
 import com.ptda.tracker.ui.user.screens.NavigationScreen;
+import com.ptda.tracker.util.DateFormatManager;
 import com.ptda.tracker.util.LocaleManager;
 import com.ptda.tracker.util.ScreenNames;
 import com.ptda.tracker.util.UserSession;
@@ -34,6 +35,8 @@ public class TrackerApplication {
         String country = preferences.get("country", "US");
         Locale locale = new Locale(language, country);
         LocaleManager.getInstance().setLocale(locale);
+        String dateFormat = preferences.get("date_format", "dd-MM-yyyy");
+        DateFormatManager.getInstance().setDateFormat(dateFormat);
 
         try {
             setLookAndFeel();

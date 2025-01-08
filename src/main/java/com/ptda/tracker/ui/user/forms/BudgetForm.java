@@ -14,21 +14,21 @@ import java.awt.event.ActionEvent;
 
 public class BudgetForm extends JPanel {
     private final MainFrame mainFrame;
-    private final ApplicationContext context;
-    private final Runnable onFormSubmit;
     private Budget budget;
+    private final String returnScreen;
+    private final Runnable onFormSubmit;
 
     public BudgetForm(MainFrame mainFrame, Budget budget, String returnScreen, Runnable onFormSubmit) {
         this.mainFrame = mainFrame;
-        this.context = mainFrame.getContext();
-        this.onFormSubmit = (onFormSubmit != null) ? onFormSubmit : () -> {};
         this.budget = budget;
+        this.returnScreen = returnScreen;
+        this.onFormSubmit = (onFormSubmit != null) ? onFormSubmit : () -> {};
         initComponents();
         setListeners();
     }
 
     private void setListeners() {
-        backButton.addActionListener(e -> mainFrame.showScreen(ScreenNames.NAVIGATION_SCREEN));
+        backButton.addActionListener(e -> mainFrame.showScreen(returnScreen));
         saveButton.addActionListener(this::saveBudget);
     }
 
@@ -51,7 +51,7 @@ public class BudgetForm extends JPanel {
 
         // Save budget
         try {
-            BudgetService budgetService = context.getBean(BudgetService.class);
+            BudgetService budgetService = mainFrame.getContext().getBean(BudgetService.class);
             if (budget.getId() == null) {
                 budgetService.create(budget);
             } else {

@@ -30,6 +30,7 @@ public class ExpenseDivision {
     private double paidAmount;
 
     @ManyToOne
+    @JoinColumn(nullable = false)
     private Expense expense;
 
     @ManyToOne

@@ -7,6 +7,7 @@ import com.ptda.tracker.services.tracker.ExpenseService;
 import com.ptda.tracker.services.tracker.BudgetService;
 import com.ptda.tracker.ui.MainFrame;
 import com.ptda.tracker.ui.user.views.ExpenseDetailView;
+import com.ptda.tracker.util.DateFormatManager;
 import com.ptda.tracker.util.LocaleManager;
 import com.ptda.tracker.util.ScreenNames;
 import com.ptda.tracker.util.UserSession;
@@ -100,7 +101,7 @@ public class ExpenseForm extends JPanel {
         }
         clearFields();
         onFormSubmit.run();
-        mainFrame.registerAndShowScreen(ScreenNames.EXPENSE_DETAIL_VIEW, new ExpenseDetailView(mainFrame, expense, returnScreen, onFormSubmit));
+        mainFrame.showScreen(returnScreen);
     }
 
     private void clearFields() {
@@ -154,7 +155,7 @@ public class ExpenseForm extends JPanel {
         gbc.gridx = 1;
         dateChooser = new JXDatePicker();
         dateChooser.getEditor().setEditable(false);
-        dateChooser.setFormats("dd-MM-yyyy");
+        dateChooser.setFormats(DateFormatManager.getInstance().getDateFormat());
         dateChooser.setDate(expense != null ? expense.getDate() : new Date());
         formPanel.add(dateChooser, gbc);
 

@@ -2,6 +2,7 @@ package com.ptda.tracker.ui.user.screens;
 
 import com.ptda.tracker.ui.MainFrame;
 import com.ptda.tracker.ui.NavigationMenu;
+import com.ptda.tracker.util.Refreshable;
 import com.ptda.tracker.util.ScreenNames;
 
 import javax.swing.*;
@@ -34,8 +35,8 @@ public class NavigationScreen extends JPanel {
         if (activeCards.containsKey(screenName)) {
             // Show existing screen
             JPanel screen = activeCards.get(screenName);
-            if (screen instanceof HomeScreen) {
-                ((HomeScreen) screen).refreshData();
+            if (screen instanceof Refreshable) {
+                ((Refreshable) screen).refresh();
             }
             ((CardLayout) contentPanel.getLayout()).show(contentPanel, screenName);
         } else {
@@ -45,8 +46,5 @@ public class NavigationScreen extends JPanel {
             activeCards.put(screenName, screen);
             ((CardLayout) contentPanel.getLayout()).show(contentPanel, screenName);
         }
-
-        // Highlight the active screen in the menu
-        //navigationMenu.updateActiveScreen(screenName);
     }
 }

@@ -6,6 +6,7 @@ import com.ptda.tracker.ui.MainFrame;
 import com.ptda.tracker.ui.user.forms.BudgetForm;
 import com.ptda.tracker.ui.user.components.renderers.BudgetListRenderer;
 import com.ptda.tracker.ui.user.views.BudgetDetailView;
+import com.ptda.tracker.util.Refreshable;
 import com.ptda.tracker.util.ScreenNames;
 import com.ptda.tracker.util.UserSession;
 
@@ -14,7 +15,7 @@ import java.awt.*;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class BudgetsScreen extends JPanel {
+public class BudgetsScreen extends JPanel implements Refreshable {
     private final BudgetService budgetService;
     private final JList<Budget> budgetList;
     private List<Budget> budgets;
@@ -80,6 +81,11 @@ public class BudgetsScreen extends JPanel {
         budgets = budgetService.getAllByUserId(UserSession.getInstance().getUser().getId());
         setBudgetList(budgets);
         budgetList.updateUI();
+    }
+
+    @Override
+    public void refresh() {
+        refreshBudgetList();
     }
 
     public void setBudgetList(List<Budget> budgets) {

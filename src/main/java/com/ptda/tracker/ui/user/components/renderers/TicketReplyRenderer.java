@@ -1,6 +1,7 @@
 package com.ptda.tracker.ui.user.components.renderers;
 
 import com.ptda.tracker.models.assistance.TicketReply;
+import com.ptda.tracker.util.DateFormatManager;
 import com.ptda.tracker.util.UserSession;
 
 import javax.swing.*;
@@ -67,5 +68,5 @@ public class TicketReplyRenderer extends DefaultListCellRenderer {
         return wrappedText.toString();
     }
 
-    private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("dd-MM-yyyy HH:mm");
+    private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat(DateFormatManager.getInstance().getDateFormat() + " HH:mm");
 }

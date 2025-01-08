@@ -30,20 +30,6 @@ public class MainFrame extends JFrame {
     @Getter
     private String currentScreen;
 
-    private static final LocaleManager localeManager = LocaleManager.getInstance();
-    private static final String
-            SCREEN_NOT_FOUND = localeManager.getTranslation("screenNotFound"),
-            ERROR = localeManager.getTranslation("error"),
-            TITLE = localeManager.getTranslation("divi_expense_tracker"),
-            LANGUAGE = localeManager.getTranslation("language"),
-            FILE = localeManager.getTranslation("file"),
-            EXIT = localeManager.getTranslation("exit"),
-            THEME = localeManager.getTranslation("theme"),
-            LIGHT = localeManager.getTranslation("light"),
-            DARK = localeManager.getTranslation("dark"),
-            HELP = localeManager.getTranslation("help"),
-            ABOUT = localeManager.getTranslation("about");
-
     public MainFrame(ApplicationContext context) {
         this.context = context;
         this.screens = new HashMap<>();
@@ -159,4 +145,18 @@ public class MainFrame extends JFrame {
         Preferences preferences = Preferences.userNodeForPackage(MainFrame.class);
         return preferences.get("theme", AppConfig.DEFAULT_LIGHT_THEME);
     }
+
+    private static final LocaleManager localeManager = LocaleManager.getInstance();
+    private static final String
+            SCREEN_NOT_FOUND = localeManager.getTranslation("screenNotFound"),
+            ERROR = localeManager.getTranslation("error"),
+            TITLE = localeManager.getTranslation("divi_expense_tracker"),
+            LANGUAGE = localeManager.getTranslation("language"),
+            FILE = localeManager.getTranslation("file"),
+            EXIT = localeManager.getTranslation("exit"),
+            THEME = localeManager.getTranslation("theme"),
+            LIGHT = localeManager.getTranslation("light"),
+            DARK = localeManager.getTranslation("dark"),
+            HELP = localeManager.getTranslation("help"),
+            ABOUT = localeManager.getTranslation("about");
 }

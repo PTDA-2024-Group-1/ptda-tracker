@@ -1,4 +1,4 @@
-package com.ptda.tracker.ui.user.forms.obsolete;
+/*package com.ptda.tracker.ui.user.forms.obsolete;
 
 import com.ptda.tracker.models.tracker.ExpenseDivision;
 import com.ptda.tracker.models.tracker.Budget;
@@ -283,4 +283,4 @@ public class ExpenseDivisionsOldFormRefactored extends JPanel {
             PERCENTAGE = localeManager.getTranslation("percentage"),
             TOTAL_PERCENTAGE = localeManager.getTranslation("total_percentage"),
             SELECT_USERS = localeManager.getTranslation("select_users");
-}
+}*/

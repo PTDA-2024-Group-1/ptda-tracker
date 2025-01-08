@@ -4,13 +4,13 @@ import com.ptda.tracker.models.tracker.Budget;
 import com.ptda.tracker.models.tracker.Expense;
 import com.ptda.tracker.services.tracker.BudgetService;
 import com.ptda.tracker.services.tracker.ExpenseService;
-import com.ptda.tracker.services.assistance.TicketService;
 import com.ptda.tracker.theme.ThemeManager;
 import com.ptda.tracker.ui.MainFrame;
 import com.ptda.tracker.ui.user.components.renderers.BudgetListRenderer;
 import com.ptda.tracker.ui.user.components.renderers.ExpenseListRenderer;
 import com.ptda.tracker.ui.user.views.BudgetDetailView;
 import com.ptda.tracker.ui.user.views.ExpenseDetailView;
+import com.ptda.tracker.util.Refreshable;
 import com.ptda.tracker.util.ScreenNames;
 import com.ptda.tracker.util.UserSession;
 
@@ -18,7 +18,6 @@ import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.plot.CategoryPlot;
-import org.jfree.chart.plot.PiePlot;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.data.category.DefaultCategoryDataset;
 import org.jfree.data.general.DefaultPieDataset;
@@ -30,9 +29,8 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.List;
 import java.util.Map;
-import java.util.prefs.Preferences;
 
-public class HomeScreen extends JPanel {
+public class HomeScreen extends JPanel implements Refreshable {
     private final MainFrame mainFrame;
     private final long userId;
     private final BudgetService budgetService;
@@ -45,7 +43,7 @@ public class HomeScreen extends JPanel {
         this.userId = UserSession.getInstance().getUser().getId();
 
         initUI();
-        refreshData();
+        refresh();
         setListeners();
     }
 
@@ -70,7 +68,7 @@ public class HomeScreen extends JPanel {
                     if (selectedExpense != null) {
                         mainFrame.registerAndShowScreen(
                                 ScreenNames.EXPENSE_DETAIL_VIEW,
-                                new ExpenseDetailView(mainFrame, selectedExpense, mainFrame.getCurrentScreen(), HomeScreen.this::refreshData)
+                                new ExpenseDetailView(mainFrame, selectedExpense, mainFrame.getCurrentScreen(), HomeScreen.this::refresh)
                         );
                         expenseList.clearSelection();
                     }
@@ -83,7 +81,7 @@ public class HomeScreen extends JPanel {
         });
     }
 
-    public void refreshData() {
+    public void refresh() {
         List<Budget> recentBudgets = budgetService.getRecentByUserId(userId, 5);
         budgetList.setListData(recentBudgets.toArray(new Budget[0]));
 
