@@ -206,10 +206,10 @@ public class BudgetDetailView extends JPanel {
         topButtonsPanel.add(importButton);
 
         // Add the audit button
-        auditButton = new JButton(AUDIT_CHANGES);
+        auditButton = new JButton(ACTIVITY);
         auditButton.addActionListener(e -> mainFrame.registerAndShowScreen(
                 ScreenNames.BUDGET_AUDIT_DETAIL_VIEW,
-                new BudgetAuditDetailView(mainFrame, budget)
+                new BudgetAuditListView(mainFrame, budget)
         ));
         topButtonsPanel.add(auditButton);
 
@@ -299,10 +299,9 @@ public class BudgetDetailView extends JPanel {
             DATE = "Date",
             CREATED_BY_COLUMN = "Created By",
             IMPORT_EXPENSES = "Import Expenses",
-            AUDIT_CHANGES = "Audit Changes",
             SIMULATE_BUDGET = "Simulate Budget",
             FAVORITE = "Favorite",
             EDIT = "Edit",
             DELETE = "Delete",
-            HISTORY = "History";
+            ACTIVITY = "Activity";
 }

@@ -63,15 +63,13 @@ public class ExpenseDetailView extends JPanel {
         }
         if (distributeDivisionExpenseButton != null) {
             distributeDivisionExpenseButton.addActionListener(e -> {
-//                SubdivisionForm expenseDivisionsForm = new SubdivisionForm(mainFrame, expense, mainFrame.getCurrentScreen(), onBack);
-//                mainFrame.registerAndShowScreen(ScreenNames.SUBDIVISION_FORM, expenseDivisionsForm);
                 DivisionsForm divisionsForm = new DivisionsForm(mainFrame, expense, mainFrame.getCurrentScreen(), onBack);
                 mainFrame.registerAndShowScreen(ScreenNames.DIVISIONS_FORM, divisionsForm);
             });
         }
         auditButton.addActionListener(e -> mainFrame.registerAndShowScreen(
                 ScreenNames.EXPENSE_AUDIT_DETAIL_VIEW,
-                new ExpenseAuditDetailView(mainFrame, expense)
+                new ExpenseAuditListView(mainFrame, expense)
         ));
     }
 
@@ -191,7 +189,7 @@ public class ExpenseDetailView extends JPanel {
         JPanel rightButtonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         editButton = new JButton(EDIT_EXPENSE);
         deleteButton = new JButton(DELETE_EXPENSE);
-        auditButton = new JButton(AUDIT_EXPENSE);
+        auditButton = new JButton(ACTIVITY);
 
         rightButtonPanel.add(editButton);
         rightButtonPanel.add(deleteButton);
@@ -236,7 +234,7 @@ public class ExpenseDetailView extends JPanel {
             SUBDIVISIONS = "Subdivisions",
             BACK = "Back",
             EDIT_EXPENSE = "Edit Expense",
-            AUDIT_EXPENSE = "Audit Expense",
+            ACTIVITY = "Activity",
             DELETE_EXPENSE = "Delete Expense",
             DISTRIBUTE_SUBDIVISIONS = "Distribute Subdivisions",
             ERROR = "Error",

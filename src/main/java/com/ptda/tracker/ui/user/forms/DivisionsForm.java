@@ -45,16 +45,16 @@ public class DivisionsForm extends JPanel {
     }
 
     private void setListeners() {
-        btnBack.addActionListener(e -> mainFrame.showScreen(returnScreen));
-        btnSubmit.addActionListener(e -> {
+        backButton.addActionListener(e -> mainFrame.showScreen(returnScreen));
+        submitButton.addActionListener(e -> {
             submit();
             onSuccess.run();
             mainFrame.showScreen(returnScreen);
         });
-        tblDivisions.addMouseListener(new java.awt.event.MouseAdapter() {
+        divisionsTable.addMouseListener(new java.awt.event.MouseAdapter() {
             @Override
             public void mouseClicked(java.awt.event.MouseEvent evt) {
-                int row = tblDivisions.rowAtPoint(evt.getPoint());
+                int row = divisionsTable.rowAtPoint(evt.getPoint());
                 if (row >= 0) {
                     ExpenseDivision division = divisions.get(row);
                     DivisionForm divisionForm = new DivisionForm(mainFrame, division, DivisionsForm.this::refreshTable);
@@ -126,30 +126,30 @@ public class DivisionsForm extends JPanel {
                     div.getState()
             });
         });
-        tblDivisions.setModel(model);
+        divisionsTable.setModel(model);
     }
 
     void refreshTable() {
-        ((DefaultTableModel) tblDivisions.getModel()).setRowCount(0);
+        ((DefaultTableModel) divisionsTable.getModel()).setRowCount(0);
         populateTable();
     }
 
     private void initComponents() {
         setLayout(new BorderLayout());
 
-        tblDivisions = new JTable();
-        add(new JScrollPane(tblDivisions), BorderLayout.CENTER);
+        divisionsTable = new JTable();
+        add(new JScrollPane(divisionsTable), BorderLayout.CENTER);
 
-        JPanel btnPanel = new JPanel();
-        btnBack = new JButton(BACK);
-        btnSubmit = new JButton(SUBMIT);
-        btnPanel.add(btnBack);
-        btnPanel.add(btnSubmit);
-        add(btnPanel, BorderLayout.SOUTH);
+        JPanel buttonPanel = new JPanel();
+        backButton = new JButton(BACK);
+        submitButton = new JButton(SUBMIT);
+        buttonPanel.add(backButton);
+        buttonPanel.add(submitButton);
+        add(buttonPanel, BorderLayout.SOUTH);
     }
 
-    private JTable tblDivisions;
-    private JButton btnBack, btnSubmit;
+    private JTable divisionsTable;
+    private JButton backButton, submitButton;
     private static final String
         DIVISIONS = "divisions",
         DIVISION = "division",

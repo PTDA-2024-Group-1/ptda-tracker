@@ -2,26 +2,22 @@ package com.ptda.tracker.services.tracker;
 
 import com.ptda.tracker.models.tracker.Budget;
 import jakarta.transaction.Transactional;
+import org.hibernate.envers.DefaultRevisionEntity;
 
 import java.util.List;
 
-/**
- * The BudgetAuditService interface defines methods for auditing budgets, including
- * retrieving budget revisions with details, obtaining specific revisions, and checking
- * if the name or description of a budget has changed.
- */
 public interface BudgetAuditService {
 
-    @Transactional(Transactional.TxType.SUPPORTS) // Read-only transaction
+    @Transactional
     List<Object[]> getBudgetRevisionsWithDetails(Long budgetId);
 
-    @Transactional(Transactional.TxType.SUPPORTS) // Read-only transaction
+    @Transactional
     List<Number> getBudgetRevisions(Long budgetId);
 
-    @Transactional(Transactional.TxType.SUPPORTS) // Read-only transaction
+    @Transactional
     Budget getBudgetAtRevision(Long budgetId, Number revision);
 
-    @Transactional(Transactional.TxType.SUPPORTS) // Read-only transaction
+    @Transactional
     boolean hasNameOrDescriptionChanged(Long budgetId, Number revision);
 
     /**
@@ -32,4 +28,8 @@ public interface BudgetAuditService {
     default Budget getBudgetAtRevision(Long budgetId, Long revisionNumber) {
         return getBudgetAtRevision(budgetId, (Number) revisionNumber);
     }
+
+    @Transactional
+    DefaultRevisionEntity getRevisionEntity(long revisionNumber);
+
 }

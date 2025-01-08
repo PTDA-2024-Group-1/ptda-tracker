@@ -6,6 +6,7 @@ import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
 import org.hibernate.envers.AuditReader;
 import org.hibernate.envers.AuditReaderFactory;
+import org.hibernate.envers.DefaultRevisionEntity;
 import org.hibernate.envers.query.AuditEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -52,5 +53,10 @@ public class BudgetAuditServiceHibernateImpl implements BudgetAuditService {
 
         return !currentRevision.getName().equals(previousRevision.getName()) ||
                 !currentRevision.getDescription().equals(previousRevision.getDescription());
+    }
+
+    @Override
+    public DefaultRevisionEntity getRevisionEntity(long revisionNumber) {
+        return entityManager.find(DefaultRevisionEntity.class, revisionNumber);
     }
 }

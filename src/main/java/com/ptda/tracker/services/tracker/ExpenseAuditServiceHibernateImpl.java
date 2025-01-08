@@ -6,6 +6,7 @@ import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
 import org.hibernate.envers.AuditReader;
 import org.hibernate.envers.AuditReaderFactory;
+import org.hibernate.envers.DefaultRevisionEntity;
 import org.hibernate.envers.query.AuditEntity;
 import org.hibernate.envers.query.AuditQuery;
 import org.springframework.stereotype.Service;
@@ -39,5 +40,10 @@ public class ExpenseAuditServiceHibernateImpl implements ExpenseAuditService {
     public Expense getExpenseAtRevision(Long expenseId, Number revision) {
         AuditReader auditReader = AuditReaderFactory.get(entityManager);
         return auditReader.find(Expense.class, expenseId, revision);
+    }
+
+    @Override
+    public DefaultRevisionEntity getRevisionEntity(long revisionNumber) {
+        return entityManager.find(DefaultRevisionEntity.class, revisionNumber);
     }
 }

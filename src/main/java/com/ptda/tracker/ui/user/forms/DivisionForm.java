@@ -26,17 +26,17 @@ public class DivisionForm extends JDialog {
     }
 
     private void setListeners() {
-        btnConfirm.addActionListener(e -> {
+        confirmButton.addActionListener(e -> {
             if (division == null) {
                 division = new ExpenseDivision();
             }
 
-            if (Objects.equals(cmbResponsibilityType.getSelectedItem(), PERCENTAGE)) {
-                division.setPercentage(Double.parseDouble(txtResponsibilityValue.getText()));
+            if (Objects.equals(responsibilityTypeComboBox.getSelectedItem(), PERCENTAGE)) {
+                division.setPercentage(Double.parseDouble(responsibilityValueTextField.getText()));
             } else {
-                division.setAmount(Double.parseDouble(txtResponsibilityValue.getText()));
+                division.setAmount(Double.parseDouble(responsibilityValueTextField.getText()));
             }
-            division.setPaidAmount(Double.parseDouble(txtPaidAmountValue.getText()));
+            division.setPaidAmount(Double.parseDouble(paidAmountValueTextField.getText()));
 
             try {
                 if (division.getId() == null) {
@@ -51,7 +51,7 @@ public class DivisionForm extends JDialog {
             if (onSuccess != null) onSuccess.run();
             dispose();
         });
-        btnCancel.addActionListener(e -> dispose());
+        cancelButton.addActionListener(e -> dispose());
     }
 
     private void initComponents() {
@@ -62,27 +62,27 @@ public class DivisionForm extends JDialog {
         // Expense Responsibility
         JPanel responsibilityPanel = new JPanel(new GridLayout(1, 3, 10, 10));
         responsibilityPanel.add(new JLabel(EXPENSE_RESPONSIBILITY + ":"));
-        cmbResponsibilityType = new JComboBox<>(new String[]{ABSOLUTE, PERCENTAGE});
-        responsibilityPanel.add(cmbResponsibilityType);
-        txtResponsibilityValue = new JTextField();
-        responsibilityPanel.add(txtResponsibilityValue);
+        responsibilityTypeComboBox = new JComboBox<>(new String[]{ABSOLUTE, PERCENTAGE});
+        responsibilityPanel.add(responsibilityTypeComboBox);
+        responsibilityValueTextField = new JTextField();
+        responsibilityPanel.add(responsibilityValueTextField);
         contentPanel.add(responsibilityPanel);
 
         // Paid Amount
         JPanel paidAmountPanel = new JPanel(new GridLayout(1, 3, 10, 10));
         paidAmountPanel.add(new JLabel(PAID_AMOUNT + ":"));
-        cmbPaidAmountType = new JComboBox<>(new String[]{ABSOLUTE, PERCENTAGE});
-        paidAmountPanel.add(cmbPaidAmountType);
-        txtPaidAmountValue = new JTextField();
-        paidAmountPanel.add(txtPaidAmountValue);
+        paidAmountTypeComboBox = new JComboBox<>(new String[]{ABSOLUTE, PERCENTAGE});
+        paidAmountPanel.add(paidAmountTypeComboBox);
+        paidAmountValueTextField = new JTextField();
+        paidAmountPanel.add(paidAmountValueTextField);
         contentPanel.add(paidAmountPanel);
 
         // Buttons
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 0));
-        btnConfirm = new JButton(CONFIRM);
-        btnCancel = new JButton(CANCEL);
-        buttonPanel.add(btnConfirm);
-        buttonPanel.add(btnCancel);
+        confirmButton = new JButton(CONFIRM);
+        cancelButton = new JButton(CANCEL);
+        buttonPanel.add(confirmButton);
+        buttonPanel.add(cancelButton);
         contentPanel.add(buttonPanel);
 
         add(contentPanel);
@@ -90,9 +90,9 @@ public class DivisionForm extends JDialog {
         setLocationRelativeTo(mainFrame);
     }
 
-    private JComboBox<String> cmbResponsibilityType, cmbPaidAmountType;
-    private JTextField txtResponsibilityValue, txtPaidAmountValue;
-    private JButton btnConfirm, btnCancel;
+    private JComboBox<String> responsibilityTypeComboBox, paidAmountTypeComboBox;
+    private JTextField responsibilityValueTextField, paidAmountValueTextField;
+    private JButton confirmButton, cancelButton;
     private static final String
             DIVISION_FORM = "Division Form",
             CONFIRM = "Confirm",
