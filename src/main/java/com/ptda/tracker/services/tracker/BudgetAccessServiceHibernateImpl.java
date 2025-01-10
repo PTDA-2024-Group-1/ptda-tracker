@@ -6,6 +6,7 @@ import com.ptda.tracker.models.tracker.BudgetAccessLevel;
 import com.ptda.tracker.models.user.User;
 import com.ptda.tracker.repositories.BudgetAccessRepository;
 import com.ptda.tracker.services.user.UserService;
+import com.ptda.tracker.util.UserSession;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
@@ -119,5 +120,11 @@ public class BudgetAccessServiceHibernateImpl implements BudgetAccessService {
     @Transactional
     public boolean deleteAllByUserId(Long userId) {
         return !budgetAccessRepository.deleteAllByUserId(userId).isEmpty();
+    }
+
+    @Override
+    @Transactional
+    public boolean deleteByBudgetIdAndUserId(Long id, Long userId) {
+        return budgetAccessRepository.deleteByBudgetIdAndUserId(id, userId) > 0;
     }
 }

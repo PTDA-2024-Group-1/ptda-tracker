@@ -16,19 +16,20 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class BudgetsScreen extends JPanel implements Refreshable {
+    private final MainFrame mainFrame;
     private final BudgetService budgetService;
-    private final JList<Budget> budgetList;
     private List<Budget> budgets;
 
     public BudgetsScreen(MainFrame mainFrame) {
-        setLayout(new BorderLayout());
-
-        budgetList = new JList<>(new DefaultListModel<>());
-        budgetList.setCellRenderer(new BudgetListRenderer());
+        this.mainFrame = mainFrame;
         budgetService = mainFrame.getContext().getBean(BudgetService.class);
         budgets = budgetService.getAllByUserId(UserSession.getInstance().getUser().getId());
+        initComponents();
         setBudgetList(budgets);
+        setListeners();
+    }
 
+    private void setListeners() {
         budgetList.addListSelectionListener(e -> {
             if (!e.getValueIsAdjusting()) {
                 Budget selectedBudget = budgetList.getSelectedValue();
@@ -39,30 +40,13 @@ public class BudgetsScreen extends JPanel implements Refreshable {
                 }
             }
         });
-
-        JPanel topPanel = new JPanel(new BorderLayout());
-        JLabel label = new JLabel(SELECT_BUDGET, SwingConstants.CENTER);
-        topPanel.add(label, BorderLayout.NORTH);
-
-        JPanel buttonPanel = new JPanel(new FlowLayout());
-        JButton allButton = new JButton("All");
-        JButton favoritesButton = new JButton("Favorites");
-
         allButton.addActionListener(e -> setBudgetList(budgets));
         favoritesButton.addActionListener(e ->
                 setBudgetList(budgets.stream()
                         .filter(Budget::isFavorite)
                         .collect(Collectors.toList())
-                ));
-
-        buttonPanel.add(allButton);
-        buttonPanel.add(favoritesButton);
-        topPanel.add(buttonPanel, BorderLayout.SOUTH);
-
-        add(topPanel, BorderLayout.NORTH);
-        add(new JScrollPane(budgetList), BorderLayout.CENTER);
-
-        JButton createButton = new JButton(CREATE_NEW_BUDGET);
+                )
+        );
         createButton.addActionListener(e -> {
             // Open BudgetForm in creation mode
             mainFrame.registerScreen(
@@ -73,7 +57,12 @@ public class BudgetsScreen extends JPanel implements Refreshable {
             );
             mainFrame.showScreen(ScreenNames.BUDGET_FORM);
         });
-        add(createButton, BorderLayout.SOUTH);
+    }
+
+    public void setBudgetList(List<Budget> budgets) {
+        DefaultListModel<Budget> model = (DefaultListModel<Budget>) budgetList.getModel();
+        model.clear(); // Clear old data
+        budgets.forEach(model::addElement); // Add new data
     }
 
     private void refreshBudgetList() {
@@ -83,18 +72,41 @@ public class BudgetsScreen extends JPanel implements Refreshable {
         budgetList.updateUI();
     }
 
+    private void initComponents() {
+        setLayout(new BorderLayout());
+
+        JPanel topPanel = new JPanel(new BorderLayout());
+        JLabel label = new JLabel(SELECT_BUDGET, SwingConstants.CENTER);
+        topPanel.add(label, BorderLayout.NORTH);
+
+        JPanel buttonPanel = new JPanel(new FlowLayout());
+        allButton = new JButton(ALL);
+        favoritesButton = new JButton(FAVORITES);
+
+        buttonPanel.add(allButton);
+        buttonPanel.add(favoritesButton);
+        topPanel.add(buttonPanel, BorderLayout.SOUTH);
+
+        add(topPanel, BorderLayout.NORTH);
+
+        budgetList = new JList<>(new DefaultListModel<>());
+        budgetList.setCellRenderer(new BudgetListRenderer());
+        add(new JScrollPane(budgetList), BorderLayout.CENTER);
+
+        createButton = new JButton(CREATE_NEW_BUDGET);
+        add(createButton, BorderLayout.SOUTH);
+    }
+
     @Override
     public void refresh() {
         refreshBudgetList();
     }
 
-    public void setBudgetList(List<Budget> budgets) {
-        DefaultListModel<Budget> model = (DefaultListModel<Budget>) budgetList.getModel();
-        model.clear(); // Clear old data
-        budgets.forEach(model::addElement); // Add new data
-    }
-
+    private JList<Budget> budgetList;
+    private JButton allButton, favoritesButton, createButton;
     private static final String
             SELECT_BUDGET = "Select a budget to view details",
-            CREATE_NEW_BUDGET = "Create New Budget";
+            CREATE_NEW_BUDGET = "Create New Budget",
+            ALL = "All",
+            FAVORITES = "Favorites";
 }

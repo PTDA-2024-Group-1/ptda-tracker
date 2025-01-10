@@ -21,9 +21,10 @@ public interface BudgetAccessRepository extends JpaRepository<BudgetAccess, Long
 
     boolean existsByBudgetIdAndUserId(Long budgetId, Long userId);
 
-
     List<BudgetAccess> findAllByUserIdOrderByBudgetUpdatedAtDesc(Long userId, Pageable pageable);
 
     int countByUserId(Long userId);
+
+    int deleteByBudgetIdAndUserId(Long id, Long userId);
 
 }

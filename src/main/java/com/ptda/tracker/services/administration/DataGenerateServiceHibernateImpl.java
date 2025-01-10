@@ -12,6 +12,7 @@ import com.ptda.tracker.services.tracker.BudgetAccessService;
 import com.ptda.tracker.services.tracker.BudgetService;
 import com.ptda.tracker.services.tracker.ExpenseService;
 import com.ptda.tracker.services.user.UserService;
+import com.ptda.tracker.util.UserSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -58,7 +59,7 @@ public class DataGenerateServiceHibernateImpl implements DataGenerateService {
             users.add(user);
             credentials.put(user.getEmail(), "password");
         }
-        userService.create(users);
+        users = userService.create(users);
 
         // Create assistants
         List<Assistant> assistants = new ArrayList<>();
@@ -93,7 +94,7 @@ public class DataGenerateServiceHibernateImpl implements DataGenerateService {
                     .build();
             budget = budgetService.create(budget);
 
-            // create budget accesses for some users
+            // Create budget accesses for some users
             List<BudgetAccess> accesses = new ArrayList<>();
             for (User user : users) {
                 if (Math.random() < 0.4) {
@@ -105,7 +106,16 @@ public class DataGenerateServiceHibernateImpl implements DataGenerateService {
                     accesses.add(access);
                 }
             }
-            budgetAccessService.createAll(accesses);
+            accesses = budgetAccessService.createAll(accesses);
+
+            // Delete budget access with id of current user for the created budget and select a random user from those who have access and make him the owner
+            Long currentUserId = UserSession.getInstance().getUser().getId();
+            budgetAccessService.deleteByBudgetIdAndUserId(budget.getId(), currentUserId);
+            if (!accesses.isEmpty()) {
+                BudgetAccess newOwnerAccess = accesses.get((int) (Math.random() * accesses.size()));
+                newOwnerAccess.setAccessLevel(BudgetAccessLevel.OWNER);
+                budgetAccessService.update(newOwnerAccess);
+            }
 
             List<Expense> expenses = new ArrayList<>();
             for (BudgetAccess access : accesses) {
@@ -122,7 +132,8 @@ public class DataGenerateServiceHibernateImpl implements DataGenerateService {
             String title = (budget == null ? "Personal Expense " : "Expense ") + i;
             Expense expense = Expense.builder()
                     .title(title)
-                    .amount(Math.random() * 200)
+                    // 2 decimal cases
+                    .amount((double) Math.round(Math.random() * 10000) / 100)
                     .description("Expense Description " + i)
                     .date(new Date(System.currentTimeMillis() - (long) (Math.random() * 10000000000L)))
                     .budget(budget)
