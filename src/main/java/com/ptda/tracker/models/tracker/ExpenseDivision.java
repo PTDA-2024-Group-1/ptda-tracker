@@ -20,9 +20,6 @@ public class ExpenseDivision {
     @GeneratedValue
     private Long id;
 
-    @Enumerated(EnumType.STRING)
-    private ExpenseDivisionState state = ExpenseDivisionState.PENDING;
-
     private double amount;
 
     private double percentage;

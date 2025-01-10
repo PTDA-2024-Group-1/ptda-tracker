@@ -26,6 +26,8 @@ public interface BudgetAccessService {
 
     BudgetAccess create(Long budgetId, String userEmail, BudgetAccessLevel accessLevel);
 
+    List<BudgetAccess> createAll(List<BudgetAccess> accesses);
+
     BudgetAccess update(BudgetAccess access);
 
     boolean delete(Long accessId);

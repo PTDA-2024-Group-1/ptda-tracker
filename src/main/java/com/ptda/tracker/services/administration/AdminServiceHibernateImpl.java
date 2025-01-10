@@ -30,6 +30,11 @@ public class AdminServiceHibernateImpl implements AdminService {
     }
 
     @Override
+    public List<Admin> createAll(List<Admin> admins) {
+        return adminRepository.saveAll(admins);
+    }
+
+    @Override
     public Admin update(Admin admin) {
         return adminRepository.save(admin);
     }

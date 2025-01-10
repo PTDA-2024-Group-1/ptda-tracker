@@ -47,11 +47,13 @@ public class Expense {
 
     @PrePersist
     protected void onCreate() {
-        if (this.category == null) {
-            this.category = ExpenseCategory.OTHER;
+        if (category == null) {
+            category = ExpenseCategory.OTHER;
         }
-        this.createdAt = System.currentTimeMillis();
-        this.createdBy = UserSession.getInstance().getUser();
+        createdAt = System.currentTimeMillis();
+        if (createdBy == null) {
+            createdBy = UserSession.getInstance().getUser();
+        }
     }
 
     @PreUpdate

@@ -15,6 +15,11 @@ public class AssistantServiceHibernateImpl implements AssistantService {
     private final AssistantRepository assistantRepository;
 
     @Override
+    public List<Assistant> getAll() {
+        return assistantRepository.findAll();
+    }
+
+    @Override
     public Optional<Assistant> getById(Long id) {
         return assistantRepository.findById(id);
     }
@@ -30,6 +35,11 @@ public class AssistantServiceHibernateImpl implements AssistantService {
     }
 
     @Override
+    public List<Assistant> createAll(List<Assistant> assistants) {
+        return assistantRepository.saveAll(assistants);
+    }
+
+    @Override
     public Assistant update(Assistant assistant) {
         return assistantRepository.save(assistant);
     }
@@ -41,10 +51,5 @@ public class AssistantServiceHibernateImpl implements AssistantService {
             return true;
         }
         return false;
-    }
-
-    @Override
-    public List<Assistant> getAll() {
-        return assistantRepository.findAll();
     }
 }

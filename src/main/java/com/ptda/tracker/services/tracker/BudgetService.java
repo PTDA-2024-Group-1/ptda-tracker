@@ -23,9 +23,9 @@ public interface BudgetService {
 
     Budget create(Budget budget);
 
-    Budget update(Budget budget);
+    List<Budget> createAll(List<Budget> budgets);
 
-    Budget updateWithoutAudit(Budget budget); // Newly added method
+    Budget update(Budget budget);
 
     boolean delete(Long id);
 

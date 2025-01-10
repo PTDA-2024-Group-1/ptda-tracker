@@ -2,7 +2,6 @@ package com.ptda.tracker.repositories;
 
 import com.ptda.tracker.models.tracker.Expense;
 import com.ptda.tracker.models.tracker.ExpenseDivision;
-import com.ptda.tracker.models.tracker.ExpenseDivisionState;
 import com.ptda.tracker.models.user.User;
 import com.ptda.tracker.util.UserSession;
 import lombok.RequiredArgsConstructor;

@@ -36,8 +36,10 @@ public class Budget {
     
     @PrePersist
     protected void onCreate() {
-        this.createdAt = System.currentTimeMillis();
-        this.createdBy = UserSession.getInstance().getUser();
+        createdAt = System.currentTimeMillis();
+        if (createdBy == null) {
+            createdBy = UserSession.getInstance().getUser();
+        }
     }
 
     @PreUpdate

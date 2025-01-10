@@ -69,6 +69,11 @@ public class BudgetServiceHibernateImpl implements BudgetService {
     }
 
     @Override
+    public List<Budget> createAll(List<Budget> budgets) {
+        return budgetRepository.saveAll(budgets);
+    }
+
+    @Override
     @Transactional
     public Budget update(Budget budget) {
         return budgetRepository.save(budget);
@@ -89,8 +94,4 @@ public class BudgetServiceHibernateImpl implements BudgetService {
         return budgetRepository.findAll().toArray(new Budget[0]);
     }
 
-    @Override
-    public Budget updateWithoutAudit(Budget budget) {
-        return budgetRepository.save(budget);
-    }
 }

@@ -13,6 +13,8 @@ public interface AdminService {
 
     Admin create(Admin admin);
 
+    List<Admin> createAll(List<Admin> admins);
+
     Admin update(Admin admin);
 
     boolean delete(Admin admin);

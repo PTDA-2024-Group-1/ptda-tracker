@@ -95,6 +95,11 @@ public class BudgetAccessServiceHibernateImpl implements BudgetAccessService {
     }
 
     @Override
+    public List<BudgetAccess> createAll(List<BudgetAccess> accesses) {
+        return budgetAccessRepository.saveAll(accesses);
+    }
+
+    @Override
     @Transactional
     public BudgetAccess update(BudgetAccess access) {
         return budgetAccessRepository.save(access);

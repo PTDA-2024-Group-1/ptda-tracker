@@ -3,7 +3,6 @@ package com.ptda.tracker.ui.user.forms;
 import com.ptda.tracker.models.tracker.BudgetAccess;
 import com.ptda.tracker.models.tracker.Expense;
 import com.ptda.tracker.models.tracker.ExpenseDivision;
-import com.ptda.tracker.models.tracker.ExpenseDivisionState;
 import com.ptda.tracker.models.user.User;
 import com.ptda.tracker.services.tracker.BudgetAccessService;
 import com.ptda.tracker.services.tracker.ExpenseDivisionService;
@@ -33,7 +32,7 @@ public class DivisionsForm extends JPanel {
                 .toList();
         this.expenseDivisionService = mainFrame.getContext().getBean(ExpenseDivisionService.class);
         this.existingDivisions = expenseDivisionService
-                .getAllByExpenseIdAndState(expense.getId(), ExpenseDivisionState.ACCEPTED);
+                .getAllByExpenseId(expense.getId());
         this.divisions = new ArrayList<>(participants.size());
         this.returnScreen = returnScreen;
         this.onSuccess = onSuccess;
@@ -112,8 +111,7 @@ public class DivisionsForm extends JPanel {
                 PARTICIPANT,
                 AMOUNT,
                 PERCENTAGE,
-                PAID_AMOUNT,
-                STATE
+                PAID_AMOUNT
         }, 0);
 
         // Add rows for each division
@@ -122,8 +120,7 @@ public class DivisionsForm extends JPanel {
                     div.getUser().getName(),
                     div.getAmount(), // Ensure this is correctly set
                     div.getPercentage(),
-                    div.getPaidAmount(),
-                    div.getState()
+                    div.getPaidAmount()
             });
         });
         divisionsTable.setModel(model);

@@ -1,6 +1,7 @@
 package com.ptda.tracker.ui.admin.screens;
 
 import com.ptda.tracker.models.admin.GlobalVariableName;
+import com.ptda.tracker.services.administration.DataGenerateService;
 import com.ptda.tracker.services.administration.GlobalVariableService;
 import com.ptda.tracker.services.email.EmailService;
 import com.ptda.tracker.ui.MainFrame;
@@ -11,6 +12,9 @@ import com.ptda.tracker.util.ScreenNames;
 
 import javax.swing.*;
 import java.awt.*;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 public class AdministrationOptionsScreen extends JPanel {
     private final MainFrame mainFrame;
@@ -39,10 +43,26 @@ public class AdministrationOptionsScreen extends JPanel {
                     new ManageUserView(mainFrame, mainFrame.getCurrentScreen())
             );
         });
+        generateDataButton.addActionListener(e -> {
+            String result = mainFrame.getContext().getBean(DataGenerateService.class).generateData();
+            saveToFile(result, "data_generation_result.txt");
+        });
         emailVerificationToggleButton.addActionListener(e -> {
             boolean isEmailVerified = emailVerificationToggleButton.isSelected();
             globalVariableService.set(GlobalVariableName.VERIFY_EMAIL, String.valueOf(isEmailVerified));
         });
+    }
+
+    private void saveToFile(String content, String fileName) {
+        try {
+            String desktopPath = System.getProperty("user.home") + "/Desktop/";
+            String filePath = desktopPath + fileName;
+            Files.write(Paths.get(filePath), content.getBytes());
+            JOptionPane.showMessageDialog(this, "Data generation result saved to Desktop as " + fileName);
+        } catch (IOException e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Error saving data generation result to Desktop");
+        }
     }
 
     private void initComponents() {
@@ -68,6 +88,7 @@ public class AdministrationOptionsScreen extends JPanel {
         showStatsButton = new JButton(SHOW_STATS);
         manageUsersButton = new JButton(MANAGE_USERS);
         manageTicketsButton = new JButton(MANAGE_TICKETS);
+        generateDataButton = new JButton(GENERATE_DATA);
         emailVerificationToggleButton = new JCheckBox(EMAIL_VERIFICATION);
 
         boolean verifyEmail = mainFrame.getContext()
@@ -77,17 +98,19 @@ public class AdministrationOptionsScreen extends JPanel {
         centerPanel.add(showStatsButton, gbc);
         centerPanel.add(manageUsersButton, gbc);
         centerPanel.add(manageTicketsButton, gbc);
+        centerPanel.add(generateDataButton, gbc);
         centerPanel.add(emailVerificationToggleButton, gbc);
 
         add(centerPanel, BorderLayout.CENTER);
     }
 
-    private JButton showStatsButton, manageUsersButton, manageTicketsButton;
+    private JButton showStatsButton, manageUsersButton, manageTicketsButton, generateDataButton;
     private JToggleButton emailVerificationToggleButton;
     private static final String
             ADMINISTRATION_DASHBOARD = "Administration Dashboard",
             SHOW_STATS = "Show Stats",
             MANAGE_USERS = "Manage Users",
             MANAGE_TICKETS = "Manage Tickets",
-            EMAIL_VERIFICATION = "Email Verification";
+            EMAIL_VERIFICATION = "Email Verification",
+            GENERATE_DATA = "Generate Data";
 }
