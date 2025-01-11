@@ -8,6 +8,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface ExpenseRepository extends JpaRepository<Expense, Long> {
@@ -29,5 +30,7 @@ public interface ExpenseRepository extends JpaRepository<Expense, Long> {
     int countByCreatedByIdAndBudgetNull(Long userId);
 
     List<Expense> findTopByCreatedByIdOrderByDateDesc(Long userId, Pageable pageable);
+
+    Optional<Expense> findTopByBudgetIdOrderByDateDesc(Long budgetId);
 
 }

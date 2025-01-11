@@ -27,6 +27,7 @@ public class ExpenseForm extends JPanel {
     private Expense expense;
     private Budget budget;
     private final String returnScreen;
+    boolean deleteDivisions = false, updateDivisions = false;
 
     public ExpenseForm(MainFrame mainFrame, Expense expense, Budget budget, String returnScreen, Runnable onFormSubmit) {
         this.mainFrame = mainFrame;
@@ -57,6 +58,9 @@ public class ExpenseForm extends JPanel {
     }
 
     private void saveExpense() {
+        if (expense != null && expense.getBudget() != null) {
+            askAboutDivisions();
+        }
         // get form values
         String title = titleField.getText().trim();
         String description = descriptionArea.getText().trim();
@@ -94,14 +98,39 @@ public class ExpenseForm extends JPanel {
                 return;
             }
         } else {
-            if (expenseService.update(expense) == null) {
-                JOptionPane.showMessageDialog(this, FAILED_TO_UPDATE_EXPENSE, ERROR, JOptionPane.ERROR_MESSAGE);
-                return;
+            if (expense.getBudget() != null && !deleteDivisions) {
+                if (expenseService.update(expense, updateDivisions) == null) {
+                    JOptionPane.showMessageDialog(this, FAILED_TO_UPDATE_EXPENSE, ERROR, JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+            } else {
+                if (expenseService.update(expense) == null) {
+                    JOptionPane.showMessageDialog(this, FAILED_TO_UPDATE_EXPENSE, ERROR, JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
             }
         }
         clearFields();
         onFormSubmit.run();
         mainFrame.showScreen(returnScreen);
+    }
+
+    private void askAboutDivisions() {
+        int keepResult = JOptionPane.showConfirmDialog(
+                this, "Want to keep divisions?",
+                "Expense Divisions", JOptionPane.YES_NO_OPTION
+        );
+        if (keepResult == JOptionPane.YES_OPTION) {
+            int updateResult = JOptionPane.showConfirmDialog(
+                    this, "Want to update divisions proportionally to the new amount?",
+                    "Expense Divisions", JOptionPane.YES_NO_OPTION
+            );
+            if (updateResult == JOptionPane.YES_OPTION) {
+                updateDivisions = true;
+            }
+        } else {
+            deleteDivisions = true;
+        }
     }
 
     private void clearFields() {

@@ -35,7 +35,6 @@ public class ExpenseDivisionsDialog extends JDialog {
             ExpenseDivision expenseDivision = expenseDivisions.get(i);
             data[i][0] = expenseDivision.getId();
             data[i][1] = expenseDivision.getAmount() + "€";
-            data[i][2] = expenseDivision.getPercentage() + "%";
             data[i][3] = expenseDivision.getCreatedBy().getName();
             data[i][4] = expenseDivision.getUser().getName();
         }

@@ -42,6 +42,8 @@ public interface ExpenseService {
 
     Expense update(Expense expense);
 
+    Expense update(Expense expense, boolean updateDivisions);
+
     List<Expense> updateAll(List<Expense> expenses);
 
     boolean delete(Long id);

@@ -36,7 +36,21 @@ public class BudgetAccess {
 
     @PrePersist
     protected void onCreate() {
-        this.createdAt = System.currentTimeMillis();
-        this.createdBy = UserSession.getInstance().getUser();
+        createdAt = System.currentTimeMillis();
+        createdBy = UserSession.getInstance().getUser();
+        budget.setUpdatedAt(System.currentTimeMillis());
+        budget.setUpdatedBy(UserSession.getInstance().getUser());
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        budget.setUpdatedAt(System.currentTimeMillis());
+        budget.setUpdatedBy(UserSession.getInstance().getUser());
+    }
+
+    @PreRemove
+    protected void onDelete() {
+        budget.setUpdatedAt(System.currentTimeMillis());
+        budget.setUpdatedBy(UserSession.getInstance().getUser());
     }
 }

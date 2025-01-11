@@ -25,7 +25,7 @@ public class DataInit {
     private void createAdmin() {
         Admin admin = new Admin();
         admin.setName("admin");
-        admin.setEmail("admin@gmail.com");
+        admin.setEmail("admin@divi.pt");
         admin.setPassword(new BCryptPasswordEncoder().encode("admin"));
         admin.setUserType("ADMIN");
         adminService.create(admin);

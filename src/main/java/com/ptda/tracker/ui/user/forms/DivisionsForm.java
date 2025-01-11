@@ -119,7 +119,6 @@ public class DivisionsForm extends JPanel {
             model.addRow(new Object[]{
                     div.getUser().getName(),
                     div.getAmount(), // Ensure this is correctly set
-                    div.getPercentage(),
                     div.getPaidAmount()
             });
         });

@@ -81,6 +81,12 @@ public class BudgetServiceHibernateImpl implements BudgetService {
 
     @Override
     @Transactional
+    public Budget update() {
+        return budgetRepository.save(Budget.builder().build());
+    }
+
+    @Override
+    @Transactional
     public boolean delete(Long id) {
         if (budgetRepository.existsById(id)) {
             budgetRepository.deleteById(id);

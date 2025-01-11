@@ -7,12 +7,11 @@ import com.ptda.tracker.models.tracker.BudgetAccess;
 import com.ptda.tracker.models.tracker.BudgetAccessLevel;
 import com.ptda.tracker.models.tracker.Expense;
 import com.ptda.tracker.models.user.User;
+import com.ptda.tracker.repositories.BudgetRepository;
 import com.ptda.tracker.services.assistance.AssistantService;
 import com.ptda.tracker.services.tracker.BudgetAccessService;
-import com.ptda.tracker.services.tracker.BudgetService;
 import com.ptda.tracker.services.tracker.ExpenseService;
 import com.ptda.tracker.services.user.UserService;
-import com.ptda.tracker.util.UserSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -27,7 +26,7 @@ public class DataGenerateServiceHibernateImpl implements DataGenerateService {
     private final UserService userService;
     private final AssistantService assistantService;
     private final AdminService adminService;
-    private final BudgetService budgetService;
+    private final BudgetRepository budgetRepository;
     private final BudgetAccessService budgetAccessService;
     private final ExpenseService expenseService;
     private List<User> users;
@@ -92,7 +91,7 @@ public class DataGenerateServiceHibernateImpl implements DataGenerateService {
                     .name("Budget " + i)
                     .description("Budget Description " + i)
                     .build();
-            budget = budgetService.create(budget);
+            budget = budgetRepository.save(budget);
 
             // Create budget accesses for some users
             List<BudgetAccess> accesses = new ArrayList<>();
@@ -108,9 +107,7 @@ public class DataGenerateServiceHibernateImpl implements DataGenerateService {
             }
             accesses = budgetAccessService.createAll(accesses);
 
-            // Delete budget access with id of current user for the created budget and select a random user from those who have access and make him the owner
-            Long currentUserId = UserSession.getInstance().getUser().getId();
-            budgetAccessService.deleteByBudgetIdAndUserId(budget.getId(), currentUserId);
+            // Select a random user from those who have access and make him the owner
             if (!accesses.isEmpty()) {
                 BudgetAccess newOwnerAccess = accesses.get((int) (Math.random() * accesses.size()));
                 newOwnerAccess.setAccessLevel(BudgetAccessLevel.OWNER);

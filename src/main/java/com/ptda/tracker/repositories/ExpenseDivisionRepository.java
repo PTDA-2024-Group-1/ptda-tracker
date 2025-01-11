@@ -13,4 +13,6 @@ public interface ExpenseDivisionRepository extends JpaRepository<ExpenseDivision
 
     void deleteByExpenseId(Long expenseId);
 
+    void deleteAllByExpenseId(Long id);
+
 }

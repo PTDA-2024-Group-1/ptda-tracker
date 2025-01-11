@@ -27,6 +27,8 @@ public interface BudgetService {
 
     Budget update(Budget budget);
 
+    Budget update();
+
     boolean delete(Long id);
 
     Budget[] findAll();

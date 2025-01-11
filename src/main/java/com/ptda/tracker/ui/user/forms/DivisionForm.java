@@ -31,11 +31,11 @@ public class DivisionForm extends JDialog {
                 division = new ExpenseDivision();
             }
 
-            if (Objects.equals(responsibilityTypeComboBox.getSelectedItem(), PERCENTAGE)) {
-                division.setPercentage(Double.parseDouble(responsibilityValueTextField.getText()));
-            } else {
+//            if (Objects.equals(responsibilityTypeComboBox.getSelectedItem(), PERCENTAGE)) {
+//                division.setPercentage(Double.parseDouble(responsibilityValueTextField.getText()));
+//            } else {
                 division.setAmount(Double.parseDouble(responsibilityValueTextField.getText()));
-            }
+//            }
             division.setPaidAmount(Double.parseDouble(paidAmountValueTextField.getText()));
 
             try {

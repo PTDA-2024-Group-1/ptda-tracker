@@ -6,7 +6,6 @@ import com.ptda.tracker.models.tracker.BudgetAccessLevel;
 import com.ptda.tracker.models.user.User;
 import com.ptda.tracker.repositories.BudgetAccessRepository;
 import com.ptda.tracker.services.user.UserService;
-import com.ptda.tracker.util.UserSession;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;

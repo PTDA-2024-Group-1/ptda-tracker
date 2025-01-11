@@ -22,8 +22,6 @@ public class ExpenseDivision {
 
     private double amount;
 
-    private double percentage;
-
     private double paidAmount;
 
     @ManyToOne
@@ -43,6 +41,20 @@ public class ExpenseDivision {
     public void prePersist() {
         createdBy = UserSession.getInstance().getUser();
         createdAt = System.currentTimeMillis();
+        expense.setUpdatedAt(System.currentTimeMillis());
+        expense.setUpdatedBy(UserSession.getInstance().getUser());
+    }
+
+    @PreUpdate
+    public void preUpdate() {
+        expense.setUpdatedAt(System.currentTimeMillis());
+        expense.setUpdatedBy(UserSession.getInstance().getUser());
+    }
+
+    @PreRemove
+    public void preRemove() {
+        expense.setUpdatedAt(System.currentTimeMillis());
+        expense.setUpdatedBy(UserSession.getInstance().getUser());
     }
 
 }

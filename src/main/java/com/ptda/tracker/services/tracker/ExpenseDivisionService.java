@@ -16,6 +16,10 @@ public interface ExpenseDivisionService {
 
     ExpenseDivision update(ExpenseDivision expenseDivision);
 
-    boolean delete(Long id);
+    List<ExpenseDivision> updateAll(List<ExpenseDivision> expenseDivisions);
+
+    boolean deleteById(Long id);
+
+    boolean deleteAllByExpenseId(Long id);
 
 }

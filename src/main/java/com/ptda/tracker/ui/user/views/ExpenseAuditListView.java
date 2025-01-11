@@ -77,7 +77,7 @@ public class ExpenseAuditListView extends JPanel {
                 DefaultRevisionEntity revisionEntity = (DefaultRevisionEntity) detail[1];
                 model.addRow(new Object[]{
                         detail[2], // RevisionType ("MOD" or "ADD")
-                        revisionEntity.getId(), // Revision ID
+                        revisionEntity.getRevisionDate(),
                         expense.getTitle() + " / " + expense.getDescription()
                 });
             }

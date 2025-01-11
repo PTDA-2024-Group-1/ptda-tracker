@@ -33,6 +33,7 @@ public class ExpenseDivisionServiceHibernateImpl implements ExpenseDivisionServi
     }
 
     @Override
+    @Transactional
     public List<ExpenseDivision> createAll(List<ExpenseDivision> expenseDivisions) {
         return expenseDivisionRepository.saveAll(expenseDivisions);
     }
@@ -45,12 +46,25 @@ public class ExpenseDivisionServiceHibernateImpl implements ExpenseDivisionServi
 
     @Override
     @Transactional
-    public boolean delete(Long id) {
+    public List<ExpenseDivision> updateAll(List<ExpenseDivision> expenseDivisions) {
+        return expenseDivisionRepository.saveAll(expenseDivisions);
+    }
+
+    @Override
+    @Transactional
+    public boolean deleteById(Long id) {
         if (expenseDivisionRepository.existsById(id)) {
             expenseDivisionRepository.deleteById(id);
             return true;
         }
         return false;
+    }
+
+    @Override
+    @Transactional
+    public boolean deleteAllByExpenseId(Long id) {
+        expenseDivisionRepository.deleteAllByExpenseId(id);
+        return true;
     }
 
 }

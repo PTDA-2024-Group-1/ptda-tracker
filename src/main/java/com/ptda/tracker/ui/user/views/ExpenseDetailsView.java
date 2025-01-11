@@ -69,7 +69,7 @@ public class ExpenseDetailsView extends JPanel {
 
             double userAmount = expenseDivisions.stream()
                     .filter(subdivision -> subdivision.getUser().getId().equals(selectedUser.getId()))
-                    .mapToDouble(subdivision -> expense.getAmount() * (subdivision.getPercentage() / 100))
+                    .mapToDouble(ExpenseDivision::getPaidAmount)
                     .sum();
 
             boolean userIsAssociated = expenseDivisions.stream()

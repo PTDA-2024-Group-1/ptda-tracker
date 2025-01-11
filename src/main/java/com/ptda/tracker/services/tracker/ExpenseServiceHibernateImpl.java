@@ -2,6 +2,8 @@ package com.ptda.tracker.services.tracker;
 
 import com.ptda.tracker.models.tracker.Budget;
 import com.ptda.tracker.models.tracker.Expense;
+import com.ptda.tracker.models.tracker.ExpenseDivision;
+import com.ptda.tracker.repositories.BudgetRepository;
 import com.ptda.tracker.repositories.ExpenseRepository;
 import com.ptda.tracker.repositories.ExpenseDivisionRepository;
 import jakarta.transaction.Transactional;
@@ -20,7 +22,8 @@ import java.util.stream.Collectors;
 public class ExpenseServiceHibernateImpl implements ExpenseService {
 
     private final ExpenseRepository expenseRepository;
-    private final ExpenseDivisionRepository expenseDivisionRepository;
+    private final ExpenseDivisionService expenseDivisionService;
+    private final BudgetRepository budgetRepository;
 
     @Override
     @Transactional
@@ -121,6 +124,29 @@ public class ExpenseServiceHibernateImpl implements ExpenseService {
     }
 
     @Override
+    @Transactional
+    public Expense update(Expense expense, boolean updateDivisions) {
+        if (expense.getBudget() == null) {
+            throw new IllegalArgumentException("Budget must not be null.");
+        }
+        if (updateDivisions) {
+            Optional<Expense> optionalExpense = expenseRepository.findById(expense.getId());
+            if (optionalExpense.isPresent() && expense.getAmount() != optionalExpense.get().getAmount()) {
+                List<ExpenseDivision> divisions = expenseDivisionService.getAllByExpenseId(expense.getId());
+                double proportion = expense.getAmount() / optionalExpense.get().getAmount();
+                for (ExpenseDivision division : divisions) {
+                    division.setAmount(division.getAmount() * proportion);
+                    division.setPaidAmount(division.getPaidAmount() * proportion);
+                }
+                expenseDivisionService.updateAll(divisions);
+            }
+        } else {
+            expenseDivisionService.deleteAllByExpenseId(expense.getId());
+        }
+        return expenseRepository.save(expense);
+    }
+
+    @Override
     public List<Expense> updateAll(List<Expense> expenses) {
         return expenseRepository.saveAll(expenses);
     }
@@ -128,9 +154,10 @@ public class ExpenseServiceHibernateImpl implements ExpenseService {
     @Override
     @Transactional
     public boolean delete(Long id) {
-        if (expenseRepository.existsById(id)) {
+        Optional<Expense> optionalExpense = expenseRepository.findById(id);
+        if (optionalExpense.isPresent()) {
             // Delete related subdivisions first
-            expenseDivisionRepository.deleteByExpenseId(id);
+            expenseDivisionService.deleteAllByExpenseId(id);
             // Then delete the expense
             expenseRepository.deleteById(id);
             return true;
