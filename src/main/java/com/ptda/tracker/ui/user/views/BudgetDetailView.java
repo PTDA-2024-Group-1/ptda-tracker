@@ -107,7 +107,8 @@ public class BudgetDetailView extends JPanel {
     private void refreshExpenses() {
         int offset = currentPage * PAGE_SIZE;
         expenses.clear();
-        expenses.addAll(mainFrame.getContext().getBean(ExpenseService.class).getExpensesByBudgetIdWithPagination(budget.getId(), offset, PAGE_SIZE));
+        expenses.addAll(mainFrame.getContext().getBean(ExpenseService.class)
+                .getExpensesByBudgetIdWithPagination(budget.getId(), offset, PAGE_SIZE));
 
         expensesTable.setModel(createExpensesTableModel(expenses));
         updatePaginationPanel();
@@ -251,13 +252,15 @@ public class BudgetDetailView extends JPanel {
         if (!expenses.isEmpty()) {
             // Adicionar botão de estatísticas
             JButton statisticsButton = new JButton(STATISTICS);
-            statisticsButton.addActionListener(e -> mainFrame.registerAndShowScreen(ScreenNames.BUDGET_STATISTICS_VIEW, new BudgetStatisticsView(mainFrame, budget)));
+            statisticsButton.addActionListener(e -> mainFrame.registerAndShowScreen(
+                    ScreenNames.BUDGET_STATISTICS_VIEW, new BudgetStatisticsView(mainFrame, budget)));
             rightButtonPanel.add(statisticsButton);
         }
 
         if (!expenses.isEmpty()) {
             JButton splitSimulation = new JButton(SPLIT_SIMULATION);
-            splitSimulation.addActionListener(e -> mainFrame.registerAndShowScreen(ScreenNames.SIMULATE_VIEW, new SimulationView(mainFrame, budget)));
+            splitSimulation.addActionListener(e -> mainFrame.registerAndShowScreen(
+                    ScreenNames.SIMULATE_VIEW, new SimulationView(mainFrame, budget)));
             rightButtonPanel.add(splitSimulation);
         }
         if (hasEditorAccess) {
@@ -299,7 +302,6 @@ public class BudgetDetailView extends JPanel {
             DATE = "Date",
             CREATED_BY_COLUMN = "Created By",
             IMPORT_EXPENSES = "Import Expenses",
-            SIMULATE_BUDGET = "Simulate Budget",
             FAVORITE = "Favorite",
             EDIT = "Edit",
             DELETE = "Delete",

@@ -43,7 +43,7 @@ public class ExpenseDivisionsDialog extends JDialog {
 
     private JTable divisionsTable;
     private static final String
-            TITLE = "Subdivisions",
+            TITLE = "Divisions",
             ID = "ID",
             AMOUNT = "Amount",
             PERCENTAGE = "Percentage",

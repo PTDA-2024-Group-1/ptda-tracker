@@ -172,7 +172,7 @@ public class ExpenseDetailView extends JPanel {
         if (!expenseDivisions.isEmpty()) {
             JPanel subdivisionsPanel = new JPanel();
             subdivisionsPanel.setLayout(new BoxLayout(subdivisionsPanel, BoxLayout.Y_AXIS));
-            subdivisionsPanel.setBorder(BorderFactory.createTitledBorder(SUBDIVISIONS));
+            subdivisionsPanel.setBorder(BorderFactory.createTitledBorder(DIVISIONS));
             divisionsTable = createSubdivisionsTable(expenseDivisions);
             subdivisionsPanel.add(new JScrollPane(divisionsTable));
             add(subdivisionsPanel, BorderLayout.EAST);
@@ -204,7 +204,7 @@ public class ExpenseDetailView extends JPanel {
                     .orElse(null);
 
             if (currentUserAccess != null && currentUserAccess.getAccessLevel() != BudgetAccessLevel.VIEWER) {
-                distributeDivisionExpenseButton = new JButton(DISTRIBUTE_SUBDIVISIONS);
+                distributeDivisionExpenseButton = new JButton(DISTRIBUTE_DIVISIONS);
                 rightButtonPanel.add(distributeDivisionExpenseButton);
             }
         }
@@ -231,12 +231,12 @@ public class ExpenseDetailView extends JPanel {
             CATEGORY = "Category",
             DATE = "Date",
             CREATED_BY = "Created By",
-            SUBDIVISIONS = "Subdivisions",
+            DIVISIONS = "Divisions",
             BACK = "Back",
             EDIT_EXPENSE = "Edit Expense",
             ACTIVITY = "Activity",
             DELETE_EXPENSE = "Delete Expense",
-            DISTRIBUTE_SUBDIVISIONS = "Distribute Subdivisions",
+            DISTRIBUTE_DIVISIONS = "Distribute Divisions",
             ERROR = "Error",
             SUCCESS = "Success",
             DELETE_CONFIRMATION = "Are you sure you want to delete this expense?",

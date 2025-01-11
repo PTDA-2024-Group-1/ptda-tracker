@@ -22,7 +22,11 @@ public class ExpenseDivision {
 
     private double amount;
 
+    private boolean equalDivision;
+
     private double paidAmount;
+
+    private boolean paidAll;
 
     @ManyToOne
     @JoinColumn(nullable = false)

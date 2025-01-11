@@ -17,7 +17,7 @@ import java.util.List;
 public class DivisionsForm extends JPanel {
     private final MainFrame mainFrame;
     private final Expense expense;
-    private final List<ExpenseDivision> divisions, existingDivisions;
+    private List<ExpenseDivision> divisions;
     private final String returnScreen;
     private final Runnable onSuccess;
     private final List<User> participants;
@@ -31,9 +31,6 @@ public class DivisionsForm extends JPanel {
                 .map(BudgetAccess::getUser)
                 .toList();
         this.expenseDivisionService = mainFrame.getContext().getBean(ExpenseDivisionService.class);
-        this.existingDivisions = expenseDivisionService
-                .getAllByExpenseId(expense.getId());
-        this.divisions = new ArrayList<>(participants.size());
         this.returnScreen = returnScreen;
         this.onSuccess = onSuccess;
 
@@ -44,11 +41,9 @@ public class DivisionsForm extends JPanel {
     }
 
     private void setListeners() {
-        backButton.addActionListener(e -> mainFrame.showScreen(returnScreen));
-        submitButton.addActionListener(e -> {
-            submit();
-            onSuccess.run();
+        backButton.addActionListener(e -> {
             mainFrame.showScreen(returnScreen);
+            onSuccess.run();
         });
         divisionsTable.addMouseListener(new java.awt.event.MouseAdapter() {
             @Override
@@ -63,24 +58,13 @@ public class DivisionsForm extends JPanel {
         });
     }
 
-    private void submit() {
-        divisions.forEach(division -> {
-            try {
-                if (division.getId() == null) {
-                    expenseDivisionService.create(division);
-                } else {
-                    expenseDivisionService.update(division);
-                }
-            } catch (Exception ex) {
-                ex.printStackTrace();
-            }
-        });
-    }
-
     private void initDivisions() {
         // Calculate equal share among participants
         int participantCount = participants.size();
         double equalShare = expense.getAmount() / (participantCount > 0 ? participantCount : 1);
+        divisions = new ArrayList<>();
+        List<ExpenseDivision> existingDivisions = expenseDivisionService
+                .getAllByExpenseId(expense.getId());
 
         // Populate divisions with existing or new data
         participants.forEach(participant -> {
@@ -88,20 +72,21 @@ public class DivisionsForm extends JPanel {
             ExpenseDivision division = existingDivisions.stream()
                     .filter(div -> div.getUser().getId().equals(participant.getId()))
                     .findFirst()
-                    .orElseGet(() -> {
-                        Expense expense = existingDivisions.isEmpty() ? null : existingDivisions.getFirst().getExpense();
-                        return ExpenseDivision.builder()
-                                .user(participant)
-                                .expense(expense)
-                                .build();
-                    });
+                    .orElse(ExpenseDivision.builder()
+                            .user(participant)
+                            .expense(expense)
+                            .equalDivision(true)
+                            .build());
 
             // Set or update amount for each division
             if (!existingDivisions.contains(division)) {
                 division.setAmount(equalShare);
+                if (expense.getCreatedBy().getId().equals(participant.getId()) && existingDivisions.isEmpty()) {
+                    division.setPaidAmount(expense.getAmount());
+                }
                 divisions.add(division);
             } else {
-                divisions.add(division); // Add existing divisions as-is
+                divisions.add(division);
             }
         });
     }
@@ -110,7 +95,6 @@ public class DivisionsForm extends JPanel {
         DefaultTableModel model = new DefaultTableModel(new String[] {
                 PARTICIPANT,
                 AMOUNT,
-                PERCENTAGE,
                 PAID_AMOUNT
         }, 0);
 
@@ -118,7 +102,7 @@ public class DivisionsForm extends JPanel {
         divisions.forEach(div -> {
             model.addRow(new Object[]{
                     div.getUser().getName(),
-                    div.getAmount(), // Ensure this is correctly set
+                    div.getAmount(),
                     div.getPaidAmount()
             });
         });
@@ -138,22 +122,16 @@ public class DivisionsForm extends JPanel {
 
         JPanel buttonPanel = new JPanel();
         backButton = new JButton(BACK);
-        submitButton = new JButton(SUBMIT);
         buttonPanel.add(backButton);
-        buttonPanel.add(submitButton);
         add(buttonPanel, BorderLayout.SOUTH);
     }
 
     private JTable divisionsTable;
-    private JButton backButton, submitButton;
+    private JButton backButton;
     private static final String
-        DIVISIONS = "divisions",
-        DIVISION = "division",
         BACK = "back",
         SUBMIT = "submit",
         PARTICIPANT = "participant",
         AMOUNT = "amount",
-        PERCENTAGE = "percentage",
-        PAID_AMOUNT = "paid amount",
-        STATE = "state";
+        PAID_AMOUNT = "paid amount";
 }
