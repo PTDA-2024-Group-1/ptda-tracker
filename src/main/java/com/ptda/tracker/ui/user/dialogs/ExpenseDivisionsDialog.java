@@ -29,14 +29,13 @@ public class ExpenseDivisionsDialog extends JDialog {
     }
 
     public static JTable createDivisionsJTable(List<ExpenseDivision> expenseDivisions) {
-        String[] columnNames = {ID, AMOUNT, PERCENTAGE, CREATED_BY, ASSOCIATED_USER};
+        String[] columnNames = {USER, AMOUNT, PAID_AMOUNT};
         Object[][] data = new Object[expenseDivisions.size()][columnNames.length];
         for (int i = 0; i < expenseDivisions.size(); i++) {
             ExpenseDivision expenseDivision = expenseDivisions.get(i);
-            data[i][0] = expenseDivision.getId();
+            data[i][0] = expenseDivision.getUser().getName();
             data[i][1] = expenseDivision.getAmount() + "€";
-            data[i][3] = expenseDivision.getCreatedBy().getName();
-            data[i][4] = expenseDivision.getUser().getName();
+            data[i][2] = expenseDivision.getPaidAmount() + "€";
         }
         return new JTable(data, columnNames);
     }
@@ -44,9 +43,7 @@ public class ExpenseDivisionsDialog extends JDialog {
     private JTable divisionsTable;
     private static final String
             TITLE = "Divisions",
-            ID = "ID",
             AMOUNT = "Amount",
-            PERCENTAGE = "Percentage",
-            CREATED_BY = "Created By",
-            ASSOCIATED_USER = "Associated User";
+            PAID_AMOUNT = "Paid Amount",
+            USER = "User";
 }

@@ -130,7 +130,6 @@ public class DivisionsForm extends JPanel {
     private JButton backButton;
     private static final String
         BACK = "back",
-        SUBMIT = "submit",
         PARTICIPANT = "participant",
         AMOUNT = "amount",
         PAID_AMOUNT = "paid amount";

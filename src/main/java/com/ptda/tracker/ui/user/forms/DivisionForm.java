@@ -6,6 +6,7 @@ import com.ptda.tracker.ui.MainFrame;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.List;
 import java.util.Objects;
 
 public class DivisionForm extends JDialog {
@@ -43,14 +44,36 @@ public class DivisionForm extends JDialog {
         if (division == null) {
             division = new ExpenseDivision();
         }
+
         double amount = Double.parseDouble(amountTextField.getText());
         double paidAmount = Double.parseDouble(paidAmountTextField.getText());
         if (amount < 0 || paidAmount < 0) {
             JOptionPane.showMessageDialog(this, "Amounts cannot be negative.");
             return;
         }
-        division.setAmount(amount);
-        division.setPaidAmount(paidAmount);
+        // can't submit if amount or paid amount is greater than spare amount
+        List<ExpenseDivision> expenseDivisions = expenseDivisionService.getAllByExpenseId(division.getExpense().getId());
+        double spareAmount = division.getExpense().getAmount()
+                - expenseDivisions.stream().mapToDouble(ExpenseDivision::getAmount).sum() + division.getAmount();;
+        double sparePaidAmount = division.getExpense().getAmount()
+                - expenseDivisions.stream().mapToDouble(ExpenseDivision::getPaidAmount).sum() + division.getPaidAmount();
+        if (amount > spareAmount || paidAmount > sparePaidAmount) {
+            JOptionPane.showMessageDialog(this, "Amounts cannot be greater than the spare amount.");
+            return;
+        }
+
+        if (amountComboBox.getSelectedItem() == EQUAL) {
+            division.setEqualDivision(true);
+        } else {
+            division.setEqualDivision(false);
+            division.setAmount(amount);
+        }
+        if (paidAmountComboBox.getSelectedItem() == TOTAL_AMOUNT) {
+            division.setPaidAll(true);
+        } else {
+            division.setPaidAll(false);
+            division.setPaidAmount(paidAmount);
+        }
 
         try {
             if (division.getId() == null) {

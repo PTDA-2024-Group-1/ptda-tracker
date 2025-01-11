@@ -43,22 +43,36 @@ public class ExpenseDivision {
 
     @PrePersist
     public void prePersist() {
-        createdBy = UserSession.getInstance().getUser();
-        createdAt = System.currentTimeMillis();
-        expense.setUpdatedAt(System.currentTimeMillis());
-        expense.setUpdatedBy(UserSession.getInstance().getUser());
+        if (createdBy == null) {
+            createdBy = UserSession.getInstance().getUser();
+        }
+        if (createdAt == 0) {
+            createdAt = System.currentTimeMillis();
+        }
+        updateOwners();
     }
 
     @PreUpdate
     public void preUpdate() {
-        expense.setUpdatedAt(System.currentTimeMillis());
-        expense.setUpdatedBy(UserSession.getInstance().getUser());
+        if (createdBy == null) {
+            createdBy = UserSession.getInstance().getUser();
+        }
+        if (createdAt == 0) {
+            createdAt = System.currentTimeMillis();
+        }
+        updateOwners();
     }
 
     @PreRemove
     public void preRemove() {
+        updateOwners();
+    }
+
+    private void updateOwners() {
         expense.setUpdatedAt(System.currentTimeMillis());
         expense.setUpdatedBy(UserSession.getInstance().getUser());
+//        expense.getBudget().setUpdatedAt(System.currentTimeMillis());
+//        expense.getBudget().setUpdatedBy(UserSession.getInstance().getUser());
     }
 
 }
