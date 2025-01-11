@@ -473,4 +473,118 @@ public class ExpenseRepositoryTest {
         assertThat(expenses.get(0).getTitle()).isEqualTo("Expense 1");
     }
 
+    @Test
+    void testSaveAllExpenses() {
+        User user = User.builder()
+                .name("Test User")
+                .email("test@email.com")
+                .password("password")
+                .build();
+
+        userRepository.save(user);
+        UserSession.getInstance().setUser(user);
+
+        Expense expense1 = new Expense();
+        expense1.setTitle("Test Expense 1");
+        expense1.setAmount(100.0);
+        expense1.setDate(new Date());
+        expense1.setCategory(ExpenseCategory.OTHER);
+        expense1.setCreatedBy(user);
+
+        Expense expense2 = new Expense();
+        expense2.setTitle("Test Expense 2");
+        expense2.setAmount(200.0);
+        expense2.setDate(new Date());
+        expense2.setCategory(ExpenseCategory.OTHER);
+        expense2.setCreatedBy(user);
+
+        List<Expense> expenses = List.of(expense1, expense2);
+        List<Expense> savedExpenses = expenseRepository.saveAll(expenses);
+
+        assertThat(savedExpenses).isNotEmpty();
+        assertThat(savedExpenses).hasSize(2);
+
+        assertThat(savedExpenses.get(0).getId()).isNotNull();
+        assertThat(savedExpenses.get(1).getId()).isNotNull();
+
+    }
+
+    @Test
+    void testCountExpenses() {
+        User user = User.builder()
+                .name("Test User")
+                .email("test@user.com")
+                .password("password")
+                .build();
+        userRepository.save(user);
+
+        UserSession.getInstance().setUser(user);
+
+        Expense expense = new Expense();
+        expense.setTitle("Test Expense");
+        expense.setAmount(100.0);
+        expense.setDate(new Date());
+        expense.setCategory(ExpenseCategory.OTHER);
+        expense.setCreatedBy(user);
+        expenseRepository.save(expense);
+
+        long count = expenseRepository.count();
+        assertThat(count).isEqualTo(1);
+
+    }
+
+    @Test
+    void testDeleteAllExpenses() {
+        User user = User.builder()
+                .name("Test User")
+                .email("email@teste")
+                .password("password")
+                .build();
+        userRepository.save(user);
+
+        UserSession.getInstance().setUser(user);
+
+        Expense expense = new Expense();
+        expense.setTitle("Test Expense");
+        expense.setAmount(100.0);
+        expense.setDate(new Date());
+        expense.setCategory(ExpenseCategory.OTHER);
+        expense.setCreatedBy(user);
+        expenseRepository.save(expense);
+
+        expenseRepository.deleteAll();
+
+        long count = expenseRepository.count();
+        assertThat(count).isEqualTo(0);
+
+    }
+
+    @Test
+    void testDeleteById(){
+        User user = User.builder()
+                .name("Test User")
+                .email("email@teste")
+                .password("password")
+                .build();
+        userRepository.save(user);
+
+        UserSession.getInstance().setUser(user);
+
+        Expense expense = new Expense();
+        expense.setTitle("Test Expense");
+        expense.setAmount(100.0);
+        expense.setDate(new Date());
+        expense.setCategory(ExpenseCategory.OTHER);
+        expense.setCreatedBy(user);
+        expenseRepository.save(expense);
+
+        expenseRepository.deleteById(expense.getId());
+
+        Optional<Expense> retrieved = expenseRepository.findById(expense.getId());
+        assertThat(retrieved).isNotPresent();
+    }
+
+
+
+
 }

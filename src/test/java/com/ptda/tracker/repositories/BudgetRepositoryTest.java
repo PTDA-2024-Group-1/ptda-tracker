@@ -1,8 +1,10 @@
 package com.ptda.tracker.repositories;
 
 import com.ptda.tracker.models.tracker.Budget;
+import com.ptda.tracker.models.tracker.BudgetAccess;
 import com.ptda.tracker.models.tracker.Expense;
 import com.ptda.tracker.models.user.User;
+import com.ptda.tracker.services.tracker.BudgetAccessService;
 import com.ptda.tracker.services.tracker.ExpenseService;
 import com.ptda.tracker.util.UserSession;
 import lombok.RequiredArgsConstructor;
@@ -191,5 +193,82 @@ public class BudgetRepositoryTest {
         List<Budget> budgets = budgetRepository.findAll();
         assertThat(budgets).isNotEmpty();
     }
+
+    @Test
+    void testCount() {
+        User user = User.builder()
+                .name("Test User")
+                .email("email@user.com")
+                .password("password")
+                .build();
+        userRepository.save(user);
+
+        UserSession.getInstance().setUser(user);
+
+        Budget budget = Budget.builder()
+                .name("Test Budget")
+                .description("Test Description")
+                .createdBy(user)
+                .build();
+        budgetRepository.save(budget);
+
+        int count = (int) budgetRepository.count();
+        assertThat(count).isEqualTo(1);
+    }
+
+    @Test
+    void testSaveAll() {
+        User user = User.builder()
+                .name("Test User")
+                .email("test@email.com")
+                .password("password")
+                .build();
+        userRepository.save(user);
+
+        UserSession.getInstance().setUser(user);
+
+        Budget budget1 = Budget.builder()
+                .name("Test Budget 1")
+                .description("Test Description 1")
+                .createdBy(user)
+                .build();
+        Budget budget2 = Budget.builder()
+                .name("Test Budget 2")
+                .description("Test Description 2")
+                .createdBy(user)
+                .build();
+        List<Budget> budgets = List.of(budget1, budget2);
+        budgetRepository.saveAll(budgets);
+
+        List<Budget> retrieved = budgetRepository.findAll();
+        assertThat(retrieved).hasSize(2);
+
+        assertThat(retrieved).extracting(Budget::getName).containsExactly("Test Budget 1", "Test Budget 2");
+    }
+
+    @Test
+    void testDeleteById(){
+        User user = User.builder()
+                .name("Test User")
+                .email("email@user.com")
+                .password("password")
+                .build();
+        userRepository.save(user);
+
+        UserSession.getInstance().setUser(user);
+
+        Budget budget = Budget.builder()
+                .name("Test Budget")
+                .description("Test Description")
+                .createdBy(user)
+                .build();
+        budgetRepository.save(budget);
+
+        budgetRepository.deleteById(budget.getId());
+        Optional<Budget> retrieved = budgetRepository.findById(budget.getId());
+        assertThat(retrieved).isNotPresent();
+
+    }
+
 
 }

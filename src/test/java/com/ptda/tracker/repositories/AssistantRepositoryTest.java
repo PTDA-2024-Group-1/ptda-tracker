@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.context.ActiveProfiles;
 
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.as;
@@ -105,5 +106,22 @@ public class AssistantRepositoryTest {
         assistantRepository.save(assistant2);
 
         assertThat(assistantRepository.findAll()).hasSize(2);
+    }
+
+    @Test
+    void testSaveAll(){
+        Assistant assistant = new Assistant();
+        assistant.setName("Assistant User");
+        assistant.setEmail("assistant@example.com");
+        assistant.setPassword("password");
+
+        Assistant assistant2 = new Assistant();
+        assistant2.setName("Assistant User 2");
+        assistant2.setEmail("assistant2@example.com");
+        assistant2.setPassword("password");
+
+        assistantRepository.saveAll(List.of(assistant, assistant2));
+        assertThat(assistantRepository.findAll()).hasSize(2);
+        
     }
 }

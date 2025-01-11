@@ -184,4 +184,43 @@ public class TicketReplyRepositoryTest {
         assertThat(foundReply).isNotNull();
         assertThat(foundReply.getBody()).isEqualTo("Test Reply");
     }
+
+    @Test
+    void testDeleteById() {
+        User user = User.builder()
+                .name("Test User")
+                .email("email@test.com")
+                .password("password")
+                .build();
+        userRepository.save(user);
+
+        Ticket ticket = Ticket.builder()
+                .title("Test Ticket")
+                .body("Test Body")
+                .createdBy(user)
+                .build();
+        ticketRepository.save(ticket);
+
+        TicketReply ticketReply = TicketReply.builder()
+                .body("Test Reply")
+                .ticket(ticket)
+                .createdBy(user)
+                .build();
+        ticketReplyRepository.save(ticketReply);
+
+        ticketReplyRepository.deleteById(ticketReply.getId());
+
+        TicketReply foundReply = ticketReplyRepository.findById(ticketReply.getId()).orElse(null);
+        assertThat(foundReply).isNull();
+
+        List<TicketReply> replies = ticketReplyRepository.findAllByTicketId(ticket.getId());
+        assertThat(replies).isEmpty();
+
+        List<TicketReply> allReplies = ticketReplyRepository.findAll();
+        assertThat(allReplies).isEmpty();
+
+        List<Ticket> allTickets = ticketRepository.findAll();
+
+        assertThat(allTickets).isNotEmpty();
+    }
 }

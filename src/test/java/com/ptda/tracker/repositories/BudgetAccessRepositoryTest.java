@@ -265,4 +265,109 @@ public class BudgetAccessRepositoryTest {
         assertThat(count).isEqualTo(1);
     }
 
+    @Test
+    void testDeleteByBudgetIdAndUserId() {
+        User user = User.builder()
+                .name("Test User")
+                .email("test@example.com")
+                .password("password")
+                .build();
+        userRepository.save(user);
+
+        UserSession.getInstance().setUser(user);
+
+        Budget budget = Budget.builder()
+                .name("Test Budget")
+                .description("Test Description")
+                .build();
+
+        budgetRepository.save(budget);
+
+        BudgetAccess access = BudgetAccess.builder()
+                .accessLevel(BudgetAccessLevel.OWNER)
+                .budget(budget)
+                .user(user)
+                .build();
+
+        budgetAccessRepository.save(access);
+
+        int deleted = budgetAccessRepository.deleteByBudgetIdAndUserId(budget.getId(), user.getId());
+        assertThat(deleted).isEqualTo(1);
+    }
+
+    @Test
+    void testDeleteById() {
+        User user = User.builder()
+                .name("Test User")
+                .email("test@example.com")
+                .password("password")
+                .build();
+        userRepository.save(user);
+
+        UserSession.getInstance().setUser(user);
+
+        Budget budget = Budget.builder()
+                .name("Test Budget")
+                .description("Test Description")
+                .build();
+
+        budgetRepository.save(budget);
+
+        BudgetAccess access = BudgetAccess.builder()
+                .accessLevel(BudgetAccessLevel.OWNER)
+                .budget(budget)
+                .user(user)
+                .build();
+
+        budgetAccessRepository.save(access);
+
+        budgetAccessRepository.deleteById(access.getId());
+
+        Optional<BudgetAccess> retrieved = budgetAccessRepository.findById(access.getId());
+        assertThat(retrieved).isEmpty();
+    }
+
+    @Test
+    void TestSaveAll(){
+        User user = User.builder()
+                .name("Test User")
+                .email("user@test.com")
+                .password("password")
+                .build();
+        userRepository.save(user);
+
+        UserSession.getInstance().setUser(user);
+
+        Budget budget1 = Budget.builder()
+                .name("Budget 1")
+                .description("Description 1")
+                .build();
+        budgetRepository.save(budget1);
+
+        Budget budget2 = Budget.builder()
+                .name("Budget 2")
+                .description("Description 2")
+                .build();
+        budgetRepository.save(budget2);
+
+        BudgetAccess access1 = BudgetAccess.builder()
+                .accessLevel(BudgetAccessLevel.OWNER)
+                .budget(budget1)
+                .user(user)
+                .build();
+
+        BudgetAccess access2 = BudgetAccess.builder()
+                .accessLevel(BudgetAccessLevel.EDITOR)
+                .budget(budget2)
+                .user(user)
+                .build();
+
+        List<BudgetAccess> accesses = List.of(access1, access2);
+        budgetAccessRepository.saveAll(accesses);
+
+        List<BudgetAccess> retrieved = budgetAccessRepository.findAllByUserId(user.getId());
+        assertThat(retrieved).hasSize(2);
+
+    }
+
 }

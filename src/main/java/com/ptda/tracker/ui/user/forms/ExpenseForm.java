@@ -112,7 +112,7 @@ public class ExpenseForm extends JPanel {
         }
         clearFields();
         onFormSubmit.run();
-        mainFrame.showScreen(returnScreen);
+        mainFrame.registerAndShowScreen(ScreenNames.EXPENSE_DETAIL_VIEW, new ExpenseDetailView(mainFrame, expense, returnScreen, onFormSubmit));
     }
 
     private void askAboutDivisions() {

@@ -210,4 +210,31 @@ public class UserRepositoryTest {
         assertThat(userRepository.findAll()).hasSize(2);
     }
 
+    // countByUserType
+
+    @Test
+    void testCountByUserType() {
+        User user1 = User.builder()
+                .name("User One")
+                .email("test@user.com")
+                .password("password")
+                .userType("USER")
+                .build();
+        User user2 = User.builder()
+                .name("User Two")
+                .email("assistant@assitant.com")
+                .password("password")
+                .userType("ASSISTANT")
+                .build();
+        User user3 = User.builder()
+                .name("User Three")
+                .email("admin@admin.com")
+                .password("password")
+                .userType("ADMIN")
+                .build();
+        userRepository.saveAll(List.of(user1, user2, user3));
+        assertThat(userRepository.countByUserType("USER")).isEqualTo(3);
+
+    }
+
 }

@@ -44,7 +44,9 @@ public class ExpenseDivisionRepositoryTest {
 
         ExpenseDivision expenseDivision = ExpenseDivision.builder()
                 .amount(50.0)
-                .percentage(50.0)
+                .equalDivision(true)
+                .paidAmount(0.0)
+                .paidAll(false)
                 .expense(expense)
                 .user(user)
                 .build();
@@ -85,7 +87,9 @@ public class ExpenseDivisionRepositoryTest {
 
         ExpenseDivision division1 = ExpenseDivision.builder()
                 .amount(100.0)
-                .percentage(50.0)
+                .equalDivision(true)
+                .paidAmount(0.0)
+                .paidAll(false)
                 .expense(expense)
                 .user(user1)
                 .build();
@@ -93,7 +97,9 @@ public class ExpenseDivisionRepositoryTest {
 
         ExpenseDivision division2 = ExpenseDivision.builder()
                 .amount(100.0)
-                .percentage(50.0)
+                .equalDivision(true)
+                .paidAmount(0.0)
+                .paidAll(false)
                 .expense(expense)
                 .user(user2)
                 .build();
@@ -124,7 +130,9 @@ public class ExpenseDivisionRepositoryTest {
 
         ExpenseDivision division1 = ExpenseDivision.builder()
                 .amount(50.0)
-                .percentage(50.0)
+                .equalDivision(true)
+                .paidAmount(0.0)
+                .paidAll(false)
                 .expense(expense)
                 .user(user)
                 .build();
@@ -132,7 +140,9 @@ public class ExpenseDivisionRepositoryTest {
 
         ExpenseDivision division2 = ExpenseDivision.builder()
                 .amount(50.0)
-                .percentage(50.0)
+                .equalDivision(true)
+                .paidAmount(0.0)
+                .paidAll(false)
                 .expense(expense)
                 .user(user)
                 .build();
@@ -142,38 +152,6 @@ public class ExpenseDivisionRepositoryTest {
         List<ExpenseDivision> divisions = expenseDivisionRepository.findAllByExpenseId(expense.getId());
         assertThat(divisions).isEmpty();
     }
-
-//    @Test
-//    void testDivisionStateDefaultAndUpdate() {
-//        User user = User.builder()
-//                .name("Test User")
-//                .email("test@example.com")
-//                .password("password")
-//                .build();
-//        userRepository.save(user);
-//
-//        Expense expense = Expense.builder()
-//                .description("Test Expense")
-//                .amount(100.0)
-//                .build();
-//        expenseRepository.save(expense);
-//
-//        ExpenseDivision division = ExpenseDivision.builder()
-//                .amount(50.0)
-//                .percentage(50.0)
-//                .expense(expense)
-//                .user(user)
-//                .build();
-//        expenseDivisionRepository.save(division);
-//
-//        assertThat(division.getState()).isEqualTo(ExpenseDivisionState.PENDING);
-//
-//        division.setState(ExpenseDivisionState.ACCEPTED);
-//        expenseDivisionRepository.save(division);
-//
-//        ExpenseDivision updatedDivision = expenseDivisionRepository.findById(division.getId()).orElseThrow();
-//        assertThat(updatedDivision.getState()).isEqualTo(ExpenseDivisionState.ACCEPTED);
-//    }
 
     @Test
     void testExpenseDivisionExistsByID() {
@@ -194,7 +172,9 @@ public class ExpenseDivisionRepositoryTest {
 
         ExpenseDivision division = ExpenseDivision.builder()
                 .amount(50.0)
-                .percentage(50.0)
+                .equalDivision(true)
+                .paidAmount(0.0)
+                .paidAll(false)
                 .expense(expense)
                 .user(user)
                 .build();
@@ -229,7 +209,9 @@ public class ExpenseDivisionRepositoryTest {
 
         ExpenseDivision division = ExpenseDivision.builder()
                 .amount(50.0)
-                .percentage(50.0)
+                .equalDivision(true)
+                .paidAmount(0.0)
+                .paidAll(false)
                 .expense(expense)
                 .user(user)
                 .build();
@@ -238,5 +220,166 @@ public class ExpenseDivisionRepositoryTest {
         assertThat(division.getCreatedBy()).isNotNull();
         assertThat(division.getCreatedBy().getName()).isEqualTo("Session User");
     }
+
+    @Test
+    void testFindById() {
+        User user = User.builder()
+                .name("Test User")
+                .email("test@email.com")
+                .password("password")
+                .build();
+        userRepository.save(user);
+
+        UserSession.getInstance().setUser(user);
+
+        Expense expense = Expense.builder()
+                .description("Test Expense")
+                .amount(100.0)
+                .build();
+        expenseRepository.save(expense);
+
+        ExpenseDivision division = ExpenseDivision.builder()
+                .amount(50.0)
+                .equalDivision(true)
+                .paidAmount(0.0)
+                .paidAll(false)
+                .expense(expense)
+                .user(user)
+                .build();
+        expenseDivisionRepository.save(division);
+
+        ExpenseDivision foundDivision = expenseDivisionRepository.findById(division.getId()).orElse(null);
+        assertThat(foundDivision).isNotNull();
+        assertThat(foundDivision.getAmount()).isEqualTo(50.0);
+
+        assertThat(expenseDivisionRepository.findById(0L)).isEmpty();
+
+    }
+
+    @Test
+    void testSaveAll() {
+        User user = User.builder()
+                .name("Test User")
+                .email("test@email.com")
+                .password("password")
+                .build();
+        userRepository.save(user);
+
+        UserSession.getInstance().setUser(user);
+
+        Expense expense = Expense.builder()
+                .description("Test Expense")
+                .amount(100.0)
+                .build();
+
+        expenseRepository.save(expense);
+
+        ExpenseDivision division1 = ExpenseDivision.builder()
+                .amount(50.0)
+                .equalDivision(true)
+                .paidAmount(0.0)
+                .paidAll(false)
+                .expense(expense)
+                .user(user)
+                .build();
+
+        ExpenseDivision division2 = ExpenseDivision.builder()
+                .amount(50.0)
+                .equalDivision(true)
+                .paidAmount(0.0)
+                .paidAll(false)
+                .expense(expense)
+                .user(user)
+                .build();
+
+        List<ExpenseDivision> divisions = List.of(division1, division2);
+        expenseDivisionRepository.saveAll(divisions);
+
+        List<ExpenseDivision> foundDivisions = expenseDivisionRepository.findAllByExpenseId(expense.getId());
+        assertThat(foundDivisions).hasSize(2);
+
+    }
+
+    @Test
+    void testDeleteById() {
+        User user = User.builder()
+                .name("Test User")
+                .email("test@user.com")
+                .password("password")
+                .build();
+        userRepository.save(user);
+
+        UserSession.getInstance().setUser(user);
+
+        Expense expense = Expense.builder()
+                .description("Test Expense")
+                .amount(100.0)
+                .build();
+        expenseRepository.save(expense);
+
+        ExpenseDivision division = ExpenseDivision.builder()
+                .amount(50.0)
+                .equalDivision(true)
+                .paidAmount(0.0)
+                .paidAll(false)
+                .expense(expense)
+                .user(user)
+                .build();
+        expenseDivisionRepository.save(division);
+
+        assertThat(expenseDivisionRepository.existsById(division.getId())).isTrue();
+
+        expenseDivisionRepository.deleteById(division.getId());
+
+        assertThat(expenseDivisionRepository.existsById(division.getId())).isFalse();
+
+    }
+
+    @Test
+    void deleteAllByExpenseId(){
+        User user = User.builder()
+                .name("Test User")
+                .email("email@test.com")
+                .password("password")
+                .build();
+        userRepository.save(user);
+
+        UserSession.getInstance().setUser(user);
+
+        Expense expense = Expense.builder()
+                .description("Test Expense")
+                .amount(100.0)
+                .build();
+        expenseRepository.save(expense);
+
+        ExpenseDivision division1 = ExpenseDivision.builder()
+                .amount(50.0)
+                .equalDivision(true)
+                .paidAmount(0.0)
+                .paidAll(false)
+                .expense(expense)
+                .user(user)
+                .build();
+
+        ExpenseDivision division2 = ExpenseDivision.builder()
+                .amount(50.0)
+                .equalDivision(true)
+                .paidAmount(0.0)
+                .paidAll(false)
+                .expense(expense)
+                .user(user)
+                .build();
+
+        expenseDivisionRepository.save(division1);
+        expenseDivisionRepository.save(division2);
+
+        assertThat(expenseDivisionRepository.findAllByExpenseId(expense.getId())).hasSize(2);
+
+        expenseDivisionRepository.deleteAllByExpenseId(expense.getId());
+
+        assertThat(expenseDivisionRepository.findAllByExpenseId(expense.getId())).isEmpty();
+
+    }
+
 
 }

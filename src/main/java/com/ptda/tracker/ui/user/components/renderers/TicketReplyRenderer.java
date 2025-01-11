@@ -10,6 +10,11 @@ import java.text.SimpleDateFormat;
 
 public class TicketReplyRenderer extends DefaultListCellRenderer {
 
+    private String getAlignment(TicketReply reply) {
+        boolean isCurrentUser = reply.getCreatedBy().getId().equals(UserSession.getInstance().getUser().getId());
+        return !isCurrentUser ? "left" : "right";
+    }
+
     @Override
     public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
         super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
@@ -18,11 +23,7 @@ public class TicketReplyRenderer extends DefaultListCellRenderer {
             String formattedDate = DATE_FORMAT.format(reply.getCreatedAt());
             String wrappedBody = wrapText(reply.getBody(), 30); // Limite de 30 caracteres por linha
 
-            boolean isCurrentUser = reply.getCreatedBy().getId().equals(UserSession.getInstance().getUser().getId());
-            boolean isAssistant = reply.getCreatedBy().getUserType().equals("ASSISTANT");
-
-            // Define alinhamento do cabeçalho e corpo
-            String alignment = isCurrentUser ? "right" : "left";
+            String alignment = getAlignment(reply);
 
             // Formata o texto com nome, data e mensagem
             String replyText = String.format(
@@ -39,7 +40,7 @@ public class TicketReplyRenderer extends DefaultListCellRenderer {
             setText(replyText);
 
             // Ajusta alinhamento do componente Swing
-            setHorizontalAlignment(isCurrentUser ? SwingConstants.RIGHT : SwingConstants.LEFT);
+            setHorizontalAlignment("right".equals(alignment) ? SwingConstants.RIGHT : SwingConstants.LEFT);
 
             // Adiciona padding para melhorar visualmente
             setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));

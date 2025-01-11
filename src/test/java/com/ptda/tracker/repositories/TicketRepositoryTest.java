@@ -188,4 +188,27 @@ public class TicketRepositoryTest {
         assertThat(closedCount).isEqualTo(1);
     }
 
+    @Test
+    void testDeleteTicket() {
+        User user = User.builder()
+                .name("Test User")
+                .email("test@email.com")
+                .password("password")
+                .build();
+        userRepository.save(user);
+
+        Ticket ticket = Ticket.builder()
+                .title("Test Ticket")
+                .body("Test Body")
+                .createdBy(user)
+                .build();
+        ticketRepository.save(ticket);
+
+        ticketRepository.delete(ticket);
+
+        List<Ticket> tickets = ticketRepository.findAll();
+        assertThat(tickets).isEmpty();
+
+    }
+
 }
