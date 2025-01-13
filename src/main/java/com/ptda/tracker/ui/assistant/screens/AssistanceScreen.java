@@ -6,6 +6,7 @@ import com.ptda.tracker.services.assistance.TicketService;
 import com.ptda.tracker.ui.MainFrame;
 import com.ptda.tracker.ui.user.components.renderers.TicketListRenderer;
 import com.ptda.tracker.ui.user.views.TicketDetailView;
+import com.ptda.tracker.util.LocaleManager;
 import com.ptda.tracker.util.Refreshable;
 import com.ptda.tracker.util.ScreenNames;
 import com.ptda.tracker.util.UserSession;
@@ -29,7 +30,7 @@ public class AssistanceScreen extends JPanel implements Refreshable {
 
         ticketService = mainFrame.getContext().getBean(TicketService.class);
 
-        ticketSelector = new JComboBox<>(new String[]{"Assigned Ticket", "Tickets to be Assigned"});
+        ticketSelector = new JComboBox<>(new String[]{ASSIGNED_TICKET, TICKETS_TO_BE_ASSIGNED});
         ticketSelector.addActionListener(e -> updateTicketListVisibility());
         add(ticketSelector, BorderLayout.NORTH);
 
@@ -58,8 +59,8 @@ public class AssistanceScreen extends JPanel implements Refreshable {
         });
 
         listPanel = new JPanel(new CardLayout());
-        listPanel.add(new JScrollPane(assignedTicketList), "Assigned Ticket");
-        listPanel.add(new JScrollPane(unassignedTicketList), "Tickets to be Assigned");
+        listPanel.add(new JScrollPane(assignedTicketList), ASSIGNED_TICKET);
+        listPanel.add(new JScrollPane(unassignedTicketList), TICKETS_TO_BE_ASSIGNED);
         add(listPanel, BorderLayout.CENTER);
 
         refreshTicketLists();
@@ -95,4 +96,9 @@ public class AssistanceScreen extends JPanel implements Refreshable {
     public void refresh() {
         refreshTicketLists();
     }
+
+    private static final LocaleManager localeManager = LocaleManager.getInstance();
+    private static final String
+            ASSIGNED_TICKET = localeManager.getTranslation("assigned_ticket"),
+            TICKETS_TO_BE_ASSIGNED = localeManager.getTranslation("tickets_to_be_assigned");
 }

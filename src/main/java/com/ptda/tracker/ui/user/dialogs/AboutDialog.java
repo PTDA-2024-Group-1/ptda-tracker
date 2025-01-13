@@ -2,6 +2,7 @@ package com.ptda.tracker.ui.user.dialogs;
 
 import com.ptda.tracker.theme.ThemeManager;
 import com.ptda.tracker.util.ImageResourceManager;
+import com.ptda.tracker.util.LocaleManager;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -19,7 +20,7 @@ public class AboutDialog extends JDialog {
 
     public AboutDialog(Window owner) {
         super(owner);
-        setTitle("About");
+        setTitle(ABOUT);
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         setModalityType(ModalityType.APPLICATION_MODAL);
         setResizable(false);
@@ -40,10 +41,10 @@ public class AboutDialog extends JDialog {
             if (desktop.isSupported(Desktop.Action.BROWSE)) {
                 desktop.browse(new URI(url));
             } else {
-                JOptionPane.showMessageDialog(this, "URL opening is not supported on your system.", "Error", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(this, URL_ERROR , ERROR, JOptionPane.ERROR_MESSAGE);
             }
         } catch (Exception ex) {
-            JOptionPane.showMessageDialog(this, "Failed to open URL: " + url, "Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, URL_OPEN_ERROR + url, ERROR, JOptionPane.ERROR_MESSAGE);
         }
     }
 
@@ -92,13 +93,13 @@ public class AboutDialog extends JDialog {
 
         // Version Info
         gbc.gridy = 1;
-        JLabel versionInfo = new JLabel("Version 1.0.12345");
+        JLabel versionInfo = new JLabel(VERSION);
         versionInfo.setFont(new Font("Arial", Font.PLAIN, 14));
         contentPanel.add(versionInfo, gbc);
 
         // Java Runtime Info
         gbc.gridy = 2;
-        JLabel javaRuntime = new JLabel("Java runtime: " + Runtime.version());
+        JLabel javaRuntime = new JLabel(JAVA_RUNTIME + Runtime.version());
         javaRuntime.setFont(new Font("Arial", Font.PLAIN, 14));
         contentPanel.add(javaRuntime, gbc);
 
@@ -106,7 +107,7 @@ public class AboutDialog extends JDialog {
         gbc.gridx = 1;
         gbc.gridy = 4;
         gbc.gridwidth = 2;
-        JLabel websiteLink = new JLabel("<html><a href='#'>Visit our website</a></html>");
+        JLabel websiteLink = new JLabel(VISIT_WEBSITE);
         websiteLink.setCursor(new Cursor(Cursor.HAND_CURSOR));
         websiteLink.setForeground(Color.BLUE);
         websiteLink.addMouseListener(new MouseAdapter() {
@@ -134,4 +135,14 @@ public class AboutDialog extends JDialog {
 
         updateLogo();
     }
+
+    private static final LocaleManager localeManager = LocaleManager.getInstance();
+    private static final String
+            ABOUT = localeManager.getTranslation("about"),
+            ERROR = localeManager.getTranslation("error"),
+            URL_ERROR = localeManager.getTranslation("url_error"),
+            URL_OPEN_ERROR = localeManager.getTranslation("url_open_error"),
+            VERSION = localeManager.getTranslation("version"),
+            JAVA_RUNTIME = localeManager.getTranslation("java_runtime"),
+            VISIT_WEBSITE = localeManager.getTranslation("visit_website");
 }

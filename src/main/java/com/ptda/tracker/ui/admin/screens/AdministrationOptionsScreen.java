@@ -8,6 +8,7 @@ import com.ptda.tracker.ui.MainFrame;
 import com.ptda.tracker.ui.admin.dialogs.GlobalStatisticsDialog;
 import com.ptda.tracker.ui.admin.views.ManageTicketView;
 import com.ptda.tracker.ui.admin.views.ManageUserView;
+import com.ptda.tracker.util.LocaleManager;
 import com.ptda.tracker.util.ScreenNames;
 
 import javax.swing.*;
@@ -58,10 +59,10 @@ public class AdministrationOptionsScreen extends JPanel {
             String desktopPath = System.getProperty("user.home") + "/Desktop/";
             String filePath = desktopPath + fileName;
             Files.write(Paths.get(filePath), content.getBytes());
-            JOptionPane.showMessageDialog(this, "Data generation result saved to Desktop as " + fileName);
+            JOptionPane.showMessageDialog(this, GENERATE_DATA_SAVED + fileName);
         } catch (IOException e) {
             e.printStackTrace();
-            JOptionPane.showMessageDialog(this, "Error saving data generation result to Desktop");
+            JOptionPane.showMessageDialog(this, GENERATE_DATA_ERROR);
         }
     }
 
@@ -106,11 +107,14 @@ public class AdministrationOptionsScreen extends JPanel {
 
     private JButton showStatsButton, manageUsersButton, manageTicketsButton, generateDataButton;
     private JToggleButton emailVerificationToggleButton;
+    private static final LocaleManager localeManager = LocaleManager.getInstance();
     private static final String
-            ADMINISTRATION_DASHBOARD = "Administration Dashboard",
-            SHOW_STATS = "Show Stats",
-            MANAGE_USERS = "Manage Users",
-            MANAGE_TICKETS = "Manage Tickets",
-            EMAIL_VERIFICATION = "Email Verification",
-            GENERATE_DATA = "Generate Data";
+            ADMINISTRATION_DASHBOARD = localeManager.getTranslation("admin.dashboard"),
+            SHOW_STATS = localeManager.getTranslation("show.stats"),
+            MANAGE_USERS = localeManager.getTranslation("manage.users"),
+            MANAGE_TICKETS = localeManager.getTranslation("manage.tickets"),
+            EMAIL_VERIFICATION = localeManager.getTranslation("email.verification"),
+            GENERATE_DATA = localeManager.getTranslation("generate.data"),
+            GENERATE_DATA_SAVED = localeManager.getTranslation("generate.data.saved"),
+            GENERATE_DATA_ERROR = localeManager.getTranslation("generate.data.error");
 }

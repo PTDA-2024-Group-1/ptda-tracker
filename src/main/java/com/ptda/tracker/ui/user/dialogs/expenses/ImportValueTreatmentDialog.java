@@ -1,6 +1,7 @@
 package com.ptda.tracker.ui.user.dialogs.expenses;
 
 import com.ptda.tracker.util.ExpensesImportSharedData;
+import com.ptda.tracker.util.LocaleManager;
 
 import javax.swing.*;
 import java.awt.*;
@@ -98,12 +99,13 @@ public class ImportValueTreatmentDialog extends JDialog {
 
     private JRadioButton negativeAsExpenseButton, positiveAsExpenseButton, absoluteValueButton;
     private JButton confirmButton, skipButton;
+    private static final LocaleManager localeManager = LocaleManager.getInstance();
     private static final String
-            IMPORT_VALUE_TREATMENT = "Import Value Treatment",
-            HOW_SHOULD_VALUES_BE_TREATED = "How should values be treated?",
-            IMPORT_NEGATIVE_VALUES_AS_EXPENSES = "Import negative values as expenses",
-            IMPORT_POSITIVE_VALUES_AS_EXPENSES = "Import positive values as expenses",
-            TREAT_ALL_VALUES_AS_ABSOLUTE_EXPENSES = "Treat all values as absolute expenses",
-            SKIP = "Skip",
-            CONFIRM = "Confirm";
+            IMPORT_VALUE_TREATMENT = localeManager.getTranslation("import.value.treatment"),
+            HOW_SHOULD_VALUES_BE_TREATED = localeManager.getTranslation("how.should.values.be.treated"),
+            IMPORT_NEGATIVE_VALUES_AS_EXPENSES = localeManager.getTranslation("import.negative.values.as.expenses"),
+            IMPORT_POSITIVE_VALUES_AS_EXPENSES = localeManager.getTranslation("import.positive.values.as.expenses"),
+            TREAT_ALL_VALUES_AS_ABSOLUTE_EXPENSES = localeManager.getTranslation("treat.all.values.as.absolute.expenses"),
+            SKIP = localeManager.getTranslation("skip"),
+            CONFIRM = localeManager.getTranslation("confirm");
 }

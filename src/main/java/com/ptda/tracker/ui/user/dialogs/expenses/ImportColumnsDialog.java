@@ -2,6 +2,7 @@ package com.ptda.tracker.ui.user.dialogs.expenses;
 
 import com.ptda.tracker.ui.user.components.tables.ColumnsTableModel;
 import com.ptda.tracker.util.ExpensesImportSharedData;
+import com.ptda.tracker.util.LocaleManager;
 
 import javax.swing.*;
 import java.awt.*;
@@ -42,7 +43,7 @@ public class ImportColumnsDialog extends JDialog {
             }
         }
 
-        System.out.println("Mapped Columns: " + columnMapping); // Debug mapping
+        System.out.println(MAPPED_COLUMNS + columnMapping); // Debug mapping
         sharedData.setColumnMapping(columnMapping);
     }
 
@@ -87,10 +88,11 @@ public class ImportColumnsDialog extends JDialog {
 
     private JTable columnsTable;
     private JButton skipButton, confirmButton;
+    private static final LocaleManager localeManager = LocaleManager.getInstance();
     private static final String
-            IMPORT_COLUMNS_MAPPING = "Import Columns Mapping",
-            SKIP = "Skip",
-            CONFIRM = "Confirm",
+            IMPORT_COLUMNS_MAPPING = localeManager.getTranslation("import_columns_mapping"),
+            SKIP = localeManager.getTranslation("skip"),
+            CONFIRM = localeManager.getTranslation("confirm"),
 
             IGNORE = ExpenseFieldOptions.IGNORE.toString(),
             AMOUNT = ExpenseFieldOptions.AMOUNT.toString(),
@@ -124,11 +126,16 @@ public class ImportColumnsDialog extends JDialog {
             // Skip the check if the selected option is the same as the current value of the cell
             if (selectedOption != ExpenseFieldOptions.IGNORE && selectedOption != model.getValueAt(editingRow, 1) && model.isOptionUsed(selectedOption, editingRow)) {
                 comboBox.setSelectedItem(ExpenseFieldOptions.IGNORE);
-                JOptionPane.showMessageDialog(ImportColumnsDialog.this, "This option is already used in another column.", "Error", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(ImportColumnsDialog.this, OPTION_ALREADY_USER , ERROR, JOptionPane.ERROR_MESSAGE);
                 return false;
             }
 
             return super.stopCellEditing();
         }
     }
+
+    private static final String
+            MAPPED_COLUMNS = localeManager.getTranslation("mapped.columns"),
+            OPTION_ALREADY_USER = localeManager.getTranslation("option_already_used"),
+            ERROR = localeManager.getTranslation("error");
 }

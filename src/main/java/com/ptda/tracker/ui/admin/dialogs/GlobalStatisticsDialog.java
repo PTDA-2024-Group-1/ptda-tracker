@@ -5,6 +5,7 @@ import com.ptda.tracker.services.tracker.BudgetService;
 import com.ptda.tracker.services.tracker.ExpenseService;
 import com.ptda.tracker.services.user.UserService;
 import com.ptda.tracker.ui.MainFrame;
+import com.ptda.tracker.util.LocaleManager;
 
 import javax.swing.*;
 import java.awt.*;
@@ -20,7 +21,7 @@ public class GlobalStatisticsDialog extends JDialog {
     private final TicketService ticketService;
 
     public GlobalStatisticsDialog(MainFrame mainFrame) {
-        super(mainFrame, "Global Statistics", true);
+        super(mainFrame, GLOBAL_STATISTICS, true);
         this.mainFrame = mainFrame;
         this.budgetService = mainFrame.getContext().getBean(BudgetService.class);
         this.expenseService = mainFrame.getContext().getBean(ExpenseService.class);
@@ -105,13 +106,15 @@ public class GlobalStatisticsDialog extends JDialog {
 
     private JLabel budgetsLabel, expensesLabel, usersLabel, assistantsLabel, adminsLabel, ticketsLabel;
     private JButton refreshDataButton, closeButton;
+    private static final LocaleManager localeManager = LocaleManager.getInstance();
     private static final String
-            TOTAL_BUDGETS = "Total Budgets",
-            TOTAL_EXPENSES = "Total Expenses",
-            USERS = "Users",
-            ASSISTANTS = "Assistants",
-            ADMINS = "Admins",
-            TOTAL_TICKETS = "Total Tickets",
-            REFRESH_DATA = "Refresh Data",
-            CLOSE = "Close";
+            GLOBAL_STATISTICS = localeManager.getTranslation("global.statistics"),
+            TOTAL_BUDGETS = localeManager.getTranslation("total.budgets"),
+            TOTAL_EXPENSES = localeManager.getTranslation("total.expenses"),
+            USERS = localeManager.getTranslation("users"),
+            ASSISTANTS = localeManager.getTranslation("assistants"),
+            ADMINS = localeManager.getTranslation("admins"),
+            TOTAL_TICKETS = localeManager.getTranslation("total.tickets"),
+            REFRESH_DATA = localeManager.getTranslation("refresh.data"),
+            CLOSE = localeManager.getTranslation("close");
 }

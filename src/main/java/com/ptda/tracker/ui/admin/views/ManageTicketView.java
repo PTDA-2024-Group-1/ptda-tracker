@@ -6,6 +6,7 @@ import com.ptda.tracker.ui.MainFrame;
 import com.ptda.tracker.ui.admin.screens.AdministrationOptionsScreen;
 import com.ptda.tracker.ui.user.components.renderers.TicketListRenderer;
 import com.ptda.tracker.ui.user.views.TicketDetailView;
+import com.ptda.tracker.util.LocaleManager;
 import com.ptda.tracker.util.ScreenNames;
 
 import javax.swing.*;
@@ -80,7 +81,8 @@ public class ManageTicketView extends JPanel {
 
     private JList<Ticket> ticketList;
     private List<Ticket> tickets;
+    private static final LocaleManager localeManager = LocaleManager.getInstance();
     private static final String
-            BACK = "Back",
-            MANAGE_TICKETS = "Manage Tickets";
+            BACK = localeManager.getTranslation("back"),
+            MANAGE_TICKETS = localeManager.getTranslation("manage.tickets");
 }

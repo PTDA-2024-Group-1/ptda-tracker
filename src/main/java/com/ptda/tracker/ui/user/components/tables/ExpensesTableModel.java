@@ -3,6 +3,7 @@ package com.ptda.tracker.ui.user.components.tables;
 import com.ptda.tracker.models.tracker.Budget;
 import com.ptda.tracker.models.tracker.Expense;
 import com.ptda.tracker.models.tracker.ExpenseCategory;
+import com.ptda.tracker.util.LocaleManager;
 import lombok.Getter;
 
 import javax.swing.table.AbstractTableModel;
@@ -13,7 +14,6 @@ import java.util.Map;
 import static com.ptda.tracker.ui.user.forms.ExpensesEditForm.createBudgetMap;
 
 public class ExpensesTableModel extends AbstractTableModel {
-    private final String[] columnNames = {"Title", "Amount", "Date", "Category", "Description", "Budget"};
     @Getter
     private final List<Expense> expenses;
     private final Map<String, Budget> budgetMap;
@@ -91,4 +91,14 @@ public class ExpensesTableModel extends AbstractTableModel {
     private Budget findBudgetByName(String name) {
         return budgetMap.get(name);
     }
+
+    private static final LocaleManager localeManager = LocaleManager.getInstance();
+    private static final String[] columnNames = {
+            localeManager.getTranslation("title"),
+            localeManager.getTranslation("amount"),
+            localeManager.getTranslation("date"),
+            localeManager.getTranslation("category"),
+            localeManager.getTranslation("description"),
+            localeManager.getTranslation("budget")
+    };
 }

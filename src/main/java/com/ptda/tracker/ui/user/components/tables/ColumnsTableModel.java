@@ -2,6 +2,7 @@ package com.ptda.tracker.ui.user.components.tables;
 
 import com.ptda.tracker.ui.user.dialogs.expenses.ImportColumnsDialog.ExpenseFieldOptions;
 import com.ptda.tracker.util.ExpensesImportSharedData;
+import com.ptda.tracker.util.LocaleManager;
 
 import javax.swing.table.AbstractTableModel;
 import java.util.Map;
@@ -9,10 +10,6 @@ import java.util.Map;
 public class ColumnsTableModel extends AbstractTableModel {
     private final String[] columnNames = {COLUMN_NAME, MAPPED_FIELD};
     private final Object[][] data;
-    private static final String
-            COLUMN = "Column",
-            COLUMN_NAME = "Column Name",
-            MAPPED_FIELD = "Mapped Field";
 
     public ColumnsTableModel(Map<String, Integer> existingMapping) {
         ExpensesImportSharedData sharedData = ExpensesImportSharedData.getInstance();
@@ -81,4 +78,10 @@ public class ColumnsTableModel extends AbstractTableModel {
         }
         return false;
     }
+
+    private static final LocaleManager localeManager = LocaleManager.getInstance();
+    private static final String
+            COLUMN = localeManager.getTranslation("column"),
+            COLUMN_NAME = localeManager.getTranslation("column_name"),
+            MAPPED_FIELD = localeManager.getTranslation("mapped_field");
 }

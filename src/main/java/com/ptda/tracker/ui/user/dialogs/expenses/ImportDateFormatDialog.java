@@ -1,6 +1,7 @@
 package com.ptda.tracker.ui.user.dialogs.expenses;
 
 import com.ptda.tracker.util.ExpensesImportSharedData;
+import com.ptda.tracker.util.LocaleManager;
 
 import javax.swing.*;
 import java.awt.*;
@@ -64,8 +65,8 @@ public class ImportDateFormatDialog extends JDialog {
                 dispose();
             } else {
                 JOptionPane.showMessageDialog(this,
-                        "Invalid date format. Please correct your input.",
-                        "Error",
+                        INVALID_DATE_FORMAT,
+                        ERROR,
                         JOptionPane.ERROR_MESSAGE);
             }
         });
@@ -128,12 +129,15 @@ public class ImportDateFormatDialog extends JDialog {
     private JPanel customDateFormatPanel;
     private JTextField customDateFormatField;
     private JButton confirmButton, cancelButton;
+    private static final LocaleManager localeManager = LocaleManager.getInstance();
     private static final String
-            SET_DATE_FORMAT = "Set Date Format",
-            SELECT_DATE_FORMAT = "Select Date Format",
-            CUSTOM = "Custom",
-            OTHER = "Other",
-            DATE_FORMAT = "Date Format",
-            CONFIRM = "Confirm",
-            CANCEL = "Cancel";
+            SET_DATE_FORMAT = localeManager.getTranslation("set.date.format"),
+            SELECT_DATE_FORMAT = localeManager.getTranslation("select.date.format"),
+            CUSTOM = localeManager.getTranslation("custom"),
+            OTHER = localeManager.getTranslation("other"),
+            DATE_FORMAT = localeManager.getTranslation("date.format"),
+            CONFIRM = localeManager.getTranslation("confirm"),
+            CANCEL = localeManager.getTranslation("cancel"),
+            INVALID_DATE_FORMAT = localeManager.getTranslation("invalid.date.format"),
+            ERROR = localeManager.getTranslation("error");
 }

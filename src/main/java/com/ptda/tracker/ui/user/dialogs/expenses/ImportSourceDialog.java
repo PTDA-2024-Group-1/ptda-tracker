@@ -1,6 +1,7 @@
 package com.ptda.tracker.ui.user.dialogs.expenses;
 
 import com.ptda.tracker.util.ExpensesImportSharedData;
+import com.ptda.tracker.util.LocaleManager;
 
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
@@ -62,7 +63,7 @@ public class ImportSourceDialog extends JDialog {
                 JOptionPane.showMessageDialog(
                         this,
                         FAILED_TO_IMPORT_DATA,
-                        "Error",
+                        ERROR,
                         JOptionPane.ERROR_MESSAGE
                 );
             }
@@ -88,7 +89,7 @@ public class ImportSourceDialog extends JDialog {
             JOptionPane.showMessageDialog(
                     this,
                     FAILED_TO_IMPORT_DATA,
-                    "Error",
+                    ERROR,
                     JOptionPane.ERROR_MESSAGE
             );
         }
@@ -180,13 +181,15 @@ public class ImportSourceDialog extends JDialog {
 
     private JPanel previewTablePanel;
     private JButton skipButton, fileButton, clipboardButton, confirmButton;
+    private static final LocaleManager localeManager = LocaleManager.getInstance();
     private static final String
-            IMPORT_SOURCE = "Import Source",
-            SKIP = "Skip",
-            IMPORT_FROM_FILE = "Import from File",
-            IMPORT_FROM_CLIPBOARD = "Import from Clipboard",
-            CONFIRM = "Confirm",
-            COLUMN = "Column",
-            FIRST_ROW_CONTAINS_COLUMN_NAMES = "First row contains column names",
-            FAILED_TO_IMPORT_DATA = "Failed to import data";
+            IMPORT_SOURCE = localeManager.getTranslation("import.source"),
+            SKIP = localeManager.getTranslation("skip"),
+            IMPORT_FROM_FILE = localeManager.getTranslation("import.from.file"),
+            IMPORT_FROM_CLIPBOARD = localeManager.getTranslation("import.from.clipboard"),
+            CONFIRM = localeManager.getTranslation("confirm"),
+            COLUMN = localeManager.getTranslation("column"),
+            FIRST_ROW_CONTAINS_COLUMN_NAMES = localeManager.getTranslation("row.contains.column"),
+            FAILED_TO_IMPORT_DATA = localeManager.getTranslation("failed.import"),
+            ERROR = localeManager.getTranslation("error");
 }

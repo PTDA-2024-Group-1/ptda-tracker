@@ -3,6 +3,7 @@ package com.ptda.tracker.ui.user.dialogs.expenses;
 import com.ptda.tracker.models.tracker.ExpenseCategory;
 import com.ptda.tracker.ui.user.components.tables.CategoriesTableModel;
 import com.ptda.tracker.util.ExpensesImportSharedData;
+import com.ptda.tracker.util.LocaleManager;
 
 import javax.swing.*;
 import java.awt.*;
@@ -62,8 +63,9 @@ public class ImportCategoriesDialog extends JDialog {
     private JTable categoriesTable;
     private JButton confirmButton;
     private JButton skipButton;
+    private static final LocaleManager localeManager = LocaleManager.getInstance();
     private static final String
-            IMPORT_COLUMNS_MAPPING = "Import Columns Mapping",
-            SKIP = "Skip",
-            CONFIRM = "Confirm";
+            IMPORT_COLUMNS_MAPPING = localeManager.getTranslation("import.columns.mapping"),
+            SKIP = localeManager.getTranslation("skip"),
+            CONFIRM = localeManager.getTranslation("confirm");
 }

@@ -6,6 +6,7 @@ import com.ptda.tracker.ui.MainFrame;
 import com.ptda.tracker.ui.admin.dialogs.ManageUserDialog;
 import com.ptda.tracker.ui.admin.screens.AdministrationOptionsScreen;
 import com.ptda.tracker.ui.admin.renderers.UserRenderer;
+import com.ptda.tracker.util.LocaleManager;
 import com.ptda.tracker.util.ScreenNames;
 
 import javax.swing.*;
@@ -73,7 +74,7 @@ public class ManageUserView extends JPanel {
         GridBagConstraints c = new GridBagConstraints();
 
         // Title
-        JLabel titleLabel = new JLabel("Manage Users");
+        JLabel titleLabel = new JLabel(MANAGE_USERS);
         titleLabel.setFont(new Font("Arial", Font.BOLD, 16));
         c.gridx = 0;
         c.gridy = 0;
@@ -84,7 +85,7 @@ public class ManageUserView extends JPanel {
         add(titleLabel, c);
 
         // Table
-        userTableModel = new DefaultTableModel(new String[]{"ID", "Name", "Email", "Role", "Email Verified", "Active"}, 0);
+        userTableModel = new DefaultTableModel(new String[]{"ID", NAME, EMAIL, ROLE, EMAIL_VERIFIED, ACTIVE}, 0);
         userTable = new JTable(userTableModel);
         userTable.setFillsViewportHeight(true);
         userTable.setDefaultEditor(Object.class, null);
@@ -102,7 +103,7 @@ public class ManageUserView extends JPanel {
 
         // Back Button
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT)); // Use a JPanel for better layout
-        JButton backButton = new JButton("Back");
+        JButton backButton = new JButton(BACK);
         backButton.addActionListener(e -> {
             mainFrame.showScreen(returnScreen);
         });
@@ -113,4 +114,14 @@ public class ManageUserView extends JPanel {
         c.fill = GridBagConstraints.HORIZONTAL; // Make the button panel fill the width
         add(buttonPanel, c);
     }
+
+    private static final LocaleManager localeManager = LocaleManager.getInstance();
+    private static final String
+            BACK = localeManager.getTranslation("back"),
+            MANAGE_USERS = localeManager.getTranslation("manage.users"),
+            NAME = localeManager.getTranslation("name"),
+            EMAIL = localeManager.getTranslation("email"),
+            ROLE = localeManager.getTranslation("role"),
+            EMAIL_VERIFIED = localeManager.getTranslation("email.verified"),
+            ACTIVE = localeManager.getTranslation("active");
 }

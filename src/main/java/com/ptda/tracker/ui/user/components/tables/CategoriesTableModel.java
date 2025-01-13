@@ -2,6 +2,7 @@ package com.ptda.tracker.ui.user.components.tables;
 
 import com.ptda.tracker.models.tracker.ExpenseCategory;
 import com.ptda.tracker.util.ExpensesImportSharedData;
+import com.ptda.tracker.util.LocaleManager;
 
 import javax.swing.table.AbstractTableModel;
 import java.util.List;
@@ -9,7 +10,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 public class CategoriesTableModel extends AbstractTableModel {
-    private final String[] columnNames = {"Imported Category", "Mapped Category"};
+    private final String[] columnNames = {IMPORTED_CATEGORY, MAPPED_CATEGORY};
     private final Object[][] data;
 
     public CategoriesTableModel() {
@@ -73,4 +74,9 @@ public class CategoriesTableModel extends AbstractTableModel {
         }
         return updatedMapping;
     }
+
+    private static LocaleManager localeManager = LocaleManager.getInstance();
+    private static final String
+            IMPORTED_CATEGORY = localeManager.getTranslation("imported_category"),
+            MAPPED_CATEGORY = localeManager.getTranslation("mapped_category");
 }
