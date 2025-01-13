@@ -7,6 +7,7 @@ import com.ptda.tracker.ui.user.dialogs.expenses.*;
 import com.ptda.tracker.ui.user.forms.ExpensesEditForm;
 import com.ptda.tracker.util.ExpensesConverter;
 import com.ptda.tracker.util.ExpensesImportSharedData;
+import com.ptda.tracker.util.LocaleManager;
 import com.ptda.tracker.util.ScreenNames;
 
 import javax.swing.*;
@@ -279,13 +280,14 @@ public class ExpensesImportScreen extends JPanel {
     private JTable expensesTable;
     private JButton cancelButton, restartImportButton, nextButton,
             columnMappingButton, categoryMappingButton, dateFormatButton, valueTreatmentButton;
+    private static final LocaleManager localeManager = LocaleManager.getInstance();
     private static final String
-            CANCEL = "Cancel",
-            RESTART_IMPORT = "Restart Import",
-            COLUMN_MAPPING = "Map Columns",
-            CATEGORY_MAPPING = "Map Categories",
-            DATE_FORMAT = "Set Date Format",
-            VALUE_TREATMENT = "Set Value Treatment",
-            NEXT = "Next",
-            COLUMN = "Column";
+            CANCEL = localeManager.getTranslation("cancel"),
+            RESTART_IMPORT = localeManager.getTranslation("restart_import"),
+            COLUMN_MAPPING = localeManager.getTranslation("column_mapping"),
+            CATEGORY_MAPPING = localeManager.getTranslation("category_mapping"),
+            DATE_FORMAT = localeManager.getTranslation("set.date.format"),
+            VALUE_TREATMENT = localeManager.getTranslation("value_treatment"),
+            NEXT = localeManager.getTranslation("next"),
+            COLUMN = localeManager.getTranslation("column");
 }

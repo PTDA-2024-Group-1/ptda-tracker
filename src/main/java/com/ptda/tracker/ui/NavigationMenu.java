@@ -6,6 +6,7 @@ import com.ptda.tracker.ui.assistant.screens.AssistanceScreen;
 import com.ptda.tracker.ui.user.forms.LoginForm;
 import com.ptda.tracker.ui.user.screens.*;
 import com.ptda.tracker.ui.user.views.ProfileView;
+import com.ptda.tracker.util.LocaleManager;
 import com.ptda.tracker.util.ScreenNames;
 import com.ptda.tracker.util.UserSession;
 
@@ -162,14 +163,15 @@ public class NavigationMenu extends JPanel {
             LOGIN_SCREEN = ScreenNames.LOGIN_FORM,
             ASSISTANCE_SCREEN = ScreenNames.ASSISTANCE_SCREEN;
 
+    private static LocaleManager localeManager = LocaleManager.getInstance();
     private static final String
-            HOME = "Home",
-            BUDGETS = "Budgets",
-            EXPENSES = "My Expenses",
-            SUPPORT = "Support",
-            ASSISTANCE = "Assistance",
-            PROFILE = "Profile",
-            ADMINISTRATION = "Administration",
-            LOGOUT = "Logout",
-            ARE_YOU_SURE = "Are you sure you want to logout?";
+            HOME = localeManager.getTranslation("home"),
+            BUDGETS = localeManager.getTranslation("budgets"),
+            EXPENSES = localeManager.getTranslation("my_expenses_principal"),
+            SUPPORT = localeManager.getTranslation("support"),
+            ASSISTANCE = localeManager.getTranslation("assistance"),
+            PROFILE = localeManager.getTranslation("profile"),
+            ADMINISTRATION = localeManager.getTranslation("administration"),
+            LOGOUT = localeManager.getTranslation("logout"),
+            ARE_YOU_SURE = localeManager.getTranslation("are_you_sure");
 }

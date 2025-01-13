@@ -11,9 +11,11 @@ import com.itextpdf.layout.element.Paragraph;
 import com.itextpdf.layout.element.Table;
 import com.itextpdf.layout.properties.TextAlignment;
 import com.itextpdf.layout.properties.UnitValue;
+import com.ptda.tracker.config.AppConfig;
 import com.ptda.tracker.models.tracker.*;
 import com.ptda.tracker.services.tracker.*;
 import com.ptda.tracker.ui.MainFrame;
+import com.ptda.tracker.util.LocaleManager;
 import com.ptda.tracker.util.ScreenNames;
 
 import org.jfree.chart.ChartFactory;
@@ -31,6 +33,7 @@ import java.awt.*;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -128,13 +131,13 @@ public class BudgetStatisticsView extends JPanel {
         expenseService.getAllByBudgetId(budget.getId())
                 .forEach(expense -> dataset.addValue(
                         expense.getAmount(),
-                        "Expenses",
+                        EXPENSES,
                         expense.getDate()
                 ));
 
         JFreeChart chart = ChartFactory.createLineChart(
                 TRENDS_OVER_TIME,
-                "Date", "Amount",
+                DATE, AMOUNT,
                 dataset,
                 PlotOrientation.VERTICAL,
                 true, true, false
@@ -155,7 +158,7 @@ public class BudgetStatisticsView extends JPanel {
 
         JFreeChart chart = ChartFactory.createStackedBarChart(
                 CATEGORY_BREAKDOWN,
-                "User", "Amount",
+                USER, AMOUNT,
                 dataset,
                 PlotOrientation.VERTICAL,
                 true, true, false
@@ -170,13 +173,13 @@ public class BudgetStatisticsView extends JPanel {
         expenseService.getAllByBudgetId(budget.getId())
                 .forEach(expense -> dataset.addValue(
                         expense.getAmount(),
-                        "Cumulative Expenses",
+                        CUMULATIVE_EXPENSES,
                         expense.getDate()
                 ));
 
         JFreeChart chart = ChartFactory.createAreaChart(
                 CUMULATIVE_TRENDS,
-                "Date", "Amount",
+                DATE, AMOUNT,
                 dataset,
                 PlotOrientation.VERTICAL,
                 true, true, false
@@ -209,9 +212,8 @@ public class BudgetStatisticsView extends JPanel {
         }
     }
 
-    private void addPdfHeader(Document document) {
-        // Add logo or header image if available
-        // document.add(new Image(ImageDataFactory.create("path/to/logo.png")).setWidth(100));
+    private void addPdfHeader(Document document) throws MalformedURLException {
+        //document.add(new Image(ImageDataFactory.create(AppConfig.LOGO_PATH)).setWidth(100));
 
         // Add title
         document.add(new Paragraph(PDF_TITLE + budget.getName())
@@ -221,7 +223,7 @@ public class BudgetStatisticsView extends JPanel {
                 .setMarginBottom(20));
 
         // Add date and report info
-        document.add(new Paragraph("Generated on: " + java.time.LocalDate.now().toString())
+        document.add(new Paragraph(GENERATED_ON + java.time.LocalDate.now().toString())
                 .setFontSize(12)
                 .setTextAlignment(TextAlignment.RIGHT)
                 .setMarginBottom(30));
@@ -229,7 +231,7 @@ public class BudgetStatisticsView extends JPanel {
 
     private void addBudgetSummary(Document document) {
         // Add budget overview
-        document.add(new Paragraph("Budget Overview")
+        document.add(new Paragraph(BUDGET_OVERVIEW)
                 .setBold()
                 .setFontSize(18)
                 .setMarginBottom(10));
@@ -243,24 +245,24 @@ public class BudgetStatisticsView extends JPanel {
                 .setMarginBottom(30);
 
         // Add table headers
-        summaryTable.addHeaderCell(createCell("Metric", true));
-        summaryTable.addHeaderCell(createCell("Value", true));
+        summaryTable.addHeaderCell(createCell(METRIC, true));
+        summaryTable.addHeaderCell(createCell(VALUE, true));
 
         // Add table rows
-        summaryTable.addCell(createCell("Total Expenses"));
+        summaryTable.addCell(createCell(TOTAL_EXPENSES));
         summaryTable.addCell(createCell(String.format("$%.2f", totalExpenses)));
 
-        summaryTable.addCell(createCell("Number of Categories"));
+        summaryTable.addCell(createCell(NUMBER_OF_CATEGORIES));
         summaryTable.addCell(createCell(String.valueOf(getCategoryExpenses().size())));
 
-        summaryTable.addCell(createCell("Number of Users"));
+        summaryTable.addCell(createCell(NUMBER_OF_USERS));
         summaryTable.addCell(createCell(String.valueOf(userExpenses.size())));
 
         document.add(summaryTable);
     }
 
     private void addChartsToPdf(Document document) throws IOException {
-        document.add(new Paragraph("Expense Analysis")
+        document.add(new Paragraph(EXPENSE_ANALYSIS)
                 .setBold()
                 .setFontSize(18)
                 .setMarginTop(20)
@@ -301,7 +303,7 @@ public class BudgetStatisticsView extends JPanel {
     }
 
     private void addFooter(Document document) {
-        document.add(new Paragraph("End of Report")
+        document.add(new Paragraph(END_OF_REPORT)
                 .setTextAlignment(TextAlignment.CENTER)
                 .setFontSize(10)
                 .setMarginTop(20)
@@ -449,16 +451,31 @@ public class BudgetStatisticsView extends JPanel {
     private interface ChartCreator {
         JFreeChart create();
     }
-
-    private static final String EXPENSES_BY_CATEGORY = "Expenses by Category";
-    private static final String TRENDS_OVER_TIME = "Trends Over Time";
-    private static final String CATEGORY_BREAKDOWN = "Category Breakdown";
-    private static final String CUMULATIVE_TRENDS = "Cumulative Trends";
-    private static final String BACK_BUTTON = "Back";
-    private static final String GENERATE_PDF = "Generate PDF";
-    private static final String SAVE_PDF_DIALOG = "Save PDF";
-    private static final String PDF_DEFAULT_NAME = "budget_report.pdf";
-    private static final String PDF_TITLE = "Budget Statistics - ";
-    private static final String PDF_SUCCESS = "PDF generated successfully: ";
-    private static final String PDF_ERROR = "Error generating PDF: ";
+    private static final LocaleManager localeManager = LocaleManager.getInstance();
+    private static final String
+            EXPENSES = localeManager.getTranslation("expenses"),
+            DATE = localeManager.getTranslation("date"),
+            AMOUNT = localeManager.getTranslation("amount"),
+            USER = localeManager.getTranslation("user"),
+            CUMULATIVE_EXPENSES = localeManager.getTranslation("cumulative_expenses"),
+            GENERATED_ON = localeManager.getTranslation("generated_on"),
+            BUDGET_OVERVIEW = localeManager.getTranslation("budget_overview"),
+            METRIC = localeManager.getTranslation("metric"),
+            VALUE = localeManager.getTranslation("value"),
+            TOTAL_EXPENSES = localeManager.getTranslation("total_expenses"),
+            NUMBER_OF_CATEGORIES = localeManager.getTranslation("number_categories"),
+            NUMBER_OF_USERS = localeManager.getTranslation("number_users"),
+            EXPENSE_ANALYSIS = localeManager.getTranslation("expense_analysis"),
+            END_OF_REPORT = localeManager.getTranslation("end_of_report"),
+            EXPENSES_BY_CATEGORY = "Expenses by Category",
+            TRENDS_OVER_TIME = "Trends Over Time",
+            CATEGORY_BREAKDOWN = "Category Breakdown",
+            CUMULATIVE_TRENDS = "Cumulative Trends",
+            BACK_BUTTON = localeManager.getTranslation("back"),
+            GENERATE_PDF = localeManager.getTranslation("generate_pdf"),
+            SAVE_PDF_DIALOG = localeManager.getTranslation("save_pdf_dialog"),
+            PDF_DEFAULT_NAME = localeManager.getTranslation("pdf_default_name"),
+            PDF_TITLE = localeManager.getTranslation("pdf_title"),
+            PDF_SUCCESS = localeManager.getTranslation("pdf_success"),
+            PDF_ERROR = localeManager.getTranslation("pdf_error");
 }

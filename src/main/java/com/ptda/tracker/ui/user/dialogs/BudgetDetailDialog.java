@@ -2,6 +2,7 @@ package com.ptda.tracker.ui.user.dialogs;
 
 import com.ptda.tracker.models.tracker.Budget;
 import com.ptda.tracker.ui.MainFrame;
+import com.ptda.tracker.util.LocaleManager;
 import org.hibernate.envers.DefaultRevisionEntity;
 
 import javax.swing.*;
@@ -55,10 +56,11 @@ public class BudgetDetailDialog extends JDialog {
         setLocationRelativeTo(getParent());
     }
 
+    private static final LocaleManager localeManager = LocaleManager.getInstance();
     private static final String
-            BUDGET_DETAILS = "Budget Details",
-            NAME = "Name",
-            DESCRIPTION = "Description",
-            REVISION_ID = "Revision ID",
-            REVISION_DATE = "Revision Date";
+            NAME = localeManager.getTranslation("name"),
+            DESCRIPTION = localeManager.getTranslation("description"),
+            REVISION_ID = localeManager.getTranslation("revision.id"),
+            REVISION_DATE = localeManager.getTranslation("revision.date"),
+            BUDGET_DETAILS = localeManager.getTranslation("budget.details");
 }

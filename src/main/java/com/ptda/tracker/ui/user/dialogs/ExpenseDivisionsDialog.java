@@ -1,6 +1,7 @@
 package com.ptda.tracker.ui.user.dialogs;
 
 import com.ptda.tracker.models.tracker.ExpenseDivision;
+import com.ptda.tracker.util.LocaleManager;
 
 import javax.swing.*;
 import java.util.List;
@@ -14,7 +15,7 @@ public class ExpenseDivisionsDialog extends JDialog {
     }
 
     private void initUI() {
-        setTitle(TITLE);
+        setTitle(TITLE_DIVISONS);
         setSize(400, 300);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
@@ -41,9 +42,10 @@ public class ExpenseDivisionsDialog extends JDialog {
     }
 
     private JTable divisionsTable;
+    private static final LocaleManager localeManager = LocaleManager.getInstance();
     private static final String
-            TITLE = "Divisions",
-            AMOUNT = "Amount",
-            PAID_AMOUNT = "Paid Amount",
-            USER = "User";
+            TITLE_DIVISONS = localeManager.getTranslation("expense.divisions.title"),
+            USER = localeManager.getTranslation("user"),
+            AMOUNT = localeManager.getTranslation("amount"),
+            PAID_AMOUNT = localeManager.getTranslation("paid.amount");
 }

@@ -16,7 +16,6 @@ public class ChooseLanguageDialog extends JDialog {
     private JButton buttonOK;
     private JButton buttonCancel;
     private JComboBox<String> languageComboBox;
-    private LocaleManager localeManager = LocaleManager.getInstance();
     private Locale currentLocale;
     private Map<String, Locale> languages;
 
@@ -30,14 +29,14 @@ public class ChooseLanguageDialog extends JDialog {
     private void initComponents() {
         contentPane = new JPanel(new GridBagLayout());
         setContentPane(contentPane);
-        setTitle("Choose Language");
+        setTitle(CHOOSE_LANGUAGE);
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(10, 10, 10, 10);
         gbc.fill = GridBagConstraints.HORIZONTAL;
 
-        JLabel label = new JLabel("Select your preferred language:");
+        JLabel label = new JLabel(SELECT_YOUR_PREFERRED_LANGUAGE);
         gbc.gridx = 0;
         gbc.gridy = 0;
         gbc.gridwidth = 2;
@@ -58,10 +57,10 @@ public class ChooseLanguageDialog extends JDialog {
         contentPane.add(languageComboBox, gbc);
 
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 0));
-        buttonOK = new JButton("OK");
-        buttonCancel = new JButton("Cancel");
-        buttonOK.setToolTipText("Confirm your language choice");
-        buttonCancel.setToolTipText("Cancel and close the dialog");
+        buttonOK = new JButton(OK);
+        buttonCancel = new JButton(CANCEL);
+        buttonOK.setToolTipText(CONFIRM_YOUR_LANGUAGE_CHOICE);
+        buttonCancel.setToolTipText(CANCEL_AND_CLOSE_THE_DIALOG);
         buttonOK.addActionListener(e -> handleOkAction());
         buttonCancel.addActionListener(e -> dispose());
         buttonPanel.add(buttonOK);
@@ -92,8 +91,8 @@ public class ChooseLanguageDialog extends JDialog {
 
         int result = JOptionPane.showConfirmDialog(
                 this,
-                "You need to restart the application for the changes to take effect. Restart now?",
-                "Restart Application",
+                YOU_NEED_TO_RESTART_THE_APPLICATION_FOR_THE_CHANGES_TO_TAKE_EFFECT_RESTART_NOW,
+                RESTART_APPLICATION,
                 JOptionPane.YES_NO_OPTION
         );
         if (result == JOptionPane.YES_OPTION) {
@@ -102,4 +101,15 @@ public class ChooseLanguageDialog extends JDialog {
             dispose();
         }
     }
+    private static final LocaleManager localeManager = LocaleManager.getInstance();
+    private static final String
+            CHOOSE_LANGUAGE = localeManager.getTranslation("choose_language"),
+            SELECT_YOUR_PREFERRED_LANGUAGE = localeManager.getTranslation("select_your_preferred_language"),
+            OK = localeManager.getTranslation("ok"),
+            CANCEL = localeManager.getTranslation("cancel"),
+            CONFIRM_YOUR_LANGUAGE_CHOICE = localeManager.getTranslation("confirm_your_language_choice"),
+            CANCEL_AND_CLOSE_THE_DIALOG = localeManager.getTranslation("cancel_and_close_the_dialog"),
+            YOU_NEED_TO_RESTART_THE_APPLICATION_FOR_THE_CHANGES_TO_TAKE_EFFECT_RESTART_NOW = localeManager.getTranslation("you_need_to_restart_the_application_for_the_changes_to_take_effect_restart_now"),
+            RESTART_APPLICATION = localeManager.getTranslation("restart_application");
+
 }

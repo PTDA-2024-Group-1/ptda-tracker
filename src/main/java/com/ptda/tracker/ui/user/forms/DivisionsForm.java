@@ -7,6 +7,7 @@ import com.ptda.tracker.models.user.User;
 import com.ptda.tracker.services.tracker.BudgetAccessService;
 import com.ptda.tracker.services.tracker.ExpenseDivisionService;
 import com.ptda.tracker.ui.MainFrame;
+import com.ptda.tracker.util.LocaleManager;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
@@ -128,9 +129,10 @@ public class DivisionsForm extends JPanel {
 
     private JTable divisionsTable;
     private JButton backButton;
+    private static final LocaleManager localeManager = LocaleManager.getInstance();
     private static final String
-        BACK = "back",
-        PARTICIPANT = "participant",
-        AMOUNT = "amount",
-        PAID_AMOUNT = "paid amount";
+        BACK = localeManager.getTranslation("back"),
+        PARTICIPANT = localeManager.getTranslation("participant"),
+        AMOUNT = localeManager.getTranslation("amount"),
+        PAID_AMOUNT = localeManager.getTranslation("paid.amount");
 }

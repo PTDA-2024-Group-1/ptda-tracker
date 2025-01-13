@@ -6,6 +6,7 @@ import com.ptda.tracker.models.tracker.BudgetAccessLevel;
 import com.ptda.tracker.models.user.User;
 import com.ptda.tracker.services.tracker.BudgetAccessService;
 import com.ptda.tracker.ui.MainFrame;
+import com.ptda.tracker.util.LocaleManager;
 import com.ptda.tracker.util.UserSession;
 
 import javax.swing.*;
@@ -73,7 +74,7 @@ public class ParticipantsDialog extends JDialog {
         if (selectedRow >= 0) {
             BudgetAccess selectedAccess = accesses.get(selectedRow);
             if (selectedAccess.getAccessLevel() == BudgetAccessLevel.OWNER) {
-                JOptionPane.showMessageDialog(this, "You cannot remove an OWNER.");
+                JOptionPane.showMessageDialog(this, YOU_CANNOT_REMOVE_AN_OWNER);
                 return;
             }
             budgetAccessService.delete(selectedAccess.getId());
@@ -102,7 +103,7 @@ public class ParticipantsDialog extends JDialog {
             BudgetAccess access = accesses.get(i);
             BudgetAccessLevel newAccessLevel = (BudgetAccessLevel) participantsTable.getValueAt(i, 2);
             if (access.getAccessLevel() == BudgetAccessLevel.OWNER && newAccessLevel != BudgetAccessLevel.OWNER) {
-                JOptionPane.showMessageDialog(this, "You cannot change the access level of an OWNER.");
+                JOptionPane.showMessageDialog(this, YOU_CANNOT_CHANGE_ACCESS_LEVEL_OF_AN_OWNER);
                 return;
             }
             if (access.getAccessLevel() != newAccessLevel && access.getAccessLevel() != BudgetAccessLevel.OWNER) {
@@ -192,7 +193,7 @@ public class ParticipantsDialog extends JDialog {
         accessLevelColumn.setCellRenderer((table1, value, isSelected, hasFocus, row, column) -> {
             BudgetAccess access = accesses.get(row);
             if (access.getAccessLevel() == BudgetAccessLevel.OWNER) {
-                return new JLabel("OWNER");
+                return new JLabel(OWNER);
             } else {
                 return new DefaultTableCellRenderer().getTableCellRendererComponent(table1, value, isSelected, hasFocus, row, column);
             }
@@ -203,17 +204,20 @@ public class ParticipantsDialog extends JDialog {
 
     private JTable participantsTable;
     private JButton saveButton;
+    private static final LocaleManager localeManager = LocaleManager.getInstance();
     private static final String
-            TITLE = "Participants",
-            REMOVE = "Remove",
-            SAVE = "Save",
-            NAME = "Name",
-            EMAIL = "Email",
-            ACCESS_LEVEL = "Access Level",
-            ONLY_OWNER_CAN_REMOVE = "Only the OWNER can remove participants.",
-            ONLY_OWNER_CAN_CHANGE_ACCESS = "Only the OWNER can change access levels.",
-            PARTICIPANT_REMOVED_SUCCESS = "Participant removed successfully.",
-            ACCESS_LEVEL_CHANGED_SUCCESS = "Access level changed successfully.",
-            SELECT_PARTICIPANT_TO_REMOVE = "Please select a participant to remove.";
-
+            TITLE = localeManager.getTranslation("participants"),
+            REMOVE = localeManager.getTranslation("remove"),
+            SAVE = localeManager.getTranslation("save"),
+            NAME = localeManager.getTranslation("name"),
+            EMAIL = localeManager.getTranslation("email"),
+            ACCESS_LEVEL = localeManager.getTranslation("access_level"),
+            ONLY_OWNER_CAN_REMOVE = localeManager.getTranslation("only_owner_can_remove"),
+            ONLY_OWNER_CAN_CHANGE_ACCESS = localeManager.getTranslation("only_owner_can_change_access"),
+            PARTICIPANT_REMOVED_SUCCESS = localeManager.getTranslation("participant_removed_success"),
+            ACCESS_LEVEL_CHANGED_SUCCESS = localeManager.getTranslation("access_level_changed_success"),
+            SELECT_PARTICIPANT_TO_REMOVE = localeManager.getTranslation("select_participant_to_remove"),
+            OWNER = localeManager.getTranslation("owner"),
+            YOU_CANNOT_REMOVE_AN_OWNER = localeManager.getTranslation("you_cannot_remove_an_owner"),
+            YOU_CANNOT_CHANGE_ACCESS_LEVEL_OF_AN_OWNER = localeManager.getTranslation("you_cannot_change_access_level_of_an_owner");
 }

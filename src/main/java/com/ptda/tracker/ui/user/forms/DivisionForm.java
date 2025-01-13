@@ -3,6 +3,7 @@ package com.ptda.tracker.ui.user.forms;
 import com.ptda.tracker.models.tracker.ExpenseDivision;
 import com.ptda.tracker.services.tracker.ExpenseDivisionService;
 import com.ptda.tracker.ui.MainFrame;
+import com.ptda.tracker.util.LocaleManager;
 
 import javax.swing.*;
 import java.awt.*;
@@ -48,7 +49,7 @@ public class DivisionForm extends JDialog {
         double amount = Double.parseDouble(amountTextField.getText());
         double paidAmount = Double.parseDouble(paidAmountTextField.getText());
         if (amount < 0 || paidAmount < 0) {
-            JOptionPane.showMessageDialog(this, "Amounts cannot be negative.");
+            JOptionPane.showMessageDialog(this, AMOUNT_CANNOT_BE_NEGATIVE);
             return;
         }
         // can't submit if amount or paid amount is greater than spare amount
@@ -58,7 +59,7 @@ public class DivisionForm extends JDialog {
         double sparePaidAmount = division.getExpense().getAmount()
                 - expenseDivisions.stream().mapToDouble(ExpenseDivision::getPaidAmount).sum() + division.getPaidAmount();
         if (amount > spareAmount || paidAmount > sparePaidAmount) {
-            JOptionPane.showMessageDialog(this, "Amounts cannot be greater than the spare amount.");
+            JOptionPane.showMessageDialog(this, AMOUNTS_CANNOT_BE_GREATER_THAN_SPARE_AMOUNT);
             return;
         }
 
@@ -138,13 +139,16 @@ public class DivisionForm extends JDialog {
     private JComboBox<String> amountComboBox, paidAmountComboBox;
     private JTextField amountTextField, paidAmountTextField;
     private JButton submitButton, cancelButton;
+    private static final LocaleManager localeManager = LocaleManager.getInstance();
     private static final String
-            DIVISION_FORM = "Division Form",
-            SUBMIT = "Submit",
-            CANCEL = "Cancel",
-            EQUAL = "Equal",
-            CUSTOM = "Custom",
-            TOTAL_AMOUNT = "Total Amount",
-            PAID_AMOUNT = "Paid Amount",
-            EXPENSE_RESPONSIBILITY = "Expense Responsibility";
+        DIVISION_FORM = localeManager.getTranslation("division_form"),
+        EQUAL = localeManager.getTranslation("equal"),
+        CUSTOM = localeManager.getTranslation("custom"),
+        TOTAL_AMOUNT = localeManager.getTranslation("total_amount"),
+        EXPENSE_RESPONSIBILITY = localeManager.getTranslation("expense_responsibility"),
+        PAID_AMOUNT = localeManager.getTranslation("paid.amount"),
+        SUBMIT = localeManager.getTranslation("submit"),
+        CANCEL = localeManager.getTranslation("cancel"),
+        AMOUNT_CANNOT_BE_NEGATIVE = localeManager.getTranslation("amount_cannot_be_negative"),
+        AMOUNTS_CANNOT_BE_GREATER_THAN_SPARE_AMOUNT = localeManager.getTranslation("amounts_cannot_be_greater_than_spare_amount");
 }

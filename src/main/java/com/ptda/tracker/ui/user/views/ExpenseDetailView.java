@@ -11,6 +11,7 @@ import com.ptda.tracker.services.tracker.ExpenseDivisionService;
 import com.ptda.tracker.ui.MainFrame;
 import com.ptda.tracker.ui.user.forms.DivisionsForm;
 import com.ptda.tracker.ui.user.forms.ExpenseForm;
+import com.ptda.tracker.util.LocaleManager;
 import com.ptda.tracker.util.ScreenNames;
 import com.ptda.tracker.util.UserSession;
 
@@ -224,24 +225,25 @@ public class ExpenseDetailView extends JPanel {
     private JTable divisionsTable;
     private JButton backButton, editButton, auditButton, deleteButton, distributeDivisionExpenseButton;
 
+    private static final LocaleManager localeManager = LocaleManager.getInstance();
     private static final String
-            EXPENSE_DETAILS = "Expense Details",
-            NAME = "Name",
-            AMOUNT = "Amount",
-            CATEGORY = "Category",
-            DATE = "Date",
-            CREATED_BY = "Created By",
-            DIVISIONS = "Divisions",
-            BACK = "Back",
-            EDIT_EXPENSE = "Edit Expense",
-            ACTIVITY = "Activity",
-            DELETE_EXPENSE = "Delete Expense",
-            DISTRIBUTE_DIVISIONS = "Distribute Divisions",
-            ERROR = "Error",
-            SUCCESS = "Success",
-            DELETE_CONFIRMATION = "Are you sure you want to delete this expense?",
-            DELETE_EXPENSE_TITLE = "Delete Expense",
-            EXPENSE_DELETED_SUCCESS = "Expense deleted successfully.",
-            DELETE_ERROR_MESSAGE = "An error occurred while deleting the expense",
-            EXPENSE_NOT_FOUND = "Expense not found.";
+            EXPENSE_DETAILS = localeManager.getTranslation("expense_details"),
+            NAME = localeManager.getTranslation("name"),
+            AMOUNT = localeManager.getTranslation("amount"),
+            CATEGORY = localeManager.getTranslation("category"),
+            DATE = localeManager.getTranslation("date"),
+            CREATED_BY = localeManager.getTranslation("created_by"),
+            DIVISIONS = localeManager.getTranslation("divisions"),
+            BACK = localeManager.getTranslation("back"),
+            EDIT_EXPENSE = localeManager.getTranslation("edit_expense"),
+            ACTIVITY = localeManager.getTranslation("activity"),
+            DELETE_EXPENSE = localeManager.getTranslation("delete_expense"),
+            DISTRIBUTE_DIVISIONS = localeManager.getTranslation("distribute_divisions"),
+            ERROR = localeManager.getTranslation("error"),
+            SUCCESS = localeManager.getTranslation("success"),
+            DELETE_CONFIRMATION = localeManager.getTranslation("delete_confirmation"),
+            DELETE_EXPENSE_TITLE = localeManager.getTranslation("delete_expense_title"),
+            EXPENSE_DELETED_SUCCESS = localeManager.getTranslation("expense_deleted_success"),
+            DELETE_ERROR_MESSAGE = localeManager.getTranslation("delete_error_message"),
+            EXPENSE_NOT_FOUND = localeManager.getTranslation("expense_not_found");
 }

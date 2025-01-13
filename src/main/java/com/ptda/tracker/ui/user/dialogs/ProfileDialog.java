@@ -1,6 +1,7 @@
 package com.ptda.tracker.ui.user.dialogs;
 
 import com.ptda.tracker.models.user.User;
+import com.ptda.tracker.util.LocaleManager;
 
 import javax.swing.*;
 
@@ -13,7 +14,7 @@ public class ProfileDialog extends JDialog {
     }
 
     private void initUI() {
-        setTitle(TITLE);
+        setTitle(TITLE_PROFILE);
         setSize(400, 300);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
@@ -30,8 +31,9 @@ public class ProfileDialog extends JDialog {
         add(panel);
     }
 
+    private static final LocaleManager localeManager = LocaleManager.getInstance();
     private static final String
-            TITLE = "Profile",
-            NAME = "Name",
-            EMAIL = "Email";
+            TITLE_PROFILE = localeManager.getTranslation("title.profile"),
+            NAME = localeManager.getTranslation("name"),
+            EMAIL = localeManager.getTranslation("email");
 }

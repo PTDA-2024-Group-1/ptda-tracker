@@ -6,6 +6,7 @@ import com.ptda.tracker.ui.MainFrame;
 import com.ptda.tracker.ui.user.forms.TicketForm;
 import com.ptda.tracker.ui.user.components.renderers.TicketListRenderer;
 import com.ptda.tracker.ui.user.views.TicketDetailView;
+import com.ptda.tracker.util.LocaleManager;
 import com.ptda.tracker.util.Refreshable;
 import com.ptda.tracker.util.ScreenNames;
 import com.ptda.tracker.util.UserSession;
@@ -64,9 +65,10 @@ public class UserTicketsScreen extends JPanel implements Refreshable {
         tickets.forEach(model::addElement); // Add new data
     }
 
+    private static final LocaleManager localeManager = LocaleManager.getInstance();
     private static final String
-            SELECT_TICKET = "Select a ticket to view details",
-            CREATE_NEW_TICKET = "Create New Ticket";
+            SELECT_TICKET = localeManager.getTranslation("select_ticket"),
+            CREATE_NEW_TICKET = localeManager.getTranslation("create_new_ticket");
 
     @Override
     public void refresh() {

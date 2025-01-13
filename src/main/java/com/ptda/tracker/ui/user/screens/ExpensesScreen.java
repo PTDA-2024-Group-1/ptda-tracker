@@ -6,10 +6,7 @@ import com.ptda.tracker.ui.MainFrame;
 import com.ptda.tracker.ui.user.forms.ExpenseForm;
 import com.ptda.tracker.ui.user.components.renderers.ExpenseListRenderer;
 import com.ptda.tracker.ui.user.views.ExpenseDetailView;
-import com.ptda.tracker.util.ExpensesImportSharedData;
-import com.ptda.tracker.util.Refreshable;
-import com.ptda.tracker.util.ScreenNames;
-import com.ptda.tracker.util.UserSession;
+import com.ptda.tracker.util.*;
 
 import javax.swing.*;
 import java.awt.*;
@@ -146,10 +143,11 @@ public class ExpensesScreen extends JPanel implements Refreshable {
     private JPanel paginationPanel;
 
     private JButton createButton, importButton, prevPageButton, nextPageButton;
+    private static final LocaleManager localeManager = LocaleManager.getInstance();
     private static final String
-            SELECT_EXPENSE = "Select an expense to view details",
-            CREATE_NEW_EXPENSE = "Create New Expense",
-            IMPORT_EXPENSES = "Import Expenses";
+            SELECT_EXPENSE = localeManager.getTranslation("select_expense"),
+            CREATE_NEW_EXPENSE = localeManager.getTranslation("create_new_expense"),
+            IMPORT_EXPENSES = localeManager.getTranslation("import_expenses");
 
     @Override
     public void refresh() {

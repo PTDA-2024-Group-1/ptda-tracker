@@ -7,6 +7,7 @@ import com.ptda.tracker.services.tracker.ExpenseService;
 import com.ptda.tracker.services.tracker.BudgetAccessService;
 import com.ptda.tracker.services.tracker.ExpenseDivisionService;
 import com.ptda.tracker.ui.MainFrame;
+import com.ptda.tracker.util.LocaleManager;
 import com.ptda.tracker.util.ScreenNames;
 
 import javax.swing.*;
@@ -37,8 +38,8 @@ public class SimulationView extends JPanel {
 
     private void setListeners() {
         backButton.addActionListener(e -> {
-            if (getCurrentPanelName().equals("Expenses")) {
-                cardLayout.show(mainPanel, "Rankings");
+            if (getCurrentPanelName().equals(EXPENSES)) {
+                cardLayout.show(mainPanel, RANKINGS);
             } else {
                 mainFrame.showScreen(ScreenNames.BUDGET_DETAIL_VIEW);
             }
@@ -85,8 +86,8 @@ public class SimulationView extends JPanel {
         cardLayout = new CardLayout();
         mainPanel = new JPanel(cardLayout);
 
-        mainPanel.add(createRankingsPanel(), "Rankings");
-        mainPanel.add(new ExpenseDetailsView(expenseService, expenseDivisionService, budgetAccessService, budget.getId()), "Expenses");
+        mainPanel.add(createRankingsPanel(), RANKINGS);
+        mainPanel.add(new ExpenseDetailsView(expenseService, expenseDivisionService, budgetAccessService, budget.getId()), EXPENSES);
 
         add(mainPanel, BorderLayout.CENTER);
 
@@ -100,9 +101,9 @@ public class SimulationView extends JPanel {
         for (Component comp : mainPanel.getComponents()) {
             if (comp.isVisible()) {
                 if (comp == mainPanel.getComponent(0)) {
-                    return "Rankings";
+                    return RANKINGS;
                 } else if (comp == mainPanel.getComponent(1)) {
-                    return "Expenses";
+                    return EXPENSES;
                 }
             }
         }
@@ -117,7 +118,7 @@ public class SimulationView extends JPanel {
         rankingsTitle.setFont(new Font("Arial", Font.BOLD, 16));
         panel.add(rankingsTitle, BorderLayout.NORTH);
 
-        rankingTableModel = new DefaultTableModel(new String[]{"User", "Paid", "To pay", "Balance"}, 0);
+        rankingTableModel = new DefaultTableModel(new String[]{USER, PAID, TO_PAY, BALANCE}, 0);
         rankingTable = new JTable(rankingTableModel);
         rankingTable.setFillsViewportHeight(true);
         rankingTable.setDefaultEditor(Object.class, null);
@@ -132,7 +133,7 @@ public class SimulationView extends JPanel {
 
                 ExpenseDetailsView expenseDetailsView = (ExpenseDetailsView) mainPanel.getComponent(1);
                 expenseDetailsView.setSelectedUser(selectedUser);
-                cardLayout.show(mainPanel, "Expenses");
+                cardLayout.show(mainPanel, EXPENSES);
             }
         });
         return panel;
@@ -144,8 +145,15 @@ public class SimulationView extends JPanel {
     private DefaultTableModel rankingTableModel;
     private JButton backButton;
 
+    private static final LocaleManager localeManager = LocaleManager.getInstance();
     private static final String
-            SPLIT_SIMULATION = "Split Simulation",
-            BACK = "Back",
-            ALL_USERS_TOTAL_EXPENSES = "All Users - Total Expenses";
+            EXPENSES = localeManager.getTranslation("expenses"),
+            RANKINGS = localeManager.getTranslation("rankings"),
+            USER = localeManager.getTranslation("user"),
+            PAID = localeManager.getTranslation("paid"),
+            TO_PAY = localeManager.getTranslation("to_pay"),
+            BALANCE = localeManager.getTranslation("balance"),
+            SPLIT_SIMULATION = localeManager.getTranslation("split_simulation"),
+            BACK = localeManager.getTranslation("back"),
+            ALL_USERS_TOTAL_EXPENSES = localeManager.getTranslation("all_users_total_expenses");
 }

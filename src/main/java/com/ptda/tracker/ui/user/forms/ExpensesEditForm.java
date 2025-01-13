@@ -9,6 +9,7 @@ import com.ptda.tracker.ui.MainFrame;
 import com.ptda.tracker.ui.user.components.cellEditors.BudgetDropdownCellEditor;
 import com.ptda.tracker.ui.user.components.cellEditors.DatePickerCellEditor;
 import com.ptda.tracker.ui.user.components.tables.ExpensesTableModel;
+import com.ptda.tracker.util.LocaleManager;
 import com.ptda.tracker.util.ScreenNames;
 import com.ptda.tracker.util.UserSession;
 import org.jdesktop.swingx.JXTable;
@@ -78,8 +79,8 @@ public class ExpensesEditForm extends JPanel {
         if (selectedBudgetName == null || selectedBudgetName.isEmpty()) {
             JOptionPane.showMessageDialog(
                     this,
-                    "Please select a budget to apply.",
-                    "No Budget Selected",
+                    PLEASE_SELECT_BUDGET,
+                    NO_BUDGET_SELECTED,
                     JOptionPane.WARNING_MESSAGE
             );
             return;
@@ -93,8 +94,8 @@ public class ExpensesEditForm extends JPanel {
         if (selectedBudget == null) {
             JOptionPane.showMessageDialog(
                     this,
-                    "Invalid budget selected.",
-                    "Error",
+                    INVALID_BUDGET_SELECTED,
+                    ERROR,
                     JOptionPane.ERROR_MESSAGE
             );
             return;
@@ -194,11 +195,16 @@ public class ExpensesEditForm extends JPanel {
     private JXTable expensesTable;
     private JButton submitButton, cancelButton, applyBudgetButton;
     private JComboBox<String> budgetsDropdown;
+    private static final LocaleManager localeManager = LocaleManager.getInstance();
     private static final String
-            APPLY_TO_ALL = "Apply to All",
-            SELECT_BUDGET = "Select a budget",
-            CANCEL = "Cancel",
-            SUBMIT = "Submit",
-            WANT_TO_KEEP_CHANGES = "Do you want to keep the changes?",
-            EXIT_EDITING = "Exit Editing";
+            APPLY_TO_ALL = localeManager.getTranslation("apply_to_all"),
+            SELECT_BUDGET = localeManager.getTranslation("select_budget"),
+            CANCEL = localeManager.getTranslation("cancel"),
+            SUBMIT = localeManager.getTranslation("submit"),
+            WANT_TO_KEEP_CHANGES = localeManager.getTranslation("want_to_keep_changes"),
+            EXIT_EDITING = localeManager.getTranslation("exit_editing"),
+            ERROR = localeManager.getTranslation("error"),
+            NO_BUDGET_SELECTED = localeManager.getTranslation("no_budget_selected"),
+            INVALID_BUDGET_SELECTED = localeManager.getTranslation("invalid_budget_selected"),
+            PLEASE_SELECT_BUDGET = localeManager.getTranslation("please_select_a_budget");
 }

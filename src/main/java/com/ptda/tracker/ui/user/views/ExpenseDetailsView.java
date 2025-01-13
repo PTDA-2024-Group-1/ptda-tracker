@@ -7,6 +7,7 @@ import com.ptda.tracker.models.user.User;
 import com.ptda.tracker.services.tracker.BudgetAccessService;
 import com.ptda.tracker.services.tracker.ExpenseService;
 import com.ptda.tracker.services.tracker.ExpenseDivisionService;
+import com.ptda.tracker.util.LocaleManager;
 
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
@@ -34,7 +35,7 @@ public class ExpenseDetailsView extends JPanel {
 
     private String[] getAllCategories() {
         Set<String> categories = new HashSet<>();
-        categories.add("All");
+        categories.add(ALL);
         for (Expense expense : expenseService.getAllByBudgetId(budgetId)) {
             categories.add(expense.getCategory().toString());
         }
@@ -100,13 +101,13 @@ public class ExpenseDetailsView extends JPanel {
         setLayout(new BorderLayout());
         setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
-        JLabel expenseDetailsTitle = new JLabel("My Expenses", SwingConstants.LEFT);
+        JLabel expenseDetailsTitle = new JLabel(MY_EXPENSES, SwingConstants.LEFT);
         expenseDetailsTitle.setFont(new Font("Arial", Font.BOLD, 16));
         add(expenseDetailsTitle, BorderLayout.NORTH);
 
         JPanel filterPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         searchField = new JTextField(15);
-        searchField.setToolTipText("Search by expense title");
+        searchField.setToolTipText(SEARCH);
         searchField.getDocument().addDocumentListener(new DocumentListener() {
             @Override
             public void insertUpdate(DocumentEvent e) {
@@ -125,17 +126,17 @@ public class ExpenseDetailsView extends JPanel {
         });
 
         categoryFilter = new JComboBox<>(getAllCategories());
-        categoryFilter.setToolTipText("Filter by category");
+        categoryFilter.setToolTipText(FILTER_CATEGORY);
         categoryFilter.addActionListener(e -> filterExpenses());
 
-        filterPanel.add(new JLabel("Search:"));
+        filterPanel.add(new JLabel(SEARCH_SIMPLE));
         filterPanel.add(searchField);
-        filterPanel.add(new JLabel("Category:"));
+        filterPanel.add(new JLabel(CATEGORY_SEARCH));
         filterPanel.add(categoryFilter);
 
         add(filterPanel, BorderLayout.NORTH);
 
-        expenseTableModel = new DefaultTableModel(new String[]{"Expense", "Total Cost", "Amount Paid", "Category"}, 0);
+        expenseTableModel = new DefaultTableModel(new String[]{EXPENSE, TOTAL_COST, AMOUNT_PAID, CATEGORY}, 0);
         expenseTable = new JTable(expenseTableModel);
         expenseTable.setFillsViewportHeight(true);
         expenseTable.setDefaultEditor(Object.class, null);
@@ -148,4 +149,16 @@ public class ExpenseDetailsView extends JPanel {
     private JTextField searchField;
     private JComboBox<String> categoryFilter;
     private JTable expenseTable;
+    private static final LocaleManager localeManager = LocaleManager.getInstance();
+    private static final String
+            ALL = localeManager.getTranslation("all"),
+            MY_EXPENSES = localeManager.getTranslation("my_expenses"),
+            SEARCH = localeManager.getTranslation("search"),
+            SEARCH_SIMPLE = localeManager.getTranslation("search_simple"),
+            CATEGORY_SEARCH = localeManager.getTranslation("category_search"),
+            FILTER_CATEGORY = localeManager.getTranslation("filter_category"),
+            EXPENSE = localeManager.getTranslation("expense"),
+            TOTAL_COST = localeManager.getTranslation("total_cost"),
+            AMOUNT_PAID = localeManager.getTranslation("amount_paid"),
+            CATEGORY = localeManager.getTranslation("category");
 }

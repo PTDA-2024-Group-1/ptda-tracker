@@ -6,6 +6,7 @@ import com.ptda.tracker.ui.MainFrame;
 import com.ptda.tracker.ui.user.forms.BudgetForm;
 import com.ptda.tracker.ui.user.components.renderers.BudgetListRenderer;
 import com.ptda.tracker.ui.user.views.BudgetDetailView;
+import com.ptda.tracker.util.LocaleManager;
 import com.ptda.tracker.util.Refreshable;
 import com.ptda.tracker.util.ScreenNames;
 import com.ptda.tracker.util.UserSession;
@@ -104,9 +105,10 @@ public class BudgetsScreen extends JPanel implements Refreshable {
 
     private JList<Budget> budgetList;
     private JButton allButton, favoritesButton, createButton;
+    private static final LocaleManager localeManager = LocaleManager.getInstance();
     private static final String
-            SELECT_BUDGET = "Select a budget to view details",
-            CREATE_NEW_BUDGET = "Create New Budget",
-            ALL = "All",
-            FAVORITES = "Favorites";
+            SELECT_BUDGET = localeManager.getTranslation("select_budget_to_view"),
+            CREATE_NEW_BUDGET = localeManager.getTranslation("create_new_budget"),
+            ALL = localeManager.getTranslation("all"),
+            FAVORITES = localeManager.getTranslation("favorites");
 }

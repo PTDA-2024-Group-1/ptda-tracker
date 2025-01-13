@@ -4,7 +4,9 @@ import com.ptda.tracker.services.assistance.TicketService;
 import com.ptda.tracker.services.tracker.BudgetService;
 import com.ptda.tracker.services.tracker.ExpenseService;
 import com.ptda.tracker.ui.MainFrame;
+import com.ptda.tracker.util.LocaleManager;
 import com.ptda.tracker.util.UserSession;
+import org.springframework.cglib.core.Local;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -60,11 +62,12 @@ public class SummaryDialog extends JDialog {
 
     private JLabel budgetCountLabel, budgetExpensesCountLabel, personalExpensesCountLabel, ticketCountLabel;
     private JButton closeButton;
+    private static final LocaleManager localeManager = LocaleManager.getInstance();
     private static final String
-            BUDGETS = "Budgets",
-            BUDGET_EXPENSES = "Expenses Created in Budgets",
-            PERSONAL_EXPENSES = "Personal Expenses",
-            PENDING_TICKETS = "Pending Tickets",
-            SUMMARY = "Summary",
-            CLOSE = "Close";
+            BUDGETS = localeManager.getTranslation("budgets"),
+            BUDGET_EXPENSES = localeManager.getTranslation("budget_expenses"),
+            PERSONAL_EXPENSES = localeManager.getTranslation("personal_expenses"),
+            PENDING_TICKETS = localeManager.getTranslation("pending_tickets"),
+            CLOSE = localeManager.getTranslation("close"),
+            SUMMARY = localeManager.getTranslation("summary");
 }

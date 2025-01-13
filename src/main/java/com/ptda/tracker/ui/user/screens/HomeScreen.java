@@ -10,6 +10,7 @@ import com.ptda.tracker.ui.user.components.renderers.BudgetListRenderer;
 import com.ptda.tracker.ui.user.components.renderers.ExpenseListRenderer;
 import com.ptda.tracker.ui.user.views.BudgetDetailView;
 import com.ptda.tracker.ui.user.views.ExpenseDetailView;
+import com.ptda.tracker.util.LocaleManager;
 import com.ptda.tracker.util.Refreshable;
 import com.ptda.tracker.util.ScreenNames;
 import com.ptda.tracker.util.UserSession;
@@ -176,12 +177,12 @@ public class HomeScreen extends JPanel implements Refreshable {
     private JList<Expense> expenseList;
     private ChartPanel pieChartPanel;
     private ChartPanel barChartPanel;
+    private static final LocaleManager localeManager = LocaleManager.getInstance();
     private static final String
-            BUDGET = "Budget",
-            RECENT_DATA = "Recent Data",
-            RECENT_BUDGETS = "Recent Budgets",
-            RECENT_EXPENSES = "Recent Expenses",
-            EXPENSES_BY_CATEGORY = "Expenses by Category",
-            EXPENSES_BY_BUDGET = "Expenses by Budget",
-            TOTAL_AMOUNT = "Total Amount";
+            RECENT_BUDGETS = localeManager.getTranslation("recent_budgets"),
+            RECENT_EXPENSES = localeManager.getTranslation("recent_expenses"),
+            EXPENSES_BY_CATEGORY = localeManager.getTranslation("expenses_by_category"),
+            EXPENSES_BY_BUDGET = localeManager.getTranslation("expenses_by_budget"),
+            BUDGET = localeManager.getTranslation("budget"),
+            TOTAL_AMOUNT = localeManager.getTranslation("total_amount");
 }

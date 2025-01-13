@@ -4,6 +4,7 @@ import com.ptda.tracker.models.tracker.Expense;
 import com.ptda.tracker.services.tracker.ExpenseAuditService;
 import com.ptda.tracker.ui.MainFrame;
 import com.ptda.tracker.ui.user.dialogs.ExpenseDetailDialog;
+import com.ptda.tracker.util.LocaleManager;
 import com.ptda.tracker.util.ScreenNames;
 import org.hibernate.envers.DefaultRevisionEntity;
 
@@ -31,7 +32,7 @@ public class ExpenseAuditListView extends JPanel {
         setLayout(new BorderLayout(15, 15));
         setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
-        JLabel titleLabel = new JLabel("Expense Audit Details", SwingConstants.CENTER);
+        JLabel titleLabel = new JLabel(EXPENSE_AUDIT_DETAILS, SwingConstants.CENTER);
         titleLabel.setFont(new Font("Arial", Font.BOLD, 20));
         add(titleLabel, BorderLayout.NORTH);
 
@@ -39,7 +40,7 @@ public class ExpenseAuditListView extends JPanel {
         JScrollPane scrollPane = new JScrollPane(auditTable);
         add(scrollPane, BorderLayout.CENTER);
 
-        JButton backButton = new JButton("Back");
+        JButton backButton = new JButton(BACK);
         backButton.addActionListener(e -> mainFrame.showScreen(ScreenNames.EXPENSE_DETAIL_VIEW));
         JPanel footerPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         footerPanel.add(backButton);
@@ -48,7 +49,7 @@ public class ExpenseAuditListView extends JPanel {
 
     private JTable createAuditTable() {
         DefaultTableModel tableModel = new DefaultTableModel(
-                new String[]{"Type", "Date", "Name/Description"}, 0) {
+                new String[]{TYPE, DATE, NAME_DESCRIPTION}, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
                 return false;
@@ -82,16 +83,16 @@ public class ExpenseAuditListView extends JPanel {
                 });
             }
         } catch (Exception ex) {
-            JOptionPane.showMessageDialog(this, "Error loading audit details: " + ex.getMessage(),
-                    "Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, ERROR_LOADING_AUDIT_DETAILS + ex.getMessage(),
+                    ERROR, JOptionPane.ERROR_MESSAGE);
         }
     }
 
     private void viewSelectedRevisionDetails() {
         int selectedRow = auditTable.getSelectedRow();
         if (selectedRow == -1) {
-            JOptionPane.showMessageDialog(this, "Please select a revision to view details.",
-                    "Warning", JOptionPane.WARNING_MESSAGE);
+            JOptionPane.showMessageDialog(this, PLEASE_SELECT_A_REVISION_TO_VIEW_DETAILS,
+                    WARNING, JOptionPane.WARNING_MESSAGE);
             return;
         }
 
@@ -103,18 +104,32 @@ public class ExpenseAuditListView extends JPanel {
             } else if ("MOD".equals(revisionType)) {
                 long revisionNumber = Long.parseLong(auditTable.getValueAt(selectedRow, 1).toString());
                 if (revisionNumber <= 0) {
-                    throw new Exception("Invalid revision number.");
+                    throw new Exception(ERROR_INVALID_REVISION_NUMBER_FORMAT);
                 }
                 DefaultRevisionEntity revisionEntity = expenseAuditService.getRevisionEntity(revisionNumber); // Fetch revision entity
                 Expense modifiedExpense = expenseAuditService.getExpenseAtRevision(expense.getId(), revisionNumber);
                 new ExpenseDetailDialog(mainFrame, modifiedExpense, revisionEntity).setVisible(true);
             }
         } catch (NumberFormatException ex) {
-            JOptionPane.showMessageDialog(this, "Error: Invalid revision number format.",
+            JOptionPane.showMessageDialog(this, ERROR_INVALID_REVISION_NUMBER_FORMAT,
                     "Error", JOptionPane.ERROR_MESSAGE);
         } catch (Exception ex) {
-            JOptionPane.showMessageDialog(this, "Error loading revision details: " + ex.getMessage(),
+            JOptionPane.showMessageDialog(this, ERROR_LOADING_REVISION_DETAILS + ex.getMessage(),
                     "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
+
+    private static final LocaleManager localeManager = LocaleManager.getInstance();
+    private static final String
+            EXPENSE_AUDIT_DETAILS = localeManager.getTranslation("expense_audit_details"),
+            BACK = localeManager.getTranslation("back"),
+            ERROR = localeManager.getTranslation("error"),
+            WARNING = localeManager.getTranslation("warning"),
+            PLEASE_SELECT_A_REVISION_TO_VIEW_DETAILS = localeManager.getTranslation("please_select_a_revision_to_view_details"),
+            ERROR_INVALID_REVISION_NUMBER_FORMAT = localeManager.getTranslation("error_invalid_revision_number_format"),
+            ERROR_LOADING_AUDIT_DETAILS = localeManager.getTranslation("error_loading_audit_details"),
+            ERROR_LOADING_REVISION_DETAILS = localeManager.getTranslation("error_loading_revision_details"),
+            TYPE = localeManager.getTranslation("type"),
+            DATE = localeManager.getTranslation("date"),
+            NAME_DESCRIPTION = localeManager.getTranslation("name_description");
 }

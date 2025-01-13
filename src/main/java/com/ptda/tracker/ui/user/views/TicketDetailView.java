@@ -10,6 +10,7 @@ import com.ptda.tracker.ui.admin.dialogs.ChangeAssignmentDialog;
 import com.ptda.tracker.ui.admin.views.ManageTicketView;
 import com.ptda.tracker.ui.assistant.screens.AssistanceScreen;
 import com.ptda.tracker.ui.user.components.renderers.TicketReplyRenderer;
+import com.ptda.tracker.util.LocaleManager;
 import com.ptda.tracker.util.ScreenNames;
 import com.ptda.tracker.util.UserSession;
 import org.jdesktop.swingx.JXList;
@@ -144,7 +145,7 @@ public class TicketDetailView extends JPanel {
         TicketReply reply = TicketReply.builder()
                 .ticket(ticket)
                 .createdBy(UserSession.getInstance().getUser())
-                .body("Reopened the ticket.")
+                .body(REOPENED_TICKET)
                 .build();
         ticketReplyService.create(reply);
 
@@ -187,7 +188,7 @@ public class TicketDetailView extends JPanel {
             chatArea.setFont(new Font("Arial", Font.PLAIN, 14));
             chatArea.setBorder(BorderFactory.createLineBorder(Color.GRAY));
 
-            JButton sendButton = new JButton("Send");
+            JButton sendButton = new JButton(SEND);
             sendButton.addActionListener(e -> handleSendAction(chatArea));
 
             inputPanel = new JPanel(new BorderLayout(10, 0));
@@ -246,15 +247,18 @@ public class TicketDetailView extends JPanel {
     private final JButton closeButton;
     private final JButton reopenButton;
 
+    private static final LocaleManager localeManager = LocaleManager.getInstance();
     private static final String
-            TICKET_DESCRIPTION = "Ticket Description",
-            REPLIES = "Replies",
-            REPLY = "Reply",
-            BACK = "Back",
-            CHANGE_ASSIGNMENT = "Change Assignment",
-            REOPEN_TICKET = "Reopen Ticket",
-            CLOSE_TICKET = "Close Ticket",
-            TICKET_REOPENED_SUCCESS = "Ticket reopened successfully.",
-            TICKET_CLOSED_SUCCESS = "Ticket closed successfully.";
+            TICKET_DESCRIPTION = localeManager.getTranslation("ticket_description"),
+            REPLIES = localeManager.getTranslation("replies"),
+            REPLY = localeManager.getTranslation("reply"),
+            BACK = localeManager.getTranslation("back"),
+            CHANGE_ASSIGNMENT = localeManager.getTranslation("change_assignment"),
+            REOPEN_TICKET = localeManager.getTranslation("reopen_ticket"),
+            CLOSE_TICKET = localeManager.getTranslation("close_ticket"),
+            REOPENED_TICKET = localeManager.getTranslation("reopened_ticket"),
+            TICKET_REOPENED_SUCCESS = localeManager.getTranslation("ticket_reopened_success"),
+            TICKET_CLOSED_SUCCESS = localeManager.getTranslation("ticket_closed_success"),
+            SEND = localeManager.getTranslation("send");
 
 }

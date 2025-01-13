@@ -8,6 +8,7 @@ import com.ptda.tracker.services.tracker.ExpenseService;
 import com.ptda.tracker.ui.MainFrame;
 import com.ptda.tracker.ui.user.dialogs.BudgetDetailDialog;
 import com.ptda.tracker.ui.user.dialogs.ExpenseDetailDialog;
+import com.ptda.tracker.util.LocaleManager;
 import com.ptda.tracker.util.ScreenNames;
 import org.hibernate.envers.DefaultRevisionEntity;
 import org.hibernate.envers.RevisionType;
@@ -83,7 +84,7 @@ public class BudgetAuditListView extends JPanel {
             // Populate rows
             populateTableRows(combinedRevisions, model);
         } catch (Exception ex) {
-            showErrorDialog("An error occurred while loading revisions: " + ex.getMessage());
+            showErrorDialog(ERROR_OCCURRED + ex.getMessage());
         }
     }
 
@@ -119,7 +120,7 @@ public class BudgetAuditListView extends JPanel {
     private void viewSelectedRevisionDetails() {
         int selectedRow = revisionsTable.getSelectedRow();
         if (selectedRow == -1) {
-            showWarningDialog("Please select a revision to view details.");
+            showWarningDialog(SELECT_REVISION);
             return;
         }
 
@@ -141,7 +142,7 @@ public class BudgetAuditListView extends JPanel {
                     String name = revisionsTable.getValueAt(selectedRow, 3).toString().split(" / ")[0];
                     Expense expense = expenseService.getAllByBudgetId(budget.getId()).stream()
                             .filter(e -> e.getTitle().equals(name))
-                            .findFirst().orElseThrow(() -> new Exception("Expense not found."));
+                            .findFirst().orElseThrow(() -> new Exception(EXPENSE_NOT_FOUND));
                     new ExpenseDetailDialog(mainFrame, expense).setVisible(true);
                 } else {
                     long revisionNumber = revisionNumbers.get(selectedRow);
@@ -151,27 +152,27 @@ public class BudgetAuditListView extends JPanel {
                 }
             }
         } catch (Exception ex) {
-            showErrorDialog("An error occurred while fetching revision details: " + ex.getMessage());
+            showErrorDialog(ERROR_FETCHING_REVISION_DETAILS + ex.getMessage());
         }
     }
 
     private void showErrorDialog(String message) {
-        JOptionPane.showMessageDialog(this, message, "Error", JOptionPane.ERROR_MESSAGE);
+        JOptionPane.showMessageDialog(this, message, ERROR, JOptionPane.ERROR_MESSAGE);
     }
 
     private void showWarningDialog(String message) {
-        JOptionPane.showMessageDialog(this, message, "Warning", JOptionPane.WARNING_MESSAGE);
+        JOptionPane.showMessageDialog(this, message, WARNING, JOptionPane.WARNING_MESSAGE);
     }
 
     private JLabel createTitleLabel() {
-        JLabel titleLabel = new JLabel("Audit Details", SwingConstants.CENTER);
+        JLabel titleLabel = new JLabel(AUDIT_DETAILS, SwingConstants.CENTER);
         titleLabel.setFont(new Font("Arial", Font.BOLD, 20));
         return titleLabel;
     }
 
     private JTable createRevisionsTable() {
         DefaultTableModel tableModel = new DefaultTableModel(
-                new String[]{"Type", "Date", "Entity", "Name/Description"}, 0) {
+                new String[]{TYPE, DATE, ENTITY, NAME_DESCRIPTION}, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
                 return false;
@@ -190,7 +191,7 @@ public class BudgetAuditListView extends JPanel {
     }
 
     private JPanel createFooterPanel() {
-        JButton backButton = new JButton("Back");
+        JButton backButton = new JButton(BACK);
         backButton.addActionListener(e -> mainFrame.showScreen(ScreenNames.BUDGET_DETAIL_VIEW));
 
         JPanel footerPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
@@ -214,4 +215,19 @@ public class BudgetAuditListView extends JPanel {
     }
 
     private JTable revisionsTable;
+    private static final LocaleManager localeManager = LocaleManager.getInstance();
+    private static final String
+            ERROR_OCCURRED = localeManager.getTranslation("error_occurred"),
+            WARNING = localeManager.getTranslation("warning"),
+            ERROR = localeManager.getTranslation("error"),
+            CREATE = localeManager.getTranslation("create"),
+            SELECT_REVISION = localeManager.getTranslation("select_revision"),
+            AUDIT_DETAILS = localeManager.getTranslation("audit_details"),
+            ERROR_FETCHING_REVISION_DETAILS = localeManager.getTranslation("error_fetching_revision_details"),
+            EXPENSE_NOT_FOUND = localeManager.getTranslation("expense_not_found"),
+            TYPE = localeManager.getTranslation("type"),
+            DATE = localeManager.getTranslation("date"),
+            ENTITY = localeManager.getTranslation("entity"),
+            NAME_DESCRIPTION = localeManager.getTranslation("name_description"),
+            BACK = localeManager.getTranslation("back");
 }

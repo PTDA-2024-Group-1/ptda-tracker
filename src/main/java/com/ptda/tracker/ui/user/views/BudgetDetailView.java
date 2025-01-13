@@ -12,6 +12,7 @@ import com.ptda.tracker.ui.user.dialogs.ParticipantsDialog;
 import com.ptda.tracker.ui.user.forms.*;
 import com.ptda.tracker.ui.user.screens.ExpensesImportScreen;
 import com.ptda.tracker.util.ExpensesImportSharedData;
+import com.ptda.tracker.util.LocaleManager;
 import com.ptda.tracker.util.ScreenNames;
 import com.ptda.tracker.util.UserSession;
 
@@ -283,27 +284,26 @@ public class BudgetDetailView extends JPanel {
     private JTable expensesTable;
     JLabel nameLabel, descriptionLabel, createdByLabel;
     private JButton auditButton, backButton, participantsButton, editButton, shareButton, addExpenseButton, importButton;
+    private static final LocaleManager localeManager = LocaleManager.getInstance();
     private static final String
-            BUDGET_DETAILS = "Budget Details",
-            NAME = "Name",
-            DESCRIPTION = "Description",
-            CREATED_BY = "Created By",
-            EXPENSES = "Expenses",
-            BACK = "Back",
-            PARTICIPANTS = "Participants",
-            EDIT_BUDGET = "Edit Budget",
-            STATISTICS = "Statistics",
-            ADD_EXPENSE = "Add Expense",
-            SHARE_BUDGET = "Share Budget",
-            SPLIT_SIMULATION = "Split Simulation",
-            TITLE = "Title",
-            AMOUNT = "Amount",
-            CATEGORY = "Category",
-            DATE = "Date",
-            CREATED_BY_COLUMN = "Created By",
-            IMPORT_EXPENSES = "Import Expenses",
-            FAVORITE = "Favorite",
-            EDIT = "Edit",
-            DELETE = "Delete",
-            ACTIVITY = "Activity";
+            BUDGET_DETAILS = localeManager.getTranslation("budget_details"),
+            NAME = localeManager.getTranslation("name"),
+            DESCRIPTION = localeManager.getTranslation("description"),
+            CREATED_BY = localeManager.getTranslation("created_by"),
+            FAVORITE = localeManager.getTranslation("favorite"),
+            PARTICIPANTS = localeManager.getTranslation("participants"),
+            EDIT_BUDGET = localeManager.getTranslation("edit_budget"),
+            SHARE_BUDGET = localeManager.getTranslation("share_budget"),
+            IMPORT_EXPENSES = localeManager.getTranslation("import_expenses"),
+            ACTIVITY = localeManager.getTranslation("activity"),
+            EXPENSES = localeManager.getTranslation("expenses"),
+            TITLE = localeManager.getTranslation("title"),
+            AMOUNT = localeManager.getTranslation("amount"),
+            CATEGORY = localeManager.getTranslation("category"),
+            DATE = localeManager.getTranslation("date"),
+            CREATED_BY_COLUMN = localeManager.getTranslation("created_by_column"),
+            BACK = localeManager.getTranslation("back"),
+            STATISTICS = localeManager.getTranslation("statistics"),
+            SPLIT_SIMULATION = localeManager.getTranslation("split_simulation"),
+            ADD_EXPENSE = localeManager.getTranslation("add_expense");
 }

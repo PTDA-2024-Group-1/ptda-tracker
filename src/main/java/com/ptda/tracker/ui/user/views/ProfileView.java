@@ -5,6 +5,7 @@ import com.ptda.tracker.ui.MainFrame;
 import com.ptda.tracker.ui.user.dialogs.SummaryDialog;
 import com.ptda.tracker.ui.user.forms.ChangePasswordForm;
 import com.ptda.tracker.ui.user.forms.ProfileForm;
+import com.ptda.tracker.util.LocaleManager;
 import com.ptda.tracker.util.Refreshable;
 import com.ptda.tracker.util.ScreenNames;
 import com.ptda.tracker.util.UserSession;
@@ -49,7 +50,7 @@ public class ProfileView extends JPanel implements Refreshable {
 
         // Painel de Informações (User Information)
         JPanel infoPanel = new JPanel(new GridLayout(6, 1, 10, 10)); // 6 linhas para incluir os botões
-        infoPanel.setBorder(BorderFactory.createTitledBorder("User Information"));
+        infoPanel.setBorder(BorderFactory.createTitledBorder(USER_INFORMATION));
         gbc.gridx = 0;
         gbc.gridy = 0;
         gbc.gridwidth = 2;
@@ -58,18 +59,18 @@ public class ProfileView extends JPanel implements Refreshable {
         add(infoPanel, gbc);
 
         // Adicionando campos de informações
-        infoPanel.add(createInfoBox(" Name: ", nameLabel = new JLabel()));
-        infoPanel.add(createInfoBox(" Email: ", emailLabel = new JLabel()));
-        infoPanel.add(createInfoBox(" Joined: ", createdDateLabel = new JLabel()));
-        infoPanel.add(createInfoBox(" Account Age: ", accountAgeLabel = new JLabel()));
+        infoPanel.add(createInfoBox(NAME + " : ", nameLabel = new JLabel()));
+        infoPanel.add(createInfoBox(EMAIL+ " : ", emailLabel = new JLabel()));
+        infoPanel.add(createInfoBox(JOINED + " : ", createdDateLabel = new JLabel()));
+        infoPanel.add(createInfoBox(ACCOUNT_AGE + " : ", accountAgeLabel = new JLabel()));
 
         // Buttons Panel
         JPanel buttonsPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 10));
 
-        summaryButton = new JButton("Summary");
-        editButton = new JButton("Edit Profile");
-        changePasswordButton = new JButton("Change Password");
-        deleteProfileButton = new JButton("Delete Profile");
+        summaryButton = new JButton(SUMMARY);
+        editButton = new JButton(EDIT_PROFILE);
+        changePasswordButton = new JButton(CHANGE_PASSWORD);
+        deleteProfileButton = new JButton(DELETE_PROFILE);
 
         buttonsPanel.add(summaryButton);
         buttonsPanel.add(editButton);
@@ -89,14 +90,14 @@ public class ProfileView extends JPanel implements Refreshable {
 
 
     private void deleteProfile() {
-        JOptionPane.showMessageDialog(mainFrame, "Are you sure you want to delete your profile?", "Delete Profile", JOptionPane.WARNING_MESSAGE);
+        JOptionPane.showMessageDialog(mainFrame, MESSAGE_DELETE_PROFILE, DELETE_PROFILE_TITLE, JOptionPane.WARNING_MESSAGE);
 
         User user = UserSession.getInstance().getUser();
         if (user != null) {
             user.setName("Deleted User");
             user.setEmail("deleted");
             user.setActive(false);
-            JOptionPane.showMessageDialog(mainFrame, "Profile deleted successfully.");
+            JOptionPane.showMessageDialog(mainFrame, DELETE_PROFILE_SUCCESS);
         }
     }
 
@@ -108,11 +109,11 @@ public class ProfileView extends JPanel implements Refreshable {
         long years = months / 12;
 
         if (years > 0) {
-            return years + " year(s), " + (months % 12) + " month(s)";
+            return years + " " + YEARS + (months % 12) + " " + MONTHS;
         } else if (months > 0) {
-            return months + " month(s), " + (days % 30) + " day(s)";
+            return months + " " + MONTHS + (days % 30) + " " + DAYS;
         } else {
-            return days + " day(s)";
+            return days + " " + DAYS;
         }
     }
 
@@ -123,4 +124,22 @@ public class ProfileView extends JPanel implements Refreshable {
     public void refresh() {
         refreshUserData();
     }
+
+    private static final LocaleManager localeManager = LocaleManager.getInstance();
+    private static final String
+            USER_INFORMATION = localeManager.getTranslation("user_information"),
+            NAME = localeManager.getTranslation("name"),
+            EMAIL = localeManager.getTranslation("email"),
+            JOINED = localeManager.getTranslation("joined"),
+            ACCOUNT_AGE = localeManager.getTranslation("account_age"),
+            SUMMARY = localeManager.getTranslation("summary"),
+            EDIT_PROFILE = localeManager.getTranslation("edit_profile"),
+            CHANGE_PASSWORD = localeManager.getTranslation("change_password"),
+            DELETE_PROFILE = localeManager.getTranslation("delete_profile"),
+            MESSAGE_DELETE_PROFILE = localeManager.getTranslation("message_delete_profile"),
+            DELETE_PROFILE_TITLE = localeManager.getTranslation("delete_profile_title"),
+            DELETE_PROFILE_SUCCESS = localeManager.getTranslation("delete_profile_success"),
+            YEARS = localeManager.getTranslation("years"),
+            MONTHS = localeManager.getTranslation("months"),
+            DAYS = localeManager.getTranslation("days");
 }
