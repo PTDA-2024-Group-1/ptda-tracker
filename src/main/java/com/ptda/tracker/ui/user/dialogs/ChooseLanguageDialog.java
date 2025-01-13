@@ -6,6 +6,7 @@ import com.ptda.tracker.util.LocaleManager;
 
 import javax.swing.*;
 import java.awt.*;
+import java.io.IOException;
 import java.util.Locale;
 import java.util.Map;
 import java.util.prefs.Preferences;
@@ -61,7 +62,13 @@ public class ChooseLanguageDialog extends JDialog {
         buttonCancel = new JButton(CANCEL);
         buttonOK.setToolTipText(CONFIRM_YOUR_LANGUAGE_CHOICE);
         buttonCancel.setToolTipText(CANCEL_AND_CLOSE_THE_DIALOG);
-        buttonOK.addActionListener(e -> handleOkAction());
+        buttonOK.addActionListener(e -> {
+            try {
+                handleOkAction();
+            } catch (IOException ex) {
+                throw new RuntimeException(ex);
+            }
+        });
         buttonCancel.addActionListener(e -> dispose());
         buttonPanel.add(buttonOK);
         buttonPanel.add(buttonCancel);
@@ -74,7 +81,7 @@ public class ChooseLanguageDialog extends JDialog {
         setLocationRelativeTo(mainFrame);
     }
 
-    private void handleOkAction() {
+    private void handleOkAction() throws IOException {
         String selectedLanguage = (String) languageComboBox.getSelectedItem();
         Locale selectedLocale = languages.get(selectedLanguage);
 
@@ -96,6 +103,26 @@ public class ChooseLanguageDialog extends JDialog {
                 JOptionPane.YES_NO_OPTION
         );
         if (result == JOptionPane.YES_OPTION) {
+            System.out.println("Application is restarting...");
+
+            // Get the java binary path
+            String javaBin = System.getProperty("java.home") + "/bin/java";
+
+            // Get the application class path
+            String classPath = System.getProperty("java.class.path");
+
+            // Get the main class name
+            String className = TrackerApplication.class.getName();
+
+            // Build the command to restart
+            ProcessBuilder processBuilder = new ProcessBuilder(
+                    javaBin, "-cp", classPath, className
+            );
+
+            // Start the new process
+            processBuilder.start();
+
+            // Exit the current process
             System.exit(0);
         } else {
             dispose();
