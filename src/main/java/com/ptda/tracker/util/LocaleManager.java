@@ -46,7 +46,7 @@ public class LocaleManager {
 
     public Map<String, Locale> getSupportedLocales() {
         Map<String, Locale> locales = new HashMap<>();
-        locales.put("English", new Locale("en", "US"));
+        locales.put("English", new Locale("", ""));
         locales.put("Português", new Locale("pt", "PT"));
 //        locales.put("Español", new Locale("es", "ES"));
 //        locales.put("Français", new Locale("fr", "FR"));

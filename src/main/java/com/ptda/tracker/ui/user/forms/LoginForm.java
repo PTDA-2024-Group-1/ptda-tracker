@@ -88,6 +88,11 @@ public class LoginForm extends JPanel {
             return;
         }
 
+        if(!userOptional.get().isActive()) {
+            JOptionPane.showMessageDialog(this, ACCOUNT_INACTIVE, ERROR, JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
         this.user = userOptional.get();
         if (user.isEmailVerified()) {
             saveCredentials(user);
@@ -231,6 +236,7 @@ public class LoginForm extends JPanel {
             ALL_FIELDS_REQUIRED = localeManager.getTranslation("all_fields_required"),
             WELCOME_BACK = localeManager.getTranslation("welcome_back"),
             INVALID_CREDENTIALS = localeManager.getTranslation("invalid_credentials"),
+            ACCOUNT_INACTIVE = localeManager.getTranslation("account_inactive"),
             ERROR = localeManager.getTranslation("error"),
             MESSAGE = localeManager.getTranslation("message");
 }

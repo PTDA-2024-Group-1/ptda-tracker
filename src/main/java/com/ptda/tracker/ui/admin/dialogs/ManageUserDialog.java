@@ -106,11 +106,12 @@ public class ManageUserDialog extends JDialog {
         JPanel buttonPanel = new JPanel();
         JButton saveButton = new JButton(SAVE);
         saveButton.addActionListener(e -> saveUserDetails());
-        buttonPanel.add(saveButton);
 
         JButton cancelButton = new JButton(CANCEL);
         cancelButton.addActionListener(e -> dispose());
+
         buttonPanel.add(cancelButton);
+        buttonPanel.add(saveButton);
 
         add(buttonPanel, BorderLayout.SOUTH);
     }

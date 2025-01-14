@@ -55,52 +55,55 @@ public class ProfileForm extends JPanel {
     }
 
     private void initComponents() {
-        setLayout(new GridBagLayout());
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-        gbc.insets = new Insets(15, 15, 15, 15);
+        setLayout(new BorderLayout(20, 20));
+        setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
         // Title
-        gbc.gridx = 0;
-        gbc.gridy = 0;
-        gbc.gridwidth = 2;
         JLabel title = new JLabel(EDIT_PROFILE, SwingConstants.CENTER);
         title.setFont(new Font("Arial", Font.BOLD, 20));
-        add(title, gbc);
+        add(title, BorderLayout.NORTH);
+
+        // Form Panel
+        JPanel formPanel = new JPanel(new GridBagLayout());
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.insets = new Insets(10, 10, 10, 10);
 
         // Name
-        gbc.gridwidth = 1;
         gbc.gridx = 0;
-        gbc.gridy = 1;
-        JLabel nameLabel = new JLabel(NAME + ":");
-        nameLabel.setFont(new Font("Arial", Font.PLAIN, 14));
-        add(nameLabel, gbc);
+        gbc.gridy = 0;
+        formPanel.add(new JLabel(NAME + ":"), gbc);
 
         gbc.gridx = 1;
         nameField = new JTextField(user.getName(), 20);
-        add(nameField, gbc);
+        formPanel.add(nameField, gbc);
 
         // Email
         gbc.gridx = 0;
-        gbc.gridy = 2;
-        JLabel emailLabel = new JLabel(EMAIL + ":");
-        emailLabel.setFont(new Font("Arial", Font.PLAIN, 14));
-        add(emailLabel, gbc);
+        gbc.gridy = 1;
+        formPanel.add(new JLabel(EMAIL + ":"), gbc);
 
         gbc.gridx = 1;
         emailField = new JTextField(user.getEmail(), 20);
-        add(emailField, gbc);
+        formPanel.add(emailField, gbc);
 
-        // Cancel Button
-        gbc.gridx = 0;
-        gbc.gridy = 3;
+        add(formPanel, BorderLayout.CENTER);
+
+        // Button Panel
+        JPanel buttonsPanel = new JPanel(new BorderLayout());
+        JPanel leftButtonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        JPanel rightButtonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+
         cancelButton = new JButton(CANCEL);
-        add(cancelButton, gbc);
+        leftButtonPanel.add(cancelButton);
 
-        // Save Button
-        gbc.gridx = 1;
         saveButton = new JButton(SAVE);
-        add(saveButton, gbc);
+        rightButtonPanel.add(saveButton);
+
+        buttonsPanel.add(leftButtonPanel, BorderLayout.WEST);
+        buttonsPanel.add(rightButtonPanel, BorderLayout.EAST);
+
+        add(buttonsPanel, BorderLayout.SOUTH);
     }
 
     private JTextField nameField, emailField;

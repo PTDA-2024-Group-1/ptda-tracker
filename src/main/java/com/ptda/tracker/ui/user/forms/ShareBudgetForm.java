@@ -3,7 +3,6 @@ package com.ptda.tracker.ui.user.forms;
 import com.ptda.tracker.models.tracker.Budget;
 import com.ptda.tracker.models.tracker.BudgetAccessLevel;
 import com.ptda.tracker.services.tracker.BudgetAccessService;
-import com.ptda.tracker.services.tracker.BudgetService;
 import com.ptda.tracker.ui.MainFrame;
 import com.ptda.tracker.ui.user.views.BudgetDetailView;
 import com.ptda.tracker.util.LocaleManager;
@@ -26,7 +25,7 @@ public class ShareBudgetForm extends JPanel {
     }
 
     private void setListeners() {
-        cancelButton.addActionListener(e -> mainFrame.showScreen(ScreenNames.BUDGET_DETAIL_VIEW));
+        backButton.addActionListener(e -> mainFrame.showScreen(ScreenNames.BUDGET_DETAIL_VIEW));
         saveButton.addActionListener(e -> addParticipant());
     }
 
@@ -58,66 +57,66 @@ public class ShareBudgetForm extends JPanel {
     }
 
     private void initComponents() {
-        setLayout(new GridBagLayout());
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-        gbc.insets = new Insets(15, 15, 15, 15);
+        setLayout(new BorderLayout(20, 20));
+        setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
         // Title
-        gbc.gridx = 0;
-        gbc.gridy = 0;
-        gbc.gridwidth = 2;
         JLabel titleLabel = new JLabel(SHARE_BUDGET, SwingConstants.CENTER);
         titleLabel.setFont(new Font("Arial", Font.BOLD, 20));
-        add(titleLabel, gbc);
+        add(titleLabel, BorderLayout.NORTH);
+
+        // Form Panel
+        JPanel formPanel = new JPanel(new GridBagLayout());
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.insets = new Insets(10, 10, 10, 10);
 
         // Email Field
-        gbc.gridwidth = 1;
         gbc.gridx = 0;
-        gbc.gridy = 1;
-        JLabel emailLabel = new JLabel(USER_EMAIL + ":");
-        emailLabel.setFont(new Font("Arial", Font.PLAIN, 14));
-        add(emailLabel, gbc);
+        gbc.gridy = 0;
+        formPanel.add(new JLabel(USER_EMAIL + ":"), gbc);
 
         gbc.gridx = 1;
         emailField = new JTextField(20);
-        add(emailField, gbc);
+        formPanel.add(emailField, gbc);
 
         // Access Level Dropdown
         gbc.gridx = 0;
-        gbc.gridy = 2;
-        JLabel accessLevelLabel = new JLabel(ACCESS_LEVEL + ":");
-        accessLevelLabel.setFont(new Font("Arial", Font.PLAIN, 14));
-        add(accessLevelLabel, gbc);
+        gbc.gridy = 1;
+        formPanel.add(new JLabel(ACCESS_LEVEL + ":"), gbc);
 
         gbc.gridx = 1;
         accessLevelComboBox = new JComboBox<>(BudgetAccessLevel.values());
-        add(accessLevelComboBox, gbc);
+        formPanel.add(accessLevelComboBox, gbc);
 
-        // Buttons Panel
-        gbc.gridwidth = 2;
-        gbc.gridx = 0;
-        gbc.gridy = 3;
-        JPanel buttonsPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        add(formPanel, BorderLayout.CENTER);
 
-        cancelButton = new JButton(CANCEL);
-        buttonsPanel.add(cancelButton);
+        // Button Panel
+        JPanel buttonsPanel = new JPanel(new BorderLayout());
+        JPanel leftButtonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        JPanel rightButtonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+
+        backButton = new JButton(BACK);
+        leftButtonPanel.add(backButton);
 
         saveButton = new JButton(ADD_PARTICIPANT);
-        buttonsPanel.add(saveButton);
+        rightButtonPanel.add(saveButton);
 
-        add(buttonsPanel, gbc);
+        buttonsPanel.add(leftButtonPanel, BorderLayout.WEST);
+        buttonsPanel.add(rightButtonPanel, BorderLayout.EAST);
+
+        add(buttonsPanel, BorderLayout.SOUTH);
     }
 
     private JComboBox<BudgetAccessLevel> accessLevelComboBox;
     private JTextField emailField;
-    private JButton cancelButton, saveButton;
+    private JButton backButton, saveButton;
     private static final LocaleManager localeManager = LocaleManager.getInstance();
     private static final String
             SHARE_BUDGET = localeManager.getTranslation("share_budget"),
             USER_EMAIL = localeManager.getTranslation("user_email"),
             ACCESS_LEVEL = localeManager.getTranslation("access_level"),
-            CANCEL = localeManager.getTranslation("cancel"),
+            BACK = localeManager.getTranslation("back"),
             ADD_PARTICIPANT = localeManager.getTranslation("add_participant"),
             EMAIL_REQUIRED = localeManager.getTranslation("email_required"),
             ERROR = localeManager.getTranslation("error"),

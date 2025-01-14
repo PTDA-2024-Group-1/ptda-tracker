@@ -31,6 +31,12 @@ public class BudgetSplitServiceHibernateImpl implements BudgetSplitService {
         }
     }
 
+    /**
+     * Splits the budget among users based on their expenses and custom divisions.
+     *
+     * @param budgetId the ID of the budget to split
+     * @return a list of BudgetSplit objects representing the split amounts for each user
+     */
     @Override
     public List<BudgetSplit> split(Long budgetId) {
         List<BudgetSplit> splits = new ArrayList<>();

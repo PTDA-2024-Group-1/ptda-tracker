@@ -57,63 +57,64 @@ public class ChangePasswordForm extends JPanel {
     }
 
     private void initComponents() {
-        setLayout(new GridBagLayout());
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-        gbc.insets = new Insets(15, 15, 15, 15);
+        setLayout(new BorderLayout(20, 20));
+        setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
         // Title
-        gbc.gridx = 0;
-        gbc.gridy = 0;
-        gbc.gridwidth = 2;
         JLabel title = new JLabel(TITLE, SwingConstants.CENTER);
         title.setFont(new Font("Arial", Font.BOLD, 20));
-        add(title, gbc);
+        add(title, BorderLayout.NORTH);
+
+        // Form Panel
+        JPanel formPanel = new JPanel(new GridBagLayout());
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.insets = new Insets(10, 10, 10, 10);
 
         // Current Password
-        gbc.gridwidth = 1;
         gbc.gridx = 0;
-        gbc.gridy = 1;
-        JLabel currentPasswordLabel = new JLabel(CURRENT_PASSWORD + ":");
-        currentPasswordLabel.setFont(new Font("Arial", Font.PLAIN, 14));
-        add(currentPasswordLabel, gbc);
+        gbc.gridy = 0;
+        formPanel.add(new JLabel(CURRENT_PASSWORD + ":"), gbc);
 
         gbc.gridx = 1;
         currentPasswordField = new JPasswordField(20);
-        add(currentPasswordField, gbc);
+        formPanel.add(currentPasswordField, gbc);
 
         // New Password
         gbc.gridx = 0;
-        gbc.gridy = 2;
-        JLabel newPasswordLabel = new JLabel(NEW_PASSWORD + ":");
-        newPasswordLabel.setFont(new Font("Arial", Font.PLAIN, 14));
-        add(newPasswordLabel, gbc);
+        gbc.gridy = 1;
+        formPanel.add(new JLabel(NEW_PASSWORD + ":"), gbc);
 
         gbc.gridx = 1;
         newPasswordField = new JPasswordField(20);
-        add(newPasswordField, gbc);
+        formPanel.add(newPasswordField, gbc);
 
         // Confirm Password
         gbc.gridx = 0;
-        gbc.gridy = 3;
-        JLabel confirmPasswordLabel = new JLabel(CONFIRM_PASSWORD + ":");
-        confirmPasswordLabel.setFont(new Font("Arial", Font.PLAIN, 14));
-        add(confirmPasswordLabel, gbc);
+        gbc.gridy = 2;
+        formPanel.add(new JLabel(CONFIRM_PASSWORD + ":"), gbc);
 
         gbc.gridx = 1;
         confirmPasswordField = new JPasswordField(20);
-        add(confirmPasswordField, gbc);
+        formPanel.add(confirmPasswordField, gbc);
 
-        // Cancel Button
-        gbc.gridx = 0;
-        gbc.gridy = 4;
+        add(formPanel, BorderLayout.CENTER);
+
+        // Button Panel
+        JPanel buttonsPanel = new JPanel(new BorderLayout());
+        JPanel leftButtonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        JPanel rightButtonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+
         cancelButton = new JButton(CANCEL);
-        add(cancelButton, gbc);
+        leftButtonPanel.add(cancelButton);
 
-        // Save Button
-        gbc.gridx = 1;
         saveButton = new JButton(SAVE);
-        add(saveButton, gbc);
+        rightButtonPanel.add(saveButton);
+
+        buttonsPanel.add(leftButtonPanel, BorderLayout.WEST);
+        buttonsPanel.add(rightButtonPanel, BorderLayout.EAST);
+
+        add(buttonsPanel, BorderLayout.SOUTH);
     }
 
     private JPasswordField currentPasswordField, newPasswordField, confirmPasswordField;

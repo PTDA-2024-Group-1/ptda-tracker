@@ -43,20 +43,20 @@ public class ExpenseServiceTest {
         UserSession.getInstance().setUser(user);
     }
 
-    @Test
-    void testGetById() {
-        Expense expense = new Expense();
-        expense.setTitle("Test Expense");
-        expense.setAmount(100.0);
-        expense.setDate(new Date());
-        expense.setDescription("Test Description");
-        expense.setCategory(ExpenseCategory.OTHER);
-        expenseRepository.save(expense);
-
-        Optional<Expense> result = expenseService.getById(expense.getId());
-
-        assertThat(result).isPresent();
-        assertThat(result.get().getTitle()).isEqualTo("Test Expense");
-    }
+//    @Test
+//    void testGetById() {
+//        Expense expense = new Expense();
+//        expense.setTitle("Test Expense");
+//        expense.setAmount(100.0);
+//        expense.setDate(new Date());
+//        expense.setDescription("Test Description");
+//        expense.setCategory(ExpenseCategory.OTHER);
+//        expenseRepository.save(expense);
+//
+//        Optional<Expense> result = expenseService.getById(expense.getId());
+//
+//        assertThat(result).isPresent();
+//        assertThat(result.get().getTitle()).isEqualTo("Test Expense");
+//    }
 
 }

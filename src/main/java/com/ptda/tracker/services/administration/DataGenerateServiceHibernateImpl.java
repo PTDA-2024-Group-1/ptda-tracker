@@ -32,6 +32,11 @@ public class DataGenerateServiceHibernateImpl implements DataGenerateService {
     private List<User> users;
     private Map<String, String> credentials;
 
+    /**
+     * Generates test data including users, budgets, and expenses.
+     *
+     * @return a string containing the credentials of the generated users
+     */
     @Override
     public String generateData() {
         System.out.println("Data Generate Service Started...");
@@ -45,6 +50,13 @@ public class DataGenerateServiceHibernateImpl implements DataGenerateService {
         return returnCredentials();
     }
 
+    /**
+     * Creates a specified number of users, assistants, and admins.
+     *
+     * @param usersCount      the number of users to create
+     * @param assistantsCount the number of assistants to create
+     * @param adminsCount     the number of admins to create
+     */
     private void createUsers(int usersCount, int assistantsCount, int adminsCount) {
         PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
         users = new ArrayList<>();
@@ -85,6 +97,11 @@ public class DataGenerateServiceHibernateImpl implements DataGenerateService {
         adminService.createAll(admins);
     }
 
+    /**
+     * Creates a specified number of budgets with associated expenses.
+     *
+     * @param budgetsCount the number of budgets to create
+     */
     private void createBudgetsWithExpenses(int budgetsCount) {
         for (int i = 0; i < budgetsCount; i++) {
             Budget budget = Budget.builder()
@@ -122,7 +139,15 @@ public class DataGenerateServiceHibernateImpl implements DataGenerateService {
             expenseService.createAll(expenses);
         }
     }
-
+    /**
+     * Generates a list of expenses for a given user and budget.
+     *
+     * @param user        the user for whom the expenses are generated
+     * @param budget      the budget to which the expenses are associated
+     * @param minExpenses the minimum number of expenses to generate
+     * @param maxExpenses the maximum number of expenses to generate
+     * @return a list of generated expenses
+     */
     private List<Expense> generateExpenses(User user, Budget budget, int minExpenses, int maxExpenses) {
         List<Expense> expenses = new ArrayList<>();
         for (int i = 0; i < minExpenses + Math.random() * (maxExpenses - minExpenses); i++) {
@@ -140,7 +165,12 @@ public class DataGenerateServiceHibernateImpl implements DataGenerateService {
         }
         return expenses;
     }
-
+    /**
+     * Creates personal expenses for each user.
+     *
+     * @param minExpenses the minimum number of expenses to generate per user
+     * @param maxExpenses the maximum number of expenses to generate per user
+     */
     private void createPersonalExpenses(int minExpenses, int maxExpenses) {
         List<Expense> expenses = new ArrayList<>();
         for (User user : users) {
@@ -149,7 +179,11 @@ public class DataGenerateServiceHibernateImpl implements DataGenerateService {
         }
         expenseService.createAll(expenses);
     }
-
+    /**
+     * Returns the credentials of the generated users.
+     *
+     * @return a string containing the credentials of the generated users
+     */
     String returnCredentials() {
         StringBuilder credentialsSB = new StringBuilder();
         credentials.forEach((email, password) -> {

@@ -70,8 +70,8 @@ public class ChooseLanguageDialog extends JDialog {
             }
         });
         buttonCancel.addActionListener(e -> dispose());
-        buttonPanel.add(buttonOK);
         buttonPanel.add(buttonCancel);
+        buttonPanel.add(buttonOK);
 
         gbc.gridy = 2;
         gbc.gridwidth = 2;
