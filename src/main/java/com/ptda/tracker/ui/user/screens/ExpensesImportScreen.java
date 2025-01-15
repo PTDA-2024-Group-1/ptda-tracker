@@ -54,8 +54,8 @@ public class ExpensesImportScreen extends JPanel {
 
         int response = JOptionPane.showConfirmDialog(
                 this,
-                "Do you want to keep the progress?",
-                "Cancel Import",
+                KEEP_PROGRESS,
+                CANCEL_IMPORT,
                 JOptionPane.YES_NO_OPTION,
                 JOptionPane.QUESTION_MESSAGE
         );
@@ -205,8 +205,8 @@ public class ExpensesImportScreen extends JPanel {
     private void passToExpensesEditForm() {
         int response = JOptionPane.showConfirmDialog(
                 this,
-                "Are you sure you want to proceed with the import?",
-                "Confirm Import",
+                WANT_PROCEED,
+                CONFIRM_IMPORT,
                 JOptionPane.YES_NO_OPTION,
                 JOptionPane.QUESTION_MESSAGE
         );
@@ -225,8 +225,8 @@ public class ExpensesImportScreen extends JPanel {
         } catch (NumberFormatException e) {
             JOptionPane.showMessageDialog(
                     this,
-                    "Error processing the imported data. Please check the mappings and formats.",
-                    "Error",
+                    ERROR_PROCESSING_DATA,
+                    ERROR,
                     JOptionPane.ERROR_MESSAGE
             );
         }
@@ -288,6 +288,12 @@ public class ExpensesImportScreen extends JPanel {
             CATEGORY_MAPPING = localeManager.getTranslation("category_mapping"),
             DATE_FORMAT = localeManager.getTranslation("set.date.format"),
             VALUE_TREATMENT = localeManager.getTranslation("value_treatment"),
+            WANT_PROCEED = localeManager.getTranslation("want_procedeed"),
+            CONFIRM_IMPORT = localeManager.getTranslation("confirm_import"),
+            KEEP_PROGRESS = localeManager.getTranslation("keep_progress"),
+            CANCEL_IMPORT = localeManager.getTranslation("cancel_import"),
+            ERROR = localeManager.getTranslation("error"),
+            ERROR_PROCESSING_DATA = localeManager.getTranslation("error_processing_data"),
             NEXT = localeManager.getTranslation("next"),
             COLUMN = localeManager.getTranslation("column");
 }

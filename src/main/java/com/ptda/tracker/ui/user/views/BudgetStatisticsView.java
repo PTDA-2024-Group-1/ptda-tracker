@@ -56,18 +56,6 @@ public class BudgetStatisticsView extends JPanel {
         initializeUI();
     }
 
-    // UI Initialization Methods
-    private void initializeUI() {
-        setLayout(new BorderLayout());
-
-        createChartTabbedPane();
-        JScrollPane scrollPane = createScrollPane();
-        JPanel bottomPanel = createBottomPanel();
-
-        add(scrollPane, BorderLayout.CENTER);
-        add(bottomPanel, BorderLayout.SOUTH);
-    }
-
     private void createChartTabbedPane() {
         chartTabbedPane = new JTabbedPane();
 
@@ -204,7 +192,6 @@ public class BudgetStatisticsView extends JPanel {
             addPdfHeader(document);
             addBudgetSummary(document);
             addChartsToPdf(document);
-            addFooter(document);
 
             JOptionPane.showMessageDialog(this, PDF_SUCCESS + fileToSave.getAbsolutePath());
         } catch (Exception e) {
@@ -302,14 +289,6 @@ public class BudgetStatisticsView extends JPanel {
         grid.addCell(cell);
     }
 
-    private void addFooter(Document document) {
-        document.add(new Paragraph(END_OF_REPORT)
-                .setTextAlignment(TextAlignment.CENTER)
-                .setFontSize(10)
-                .setMarginTop(20)
-                .setFontColor(ColorConstants.GRAY));
-    }
-
     private Cell createCell(String content, boolean isHeader) {
         Cell cell = new Cell().add(new Paragraph(content));
         if (isHeader) {
@@ -358,12 +337,16 @@ public class BudgetStatisticsView extends JPanel {
     }
 
     private JFreeChart createChartForTitle(String title) {
-        switch (title) {
-            case EXPENSES_BY_CATEGORY: return createPieChart();
-            case TRENDS_OVER_TIME: return createLineChart();
-            case CATEGORY_BREAKDOWN: return createStackedBarChart();
-            case CUMULATIVE_TRENDS: return createAreaChart();
-            default: throw new IllegalArgumentException("Unknown chart type: " + title);
+        if (EXPENSES_BY_CATEGORY.equals(title)) {
+            return createPieChart();
+        } else if (TRENDS_OVER_TIME.equals(title)) {
+            return createLineChart();
+        } else if (CATEGORY_BREAKDOWN.equals(title)) {
+            return createStackedBarChart();
+        } else if (CUMULATIVE_TRENDS.equals(title)) {
+            return createAreaChart();
+        } else {
+            throw new IllegalArgumentException("Unknown chart type: " + title);
         }
     }
 
@@ -431,9 +414,6 @@ public class BudgetStatisticsView extends JPanel {
             CategoryPlot plot = (CategoryPlot) chart.getPlot();
             plot.getDomainAxis().setLabelPaint(Color.WHITE);
             plot.getRangeAxis().setLabelPaint(Color.WHITE);
-        } else if (chart.getPlot() instanceof PiePlot) {
-            PiePlot plot = (PiePlot) chart.getPlot();
-            plot.setLabelPaint(Color.WHITE);
         }
     }
 
@@ -446,11 +426,24 @@ public class BudgetStatisticsView extends JPanel {
         return brightness < 130;
     }
 
+    private void initializeUI() {
+        setLayout(new BorderLayout());
+
+        createChartTabbedPane();
+        JScrollPane scrollPane = createScrollPane();
+        JPanel bottomPanel = createBottomPanel();
+
+        add(scrollPane, BorderLayout.CENTER);
+        add(bottomPanel, BorderLayout.SOUTH);
+    }
+
     // Functional interfaces
     @FunctionalInterface
     private interface ChartCreator {
         JFreeChart create();
     }
+
+
     private static final LocaleManager localeManager = LocaleManager.getInstance();
     private static final String
             EXPENSES = localeManager.getTranslation("expenses"),
@@ -467,10 +460,10 @@ public class BudgetStatisticsView extends JPanel {
             NUMBER_OF_USERS = localeManager.getTranslation("number_users"),
             EXPENSE_ANALYSIS = localeManager.getTranslation("expense_analysis"),
             END_OF_REPORT = localeManager.getTranslation("end_of_report"),
-            EXPENSES_BY_CATEGORY = "Expenses by Category",
-            TRENDS_OVER_TIME = "Trends Over Time",
-            CATEGORY_BREAKDOWN = "Category Breakdown",
-            CUMULATIVE_TRENDS = "Cumulative Trends",
+            EXPENSES_BY_CATEGORY = localeManager.getTranslation("expenses_by_category"),
+            TRENDS_OVER_TIME = localeManager.getTranslation("trends_over_time"),
+            CATEGORY_BREAKDOWN = localeManager.getTranslation("category_breakdown"),
+            CUMULATIVE_TRENDS = localeManager.getTranslation("cumulative_trends"),
             BACK_BUTTON = localeManager.getTranslation("back"),
             GENERATE_PDF = localeManager.getTranslation("generate_pdf"),
             SAVE_PDF_DIALOG = localeManager.getTranslation("save_pdf_dialog"),

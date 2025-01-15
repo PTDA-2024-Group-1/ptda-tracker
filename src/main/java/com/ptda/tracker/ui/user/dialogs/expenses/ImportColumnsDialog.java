@@ -78,8 +78,8 @@ public class ImportColumnsDialog extends JDialog {
         skipButton = new JButton(SKIP);
         confirmButton = new JButton(CONFIRM);
         confirmButton.setEnabled(false);
-        buttonPanel.add(confirmButton);
         buttonPanel.add(skipButton);
+        buttonPanel.add(confirmButton);
 
         add(buttonPanel, BorderLayout.SOUTH);
 

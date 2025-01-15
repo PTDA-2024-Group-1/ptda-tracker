@@ -63,7 +63,9 @@ public class BudgetDetailView extends JPanel {
                     )
             ));
         }
-        importButton.addActionListener(e -> openImport(mainFrame, budget, this::refreshExpenses));
+        if (importButton != null) {
+            importButton.addActionListener(e -> openImport(mainFrame, budget, this::refreshExpenses));
+        }
         expensesTable.getSelectionModel().addListSelectionListener(e -> {
             if (!e.getValueIsAdjusting()) {
                 int selectedRow = expensesTable.getSelectedRow();
@@ -198,14 +200,13 @@ public class BudgetDetailView extends JPanel {
         if (hasEditorAccess) {
             editButton = new JButton(EDIT_BUDGET);
             topButtonsPanel.add(editButton);
+            importButton = new JButton(IMPORT_EXPENSES);
+            topButtonsPanel.add(importButton);
         }
         if (hasOwnerAccess) {
             shareButton = new JButton(SHARE_BUDGET);
             topButtonsPanel.add(shareButton);
         }
-
-        importButton = new JButton(IMPORT_EXPENSES);
-        topButtonsPanel.add(importButton);
 
         // Add the audit button
         auditButton = new JButton(ACTIVITY);

@@ -188,13 +188,12 @@ public class ExpenseDetailView extends JPanel {
         leftButtonPanel.add(backButton);
 
         JPanel rightButtonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        auditButton = new JButton(ACTIVITY);
+        rightButtonPanel.add(auditButton);
         editButton = new JButton(EDIT_EXPENSE);
         deleteButton = new JButton(DELETE_EXPENSE);
-        auditButton = new JButton(ACTIVITY);
-
         rightButtonPanel.add(editButton);
         rightButtonPanel.add(deleteButton);
-        rightButtonPanel.add(auditButton);
 
         if (expense.getBudget() != null) {
             User currentUser = UserSession.getInstance().getUser();
@@ -203,10 +202,13 @@ public class ExpenseDetailView extends JPanel {
                     .filter(access -> access.getUser().getId().equals(currentUser.getId()))
                     .findFirst()
                     .orElse(null);
-
-            if (currentUserAccess != null && currentUserAccess.getAccessLevel() != BudgetAccessLevel.VIEWER) {
-                distributeDivisionExpenseButton = new JButton(DISTRIBUTE_DIVISIONS);
-                rightButtonPanel.add(distributeDivisionExpenseButton);
+            distributeDivisionExpenseButton = new JButton(DISTRIBUTE_DIVISIONS);
+            distributeDivisionExpenseButton = new JButton(DISTRIBUTE_DIVISIONS);
+            rightButtonPanel.add(distributeDivisionExpenseButton);
+            if (currentUserAccess != null && currentUserAccess.getAccessLevel() == BudgetAccessLevel.VIEWER) {
+                editButton.setVisible(false);
+                deleteButton.setVisible(false);
+                distributeDivisionExpenseButton.setVisible(false);
             }
         }
 
