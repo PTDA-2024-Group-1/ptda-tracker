@@ -42,6 +42,7 @@ public class BudgetStatisticsView extends JPanel {
     private final MainFrame mainFrame;
     private final ExpenseService expenseService;
     private final ExpenseDivisionService expenseDivisionService;
+    private final BudgetSplitService budgetSplitService;
     private final Budget budget;
     private JTabbedPane chartTabbedPane;
     private Map<String, Double> userExpenses;
@@ -49,6 +50,7 @@ public class BudgetStatisticsView extends JPanel {
     public BudgetStatisticsView(MainFrame mainFrame, Budget budget) {
         this.mainFrame = mainFrame;
         this.expenseService = mainFrame.getContext().getBean(ExpenseService.class);
+        this.budgetSplitService = mainFrame.getContext().getBean(BudgetSplitService.class);
         this.expenseDivisionService = mainFrame.getContext().getBean(ExpenseDivisionService.class);
         this.budget = budget;
 
@@ -305,11 +307,10 @@ public class BudgetStatisticsView extends JPanel {
 
     // Utility Methods
     private void calculateUserExpenses() {
-        userExpenses = expenseService.getAllByBudgetId(budget.getId()).stream()
-                .flatMap(expense -> expenseDivisionService.getAllByExpenseId(expense.getId()).stream())
+        userExpenses = budgetSplitService.getAllByBudgetId(budget.getId()).stream()
                 .collect(Collectors.groupingBy(
-                        expenseDivision -> expenseDivision.getUser().getName(),
-                        Collectors.summingDouble(ExpenseDivision::getAmount)
+                        budgetSplit -> budgetSplit.getUser().getName(),
+                        Collectors.summingDouble(BudgetSplit::getAmount)
                 ));
     }
 

@@ -121,7 +121,7 @@ public class DivisionsForm extends JPanel {
         divisionsTable = new JTable();
         add(new JScrollPane(divisionsTable), BorderLayout.CENTER);
 
-        JPanel buttonPanel = new JPanel();
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         backButton = new JButton(BACK);
         buttonPanel.add(backButton);
         add(buttonPanel, BorderLayout.SOUTH);

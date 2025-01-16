@@ -117,13 +117,13 @@ public class ExpenseForm extends JPanel {
 
     private void askAboutDivisions() {
         int keepResult = JOptionPane.showConfirmDialog(
-                this, "Want to keep divisions?",
-                "Expense Divisions", JOptionPane.YES_NO_OPTION
+                this, KEEP_DIVIONS,
+                EXPENSE_DIVISIONS, JOptionPane.YES_NO_OPTION
         );
         if (keepResult == JOptionPane.YES_OPTION) {
             int updateResult = JOptionPane.showConfirmDialog(
-                    this, "Want to update divisions proportionally to the new amount?",
-                    "Expense Divisions", JOptionPane.YES_NO_OPTION
+                    this, WANT_UPDATE,
+                    EXPENSE_DIVISIONS, JOptionPane.YES_NO_OPTION
             );
             if (updateResult == JOptionPane.YES_OPTION) {
                 updateDivisions = true;
@@ -274,6 +274,9 @@ public class ExpenseForm extends JPanel {
             BACK = localeManager.getTranslation("back"),
             SAVE = localeManager.getTranslation("save"),
             VALIDATION_ERROR = localeManager.getTranslation("validation_error"),
+            KEEP_DIVIONS = localeManager.getTranslation("keep_divisions"),
+            EXPENSE_DIVISIONS = localeManager.getTranslation("expense_divisions"),
+            WANT_UPDATE = localeManager.getTranslation("want_to_update"),
             TITLE_AND_AMOUNT_REQUIRED = localeManager.getTranslation("title_and_amount_required"),
             FAILED_TO_SAVE_EXPENSE = localeManager.getTranslation("failed_to_save_expense"),
             FAILED_TO_UPDATE_EXPENSE = localeManager.getTranslation("failed_to_update_expense"),
