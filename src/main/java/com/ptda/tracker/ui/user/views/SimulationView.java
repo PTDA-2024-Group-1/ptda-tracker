@@ -13,6 +13,8 @@ import com.ptda.tracker.util.ScreenNames;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.List;
 
 public class SimulationView extends JPanel {
@@ -48,17 +50,23 @@ public class SimulationView extends JPanel {
 
     private void populateRankingsTable() {
         List<BudgetSplit> budgetSplits = budgetSplitService.getAllByBudgetId(budget.getId());
-        if (budgetSplits.isEmpty() || budgetSplits.getFirst().getCreatedAt() <= budget.getUpdatedAt()) {
+        if (budgetSplits.isEmpty() || budgetSplits.get(0).getCreatedAt() <= budget.getUpdatedAt()) {
             budgetSplits = budgetSplitService.split(budget.getId());
         }
         rankingTableModel.setRowCount(0); // Clear existing rows
 
         for (BudgetSplit budgetSplit : budgetSplits) {
             User user = budgetSplit.getUser();
-            double paid = budgetSplit.getAmount();
-            double toPay = budgetSplit.getPaidAmount();
-            double balance = toPay - paid;
-            rankingTableModel.addRow(new Object[]{user.getName(), toPay, paid, balance});
+            BigDecimal paid = BigDecimal.valueOf(budgetSplit.getPaidAmount()).setScale(2, RoundingMode.HALF_UP);
+            BigDecimal toPay = BigDecimal.valueOf(budgetSplit.getAmount()).setScale(2, RoundingMode.HALF_UP);
+            BigDecimal balance = toPay.subtract(paid).setScale(2, RoundingMode.HALF_UP);
+
+            rankingTableModel.addRow(new Object[]{
+                    user.getName(),
+                    toPay.doubleValue(),
+                    paid.doubleValue(),
+                    balance.doubleValue()
+            });
         }
     }
 

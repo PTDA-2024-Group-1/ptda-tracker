@@ -4,6 +4,7 @@ import com.ptda.tracker.models.tracker.Expense;
 import com.ptda.tracker.services.tracker.ExpenseAuditService;
 import com.ptda.tracker.ui.MainFrame;
 import com.ptda.tracker.ui.user.dialogs.ExpenseDetailDialog;
+import com.ptda.tracker.util.DateFormatManager;
 import com.ptda.tracker.util.LocaleManager;
 import com.ptda.tracker.util.ScreenNames;
 import org.hibernate.envers.DefaultRevisionEntity;
@@ -11,6 +12,7 @@ import org.hibernate.envers.DefaultRevisionEntity;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
+import java.text.SimpleDateFormat;
 import java.util.List;
 
 public class ExpenseAuditListView extends JPanel {
@@ -78,7 +80,7 @@ public class ExpenseAuditListView extends JPanel {
                 DefaultRevisionEntity revisionEntity = (DefaultRevisionEntity) detail[1];
                 model.addRow(new Object[]{
                         detail[2], // RevisionType ("MOD" or "ADD")
-                        revisionEntity.getRevisionDate(),
+                        DATE_FORMAT.format(revisionEntity.getRevisionDate()),
                         expense.getTitle() + " / " + expense.getDescription()
                 });
             }
@@ -119,6 +121,7 @@ public class ExpenseAuditListView extends JPanel {
         }
     }
 
+    private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat(DateFormatManager.getInstance().getDateFormat() + " HH:mm:ss");
     private static final LocaleManager localeManager = LocaleManager.getInstance();
     private static final String
             EXPENSE_AUDIT_DETAILS = localeManager.getTranslation("expense_audit_details"),

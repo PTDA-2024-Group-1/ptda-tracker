@@ -53,7 +53,9 @@ public class BudgetDetailView extends JPanel {
 
     private void setListeners() {
         backButton.addActionListener(e -> {
-            onBack.run();
+            if (onBack != null) {
+                onBack.run();
+            }
             mainFrame.showScreen(ScreenNames.NAVIGATION_SCREEN);
         });
         participantsButton.addActionListener(e -> {
@@ -107,9 +109,8 @@ public class BudgetDetailView extends JPanel {
         } else {
             int option = JOptionPane.showConfirmDialog(
                     mainFrame,
-                    "There is an ongoing import process." + "\n" +
-                            "Do you want to continue with the current import?",
-                    "Import Expenses",
+                    THERE_IS_ON_GOING_IMPORT,
+                    IMPORT_EXPENSES,
                     JOptionPane.YES_NO_OPTION
             );
             if (option == JOptionPane.NO_OPTION) {
@@ -184,7 +185,11 @@ public class BudgetDetailView extends JPanel {
 
         nameLabel = new JLabel(NAME + ": " + budget.getName());
         descriptionLabel = new JLabel(DESCRIPTION + ": " + budget.getDescription());
-        createdByLabel = new JLabel(CREATED_BY + ": " + budget.getCreatedBy().getName());
+        if (budget.getCreatedBy() != null) {
+            createdByLabel = new JLabel(CREATED_BY + ": " + budget.getCreatedBy().getName());
+        } else {
+            createdByLabel = new JLabel(CREATED_BY + ": " + localeManager.getTranslation("system"));
+        }
 
         Font font = new Font("Arial", Font.PLAIN, 14);
         nameLabel.setFont(font);
@@ -321,5 +326,6 @@ public class BudgetDetailView extends JPanel {
             BACK = localeManager.getTranslation("back"),
             STATISTICS = localeManager.getTranslation("statistics"),
             SPLIT_SIMULATION = localeManager.getTranslation("split_simulation"),
-            ADD_EXPENSE = localeManager.getTranslation("add_expense");
+            ADD_EXPENSE = localeManager.getTranslation("add_expense"),
+            THERE_IS_ON_GOING_IMPORT = localeManager.getTranslation("there_is_ongoing_import");
 }

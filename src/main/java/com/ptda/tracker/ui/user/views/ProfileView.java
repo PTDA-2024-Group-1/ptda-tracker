@@ -5,10 +5,7 @@ import com.ptda.tracker.ui.MainFrame;
 import com.ptda.tracker.ui.user.dialogs.SummaryDialog;
 import com.ptda.tracker.ui.user.forms.ChangePasswordForm;
 import com.ptda.tracker.ui.user.forms.ProfileForm;
-import com.ptda.tracker.util.LocaleManager;
-import com.ptda.tracker.util.Refreshable;
-import com.ptda.tracker.util.ScreenNames;
-import com.ptda.tracker.util.UserSession;
+import com.ptda.tracker.util.*;
 
 import javax.swing.*;
 import java.awt.*;
@@ -30,7 +27,7 @@ public class ProfileView extends JPanel implements Refreshable {
         if (user != null) {
             nameLabel.setText(user.getName());
             emailLabel.setText(user.getEmail());
-            createdDateLabel.setText(new SimpleDateFormat("dd/MM/yyyy").format(new Date(user.getCreatedAt())));
+            createdDateLabel.setText(DATE_FORMAT.format(new Date(user.getCreatedAt())));
             accountAgeLabel.setText(calculateAccountAge(user.getCreatedAt()));
         }
     }
@@ -90,7 +87,10 @@ public class ProfileView extends JPanel implements Refreshable {
 
 
     private void deleteProfile() {
-        JOptionPane.showMessageDialog(mainFrame, MESSAGE_DELETE_PROFILE, DELETE_PROFILE_TITLE, JOptionPane.WARNING_MESSAGE);
+        int option = JOptionPane.showConfirmDialog(mainFrame, MESSAGE_DELETE_PROFILE, DELETE_PROFILE_TITLE, JOptionPane.YES_NO_OPTION);
+        if (option != JOptionPane.YES_OPTION) {
+            return;
+        }
 
         User user = UserSession.getInstance().getUser();
         if (user != null) {
@@ -125,6 +125,7 @@ public class ProfileView extends JPanel implements Refreshable {
         refreshUserData();
     }
 
+    private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat(DateFormatManager.getInstance().getDateFormat());
     private static final LocaleManager localeManager = LocaleManager.getInstance();
     private static final String
             USER_INFORMATION = localeManager.getTranslation("user_information"),

@@ -2,10 +2,7 @@ package com.ptda.tracker.services.administration;
 
 import com.ptda.tracker.models.admin.Admin;
 import com.ptda.tracker.models.assistance.Assistant;
-import com.ptda.tracker.models.tracker.Budget;
-import com.ptda.tracker.models.tracker.BudgetAccess;
-import com.ptda.tracker.models.tracker.BudgetAccessLevel;
-import com.ptda.tracker.models.tracker.Expense;
+import com.ptda.tracker.models.tracker.*;
 import com.ptda.tracker.models.user.User;
 import com.ptda.tracker.repositories.BudgetRepository;
 import com.ptda.tracker.services.assistance.AssistantService;
@@ -41,11 +38,11 @@ public class DataGenerateServiceHibernateImpl implements DataGenerateService {
     public String generateData() {
         System.out.println("Data Generate Service Started...");
         System.out.println("Creating users...");
-        createUsers(20, 3,1);
+        createUsers(10, 2,1);
         System.out.println("Creating budgets with expenses...");
-        createBudgetsWithExpenses(10);
+        createBudgetsWithExpenses(5);
         System.out.println("Creating personal expenses...");
-        createPersonalExpenses(50, 500);
+        createPersonalExpenses(50, 200);
         System.out.println("Data Generate Service Finished...");
         return returnCredentials();
     }
@@ -113,7 +110,7 @@ public class DataGenerateServiceHibernateImpl implements DataGenerateService {
             // Create budget accesses for some users
             List<BudgetAccess> accesses = new ArrayList<>();
             for (User user : users) {
-                if (Math.random() < 0.4) {
+                if (Math.random() < (double) budgetsCount / users.size() * 1.25) {
                     BudgetAccess access = BudgetAccess.builder()
                             .user(user)
                             .budget(budget)
@@ -133,7 +130,7 @@ public class DataGenerateServiceHibernateImpl implements DataGenerateService {
 
             List<Expense> expenses = new ArrayList<>();
             for (BudgetAccess access : accesses) {
-                List<Expense> userExpenses = generateExpenses(access.getUser(), budget, 10, 100);
+                List<Expense> userExpenses = generateExpenses(access.getUser(), budget, 5, 50);
                 expenses.addAll(userExpenses);
             }
             expenseService.createAll(expenses);
@@ -150,6 +147,7 @@ public class DataGenerateServiceHibernateImpl implements DataGenerateService {
      */
     private List<Expense> generateExpenses(User user, Budget budget, int minExpenses, int maxExpenses) {
         List<Expense> expenses = new ArrayList<>();
+        ExpenseCategory[] categories = ExpenseCategory.values();
         for (int i = 0; i < minExpenses + Math.random() * (maxExpenses - minExpenses); i++) {
             String title = (budget == null ? "Personal Expense " : "Expense ") + i;
             Expense expense = Expense.builder()
@@ -157,6 +155,7 @@ public class DataGenerateServiceHibernateImpl implements DataGenerateService {
                     // 2 decimal cases
                     .amount((double) Math.round(Math.random() * 10000) / 100)
                     .description("Expense Description " + i)
+                    .category(categories[(int) (Math.random() * categories.length)]) // Set the category here
                     .date(new Date(System.currentTimeMillis() - (long) (Math.random() * 10000000000L)))
                     .budget(budget)
                     .createdBy(user)

@@ -8,6 +8,7 @@ import com.ptda.tracker.services.tracker.ExpenseService;
 import com.ptda.tracker.ui.MainFrame;
 import com.ptda.tracker.ui.user.dialogs.BudgetDetailDialog;
 import com.ptda.tracker.ui.user.dialogs.ExpenseDetailDialog;
+import com.ptda.tracker.util.DateFormatManager;
 import com.ptda.tracker.util.LocaleManager;
 import com.ptda.tracker.util.ScreenNames;
 import org.hibernate.envers.DefaultRevisionEntity;
@@ -16,6 +17,7 @@ import org.hibernate.envers.RevisionType;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.List;
 
@@ -111,7 +113,8 @@ public class BudgetAuditListView extends JPanel {
 
                 model.addRow(new Object[] {
                         revisionTypeName,
-                        revisionEntity.getRevisionDate(),
+                        // show in dateformat from dateformatmanager
+                        DATE_FORMAT.format(revisionEntity.getRevisionDate()),
                         entityType,
                         nameOrDescription
                 });
@@ -217,6 +220,7 @@ public class BudgetAuditListView extends JPanel {
     }
 
     private JTable revisionsTable;
+    private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat(DateFormatManager.getInstance().getDateFormat() + " HH:mm:ss");
     private static final LocaleManager localeManager = LocaleManager.getInstance();
     private static final String
             ERROR_OCCURRED = localeManager.getTranslation("error_occurred"),

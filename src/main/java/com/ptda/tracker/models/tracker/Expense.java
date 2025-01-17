@@ -30,7 +30,7 @@ public class Expense {
     private String description;
 
     @Enumerated(EnumType.STRING)
-    private ExpenseCategory category;
+    private ExpenseCategory category = ExpenseCategory.OTHER;
 
     @ManyToOne
     private Budget budget;
@@ -47,9 +47,6 @@ public class Expense {
 
     @PrePersist
     protected void onCreate() {
-        if (category == null) {
-            category = ExpenseCategory.OTHER;
-        }
         if (createdAt == 0) {
             createdAt = System.currentTimeMillis();
         }

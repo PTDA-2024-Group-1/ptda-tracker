@@ -8,10 +8,9 @@ import com.ptda.tracker.repositories.BudgetSplitRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -53,37 +52,36 @@ public class BudgetSplitServiceHibernateImpl implements BudgetSplitService {
         Map<Long, BudgetSplit> userSplits = new HashMap<>();
 
         for (Expense expense : expenses) {
-            double totalExpense = expense.getAmount();
-            double remainingExpense = totalExpense;
+            BigDecimal totalExpense = BigDecimal.valueOf(expense.getAmount());
+            BigDecimal remainingExpense = totalExpense;
 
-            // Track users with custom divisions
             List<Long> usersWithDivision = new ArrayList<>();
 
             // Handle custom divisions
             List<ExpenseDivision> divisions = expenseDivisionService.getAllByExpenseId(expense.getId());
             if (divisions != null) {
                 for (ExpenseDivision division : divisions) {
-                    double userShare = division.getAmount();
-                    double paidAmount = division.getPaidAmount();
+                    BigDecimal userShare = BigDecimal.valueOf(division.getAmount()).setScale(2, RoundingMode.HALF_UP);
+                    BigDecimal paidAmount = BigDecimal.valueOf(division.getPaidAmount()).setScale(2, RoundingMode.HALF_UP);
 
                     // Update or create a BudgetSplit for the user
                     userSplits.compute(division.getUser().getId(), (userId, split) -> {
                         if (split == null) {
                             split = BudgetSplit.builder()
-                                    .paidAmount(paidAmount)
-                                    .amount(userShare)
+                                    .paidAmount(paidAmount.doubleValue())
+                                    .amount(userShare.doubleValue())
                                     .user(division.getUser())
                                     .budget(expense.getBudget())
                                     .build();
                         } else {
-                            split.setPaidAmount(split.getPaidAmount() + paidAmount);
-                            split.setAmount(split.getAmount() + userShare);
+                            split.setPaidAmount(BigDecimal.valueOf(split.getPaidAmount()).add(paidAmount).doubleValue());
+                            split.setAmount(BigDecimal.valueOf(split.getAmount()).add(userShare).doubleValue());
                         }
                         return split;
                     });
 
                     usersWithDivision.add(division.getUser().getId());
-                    remainingExpense -= userShare;
+                    remainingExpense = remainingExpense.subtract(userShare);
                 }
             }
 
@@ -93,28 +91,48 @@ public class BudgetSplitServiceHibernateImpl implements BudgetSplitService {
                     .toList();
 
             if (!usersWithoutDivision.isEmpty()) {
-                double perUserAmount = remainingExpense / usersWithoutDivision.size();
+                BigDecimal perUserAmount = remainingExpense.divide(
+                        BigDecimal.valueOf(usersWithoutDivision.size()), 2, RoundingMode.HALF_UP);
 
                 for (BudgetAccess access : usersWithoutDivision) {
                     userSplits.compute(access.getUser().getId(), (userId, split) -> {
                         if (split == null) {
                             split = BudgetSplit.builder()
-                                    .amount(perUserAmount)
-                                    // if creator of the expense then set contribution to the total expense
-                                    .paidAmount(access.getUser().getId().equals(expense.getCreatedBy().getId()) ? totalExpense : 0)
+                                    .amount(perUserAmount.doubleValue())
+                                    .paidAmount(access.getUser().getId().equals(expense.getCreatedBy().getId())
+                                            ? totalExpense.doubleValue()
+                                            : 0)
                                     .user(access.getUser())
                                     .budget(expense.getBudget())
                                     .build();
                         } else {
-                            split.setAmount(split.getAmount() + perUserAmount);
+                            split.setAmount(BigDecimal.valueOf(split.getAmount()).add(perUserAmount).doubleValue());
                             if (access.getUser().getId().equals(expense.getCreatedBy().getId())) {
-                                split.setPaidAmount(split.getPaidAmount() + totalExpense);
+                                split.setPaidAmount(BigDecimal.valueOf(split.getPaidAmount())
+                                        .add(totalExpense).doubleValue());
                             }
                         }
                         return split;
                     });
                 }
             }
+        }
+
+        // Adjust rounding discrepancies
+        BigDecimal totalPaid = userSplits.values().stream()
+                .map(split -> BigDecimal.valueOf(split.getPaidAmount()))
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        BigDecimal totalAmount = userSplits.values().stream()
+                .map(split -> BigDecimal.valueOf(split.getAmount()))
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        BigDecimal discrepancy = totalPaid.subtract(totalAmount).setScale(2, RoundingMode.HALF_UP);
+
+        if (discrepancy.compareTo(BigDecimal.ZERO) != 0) {
+            userSplits.values().iterator().next().setAmount(
+                    BigDecimal.valueOf(userSplits.values().iterator().next().getAmount())
+                            .add(discrepancy).doubleValue());
         }
 
         splits.addAll(userSplits.values());

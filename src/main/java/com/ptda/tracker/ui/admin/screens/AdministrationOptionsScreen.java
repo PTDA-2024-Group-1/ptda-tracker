@@ -59,7 +59,7 @@ public class AdministrationOptionsScreen extends JPanel {
             String desktopPath = System.getProperty("user.home") + "/Desktop/";
             String filePath = desktopPath + fileName;
             Files.write(Paths.get(filePath), content.getBytes());
-            JOptionPane.showMessageDialog(this, GENERATE_DATA_SAVED + fileName);
+            JOptionPane.showMessageDialog(this, GENERATE_DATA_SAVED + " " + fileName);
         } catch (IOException e) {
             e.printStackTrace();
             JOptionPane.showMessageDialog(this, GENERATE_DATA_ERROR);

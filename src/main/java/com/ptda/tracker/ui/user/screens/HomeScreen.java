@@ -55,7 +55,7 @@ public class HomeScreen extends JPanel implements Refreshable {
                 if (e.getClickCount() == 2) {
                     Budget selectedBudget = budgetList.getSelectedValue();
                     if (selectedBudget != null) {
-                        mainFrame.registerAndShowScreen(ScreenNames.BUDGET_DETAIL_VIEW, new BudgetDetailView(mainFrame, selectedBudget, null));
+                        mainFrame.registerAndShowScreen(ScreenNames.BUDGET_DETAIL_VIEW, new BudgetDetailView(mainFrame, selectedBudget, HomeScreen.this::refresh));
                         budgetList.clearSelection();
                     }
                 }
