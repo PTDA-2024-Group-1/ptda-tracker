@@ -60,7 +60,7 @@ public class BudgetForm extends JPanel {
 
             // Go back to Budget Detail View
             onFormSubmit.run();
-            mainFrame.showScreen(ScreenNames.BUDGET_DETAIL_VIEW);
+            mainFrame.registerAndShowScreen(ScreenNames.BUDGET_DETAIL_VIEW, new BudgetDetailView(mainFrame, budget, null));
             JOptionPane.showMessageDialog(this,  BUDGET_SAVED_SUCCESSFULLY + "!", SUCCESS, JOptionPane.INFORMATION_MESSAGE);
         } catch (Exception ex) {
             // Log do erro para debug
