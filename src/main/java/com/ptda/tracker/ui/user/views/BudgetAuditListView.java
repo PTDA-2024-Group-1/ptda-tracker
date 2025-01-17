@@ -51,8 +51,11 @@ public class BudgetAuditListView extends JPanel {
             // Fetch revisions and expenses
             System.out.println("Fetching revisions and expenses");
             List<Object[]> budgetRevisions = budgetAuditService.getBudgetRevisionsWithDetails(budget.getId());
-            List<Object[]> expenseRevisions = expenseAuditService.getExpenseRevisionsWithDetails(budget.getId());
             List<Expense> allExpenses = expenseService.getAllByBudgetId(budget.getId());
+            List<Object[]> expenseRevisions = new ArrayList<>();
+            for (Expense expense : allExpenses) {
+                expenseRevisions.addAll(expenseAuditService.getExpenseRevisionsWithDetails(expense.getId()));
+            }
 
             List<Object[]> combinedRevisions = new ArrayList<>();
             combinedRevisions.addAll(budgetRevisions);

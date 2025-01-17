@@ -67,7 +67,7 @@ public class DataGenerateServiceHibernateImpl implements DataGenerateService {
             users.add(user);
             credentials.put(user.getEmail(), "password");
         }
-        users = userService.create(users);
+        users = userService.createAll(users);
 
         // Create assistants
         List<Assistant> assistants = new ArrayList<>();
@@ -104,13 +104,14 @@ public class DataGenerateServiceHibernateImpl implements DataGenerateService {
             Budget budget = Budget.builder()
                     .name("Budget " + i)
                     .description("Budget Description " + i)
+                    .createdBy(users.get((int) (Math.random() * users.size())))
                     .build();
             budget = budgetRepository.save(budget);
 
             // Create budget accesses for some users
             List<BudgetAccess> accesses = new ArrayList<>();
             for (User user : users) {
-                if (Math.random() < (double) budgetsCount / users.size() * 1.25) {
+                if (Math.random() < 0.4) {
                     BudgetAccess access = BudgetAccess.builder()
                             .user(user)
                             .budget(budget)
@@ -136,6 +137,7 @@ public class DataGenerateServiceHibernateImpl implements DataGenerateService {
             expenseService.createAll(expenses);
         }
     }
+
     /**
      * Generates a list of expenses for a given user and budget.
      *

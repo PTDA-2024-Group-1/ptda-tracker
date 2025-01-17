@@ -37,7 +37,7 @@ public class UserServiceHibernateImpl implements UserService {
     }
 
     @Override
-    public List<User> create(List<User> users) {
+    public List<User> createAll(List<User> users) {
         return userRepository.saveAll(users);
     }
 

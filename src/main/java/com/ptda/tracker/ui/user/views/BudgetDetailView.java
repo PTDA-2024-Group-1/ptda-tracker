@@ -100,6 +100,10 @@ public class BudgetDetailView extends JPanel {
             budgetAccess.setFavorite(favoriteCheckBox.isSelected());
             budgetAccessService.update(budgetAccess);
         });
+        auditButton.addActionListener(e -> mainFrame.registerAndShowScreen(
+                ScreenNames.BUDGET_AUDIT_DETAIL_VIEW,
+                new BudgetAuditListView(mainFrame, budget)
+        ));
     }
 
     public static void openImport(MainFrame mainFrame, Budget budget, Runnable onImportSuccess) {
@@ -229,11 +233,7 @@ public class BudgetDetailView extends JPanel {
 
         // Add the audit button
         auditButton = new JButton(ACTIVITY);
-        auditButton.addActionListener(e -> mainFrame.registerAndShowScreen(
-                ScreenNames.BUDGET_AUDIT_DETAIL_VIEW,
-                new BudgetAuditListView(mainFrame, budget)
-        ));
-        topButtonsPanel.add(auditButton);
+        //topButtonsPanel.add(auditButton);
 
         // Adiciona os detalhes e os botões ao topo
         JPanel topPanel = new JPanel();
