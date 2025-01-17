@@ -4,10 +4,9 @@ import com.ptda.tracker.models.user.User;
 import com.ptda.tracker.util.UserSession;
 import jakarta.persistence.*;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
+
+import java.util.Objects;
 
 @Entity
 @Data
@@ -36,30 +35,13 @@ public class ExpenseDivision {
     @JoinColumn(nullable = false)
     private User user;
 
-    @ManyToOne
-    private User createdBy;
-
-    private long createdAt;
-
     @PrePersist
     public void prePersist() {
-        if (createdBy == null) {
-            createdBy = UserSession.getInstance().getUser();
-        }
-        if (createdAt == 0) {
-            createdAt = System.currentTimeMillis();
-        }
         updateOwners();
     }
 
     @PreUpdate
     public void preUpdate() {
-        if (createdBy == null) {
-            createdBy = UserSession.getInstance().getUser();
-        }
-        if (createdAt == 0) {
-            createdAt = System.currentTimeMillis();
-        }
         updateOwners();
     }
 
@@ -71,8 +53,20 @@ public class ExpenseDivision {
     private void updateOwners() {
         expense.setUpdatedAt(System.currentTimeMillis());
         expense.setUpdatedBy(UserSession.getInstance().getUser());
-//        expense.getBudget().setUpdatedAt(System.currentTimeMillis());
-//        expense.getBudget().setUpdatedBy(UserSession.getInstance().getUser());
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ExpenseDivision that = (ExpenseDivision) o;
+        return Objects.equals(id, that.id) &&
+                Objects.equals(expense.getId(), that.expense.getId()) &&
+                Objects.equals(user.getId(), that.user.getId());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, expense.getId(), user.getId());
+    }
 }

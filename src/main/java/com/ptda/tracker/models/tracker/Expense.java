@@ -56,24 +56,22 @@ public class Expense {
         if (createdBy == null) {
             createdBy = UserSession.getInstance().getUser();
         }
-        if (budget != null) {
-            budget.setUpdatedAt(System.currentTimeMillis());
-            budget.setUpdatedBy(UserSession.getInstance().getUser());
-        }
+        updateOwner();
     }
 
     @PreUpdate
     protected void onUpdate() {
         this.updatedAt = System.currentTimeMillis();
         this.updatedBy = UserSession.getInstance().getUser();
-        if (budget != null) {
-            budget.setUpdatedAt(System.currentTimeMillis());
-            budget.setUpdatedBy(UserSession.getInstance().getUser());
-        }
+        updateOwner();
     }
 
     @PreRemove
     protected void onDelete() {
+        updateOwner();
+    }
+
+    private void updateOwner() {
         if (budget != null) {
             budget.setUpdatedAt(System.currentTimeMillis());
             budget.setUpdatedBy(UserSession.getInstance().getUser());

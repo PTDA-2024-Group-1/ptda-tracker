@@ -104,25 +104,11 @@ public class ChooseLanguageDialog extends JDialog {
         );
         if (result == JOptionPane.YES_OPTION) {
             System.out.println("Application is restarting...");
-
-            // Get the java binary path
             String javaBin = System.getProperty("java.home") + "/bin/java";
-
-            // Get the application class path
             String classPath = System.getProperty("java.class.path");
-
-            // Get the main class name
             String className = TrackerApplication.class.getName();
-
-            // Build the command to restart
-            ProcessBuilder processBuilder = new ProcessBuilder(
-                    javaBin, "-cp", classPath, className
-            );
-
-            // Start the new process
+            ProcessBuilder processBuilder = new ProcessBuilder(javaBin, "-cp", classPath, className);
             processBuilder.start();
-
-            // Exit the current process
             System.exit(0);
         } else {
             dispose();

@@ -18,6 +18,7 @@ import com.ptda.tracker.util.UserSession;
 import javax.swing.*;
 import java.awt.*;
 import java.util.List;
+import java.util.Optional;
 
 import static com.ptda.tracker.ui.user.dialogs.ExpenseDivisionsDialog.createDivisionsJTable;
 
@@ -40,6 +41,7 @@ public class ExpenseDetailView extends JPanel {
         this.onBack = onBack;
 
         initComponents();
+        distributeDivisions();
         setValues(expense);
         setListeners();
     }
@@ -64,7 +66,7 @@ public class ExpenseDetailView extends JPanel {
         }
         if (distributeDivisionExpenseButton != null) {
             distributeDivisionExpenseButton.addActionListener(e -> {
-                DivisionsForm divisionsForm = new DivisionsForm(mainFrame, expense, mainFrame.getCurrentScreen(), onBack);
+                DivisionsForm divisionsForm = new DivisionsForm(mainFrame, expense, mainFrame.getCurrentScreen(), this::onDistributeSuccess);
                 mainFrame.registerAndShowScreen(ScreenNames.DIVISIONS_FORM, divisionsForm);
             });
         }
@@ -97,12 +99,102 @@ public class ExpenseDetailView extends JPanel {
         }
     }
 
+    private void onDistributeSuccess() {
+        expenseDivisions.clear();
+        expenseDivisions.addAll(mainFrame.getContext().getBean(ExpenseDivisionService.class).getAllByExpenseId(expense.getId()));
+        divisionsTable.setModel(createSubdivisionsTable(expenseDivisions).getModel());
+    }
+
     private void setValues(Expense expense) {
         nameValue.setText(expense.getTitle());
         amountValue.setText(String.valueOf(expense.getAmount()));
         categoryValue.setText(String.valueOf(expense.getCategory()));
         dateValue.setText(String.valueOf(expense.getDate()));
         createdByValue.setText(expense.getCreatedBy().getName());
+    }
+
+    private void distributeDivisions() {
+        // Get participants
+        List<User> participants = mainFrame.getContext().getBean(BudgetAccessService.class)
+                .getAllByBudgetId(expense.getBudget().getId())
+                .stream()
+                .map(BudgetAccess::getUser)
+                .toList();
+
+        // Total amounts
+        double totalAssignedAmount = expenseDivisions.stream()
+                .mapToDouble(ExpenseDivision::getAmount)
+                .sum();
+        double remainingAmount = expense.getAmount() - totalAssignedAmount;
+
+        // Identify creator of the expense
+        User creator = expense.getCreatedBy();
+
+        // Total paid amounts
+        double totalPaidAmount = expenseDivisions.stream()
+                .mapToDouble(ExpenseDivision::getPaidAmount)
+                .sum();
+        double remainingPaid = expense.getAmount() - totalPaidAmount;
+
+        // Generate missing divisions
+        for (User participant : participants) {
+            boolean divisionExists = expenseDivisions.stream()
+                    .anyMatch(division -> division.getUser().getId().equals(participant.getId()));
+
+            if (!divisionExists) {
+                ExpenseDivision newDivision = new ExpenseDivision();
+                newDivision.setUser(participant);
+                newDivision.setExpense(expense);
+                newDivision.setEqualDivision(true); // Default to equal division
+                newDivision.setPaidAmount(0); // Default paid amount
+                newDivision.setAmount(0); // Default amount
+                expenseDivisions.add(newDivision);
+            }
+        }
+
+        // Assign remaining paid amount to creator if not already specified
+        Optional<ExpenseDivision> creatorDivision = expenseDivisions.stream()
+                .filter(division -> division.getUser().getId().equals(creator.getId()))
+                .findFirst();
+
+        if (creatorDivision.isPresent() && creatorDivision.get().getPaidAmount() == 0) {
+            creatorDivision.get().setPaidAmount(remainingPaid);
+            remainingPaid = 0; // Reset remaining paid as it's fully allocated
+        }
+
+        // Distribute remaining amounts among equal divisions
+        long equalDivisionCount = expenseDivisions.stream()
+                .filter(ExpenseDivision::isEqualDivision)
+                .count();
+
+        if (equalDivisionCount > 0) {
+            if (remainingAmount > 0) {
+                double perDivisionAmount = remainingAmount / equalDivisionCount;
+                for (ExpenseDivision division : expenseDivisions) {
+                    if (division.isEqualDivision()) {
+                        division.setAmount(division.getAmount() + perDivisionAmount);
+                    }
+                }
+            }
+            if (remainingPaid > 0) {
+                double perDivisionPaid = remainingPaid / equalDivisionCount;
+                for (ExpenseDivision division : expenseDivisions) {
+                    if (division.isEqualDivision()) {
+                        division.setPaidAmount(division.getPaidAmount() + perDivisionPaid);
+                    }
+                }
+            }
+        }
+
+        // Display the subdivisions panel
+        if (!expenseDivisions.isEmpty()) {
+            JPanel subdivisionsPanel = new JPanel();
+            subdivisionsPanel.setLayout(new BoxLayout(subdivisionsPanel, BoxLayout.Y_AXIS));
+            subdivisionsPanel.setBorder(BorderFactory.createTitledBorder(DIVISIONS));
+            divisionsTable = createSubdivisionsTable(expenseDivisions);
+            subdivisionsPanel.add(new JScrollPane(divisionsTable));
+            add(subdivisionsPanel, BorderLayout.EAST);
+        }
     }
 
     private void initComponents() {
@@ -168,17 +260,6 @@ public class ExpenseDetailView extends JPanel {
         wrapperPanel.add(detailsPanel, BorderLayout.NORTH);
         add(wrapperPanel, BorderLayout.WEST);
         // End Expense Details Panel
-
-        // Subdivisions Panel (Only show if expenseDivisions exist)
-        if (!expenseDivisions.isEmpty()) {
-            JPanel subdivisionsPanel = new JPanel();
-            subdivisionsPanel.setLayout(new BoxLayout(subdivisionsPanel, BoxLayout.Y_AXIS));
-            subdivisionsPanel.setBorder(BorderFactory.createTitledBorder(DIVISIONS));
-            divisionsTable = createSubdivisionsTable(expenseDivisions);
-            subdivisionsPanel.add(new JScrollPane(divisionsTable));
-            add(subdivisionsPanel, BorderLayout.EAST);
-        }
-        // End Subdivisions Panel
 
         // Buttons Panel
         JPanel buttonsPanel = new JPanel(new BorderLayout());
