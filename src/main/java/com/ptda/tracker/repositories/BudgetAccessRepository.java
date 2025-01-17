@@ -27,4 +27,6 @@ public interface BudgetAccessRepository extends JpaRepository<BudgetAccess, Long
 
     int deleteByBudgetIdAndUserId(Long id, Long userId);
 
+    Optional<BudgetAccess> getByBudgetIdAndUserId(Long budgetId, Long userId);
+
 }

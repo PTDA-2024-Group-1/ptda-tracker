@@ -32,6 +32,7 @@ public class Budget {
 
     private long updatedAt;
 
+    @Transient
     private boolean isFavorite;
     
     @PrePersist

@@ -56,8 +56,8 @@ public class BudgetAccessServiceHibernateImpl implements BudgetAccessService {
     }
 
     @Override
-    public boolean getAccessByBudgetIdAndUserId(Long budgetId, Long userId) {
-        return budgetAccessRepository.existsByBudgetIdAndUserId(budgetId, userId);
+    public Optional<BudgetAccess> getAccessByBudgetIdAndUserId(Long budgetId, Long userId) {
+        return budgetAccessRepository.getByBudgetIdAndUserId(budgetId, userId);
     }
 
     @Override

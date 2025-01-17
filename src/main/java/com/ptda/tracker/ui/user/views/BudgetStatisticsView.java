@@ -89,7 +89,7 @@ public class BudgetStatisticsView extends JPanel {
         // Back button
         JButton backButton = createButton(BACK_BUTTON,
                 e -> mainFrame.registerAndShowScreen(ScreenNames.BUDGET_DETAIL_VIEW,
-                        new BudgetDetailView(mainFrame, budget)));
+                        new BudgetDetailView(mainFrame, budget, null)));
         bottomPanel.add(createButtonPanel(backButton, FlowLayout.LEFT), BorderLayout.WEST);
 
         // Generate PDF button

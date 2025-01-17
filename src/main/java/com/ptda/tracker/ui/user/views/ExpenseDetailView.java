@@ -41,7 +41,9 @@ public class ExpenseDetailView extends JPanel {
         this.onBack = onBack;
 
         initComponents();
-        distributeDivisions();
+        if (expense.getBudget() != null) {
+            distributeDivisions();
+        }
         setValues(expense);
         setListeners();
     }
@@ -50,7 +52,7 @@ public class ExpenseDetailView extends JPanel {
         backButton.addActionListener(e -> {
             if (onBack != null) onBack.run();
             if (expense != null && expense.getBudget() != null) {
-                mainFrame.registerAndShowScreen(ScreenNames.BUDGET_DETAIL_VIEW, new BudgetDetailView(mainFrame, expense.getBudget()));
+                mainFrame.registerAndShowScreen(ScreenNames.BUDGET_DETAIL_VIEW, new BudgetDetailView(mainFrame, expense.getBudget(), null));
             } else {
                 mainFrame.showScreen(ScreenNames.NAVIGATION_SCREEN);
             }

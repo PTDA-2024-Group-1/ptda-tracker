@@ -36,7 +36,7 @@ public class BudgetsScreen extends JPanel implements Refreshable {
                 Budget selectedBudget = budgetList.getSelectedValue();
                 if (selectedBudget != null) {
                     mainFrame.registerAndShowScreen(ScreenNames.BUDGET_DETAIL_VIEW,
-                            new BudgetDetailView(mainFrame, selectedBudget));
+                            new BudgetDetailView(mainFrame, selectedBudget, this::refreshBudgetList));
                     budgetList.clearSelection(); // Clear selection to allow new interaction
                 }
             }

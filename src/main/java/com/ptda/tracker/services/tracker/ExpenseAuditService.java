@@ -8,16 +8,12 @@ import java.util.List;
 
 public interface ExpenseAuditService {
 
-    @Transactional
     List<Object[]> getExpenseRevisionsWithDetails(Long expenseId);
 
-    @Transactional
     List<Number> getExpenseRevisions(Long expenseId);
 
-    @Transactional
     Expense getExpenseAtRevision(Long expenseId, Number revision);
 
-    @Transactional
     DefaultRevisionEntity getRevisionEntity(long revisionNumber);
 
 }

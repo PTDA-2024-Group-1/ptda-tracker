@@ -1,6 +1,7 @@
 package com.ptda.tracker.ui.user.views;
 
 import com.ptda.tracker.models.tracker.Budget;
+import com.ptda.tracker.models.tracker.BudgetAccess;
 import com.ptda.tracker.models.tracker.BudgetAccessLevel;
 import com.ptda.tracker.models.tracker.Expense;
 import com.ptda.tracker.models.user.User;
@@ -21,6 +22,7 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class BudgetDetailView extends JPanel {
     private final MainFrame mainFrame;
@@ -28,12 +30,21 @@ public class BudgetDetailView extends JPanel {
     private final User user = UserSession.getInstance().getUser();
     private final Budget budget;
     private final List<Expense> expenses;
+    private final BudgetAccess budgetAccess;
+    private final Runnable onBack;
 
-    public BudgetDetailView(MainFrame mainFrame, Budget budget) {
+    public BudgetDetailView(MainFrame mainFrame, Budget budget, Runnable onBack) {
         this.mainFrame = mainFrame;
         budgetAccessService = mainFrame.getContext().getBean(BudgetAccessService.class);
+        Optional<BudgetAccess> optionalBudgetAccess = budgetAccessService.getAccessByBudgetIdAndUserId(budget.getId(), user.getId());
+        if (optionalBudgetAccess.isPresent()) {
+            budgetAccess = optionalBudgetAccess.get();
+        } else {
+            throw new RuntimeException("Budget access not found for user " + user.getId());
+        }
         this.budget = budget;
         expenses = mainFrame.getContext().getBean(ExpenseService.class).getAllByBudgetId(budget.getId());
+        this.onBack = onBack;
 
         initComponents();
         setListeners();
@@ -41,7 +52,10 @@ public class BudgetDetailView extends JPanel {
     }
 
     private void setListeners() {
-        backButton.addActionListener(e -> mainFrame.showScreen(ScreenNames.NAVIGATION_SCREEN));
+        backButton.addActionListener(e -> {
+            onBack.run();
+            mainFrame.showScreen(ScreenNames.NAVIGATION_SCREEN);
+        });
         participantsButton.addActionListener(e -> {
             ParticipantsDialog participantsDialog = new ParticipantsDialog(mainFrame, budget);
             participantsDialog.setVisible(true);
@@ -79,6 +93,10 @@ public class BudgetDetailView extends JPanel {
                     expensesTable.clearSelection();
                 }
             }
+        });
+        favoriteCheckBox.addActionListener(e -> {
+            budgetAccess.setFavorite(favoriteCheckBox.isSelected());
+            budgetAccessService.update(budgetAccess);
         });
     }
 
@@ -180,12 +198,8 @@ public class BudgetDetailView extends JPanel {
         detailsPanel.add(createdByLabel);
 
         // Checkbox for favorites
-        JCheckBox favoriteCheckBox = new JCheckBox(FAVORITE);
-        favoriteCheckBox.setSelected(budget.isFavorite());
-        favoriteCheckBox.addActionListener(e -> {
-            budget.setFavorite(favoriteCheckBox.isSelected());
-            mainFrame.getContext().getBean(BudgetService.class).update(budget);
-        });
+        favoriteCheckBox = new JCheckBox(FAVORITE);
+        favoriteCheckBox.setSelected(budgetAccess.isFavorite());
         detailsPanel.add(Box.createRigidArea(new Dimension(0, 5)));
         detailsPanel.add(favoriteCheckBox);
 
@@ -283,6 +297,7 @@ public class BudgetDetailView extends JPanel {
     private static final int PAGE_SIZE = 20;
     private JPanel paginationPanel;
     private JTable expensesTable;
+    private JCheckBox favoriteCheckBox;
     JLabel nameLabel, descriptionLabel, createdByLabel;
     private JButton auditButton, backButton, participantsButton, editButton, shareButton, addExpenseButton, importButton;
     private static final LocaleManager localeManager = LocaleManager.getInstance();

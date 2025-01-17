@@ -1,7 +1,6 @@
 package com.ptda.tracker.services.tracker;
 
 import com.ptda.tracker.models.tracker.Budget;
-import com.ptda.tracker.models.tracker.BudgetAccess;
 import com.ptda.tracker.models.tracker.BudgetAccessLevel;
 import com.ptda.tracker.repositories.BudgetRepository;
 import jakarta.transaction.Transactional;
@@ -22,20 +21,33 @@ public class BudgetServiceHibernateImpl implements BudgetService {
 
     @Override
     public Optional<Budget> getById(Long id) {
-        return budgetRepository.findById(id);
+        Optional<Budget> budgetOptional = budgetRepository.findById(id);
+        budgetOptional.ifPresent(budget -> {
+            budgetAccessService.getAccessByBudgetIdAndUserId(budget.getId(), budget.getCreatedBy().getId())
+                    .ifPresent(access -> budget.setFavorite(access.isFavorite()));
+        });
+        return budgetOptional;
     }
 
     @Override
     public List<Budget> getAllByUserId(Long userId) {
         return budgetAccessService.getAllByUserId(userId).stream()
-                .map(BudgetAccess::getBudget)
+                .map(access -> {
+                    Budget budget = access.getBudget();
+                    budget.setFavorite(access.isFavorite());
+                    return budget;
+                })
                 .collect(Collectors.toList());
     }
 
     @Override
     public List<Budget> getRecentByUserId(Long userId, int limit) {
         return budgetAccessService.getRecentByUserId(userId, limit).stream()
-                .map(BudgetAccess::getBudget)
+                .map(access -> {
+                    Budget budget = access.getBudget();
+                    budget.setFavorite(access.isFavorite());
+                    return budget;
+                })
                 .collect(Collectors.toList());
     }
 
@@ -53,7 +65,6 @@ public class BudgetServiceHibernateImpl implements BudgetService {
     public int getCountByUserId(Long userId) {
         return budgetAccessService.getAllByUserId(userId).size();
     }
-
 
     @Override
     public double getTotalBudgetAmount(Long budgetId) {
@@ -99,5 +110,4 @@ public class BudgetServiceHibernateImpl implements BudgetService {
     public Budget[] findAll() {
         return budgetRepository.findAll().toArray(new Budget[0]);
     }
-
 }

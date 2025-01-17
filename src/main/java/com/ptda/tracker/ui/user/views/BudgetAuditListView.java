@@ -12,8 +12,6 @@ import com.ptda.tracker.util.LocaleManager;
 import com.ptda.tracker.util.ScreenNames;
 import org.hibernate.envers.DefaultRevisionEntity;
 import org.hibernate.envers.RevisionType;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
@@ -42,12 +40,14 @@ public class BudgetAuditListView extends JPanel {
     }
 
     private void populateRevisionsTable() {
+        System.out.println("Started populateRevisionsTable");
         DefaultTableModel model = (DefaultTableModel) revisionsTable.getModel();
         model.setRowCount(0);
         revisionNumbers.clear();
 
         try {
             // Fetch revisions and expenses
+            System.out.println("Fetching revisions and expenses");
             List<Object[]> budgetRevisions = budgetAuditService.getBudgetRevisionsWithDetails(budget.getId());
             List<Object[]> expenseRevisions = expenseAuditService.getExpenseRevisionsWithDetails(budget.getId());
             List<Expense> allExpenses = expenseService.getAllByBudgetId(budget.getId());
@@ -57,6 +57,7 @@ public class BudgetAuditListView extends JPanel {
             combinedRevisions.addAll(expenseRevisions);
 
             // Add expenses as "CREATE" entries if they are not in revisions
+            System.out.println("Adding expenses as CREATE entries");
             for (Expense expense : allExpenses) {
                 boolean isAdded = expenseRevisions.stream().anyMatch(revision ->
                         ((Expense) revision[0]).getId().equals(expense.getId())
@@ -81,10 +82,11 @@ public class BudgetAuditListView extends JPanel {
                 return date2.compareTo(date1);
             });
 
+            System.out.println("Reached populateTableRows");
             // Populate rows
             populateTableRows(combinedRevisions, model);
         } catch (Exception ex) {
-            showErrorDialog(ERROR_OCCURRED + ex.getMessage());
+            showErrorDialog(ERROR_OCCURRED + ": " + ex.getMessage());
         }
     }
 
@@ -152,7 +154,7 @@ public class BudgetAuditListView extends JPanel {
                 }
             }
         } catch (Exception ex) {
-            showErrorDialog(ERROR_FETCHING_REVISION_DETAILS + ex.getMessage());
+            showErrorDialog(ERROR_FETCHING_REVISION_DETAILS + ": " + ex.getMessage());
         }
     }
 

@@ -50,7 +50,7 @@ public class ShareBudgetForm extends JPanel {
         try {
             budgetAccessService.create(budget.getId(), email, accessLevel);
             JOptionPane.showMessageDialog(this, PARTICIPANT_ADDED_SUCCESSFULLY, SUCCESS, JOptionPane.INFORMATION_MESSAGE);
-            mainFrame.registerAndShowScreen(ScreenNames.BUDGET_DETAIL_VIEW, new BudgetDetailView(mainFrame, budget));
+            mainFrame.showScreen(ScreenNames.BUDGET_DETAIL_VIEW);
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this, FAILED_TO_ADD_PARTICIPANT + ":" + e.getMessage(), ERROR, JOptionPane.ERROR_MESSAGE);
         }

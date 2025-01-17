@@ -23,6 +23,8 @@ public class BudgetAccess {
 
     private BudgetAccessLevel accessLevel;
 
+    private boolean isFavorite;
+
     @ManyToOne
     private Budget budget;
 
@@ -36,20 +38,20 @@ public class BudgetAccess {
 
     @PrePersist
     protected void onCreate() {
-        createdAt = System.currentTimeMillis();
-        createdBy = UserSession.getInstance().getUser();
-        budget.setUpdatedAt(System.currentTimeMillis());
-        budget.setUpdatedBy(UserSession.getInstance().getUser());
+        updateOwner();
     }
 
     @PreUpdate
     protected void onUpdate() {
-        budget.setUpdatedAt(System.currentTimeMillis());
-        budget.setUpdatedBy(UserSession.getInstance().getUser());
+        updateOwner();
     }
 
     @PreRemove
     protected void onDelete() {
+        updateOwner();
+    }
+
+    private void updateOwner() {
         budget.setUpdatedAt(System.currentTimeMillis());
         budget.setUpdatedBy(UserSession.getInstance().getUser());
     }

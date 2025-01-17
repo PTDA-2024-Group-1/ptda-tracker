@@ -5,6 +5,7 @@ import com.ptda.tracker.models.tracker.BudgetAccessLevel;
 import com.ptda.tracker.models.user.User;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface BudgetAccessService {
 
@@ -20,7 +21,7 @@ public interface BudgetAccessService {
 
     boolean hasAccess(Long budgetId, String userEmail, BudgetAccessLevel accessLevel);
 
-    boolean getAccessByBudgetIdAndUserId(Long budgetId, Long userId);
+    Optional<BudgetAccess> getAccessByBudgetIdAndUserId(Long budgetId, Long userId);
 
     BudgetAccess create(Long budgetId, Long userId, BudgetAccessLevel accessLevel);
 
