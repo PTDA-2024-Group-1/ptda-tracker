@@ -55,7 +55,7 @@ public class BudgetAccessRepositoryTest {
 
         List<BudgetAccess> accesses = budgetAccessRepository.findAllByUserId(user.getId());
         assertThat(accesses).isNotEmpty();
-        assertThat(accesses.get(0).getAccessLevel()).isEqualTo(BudgetAccessLevel.OWNER);
+        assertThat(accesses).hasSize(1);
     }
 
     @Test

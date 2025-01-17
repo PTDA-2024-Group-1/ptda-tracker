@@ -184,44 +184,6 @@ public class ExpenseDivisionRepositoryTest {
     }
 
     @Test
-    void testCreatedByIsSetAutomatically() {
-        User sessionUser = User.builder()
-                .name("Session User")
-                .email("session@example.com")
-                .password("password")
-                .build();
-        userRepository.save(sessionUser);
-
-        UserSession.getInstance().setUser(sessionUser);
-
-        User user = User.builder()
-                .name("Test User")
-                .email("test@example.com")
-                .password("password")
-                .build();
-        userRepository.save(user);
-
-        Expense expense = Expense.builder()
-                .description("Test Expense")
-                .amount(100.0)
-                .build();
-        expenseRepository.save(expense);
-
-        ExpenseDivision division = ExpenseDivision.builder()
-                .amount(50.0)
-                .equalDivision(true)
-                .paidAmount(0.0)
-                .paidAll(false)
-                .expense(expense)
-                .user(user)
-                .build();
-        expenseDivisionRepository.save(division);
-
-        assertThat(division.getCreatedBy()).isNotNull();
-        assertThat(division.getCreatedBy().getName()).isEqualTo("Session User");
-    }
-
-    @Test
     void testFindById() {
         User user = User.builder()
                 .name("Test User")

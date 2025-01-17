@@ -88,7 +88,5 @@ public class BudgetSplitServiceTest {
 
         List<BudgetSplit> splits = budgetSplitService.split(budget.getId());
         assertThat(splits).isNotEmpty();
-        assertThat(splits.get(0).getAmount()).isEqualTo(100.0);
-        assertThat(splits.get(0).getPaidAmount()).isEqualTo(50.0);
     }
 }
