@@ -48,12 +48,12 @@ public class ChangePasswordForm extends JPanel {
 
         // Call service to change password (e.g., userService.changePassword)
         UserService userService = mainFrame.getContext().getBean(UserService.class);
-        User updatedUser = userService.changePassword(UserSession.getInstance().getUser().getEmail(), currentPassword, newPassword);
-        UserSession.getInstance().setUser(updatedUser);
-        JOptionPane.showMessageDialog(this, PASSWORD_CHANGED + "!", SUCCESS, JOptionPane.INFORMATION_MESSAGE);
+        userService.changePassword(UserSession.getInstance().getUser().getEmail(), currentPassword, newPassword);
+        UserSession.getInstance().setUser(null);
 
         // Navigate back
-        mainFrame.showScreen(ScreenNames.NAVIGATION_SCREEN);
+        mainFrame.registerAndShowScreen(ScreenNames.NAVIGATION_SCREEN, new LoginForm(mainFrame));
+        JOptionPane.showMessageDialog(this, PASSWORD_CHANGED + "!", SUCCESS, JOptionPane.INFORMATION_MESSAGE);
     }
 
     private void initComponents() {

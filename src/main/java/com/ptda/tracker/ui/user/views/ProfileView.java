@@ -1,9 +1,11 @@
 package com.ptda.tracker.ui.user.views;
 
 import com.ptda.tracker.models.user.User;
+import com.ptda.tracker.services.user.UserService;
 import com.ptda.tracker.ui.MainFrame;
 import com.ptda.tracker.ui.user.dialogs.SummaryDialog;
 import com.ptda.tracker.ui.user.forms.ChangePasswordForm;
+import com.ptda.tracker.ui.user.forms.LoginForm;
 import com.ptda.tracker.ui.user.forms.ProfileForm;
 import com.ptda.tracker.util.*;
 
@@ -95,8 +97,13 @@ public class ProfileView extends JPanel implements Refreshable {
         User user = UserSession.getInstance().getUser();
         if (user != null) {
             user.setName("Deleted User");
-            user.setEmail("deleted");
+            // + random value
+            user.setEmail("deleted" + System.currentTimeMillis());
             user.setActive(false);
+            UserService userService = mainFrame.getContext().getBean(UserService.class);
+            userService.update(user);
+            UserSession.getInstance().setUser(null);
+            mainFrame.registerAndShowScreen(ScreenNames.LOGIN_FORM, new LoginForm(mainFrame));
             JOptionPane.showMessageDialog(mainFrame, DELETE_PROFILE_SUCCESS);
         }
     }

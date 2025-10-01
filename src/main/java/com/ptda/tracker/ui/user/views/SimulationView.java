@@ -50,7 +50,7 @@ public class SimulationView extends JPanel {
 
     private void populateRankingsTable() {
         List<BudgetSplit> budgetSplits = budgetSplitService.getAllByBudgetId(budget.getId());
-        if (budgetSplits.isEmpty() || budgetSplits.get(0).getCreatedAt() <= budget.getUpdatedAt()) {
+        if (budgetSplits.isEmpty() || budgetSplits.getFirst().getCreatedAt() <= budget.getUpdatedAt()) {
             budgetSplits = budgetSplitService.split(budget.getId());
         }
         rankingTableModel.setRowCount(0); // Clear existing rows
@@ -59,7 +59,7 @@ public class SimulationView extends JPanel {
             User user = budgetSplit.getUser();
             BigDecimal paid = BigDecimal.valueOf(budgetSplit.getPaidAmount()).setScale(2, RoundingMode.HALF_UP);
             BigDecimal toPay = BigDecimal.valueOf(budgetSplit.getAmount()).setScale(2, RoundingMode.HALF_UP);
-            BigDecimal balance = toPay.subtract(paid).setScale(2, RoundingMode.HALF_UP);
+            BigDecimal balance = toPay.subtract(paid).setScale(2, RoundingMode.HALF_UP).negate(); // Invert balance
 
             rankingTableModel.addRow(new Object[]{
                     user.getName(),
@@ -126,7 +126,7 @@ public class SimulationView extends JPanel {
         rankingsTitle.setFont(new Font("Arial", Font.BOLD, 16));
         panel.add(rankingsTitle, BorderLayout.NORTH);
 
-        rankingTableModel = new DefaultTableModel(new String[]{USER, PAID, TO_PAY, BALANCE}, 0);
+        rankingTableModel = new DefaultTableModel(new String[]{USER, TO_PAY, PAID, BALANCE}, 0);
         rankingTable = new JTable(rankingTableModel);
         rankingTable.setFillsViewportHeight(true);
         rankingTable.setDefaultEditor(Object.class, null);
