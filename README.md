@@ -72,13 +72,14 @@ During development, we gained experience in requirements engineering, database m
 ## Architecture
 
 ### Use Case Diagrams
+
 <div style="display: flex; gap: 10px;">
-  <img src="docs/diagrams/usecase1.png" alt="Use Case Diagram 1" width="50%">
-  <img src="docs/diagrams/usecase3.png" alt="Use Case Diagram 3" width="50%">
+  <img src="docs/diagrams/usecase1.png" alt="Use Case Diagram 1" width="49%">
+  <img src="docs/diagrams/usecase3.png" alt="Use Case Diagram 3" width="49%">
 </div>
 <div style="display: flex; gap: 10px;">
-  <img src="docs/diagrams/usecase2.png" alt="Use Case Diagram 2" width="50%">
-  <img src="docs/diagrams/usecase4.png" alt="Use Case Diagram 4" width="50%">
+  <img src="docs/diagrams/usecase2.png" alt="Use Case Diagram 2" width="49%">
+  <img src="docs/diagrams/usecase4.png" alt="Use Case Diagram 4" width="49%">
 </div>
 
 ### Class Diagram
@@ -86,9 +87,11 @@ During development, we gained experience in requirements engineering, database m
 The class diagrams illustrate the evolution of the system's design from the initial draft to the final implementation:
 
 - **Initial Class Diagram**: The initial design focused on establishing the core structure and relationships between components.
+
 ![Class Diagram](docs/diagrams/class-initial.png)
 
 - **Final Class Diagram**: The final design represents a more detailed and optimized architecture, incorporating additional features and improvements.
+
 ![Class Diagram](docs/diagrams/class-final.png)
 
 ### Database Schema
@@ -96,9 +99,11 @@ The class diagrams illustrate the evolution of the system's design from the init
 The database schema underwent significant improvements during the development process. Below are the visual representations of the initial and final versions:
 
 - **Initial Schema**: The initial design was a preliminary draft, focusing on basic functionality and structure.
+
 ![Database Schema](docs/diagrams/database-initial.png)
 
 - **Final Schema**: The final design reflects a more refined and optimized structure, incorporating feedback and addressing limitations from the initial version.
+
 ![Database Schema](docs/diagrams/database-final.png)
 
 ## Credits
